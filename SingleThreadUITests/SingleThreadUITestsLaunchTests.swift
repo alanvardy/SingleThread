@@ -9,6 +9,8 @@ import XCTest
 
 final class SingleThreadUITestsLaunchTests: XCTestCase {
 
+    // `class` is required to override XCTestCase's class property; `static` cannot override it.
+    // swiftlint:disable:next static_over_final_class
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
         true
     }

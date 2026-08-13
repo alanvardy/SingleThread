@@ -5,14 +5,14 @@
 //  Created by Alan Vardy on 2026-08-12.
 //
 
-import SwiftUI
 import SwiftData
+import SwiftUI
 
 @main
 struct SingleThreadApp: App {
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            Item.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
