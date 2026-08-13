@@ -38,5 +38,5 @@ fastlane/screenshots
 # Code injection
 iOSInjectionProject/
 
-# Pi agent artifacts
-.pi-subagents/
+# Pi agent artifacts (transient subagent runtime — planning docs in .pi/qrspi/ stay tracked)
+.pi/subagents/
