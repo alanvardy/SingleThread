@@ -54,7 +54,7 @@ struct ContentView: View {
     private var reminderList: some View {
         switch reminderStore.accessStatus {
         case .notDetermined:
-            ProgressView()
+            ProgressView("Loading reminders…")
         case .denied:
             ContentUnavailableView(
                 "Reminders access denied",

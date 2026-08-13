@@ -40,9 +40,8 @@ final class ReminderStore {
     private(set) var reminders: [EKReminder] = []
 
     func load() async {
-        let status = EKEventStore.authorizationStatus(for: .reminder)
-        if status == .notDetermined {
-            _ = try? await eventStore.requestFullAccessToReminders()
+        if EKEventStore.authorizationStatus(for: .reminder) == .notDetermined {
+            _ = await requestFullAccess()
         }
         accessStatus = ReminderAccessStatus(EKEventStore.authorizationStatus(for: .reminder))
         guard accessStatus == .authorized else {
@@ -68,5 +67,13 @@ final class ReminderStore {
             }
         }
         return result
+    }
+
+    private func requestFullAccess() async -> Bool {
+        await withCheckedContinuation { continuation in
+            eventStore.requestFullAccessToReminders { granted, _ in
+                continuation.resume(returning: granted)
+            }
+        }
     }
 }
