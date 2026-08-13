@@ -16,9 +16,11 @@ struct SingleThreadApp: App {
             ContentView()
         }
         .environment(reminderStore)
+        .environment(backgroundPhotoStore)
     }
 
     // MARK: Private
 
     @State private var reminderStore = ReminderStore()
+    @State private var backgroundPhotoStore = BackgroundPhotoStore()
 }
