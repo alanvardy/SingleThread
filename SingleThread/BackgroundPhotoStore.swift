@@ -14,8 +14,9 @@ import os
 final class BackgroundPhotoStore {
     // MARK: Lifecycle
 
-    init(searcher: any PhotoSearching = UnsplashPhotoSearch()) {
+    init(searcher: any PhotoSearching = UnsplashPhotoSearch(), defaults: UserDefaults = .standard) {
         self.searcher = searcher
+        self.defaults = defaults
     }
 
     // MARK: Internal
@@ -25,7 +26,7 @@ final class BackgroundPhotoStore {
     private(set) var photo: BackgroundPhoto?
 
     func load() async {
-        guard let accessKey = UserDefaults.standard.string(forKey: Self.accessKeyDefaultsKey),
+        guard let accessKey = defaults.string(forKey: Self.accessKeyDefaultsKey),
               !accessKey.isEmpty else {
             Self.logger.info("BackgroundPhoto: no Unsplash access key set — skipping")
             photo = nil
@@ -47,5 +48,6 @@ final class BackgroundPhotoStore {
         subsystem: "app.alanvardy.SingleThread",
         category: "BackgroundPhotoStore")
 
+    private let defaults: UserDefaults
     private let searcher: any PhotoSearching
 }

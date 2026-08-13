@@ -12,41 +12,22 @@ struct ContentView: View {
     // MARK: Internal
 
     var body: some View {
-        ZStack {
-            BackgroundView()
-                .ignoresSafeArea()
-            #if os(iOS)
-                NavigationStack {
-                    reminderList
-                        .toolbar {
-                            ToolbarItem(placement: .topBarTrailing) {
-                                Button {
-                                    isShowingSettings = true
-                                } label: {
-                                    Image(systemName: "gearshape")
-                                }
-                            }
-                        }
-                }
-            #else
-                reminderList
-            #endif
-        }
-        .task {
-            await reminderStore.load()
-            await backgroundPhotoStore.load()
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active {
-                Task {
-                    await reminderStore.load()
+        content
+            .task {
+                await reminderStore.load()
+                await backgroundPhotoStore.load()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    Task {
+                        await reminderStore.load()
+                    }
                 }
             }
-        }
         #if os(iOS)
-        .sheet(isPresented: $isShowingSettings) {
-            SettingsView()
-        }
+            .sheet(isPresented: $isShowingSettings) {
+                SettingsView()
+            }
         #endif
     }
 
@@ -79,6 +60,35 @@ struct ContentView: View {
 
     private var currentReminder: VisibleReminder? {
         visibleReminders.first
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        #if os(iOS)
+            NavigationStack {
+                ZStack {
+                    BackgroundView()
+                        .ignoresSafeArea()
+                    reminderList
+                }
+                .toolbar {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            isShowingSettings = true
+                        } label: {
+                            Image(systemName: "gearshape")
+                        }
+                    }
+                }
+                .toolbarBackground(.hidden, for: .navigationBar)
+            }
+        #else
+            ZStack {
+                BackgroundView()
+                    .ignoresSafeArea()
+                reminderList
+            }
+        #endif
     }
 
     @ViewBuilder

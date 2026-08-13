@@ -12,23 +12,25 @@ import Testing
 @Suite(.serialized)
 @MainActor
 struct BackgroundPhotoStoreTests {
+    // MARK: Internal
+
     @Test func missingKeyClearsPhotoWithoutSearching() async {
-        UserDefaults.standard.removeObject(forKey: BackgroundPhotoStore.accessKeyDefaultsKey)
+        Self.defaults.removeObject(forKey: BackgroundPhotoStore.accessKeyDefaultsKey)
         let searcher = FakePhotoSearch(result: .failure(FakePhotoSearchError.boom))
-        let store = BackgroundPhotoStore(searcher: searcher)
+        let store = BackgroundPhotoStore(searcher: searcher, defaults: Self.defaults)
         await store.load()
         #expect(store.photo == nil)
         #expect(searcher.searchCallCount == 0)
     }
 
     @Test func successLoadsPhotoFromSearcher() async throws {
-        UserDefaults.standard.set("test-key", forKey: BackgroundPhotoStore.accessKeyDefaultsKey)
+        Self.defaults.set("test-key", forKey: BackgroundPhotoStore.accessKeyDefaultsKey)
         let expected = try BackgroundPhoto(
             imageURL: #require(URL(string: "https://images.unsplash.com/photo-1")),
             photographerName: "Jane Doe",
             photographerProfileURL: #require(URL(string: "https://unsplash.com/@janedoe")))
         let searcher = FakePhotoSearch(result: .success(expected))
-        let store = BackgroundPhotoStore(searcher: searcher)
+        let store = BackgroundPhotoStore(searcher: searcher, defaults: Self.defaults)
         await store.load()
         #expect(store.photo == expected)
         #expect(searcher.searchCallCount == 1)
@@ -36,12 +38,16 @@ struct BackgroundPhotoStoreTests {
     }
 
     @Test func failingSearchClearsPhoto() async {
-        UserDefaults.standard.set("test-key", forKey: BackgroundPhotoStore.accessKeyDefaultsKey)
+        Self.defaults.set("test-key", forKey: BackgroundPhotoStore.accessKeyDefaultsKey)
         let searcher = FakePhotoSearch(result: .failure(FakePhotoSearchError.boom))
-        let store = BackgroundPhotoStore(searcher: searcher)
+        let store = BackgroundPhotoStore(searcher: searcher, defaults: Self.defaults)
         await store.load()
         #expect(store.photo == nil)
     }
+
+    // MARK: Private
+
+    private static let defaults = UserDefaults(suiteName: "SingleThreadTests.BackgroundPhotoStore")!
 }
 
 @MainActor
