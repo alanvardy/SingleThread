@@ -12,15 +12,27 @@ struct BackgroundView: View {
 
     var body: some View {
         if let photo = backgroundPhotoStore.photo {
-            AsyncImage(url: photo.imageURL) { image in
-                image
-                    .resizable()
-                    .scaledToFill()
-            } placeholder: {
-                Color.clear
+            ZStack {
+                AsyncImage(url: photo.imageURL) { image in
+                    image
+                        .resizable()
+                        .scaledToFill()
+                } placeholder: {
+                    Color.clear
+                }
+                .blur(radius: 24)
+                .overlay(Color.black.opacity(0.35))
+
+                VStack {
+                    Spacer()
+                    Link(
+                        "Photo by \(photo.photographerName) on Unsplash",
+                        destination: photo.photographerProfileURL)
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.6))
+                        .padding(.bottom, 8)
+                }
             }
-            .blur(radius: 24)
-            .overlay(Color.black.opacity(0.35))
         }
     }
 
