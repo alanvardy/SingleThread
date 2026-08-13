@@ -7,6 +7,11 @@
 
 import EventKit
 import Observation
+#if os(iOS)
+    import UIKit
+#elseif os(macOS)
+    import AppKit
+#endif
 
 enum ReminderAccessStatus {
     case notDetermined
@@ -41,7 +46,13 @@ final class ReminderStore {
 
     func load() async {
         if EKEventStore.authorizationStatus(for: .reminder) == .notDetermined {
+            await waitUntilActive()
+            guard !isRequestingAccess else {
+                return
+            }
+            isRequestingAccess = true
             _ = await requestFullAccess()
+            isRequestingAccess = false
         }
         accessStatus = ReminderAccessStatus(EKEventStore.authorizationStatus(for: .reminder))
         guard accessStatus == .authorized else {
@@ -57,6 +68,24 @@ final class ReminderStore {
     }
 
     // MARK: Private
+
+    private static var didBecomeActiveNotification: Notification.Name {
+        #if os(iOS)
+            UIApplication.didBecomeActiveNotification
+        #elseif os(macOS)
+            NSApplication.didBecomeActiveNotification
+        #endif
+    }
+
+    private static var isActive: Bool {
+        #if os(iOS)
+            UIApplication.shared.applicationState == .active
+        #elseif os(macOS)
+            NSApplication.shared.isActive
+        #endif
+    }
+
+    private var isRequestingAccess = false
 
     private func fetchReminders(matching predicate: NSPredicate) async -> [EKReminder] {
         nonisolated(unsafe) var result: [EKReminder] = []
@@ -74,6 +103,15 @@ final class ReminderStore {
             eventStore.requestFullAccessToReminders { granted, _ in
                 continuation.resume(returning: granted)
             }
+        }
+    }
+
+    private func waitUntilActive() async {
+        guard !Self.isActive else {
+            return
+        }
+        for await _ in NotificationCenter.default.notifications(named: Self.didBecomeActiveNotification) {
+            break
         }
     }
 }
