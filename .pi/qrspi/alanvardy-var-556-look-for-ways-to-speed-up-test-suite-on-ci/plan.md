@@ -347,7 +347,7 @@ Notes:
 ### Verification
 
 #### Automated
-- [ ] `git diff` shows the cache `path` equals `${{ github.workspace }}/DerivedData` and the `-derivedDataPath` in the build/test steps resolves to the same absolute path.
+- [x] `git diff` shows the cache `path` equals `${{ github.workspace }}/DerivedData` and the `-derivedDataPath` in the build/test steps resolves to the same absolute path.
 
 #### Manual
 - [ ] Two back-to-back CI runs on the **same commit**: the second run reports a cache **hit** in the `actions/cache` step output.
