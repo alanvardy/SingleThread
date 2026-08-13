@@ -45,21 +45,16 @@ final class ReminderStore {
     private(set) var reminders: [EKReminder] = []
 
     func load() async {
-        let status = EKEventStore.authorizationStatus(for: .reminder)
-        print("[ReminderStore] load() status=\(String(describing: status))")
-        if status == .notDetermined {
+        if EKEventStore.authorizationStatus(for: .reminder) == .notDetermined {
             await waitUntilActive()
             guard !isRequestingAccess else {
-                print("[ReminderStore] request already in flight, skipping")
                 return
             }
             isRequestingAccess = true
-            let granted = await requestFullAccess()
+            _ = await requestFullAccess()
             isRequestingAccess = false
-            print("[ReminderStore] request result granted=\(granted)")
         }
         accessStatus = ReminderAccessStatus(EKEventStore.authorizationStatus(for: .reminder))
-        print("[ReminderStore] accessStatus=\(String(describing: accessStatus))")
         guard accessStatus == .authorized else {
             reminders = []
             return
@@ -70,7 +65,6 @@ final class ReminderStore {
             ending: nil,
             calendars: nil)
         reminders = await fetchReminders(matching: predicate)
-        print("[ReminderStore] fetched \(reminders.count) reminders")
     }
 
     // MARK: Private
@@ -106,8 +100,7 @@ final class ReminderStore {
 
     private func requestFullAccess() async -> Bool {
         await withCheckedContinuation { continuation in
-            eventStore.requestFullAccessToReminders { granted, error in
-                print("[ReminderStore] request completion granted=\(granted) error=\(String(describing: error))")
+            eventStore.requestFullAccessToReminders { granted, _ in
                 continuation.resume(returning: granted)
             }
         }
@@ -115,12 +108,9 @@ final class ReminderStore {
 
     private func waitUntilActive() async {
         guard !Self.isActive else {
-            print("[ReminderStore] already active, proceeding")
             return
         }
-        print("[ReminderStore] waiting for didBecomeActive")
         for await _ in NotificationCenter.default.notifications(named: Self.didBecomeActiveNotification) {
-            print("[ReminderStore] didBecomeActive received")
             break
         }
     }
