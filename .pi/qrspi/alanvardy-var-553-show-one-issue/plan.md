@@ -216,9 +216,9 @@ Notes for the implementer:
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes (formats the code first, then format-lint, SwiftLint `--strict`, Debug build on `iPhone 17`, unit tests)
-- [ ] `make build` passes
-- [ ] `make test` passes (all 7 existing `dueStatus` unit tests remain green — no test changes required)
+- [x] `./scripts/test.sh` passes (formats the code first, then format-lint, SwiftLint `--strict`, Debug build on `iPhone 17`, unit tests)
+- [x] `make build` passes
+- [x] `make test` passes (all 7 existing `dueStatus` unit tests remain green — no test changes required)
 
 #### Manual
 - [ ] Launch on `iPhone 17` simulator with 2+ overdue/due-today reminders seeded: tapping **Complete** on the first card immediately advances to the next reminder with no visible fetch/flicker.

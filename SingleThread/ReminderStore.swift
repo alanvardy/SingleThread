@@ -67,6 +67,12 @@ final class ReminderStore {
         reminders = await fetchReminders(matching: predicate)
     }
 
+    func complete(_ reminder: EKReminder) async throws {
+        reminder.isCompleted = true
+        try eventStore.save(reminder, commit: true)
+        reminders.removeAll { $0.calendarItemIdentifier == reminder.calendarItemIdentifier }
+    }
+
     // MARK: Private
 
     private static var didBecomeActiveNotification: Notification.Name {
