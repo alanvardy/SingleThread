@@ -521,9 +521,9 @@ c. Delete the line `XROS_DEPLOYMENT_TARGET = 26.5;`
 
 ### Verification
 #### Automated
-- [ ] iOS: `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build`
-- [ ] macOS: `xcodebuild -scheme SingleThread -destination 'platform=macOS' -configuration Debug build`
-- [ ] `./scripts/test.sh` is green
+- [x] iOS: `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build`
+- [x] macOS: `xcodebuild -scheme SingleThread -destination 'platform=macOS' -configuration Debug build`
+- [x] `./scripts/test.sh` is green
 
 #### Manual
 - [ ] Deny Reminders access → "Reminders access denied" message renders
