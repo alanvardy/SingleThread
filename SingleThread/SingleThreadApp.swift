@@ -10,6 +10,8 @@ import SwiftUI
 
 @main
 struct SingleThreadApp: App {
+    // MARK: Internal
+
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self
@@ -27,6 +29,11 @@ struct SingleThreadApp: App {
         WindowGroup {
             ContentView()
         }
+        .environment(reminderStore)
         .modelContainer(sharedModelContainer)
     }
+
+    // MARK: Private
+
+    @State private var reminderStore = ReminderStore()
 }

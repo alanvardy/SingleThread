@@ -288,8 +288,8 @@ Replace `var body: some Scene` with the store-injecting version; keep `sharedMod
 
 ### Verification
 #### Automated
-- [ ] iOS build: `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build`
-- [ ] macOS build: `xcodebuild -scheme SingleThread -destination 'platform=macOS' -configuration Debug build`
+- [x] iOS build: `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build`
+- [x] macOS build: `xcodebuild -scheme SingleThread -destination 'platform=macOS' -configuration Debug build`
 
 #### Manual (macOS path is **not** covered by CI — verify by hand)
 - [ ] iOS launch → system TCC prompt for Reminders appears → grant → temporary `print(reminderStore.reminders.count)` shows a populated count after `load()`
