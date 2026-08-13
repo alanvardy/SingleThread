@@ -13,23 +13,24 @@ struct ContentView: View {
 
     var body: some View {
         NavigationViewWrapper {
-            List {
-                ForEach(visibleReminders, id: \.reminder.calendarItemIdentifier) { visible in
-                    ReminderRow(visible: visible)
-                }
-            }
-            #if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-            #endif
+            reminderList
         }
         .task {
             await reminderStore.load()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task {
+                    await reminderStore.load()
+                }
+            }
         }
     }
 
     // MARK: Private
 
     @Environment(ReminderStore.self) private var reminderStore
+    @Environment(\.scenePhase) private var scenePhase
 
     private var visibleReminders: [VisibleReminder] {
         let now = Date()
@@ -47,6 +48,32 @@ struct ContentView: View {
                 return VisibleReminder(reminder: reminder, status: status, dueDate: dueDate)
             }
             .sorted { $0.dueDate < $1.dueDate }
+    }
+
+    @ViewBuilder
+    private var reminderList: some View {
+        switch reminderStore.accessStatus {
+        case .notDetermined:
+            ProgressView()
+        case .denied:
+            ContentUnavailableView(
+                "Reminders access denied",
+                systemImage: "bell.slash",
+                description: Text("Enable Reminders access in Settings."))
+        case .authorized:
+            if visibleReminders.isEmpty {
+                ContentUnavailableView("No overdue or due-today reminders", systemImage: "checkmark.circle")
+            } else {
+                List {
+                    ForEach(visibleReminders, id: \.reminder.calendarItemIdentifier) { visible in
+                        ReminderRow(visible: visible)
+                    }
+                }
+                #if os(macOS)
+                .navigationSplitViewColumnWidth(min: 180, ideal: 200)
+                #endif
+            }
+        }
     }
 }
 
