@@ -1,0 +1,199 @@
+{
+  "runId": "1e1649e7",
+  "agent": "worker",
+  "task": "You are a delegated subagent running from a fork of the parent session. Treat the inherited conversation as reference-only context, not a live thread to continue. Do not continue or answer prior messages as if they are waiting for a reply. Your sole job is to execute the task below and return a focused result for that task using your tools.\n\nTask:\nYou are a codebase documentarian. Repo root: /Users/vardy/dev/alanvardy-var-553-show-one-issue. Read the Swift sources in SingleThread/ (ContentView.swift, ReminderStore.swift, ReminderFilter.swift, SingleThreadApp.swift) and tests in SingleThreadTests/ and SingleThreadUITests/. Answer ONLY the single question assigned to you. Describe what exists; do NOT suggest improvements, optimizations, or propose solutions. Every finding must include a file:line reference.\n\nQuestion: How is the app tested: what do the unit tests cover, what does the UI-test scaffold do, and which components are pure versus coupled to EventKit or the view layer?",
+  "exitCode": 0,
+  "usage": {
+    "input": 16633,
+    "output": 2778,
+    "cacheRead": 29056,
+    "cacheWrite": 0,
+    "cost": 0.04282198,
+    "turns": 3
+  },
+  "model": "deepseek/deepseek-v4-pro:high",
+  "attemptedModels": [
+    "deepseek/deepseek-v4-pro:high"
+  ],
+  "modelAttempts": [
+    {
+      "model": "deepseek/deepseek-v4-pro:high",
+      "success": true,
+      "exitCode": 0,
+      "usage": {
+        "input": 16633,
+        "output": 2778,
+        "cacheRead": 29056,
+        "cacheWrite": 0,
+        "cost": 0.04282198,
+        "turns": 3
+      }
+    }
+  ],
+  "durationMs": 44217,
+  "toolCount": 4,
+  "launchContractDigest": "1c41442ee3058e8e616aae7b5a0c7411fd52f4ef52de0c3fe85cdb36e5e1d272",
+  "launchResolvedExtensions": {
+    "version": 1,
+    "source": "launch-resolved",
+    "disableAmbientExtensions": false,
+    "runtime": [
+      "sha256:2d55fbd0d642e803"
+    ],
+    "configured": [],
+    "effective": [
+      "sha256:2d55fbd0d642e803"
+    ],
+    "omitted": {
+      "runtime": 0,
+      "configured": 0,
+      "effective": 0
+    }
+  },
+  "acceptance": {
+    "status": "checked",
+    "evidenceStatus": "checked",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "checked",
+      "explicit": false,
+      "inferredReason": [
+        "write-capable worker/task"
+      ],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Implement the requested change without widening scope",
+          "evidence": [
+            "changed-files",
+            "tests-added",
+            "commands-run",
+            "residual-risks",
+            "no-staged-files"
+          ],
+          "severity": "required"
+        }
+      ],
+      "evidence": [
+        "changed-files",
+        "tests-added",
+        "commands-run",
+        "residual-risks",
+        "no-staged-files"
+      ],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": [
+      "write-capable worker/task"
+    ],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Implement the requested change without widening scope",
+        "evidence": [
+          "changed-files",
+          "tests-added",
+          "commands-run",
+          "residual-risks",
+          "no-staged-files"
+        ],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [
+      {
+        "id": "criterion:criterion-1",
+        "status": "passed",
+        "message": "Required criterion 'criterion-1' satisfied."
+      },
+      {
+        "id": "evidence:changed-files",
+        "status": "not-applicable",
+        "message": "changed-files evidence explicitly reported as not applicable."
+      },
+      {
+        "id": "evidence:tests-added",
+        "status": "not-applicable",
+        "message": "tests-added evidence explicitly reported as not applicable."
+      },
+      {
+        "id": "evidence:commands-run",
+        "status": "passed",
+        "message": "commands-run evidence present."
+      },
+      {
+        "id": "evidence:residual-risks",
+        "status": "passed",
+        "message": "residual-risks evidence present."
+      },
+      {
+        "id": "evidence:no-staged-files",
+        "status": "passed",
+        "message": "no-staged-files evidence present."
+      },
+      {
+        "id": "no-staged-files",
+        "status": "passed",
+        "message": "No staged files detected."
+      }
+    ],
+    "verifyRuns": [],
+    "childReport": {
+      "criteriaSatisfied": [
+        {
+          "id": "criterion-1",
+          "status": "satisfied",
+          "evidence": "Answered only the assigned research question (Q6) with file:line references; no code edits were made, so scope was not widened beyond describing what exists."
+        }
+      ],
+      "changedFiles": [],
+      "testsAddedOrUpdated": [],
+      "commandsRun": [
+        {
+          "command": "nl -ba SingleThreadTests/SingleThreadTests.swift",
+          "result": "passed",
+          "summary": "Read unit test file with line numbers"
+        },
+        {
+          "command": "nl -ba SingleThreadUITests/*.swift",
+          "result": "passed",
+          "summary": "Read UI test files with line numbers"
+        },
+        {
+          "command": "nl -ba SingleThread/*.swift",
+          "result": "passed",
+          "summary": "Read app sources with line numbers"
+        },
+        {
+          "command": "git status --porcelain",
+          "result": "passed",
+          "summary": "Confirmed no staged files (only untracked .pi/ artifacts)"
+        }
+      ],
+      "validationOutput": [
+        "Unit tests: 7 @Test methods in SingleThreadTests.swift, all covering dueStatus only.",
+        "UI tests: two XCTest scaffolds (testExample/testLaunchPerformance + launch screenshot), no assertions in testExample.",
+        "Pure: ReminderFilter.swift (Foundation only). Coupled: ReminderStore.swift (EventKit) and ContentView.swift (SwiftUI+EventKit)."
+      ],
+      "residualRisks": [
+        "none"
+      ],
+      "noStagedFiles": true,
+      "diffSummary": "No diff — research/documentation task only, read-only inspection.",
+      "reviewFindings": [
+        "no blockers"
+      ],
+      "manualNotes": "SWIFT_DEFAULT_ACTOR_ISOLATION=MainActor means test code defaults to MainActor; dueStatus/DueStatus are marked nonisolated (ReminderFilter.swift:10,15), which is what makes the pure function callable from the test target. UI tests remain XCTest while unit tests use Swift Testing per AGENTS.md."
+    }
+  },
+  "effects": {
+    "fileMutation": {
+      "status": "not-applicable",
+      "expected": false,
+      "attempted": false
+    }
+  },
+  "transcriptPath": "/Users/vardy/dev/alanvardy-var-553-show-one-issue/.pi/subagents/artifacts/1e1649e7_worker_0_transcript.jsonl",
+  "timestamp": 1786596560965
+}

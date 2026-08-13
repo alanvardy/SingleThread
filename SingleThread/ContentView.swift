@@ -12,19 +12,17 @@ struct ContentView: View {
     // MARK: Internal
 
     var body: some View {
-        NavigationViewWrapper {
-            reminderList
-        }
-        .task {
-            await reminderStore.load()
-        }
-        .onChange(of: scenePhase) { _, newPhase in
-            if newPhase == .active {
-                Task {
-                    await reminderStore.load()
+        reminderList
+            .task {
+                await reminderStore.load()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    Task {
+                        await reminderStore.load()
+                    }
                 }
             }
-        }
     }
 
     // MARK: Private
@@ -50,6 +48,10 @@ struct ContentView: View {
             .sorted { $0.dueDate < $1.dueDate }
     }
 
+    private var currentReminder: VisibleReminder? {
+        visibleReminders.first
+    }
+
     @ViewBuilder
     private var reminderList: some View {
         switch reminderStore.accessStatus {
@@ -61,17 +63,15 @@ struct ContentView: View {
                 systemImage: "bell.slash",
                 description: Text("Enable Reminders access in Settings."))
         case .authorized:
-            if visibleReminders.isEmpty {
-                ContentUnavailableView("No overdue or due-today reminders", systemImage: "checkmark.circle")
-            } else {
-                List {
-                    ForEach(visibleReminders, id: \.reminder.calendarItemIdentifier) { visible in
-                        ReminderRow(visible: visible)
-                    }
+            if let current = currentReminder {
+                VStack {
+                    Spacer()
+                    ReminderCard(visible: current)
+                    Spacer()
                 }
-                #if os(macOS)
-                .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-                #endif
+                .padding()
+            } else {
+                ContentUnavailableView("No overdue or due-today reminders", systemImage: "checkmark.circle")
             }
         }
     }
@@ -83,7 +83,7 @@ private struct VisibleReminder {
     let dueDate: Date
 }
 
-private struct ReminderRow: View {
+private struct ReminderCard: View {
     let visible: VisibleReminder
 
     var body: some View {
@@ -93,22 +93,9 @@ private struct ReminderRow: View {
                 .font(.caption)
         }
         .foregroundStyle(visible.status == .overdue ? Color.red : Color.primary)
-    }
-}
-
-private struct NavigationViewWrapper<Content: View>: View {
-    let content: () -> Content
-
-    var body: some View {
-        #if os(macOS)
-            NavigationSplitView {
-                content()
-            } detail: {
-                Text("Select a reminder")
-            }
-        #else
-            content()
-        #endif
+        .padding()
+        .background(.regularMaterial)
+        .clipShape(RoundedRectangle(cornerRadius: 12))
     }
 }
 
