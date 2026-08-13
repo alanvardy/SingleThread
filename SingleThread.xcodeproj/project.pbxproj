@@ -29,9 +29,22 @@
 		51AA3EEF302D5C4500960DFC /* SingleThreadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SingleThreadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		51AA3F02302D5C4500960DFC /* Exceptions for "SingleThread" folder in "SingleThreadTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				ReminderFilter.swift,
+			);
+			target = 51AA3EE4302D5C4500960DFC /* SingleThreadTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		51AA3ED8302D5C4500960DFC /* SingleThread */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				51AA3F02302D5C4500960DFC /* Exceptions for "SingleThread" folder in "SingleThreadTests" target */,
+			);
 			path = SingleThread;
 			sourceTree = "<group>";
 		};
@@ -178,7 +191,6 @@
 					};
 					51AA3EE4302D5C4500960DFC = {
 						CreatedOnToolsVersion = 26.6;
-						TestTargetID = 51AA3ED5302D5C4500960DFC;
 					};
 					51AA3EEE302D5C4500960DFC = {
 						CreatedOnToolsVersion = 26.6;
@@ -478,7 +490,6 @@
 		51AA3EFD302D5C4500960DFC /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6NWX2DHB9Q;
@@ -496,14 +507,12 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SingleThread.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SingleThread";
 			};
 			name = Debug;
 		};
 		51AA3EFE302D5C4500960DFC /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6NWX2DHB9Q;
@@ -521,7 +530,6 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/SingleThread.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/SingleThread";
 			};
 			name = Release;
 		};

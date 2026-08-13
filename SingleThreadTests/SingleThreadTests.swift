@@ -6,7 +6,6 @@
 //
 
 import Foundation
-@testable import SingleThread
 import Testing
 
 struct SingleThreadTests {

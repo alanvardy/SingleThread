@@ -296,10 +296,12 @@ All 7 tests now exercise the copy of `dueStatus` (and `DueStatus`) compiled dire
 ### Verification
 
 #### Automated
-- [ ] `make build && make test` passes — 7 tests green, now non-hosted.
-- [ ] `./scripts/test.sh` passes.
-- [ ] `grep -n "TEST_HOST\|BUNDLE_LOADER" SingleThread.xcodeproj/project.pbxproj` returns nothing (the only host settings were on the unit target).
-- [ ] `grep -n "TestTargetID" SingleThread.xcodeproj/project.pbxproj` returns exactly one hit (the `SingleThreadUITests` entry).
+- [x] `make build && make test` passes — 7 tests green, now non-hosted.
+- [x] `./scripts/test.sh` passes.
+- [x] `grep -n "TEST_HOST\|BUNDLE_LOADER" SingleThread.xcodeproj/project.pbxproj` returns nothing (the only host settings were on the unit target).
+- [x] `grep -n "TestTargetID" SingleThread.xcodeproj/project.pbxproj` returns exactly one hit (the `SingleThreadUITests` entry).
+
+> **Adaptation**: de-hosting dropped `SingleThreadTests` out of Xcode's *auto-generated* scheme (a non-hosted target has no host association, so `xcodebuild test-without-building -only-testing:SingleThreadTests` failed with “isn't a member of the specified test plan or scheme”). Added a shared scheme `SingleThread.xcodeproj/xcshareddata/xcschemes/SingleThread.xcscheme` that explicitly lists `SingleThreadTests` (and `SingleThreadUITests`) in its `TestAction`. The plan didn't mention this file — it's required for the de-hosted target to be runnable.
 
 #### Manual
 - [ ] Open the project in Xcode: `SingleThreadTests` target builds as a `.xctest` with **no host application** selected (Target → General → "Host Application: None"), and the Target Membership inspector shows `ReminderFilter.swift` checked for both `SingleThread` and `SingleThreadTests`.
