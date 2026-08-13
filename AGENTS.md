@@ -32,10 +32,10 @@
 - `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` is set at the project level.
   All async functions default to `@MainActor`. Do not wrap in
   `Task { @MainActor in }` — it's redundant.
-- The compiler language mode is **Swift 5** (`SWIFT_VERSION = 5.0` in the
-  pbxproj), even though `.swift-version` and `.swiftformat`'s
-  `--swiftversion 6.0` say otherwise. Don't rely on Swift 6-only language
-  features (e.g. strict `any`/`Sendable` checking) until the mode is bumped.
+- The compiler language mode is **Swift 6** (`SWIFT_VERSION = 6.0`).
+  `SWIFT_APPROACHABLE_CONCURRENCY = YES` is also set (the Xcode 26 default),
+  which keeps concurrency diagnostics approachable while retaining the
+  default `MainActor` isolation.
 
 ## SwiftData
 
