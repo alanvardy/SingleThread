@@ -1,0 +1,62 @@
+# Paths to include/exclude
+included:
+  - SingleThread
+  - SingleThreadTests
+  - SingleThreadUITests
+
+# XCTest-specific rules disabled — project uses Swift Testing
+disabled_rules:
+  - single_test_class
+  - balanced_xctest_lifecycle
+  - empty_xctest_method
+  - final_test_case
+  - multiple_closures_with_trailing_closure
+  - type_name
+
+# Rule thresholds
+line_length:
+  warning: 120
+  error: 150
+
+cyclomatic_complexity:
+  warning: 12
+  error: 15
+
+type_body_length:
+  warning: 500
+  error: 600
+
+file_length:
+  warning: 650
+  error: 800
+
+# Allow force-casting in test code
+force_cast:
+  severity: warning
+force_try:
+  severity: warning
+
+# Opt-in rules appropriate for this project
+opt_in_rules:
+  - closure_spacing
+  - empty_count
+  - explicit_init
+  - fatal_error_message
+  - first_where
+  - implicit_return
+  - overridden_super_call
+  - prohibited_super_call
+  - sorted_imports
+  - trailing_closure
+  - unowned_variable_capture
+  - vertical_parameter_alignment_on_call
+
+# Test files have different standards
+identifier_name:
+  excluded:
+    - id
+    - e
+    - d
+    - rt
+    - to
+    - gvm

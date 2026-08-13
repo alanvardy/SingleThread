@@ -1,0 +1,42 @@
+# Xcode
+xcuserdata/
+*.xcuserdatad
+DerivedData/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# Build
+build/
+*.o
+*.LinkFileList
+*.hmap
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# CocoaPods
+Pods/
+
+# Carthage
+Carthage/Build/
+
+# macOS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+
+# Code injection
+iOSInjectionProject/
+
+# Pi agent artifacts
+.pi-subagents/

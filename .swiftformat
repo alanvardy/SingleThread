@@ -1,0 +1,21 @@
+# Swift version
+--swiftversion 6.0
+
+# Indentation
+--indent 4
+--wraparguments before-first
+--wrapcollections before-first
+--closingparen same-line
+
+# Rules
+--enable blankLinesAroundMark
+--enable organizeDeclarations
+--enable preferSwiftTesting
+--disable andOperator
+--disable isEmpty
+--disable trailingClosures
+--disable trailingCommas
+--disable wrapMultilineStatementBraces
+
+# Exclusions (auto-generated / boilerplate)
+--exclude SingleThreadUITests
