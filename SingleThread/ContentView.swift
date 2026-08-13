@@ -29,6 +29,8 @@ struct ContentView: View {
 
     @Environment(ReminderStore.self) private var reminderStore
     @Environment(\.scenePhase) private var scenePhase
+    @State private var isSaving = false
+    @State private var completionError: String?
 
     private var visibleReminders: [VisibleReminder] {
         let now = Date()
@@ -68,10 +70,32 @@ struct ContentView: View {
                     Spacer()
                     ReminderCard(visible: current)
                     Spacer()
+                    Button("Complete") {
+                        complete(current)
+                    }
+                    .disabled(isSaving)
+                    if let completionError {
+                        Text(completionError)
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                    }
                 }
                 .padding()
             } else {
                 ContentUnavailableView("No overdue or due-today reminders", systemImage: "checkmark.circle")
+            }
+        }
+    }
+
+    private func complete(_ visible: VisibleReminder) {
+        isSaving = true
+        Task {
+            defer { isSaving = false }
+            do {
+                try await reminderStore.complete(visible.reminder)
+                completionError = nil
+            } catch {
+                completionError = "Couldn't complete the reminder. Please try again."
             }
         }
     }
