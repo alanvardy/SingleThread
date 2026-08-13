@@ -27,13 +27,16 @@ final class BackgroundPhotoStore {
     func load() async {
         guard let accessKey = UserDefaults.standard.string(forKey: Self.accessKeyDefaultsKey),
               !accessKey.isEmpty else {
+            Self.logger.info("BackgroundPhoto: no Unsplash access key set — skipping")
             photo = nil
             return
         }
         do {
             photo = try await searcher.search(accessKey: accessKey)
+            let photographerName = photo?.photographerName ?? "?"
+            Self.logger.info("BackgroundPhoto: loaded (photographer: \(photographerName))")
         } catch {
-            Self.logger.error("Background photo load failed: \(error)")
+            Self.logger.error("BackgroundPhoto: load failed — \(error)")
             photo = nil
         }
     }
