@@ -25,7 +25,9 @@
   ./scripts/test.sh
   ```
   This formats the codebase, builds, runs unit tests, and runs SwiftFormat +
-  SwiftLint checks — identical to CI.
+  SwiftLint checks — identical to CI. `make build` and `make test` are subsumed
+  by this script; list them as separate verification steps only when a plan
+  wants a narrower incremental gate.
 
 ## Concurrency Model
 
@@ -37,14 +39,26 @@
   which keeps concurrency diagnostics approachable while retaining the
   default `MainActor` isolation.
 
-## SwiftData
+## Reminders (EventKit)
 
-- The app uses SwiftData. `SingleThreadApp` builds a `ModelContainer` for the
-  `Item` `@Model`; `ContentView` drives it with `@Query` and
-  `@Environment(\.modelContext)`.
-- `@Model` classes must be `final`.
-- Previews and tests that need a container use
-  `.modelContainer(for: Item.self, inMemory: true)`.
+- The app reads and writes system Reminders via EventKit — no SwiftData.
+  `ReminderStore` is a `@MainActor @Observable final class` over an
+  `EKEventStore`; `SingleThreadApp` owns it as `@State` and injects it with
+  `.environment(reminderStore)`.
+- `ReminderStore.load()` fetches incomplete reminders with
+  `predicateForIncompleteReminders(withDueDateStarting:ending:calendars:)`,
+  bridged to `async` with `withCheckedContinuation`.
+- `ReminderAccessStatus` maps `.notDetermined` → `.notDetermined`,
+  `.denied`/`.restricted`/`.writeOnly` → denied, and
+  `.authorized`/`.fullAccess` → authorized.
+- The calendar entitlement (`com.apple.security.personal-information.calendars`)
+  is declared in `SingleThread/SingleThread.entitlements`.
+- The write path (`eventStore.save(_:commit:)` in `ReminderStore.complete(_:)`)
+  is synchronous on the main actor and **cannot run in CI** — verify
+  save/persistence behavior manually.
+- `ReminderFilter.swift` holds the pure
+  `dueStatus(_:isCompleted:now:calendar:)` function (returns `.overdue`,
+  `.dueToday`, or `nil`); unit tests cover it in `SingleThreadTests`.
 
 ## Project Layout
 
@@ -53,7 +67,7 @@ SingleThread/                  # git root
 ├── SingleThread.xcodeproj/    # Xcode project
 ├── SingleThread/              # app sources
 │   ├── Assets.xcassets/
-│   └── *.swift                # SingleThreadApp, ContentView, Item
+│   └── *.swift                # SingleThreadApp, ContentView, ReminderStore, ReminderFilter
 ├── SingleThreadTests/         # unit tests (Swift Testing)
 ├── SingleThreadUITests/       # UI tests (XCTest)
 ├── scripts/                   # CI-identical test script
