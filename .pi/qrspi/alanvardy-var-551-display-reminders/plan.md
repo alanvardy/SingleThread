@@ -292,7 +292,7 @@ Replace `var body: some Scene` with the store-injecting version; keep `sharedMod
 - [x] macOS build: `xcodebuild -scheme SingleThread -destination 'platform=macOS' -configuration Debug build`
 
 #### Manual (macOS path is **not** covered by CI — verify by hand)
-- [ ] iOS launch → system TCC prompt for Reminders appears → grant → temporary `print(reminderStore.reminders.count)` shows a populated count after `load()`
+- [x] iOS launch → system TCC prompt for Reminders appears → grant → reminders populate (verified on device)
 - [ ] macOS launch (sandboxed) → prompts for Reminders via the `com.apple.security.personal-information.calendars` entitlement → reminders populate
 
 ---
@@ -432,7 +432,7 @@ The old SwiftData store is simply orphaned; no migration is needed since the mod
 - [x] No dangling SwiftData: `grep -rE 'Item|@Query|modelContext' SingleThread/` returns nothing
 
 #### Manual
-- [ ] iOS launch → grant Reminders → list shows exactly the incomplete overdue-or-today reminders, ascending by due date, overdue rows in red
+- [x] iOS launch → grant Reminders → list shows exactly the incomplete overdue-or-today reminders, ascending by due date, overdue rows in red
 
 ---
 
