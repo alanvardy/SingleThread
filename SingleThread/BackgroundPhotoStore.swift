@@ -7,6 +7,7 @@
 
 import Foundation
 import Observation
+import os
 
 @MainActor
 @Observable
@@ -32,11 +33,16 @@ final class BackgroundPhotoStore {
         do {
             photo = try await searcher.search(accessKey: accessKey)
         } catch {
+            Self.logger.error("Background photo load failed: \(error)")
             photo = nil
         }
     }
 
     // MARK: Private
+
+    private static let logger = Logger(
+        subsystem: "app.alanvardy.SingleThread",
+        category: "BackgroundPhotoStore")
 
     private let searcher: any PhotoSearching
 }

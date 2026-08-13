@@ -16,6 +16,10 @@ struct UnsplashPhotoSearch: PhotoSearching {
         let url = URL(string: "https://api.unsplash.com/search/photos?query=nature&orientation=portrait")!
         var request = URLRequest(url: url)
         request.setValue("Client-ID \(accessKey)", forHTTPHeaderField: "Authorization")
+        // Force HTTP/2 over TCP. HTTP/3 (QUIC/UDP) is often blocked or misrouted
+        // by VPNs and iCloud Private Relay, surfacing as "Operation timed out".
+        request.assumesHTTP3Capable = false
+        request.timeoutInterval = 30
         let (data, _) = try await URLSession.shared.data(for: request)
         let response = try JSONDecoder().decode(UnsplashSearchResponse.self, from: data)
         guard let photo = randomPhoto(from: response.results) else {
