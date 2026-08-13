@@ -428,8 +428,8 @@ The old SwiftData store is simply orphaned; no migration is needed since the mod
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` is green (build + tests + SwiftFormat lint + SwiftLint strict)
-- [ ] No dangling SwiftData: `grep -rE 'Item|@Query|modelContext' SingleThread/` returns nothing
+- [x] `./scripts/test.sh` is green (build + tests + SwiftFormat lint + SwiftLint strict)
+- [x] No dangling SwiftData: `grep -rE 'Item|@Query|modelContext' SingleThread/` returns nothing
 
 #### Manual
 - [ ] iOS launch → grant Reminders → list shows exactly the incomplete overdue-or-today reminders, ascending by due date, overdue rows in red
