@@ -5,7 +5,7 @@
 //  Created by Alan Vardy on 2026-08-12.
 //
 
-import SwiftData
+import EventKit
 import SwiftUI
 
 struct ContentView: View {
@@ -14,51 +14,58 @@ struct ContentView: View {
     var body: some View {
         NavigationViewWrapper {
             List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
+                ForEach(visibleReminders, id: \.reminder.calendarItemIdentifier) { visible in
+                    ReminderRow(visible: visible)
                 }
-                .onDelete(perform: deleteItems)
             }
             #if os(macOS)
             .navigationSplitViewColumnWidth(min: 180, ideal: 200)
             #endif
-            .toolbar {
-                #if os(iOS)
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        EditButton()
-                    }
-                #endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
+        }
+        .task {
+            await reminderStore.load()
         }
     }
 
     // MARK: Private
 
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @Environment(ReminderStore.self) private var reminderStore
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+    private var visibleReminders: [VisibleReminder] {
+        let now = Date()
+        let calendar = Calendar.current
+        return reminderStore.reminders
+            .compactMap { reminder -> VisibleReminder? in
+                guard let status = dueStatus(
+                    dueDateComponents: reminder.dueDateComponents,
+                    isCompleted: reminder.isCompleted,
+                    now: now,
+                    calendar: calendar) else {
+                    return nil
+                }
+                let dueDate = reminder.dueDateComponents.flatMap { calendar.date(from: $0) } ?? .distantFuture
+                return VisibleReminder(reminder: reminder, status: status, dueDate: dueDate)
             }
+            .sorted { $0.dueDate < $1.dueDate }
+    }
+}
+
+private struct VisibleReminder {
+    let reminder: EKReminder
+    let status: DueStatus
+    let dueDate: Date
+}
+
+private struct ReminderRow: View {
+    let visible: VisibleReminder
+
+    var body: some View {
+        VStack(alignment: .leading) {
+            Text(visible.reminder.title ?? "Untitled")
+            Text(visible.dueDate, format: Date.FormatStyle(date: .numeric, time: .standard))
+                .font(.caption)
         }
+        .foregroundStyle(visible.status == .overdue ? Color.red : Color.primary)
     }
 }
 
@@ -70,7 +77,7 @@ private struct NavigationViewWrapper<Content: View>: View {
             NavigationSplitView {
                 content()
             } detail: {
-                Text("Select an item")
+                Text("Select a reminder")
             }
         #else
             content()
@@ -80,5 +87,5 @@ private struct NavigationViewWrapper<Content: View>: View {
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
+        .environment(ReminderStore())
 }
