@@ -17,6 +17,12 @@ struct SingleThreadApp: App {
         }
         .environment(reminderStore)
         .environment(backgroundPhotoStore)
+        #if os(macOS)
+            Settings {
+                SettingsView()
+                    .environment(backgroundPhotoStore)
+            }
+        #endif
     }
 
     // MARK: Private

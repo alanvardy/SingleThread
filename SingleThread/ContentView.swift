@@ -15,7 +15,22 @@ struct ContentView: View {
         ZStack {
             BackgroundView()
                 .ignoresSafeArea()
-            reminderList
+            #if os(iOS)
+                NavigationStack {
+                    reminderList
+                        .toolbar {
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button {
+                                    isShowingSettings = true
+                                } label: {
+                                    Image(systemName: "gearshape")
+                                }
+                            }
+                        }
+                }
+            #else
+                reminderList
+            #endif
         }
         .task {
             await reminderStore.load()
@@ -28,6 +43,11 @@ struct ContentView: View {
                 }
             }
         }
+        #if os(iOS)
+        .sheet(isPresented: $isShowingSettings) {
+            SettingsView()
+        }
+        #endif
     }
 
     // MARK: Private
@@ -37,6 +57,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @State private var isSaving = false
     @State private var completionError: String?
+    @State private var isShowingSettings = false
 
     private var visibleReminders: [VisibleReminder] {
         let now = Date()
