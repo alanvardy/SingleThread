@@ -12,22 +12,28 @@ struct ContentView: View {
     // MARK: Internal
 
     var body: some View {
-        reminderList
-            .task {
-                await reminderStore.load()
-            }
-            .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .active {
-                    Task {
-                        await reminderStore.load()
-                    }
+        ZStack {
+            BackgroundView()
+                .ignoresSafeArea()
+            reminderList
+        }
+        .task {
+            await reminderStore.load()
+            await backgroundPhotoStore.load()
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                Task {
+                    await reminderStore.load()
                 }
             }
+        }
     }
 
     // MARK: Private
 
     @Environment(ReminderStore.self) private var reminderStore
+    @Environment(BackgroundPhotoStore.self) private var backgroundPhotoStore
     @Environment(\.scenePhase) private var scenePhase
     @State private var isSaving = false
     @State private var completionError: String?
