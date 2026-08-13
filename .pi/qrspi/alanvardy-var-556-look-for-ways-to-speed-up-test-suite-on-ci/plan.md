@@ -417,8 +417,8 @@ Notes:
 ### Verification
 
 #### Automated
-- [ ] Locally: `mise install` succeeds, then `mise exec -- swiftformat --version` and `mise exec -- swiftlint version` report the pinned versions from `.mise.toml`.
-- [ ] Locally: `swiftformat --lint SingleThread/ SingleThreadTests/ SingleThreadUITests/` and `swiftlint lint --strict --config .swiftlint.yml` pass against the pinned tools (with `~/.local/share/mise/shims` on PATH, or via `mise exec --`).
+- [x] Locally: `mise install` succeeds, then `mise exec -- swiftformat --version` and `mise exec -- swiftlint version` report the pinned versions from `.mise.toml`.
+- [x] Locally: `swiftformat --lint SingleThread/ SingleThreadTests/ SingleThreadUITests/` and `swiftlint lint --strict --config .swiftlint.yml` pass against the pinned tools (with `~/.local/share/mise/shims` on PATH, or via `mise exec --`).
 
 #### Manual
 - [ ] CI `lint` job passes end-to-end with the unchanged SwiftFormat/SwiftLint commands.
