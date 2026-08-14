@@ -132,14 +132,15 @@ struct ContentView: View {
                     if let reminder = visibleReminders.first {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(reminder.title)
-                                .font(.headline)
+                                .font(.title)
                             if let due = reminder.dueDateComponents?.date {
                                 Text(due, style: .date)
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
                         }
-                        .padding(.vertical, 8)
+                        .padding(.horizontal, 40)
+                        .padding(.vertical, 12)
                         .frame(minHeight: viewHeight, alignment: .center)
                         .swipeActions(edge: .leading) {
                             Button {
