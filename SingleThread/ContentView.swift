@@ -29,18 +29,10 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             Color(.systemBackground).ignoresSafeArea()
-            Group {
-                switch authorizationStatus {
-                case .notDetermined:
-                    ProgressView("Requesting access…")
-                case .fullAccess:
-                    reminderList
-                default:
-                    ContentUnavailableView(
-                        "Reminders Access",
-                        systemImage: "lock.shield",
-                        description: Text("Enable access in Settings to see your reminders."))
-                }
+            if loadsReminders {
+                authGatedContent
+            } else {
+                reminderList
             }
         }
         .onAppear {
@@ -78,6 +70,20 @@ struct ContentView: View {
     /// Every fetched reminder has been skipped (but there are reminders to show again).
     private var allSkipped: Bool {
         !reminders.isEmpty && visibleReminders.isEmpty
+    }
+
+    @ViewBuilder private var authGatedContent: some View {
+        switch authorizationStatus {
+        case .notDetermined:
+            ProgressView("Requesting access…")
+        case .fullAccess:
+            reminderList
+        default:
+            ContentUnavailableView(
+                "Reminders Access",
+                systemImage: "lock.shield",
+                description: Text("Enable access in Settings to see your reminders."))
+        }
     }
 
     private var reminderList: some View {
