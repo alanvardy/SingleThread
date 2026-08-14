@@ -1,7 +1,7 @@
 SIM := platform=iOS Simulator,name=iPhone 17
 DERIVED_DATA := DerivedData
 
-.PHONY: build test clean lint format
+.PHONY: build test clean lint format periphery
 
 build:
 	xcodebuild -scheme SingleThread -destination '$(SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build-for-testing -only-testing:SingleThreadTests SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
@@ -19,3 +19,6 @@ lint:
 format:
 	swiftformat SingleThread/ SingleThreadTests/ SingleThreadUITests/
 	swiftlint --fix
+
+periphery:
+	periphery scan --strict -- -destination "platform=iOS Simulator,name=iPhone 17"
