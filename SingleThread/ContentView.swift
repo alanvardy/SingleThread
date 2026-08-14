@@ -155,8 +155,11 @@ struct ContentView: View {
             reminder.calendarItemIdentifier,
             fetched: fetchedIDs,
             skipped: Array(skippedIDs))
-        skippedIDs = Set(updated)
-        skipStore.save(updated)
+        Task {
+            try? await Task.sleep(nanoseconds: 200_000_000)
+            skippedIDs = Set(updated)
+            skipStore.save(updated)
+        }
     }
 
     private func completeReminder() async {
@@ -164,6 +167,7 @@ struct ContentView: View {
         do {
             reminder.isCompleted = true
             try store.save(reminder, commit: true)
+            try? await Task.sleep(nanoseconds: 200_000_000)
             await loadReminders()
         } catch {
             print("[\(Date.now.timeIntervalSince1970)] complete error \(error)")
