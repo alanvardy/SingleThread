@@ -4,35 +4,40 @@ import Testing
 struct ReminderSkipLogicTests {
     // MARK: - resolve
 
-    @Test func resolvePrunesStaleIDs() {
+    @Test
+    func resolvePrunesStaleIDs() {
         let result = ReminderSkipLogic.resolve(
             fetched: ["A", "B"],
             skipped: ["A", "C", "D"])
         #expect(Set(result) == ["A"])
     }
 
-    @Test func resolveKeepsAllValidIDs() {
+    @Test
+    func resolveKeepsAllValidIDs() {
         let result = ReminderSkipLogic.resolve(
             fetched: ["A", "B", "C"],
             skipped: ["A", "B", "C"])
         #expect(Set(result) == ["A", "B", "C"])
     }
 
-    @Test func resolveReturnsEmptyWhenFetchedIsEmpty() {
+    @Test
+    func resolveReturnsEmptyWhenFetchedIsEmpty() {
         let result = ReminderSkipLogic.resolve(
             fetched: [],
             skipped: ["A", "B"])
         #expect(result.isEmpty)
     }
 
-    @Test func resolveReturnsEmptyWhenSkippedIsEmpty() {
+    @Test
+    func resolveReturnsEmptyWhenSkippedIsEmpty() {
         let result = ReminderSkipLogic.resolve(
             fetched: ["A", "B"],
             skipped: [])
         #expect(result.isEmpty)
     }
 
-    @Test func resolveReturnsEmptyWhenNoOverlap() {
+    @Test
+    func resolveReturnsEmptyWhenNoOverlap() {
         let result = ReminderSkipLogic.resolve(
             fetched: ["A", "B"],
             skipped: ["C", "D"])
@@ -41,7 +46,8 @@ struct ReminderSkipLogicTests {
 
     // MARK: - skipping
 
-    @Test func skippingAddsIdentifier() {
+    @Test
+    func skippingAddsIdentifier() {
         let result = ReminderSkipLogic.skipping(
             "B",
             fetched: ["A", "B", "C"],
@@ -49,7 +55,8 @@ struct ReminderSkipLogicTests {
         #expect(Set(result) == ["A", "B"])
     }
 
-    @Test func skippingPrunesStaleEntries() {
+    @Test
+    func skippingPrunesStaleEntries() {
         let result = ReminderSkipLogic.skipping(
             "B",
             fetched: ["A", "B"],
@@ -57,7 +64,8 @@ struct ReminderSkipLogicTests {
         #expect(Set(result) == ["A", "B"])
     }
 
-    @Test func skippingHandlesDuplicateIdentifier() {
+    @Test
+    func skippingHandlesDuplicateIdentifier() {
         let result = ReminderSkipLogic.skipping(
             "A",
             fetched: ["A", "B"],
@@ -65,7 +73,8 @@ struct ReminderSkipLogicTests {
         #expect(Set(result) == ["A"])
     }
 
-    @Test func skippingWithEmptyFetchedReturnsEmpty() {
+    @Test
+    func skippingWithEmptyFetchedReturnsEmpty() {
         let result = ReminderSkipLogic.skipping(
             "A",
             fetched: [],
@@ -73,7 +82,8 @@ struct ReminderSkipLogicTests {
         #expect(result.isEmpty)
     }
 
-    @Test func skippingPreservesExistingSkippedInFetched() {
+    @Test
+    func skippingPreservesExistingSkippedInFetched() {
         let result = ReminderSkipLogic.skipping(
             "C",
             fetched: ["A", "B", "C", "D"],

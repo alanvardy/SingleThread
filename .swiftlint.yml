@@ -38,18 +38,44 @@ force_try:
 
 # Opt-in rules appropriate for this project
 opt_in_rules:
+  - accessibility_label_for_image
+  - accessibility_trait_for_button
+  - array_init
+  - attributes
   - closure_spacing
+  - contains_over_filter_is_empty
+  - contains_over_first_not_nil
+  - discouraged_optional_boolean
+  - empty_collection_literal
   - empty_count
+  - empty_string
   - explicit_init
+  - fallthrough
   - fatal_error_message
   - first_where
+  - force_unwrapping
+  - function_default_parameter_at_end
   - implicit_return
+  - legacy_multiple
+  - legacy_objc_type
   - overridden_super_call
+  - prefer_self_in_static_references
   - prohibited_super_call
+  - redundant_type_annotation
+  - self_binding
+  - shorthand_optional_binding
   - sorted_imports
+  - static_over_final_class
+  - toggle_bool
   - trailing_closure
+  - unhandled_throwing_task
+  - unneeded_synthesized_initializer
   - unowned_variable_capture
   - vertical_parameter_alignment_on_call
+  - yoda_condition
+
+analyzer_rules:
+  - unused_import
 
 # Test files have different standards
 identifier_name:

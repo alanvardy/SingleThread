@@ -14,8 +14,8 @@ clean:
 
 lint:
 	swiftformat --lint SingleThread/ SingleThreadTests/ SingleThreadUITests/
-	swiftlint lint --strict --config .swiftlint.yml
+	swiftlint lint --strict
 
 format:
 	swiftformat SingleThread/ SingleThreadTests/ SingleThreadUITests/
-	swiftlint --fix --config .swiftlint.yml
+	swiftlint --fix

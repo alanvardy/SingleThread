@@ -10,9 +10,10 @@ nonisolated enum ReminderDateFilter {
         calendar: Calendar = .current,
         now: Date = Date()) -> Date {
         let startOfToday = calendar.startOfDay(for: now)
-        return calendar.date(
-            byAdding: DateComponents(day: 1, second: -1),
-            to: startOfToday)!
+        guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: startOfToday) else {
+            return startOfToday
+        }
+        return tomorrow.addingTimeInterval(-1)
     }
 }
 

@@ -10,7 +10,7 @@ cd "$(dirname "$0")/.."
 
 echo "==> Formatting…"
 swiftformat SingleThread/ SingleThreadTests/ SingleThreadUITests/
-swiftlint --fix --config .swiftlint.yml
+swiftlint --fix
 
 echo ""
 echo "==> SwiftFormat check…"
@@ -18,7 +18,7 @@ swiftformat --lint SingleThread/ SingleThreadTests/ SingleThreadUITests/
 
 echo ""
 echo "==> SwiftLint…"
-swiftlint lint --strict --config .swiftlint.yml
+swiftlint lint --strict
 
 echo ""
 echo "==> Building…"
