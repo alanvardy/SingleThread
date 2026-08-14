@@ -20,31 +20,40 @@ struct ContentView: View {
                 case .notDetermined:
                     ProgressView("Requesting access…")
                 case .fullAccess:
-                    if reminders.isEmpty {
-                        ContentUnavailableView(
-                            "No Reminders",
-                            systemImage: "checklist",
-                            description: Text("You don't have any reminders yet."))
-                    } else {
-                        VStack(spacing: 0) {
-                            Spacer(minLength: 0)
+                    GeometryReader { geometry in
+                        ScrollView {
+                            if reminders.isEmpty {
+                                ContentUnavailableView(
+                                    "No Reminders",
+                                    systemImage: "checklist",
+                                    description: Text("You don't have any reminders yet."))
+                                    .frame(minHeight: geometry.size.height)
+                            } else {
+                                VStack(spacing: 0) {
+                                    Spacer(minLength: 0)
 
-                            if let reminder = reminders.first {
-                                VStack(alignment: .leading) {
-                                    Text(reminder.title)
-                                        .font(.headline)
-                                    if let due = reminder.dueDateComponents?.date {
-                                        Text(due, style: .date)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
+                                    if let reminder = reminders.first {
+                                        VStack(alignment: .leading) {
+                                            Text(reminder.title)
+                                                .font(.headline)
+                                            if let due = reminder.dueDateComponents?.date {
+                                                Text(due, style: .date)
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                        }
+                                        .padding(.horizontal)
                                     }
+
+                                    Spacer(minLength: 0)
+
+                                    completeButton
                                 }
-                                .padding(.horizontal)
+                                .frame(minHeight: geometry.size.height)
                             }
-
-                            Spacer(minLength: 0)
-
-                            completeButton
+                        }
+                        .refreshable {
+                            await loadReminders()
                         }
                     }
                 default:
