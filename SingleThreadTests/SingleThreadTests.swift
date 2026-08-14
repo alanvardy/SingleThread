@@ -13,21 +13,10 @@ struct SingleThreadTests {
 
     @Test func contentViewBodyContainsRefreshableModifier() {
         let view = ContentView(loadsReminders: false)
-        // Verify body renders with the ScrollView + refreshable structure
+        // Verify body renders with the List + refreshable structure
         let bodyValue = view.body
         let description = String(describing: bodyValue)
-        #expect(description.contains("ScrollView") || description.contains("refreshable"))
-    }
-
-    @Test func swipeCompletesAtOrBeyondThreshold() {
-        #expect(ContentView.shouldCompleteSwipe(translationWidth: 120))
-        #expect(ContentView.shouldCompleteSwipe(translationWidth: 300))
-    }
-
-    @Test func swipeDoesNotCompleteBelowThreshold() {
-        #expect(!ContentView.shouldCompleteSwipe(translationWidth: 119.9))
-        #expect(!ContentView.shouldCompleteSwipe(translationWidth: 0))
-        #expect(!ContentView.shouldCompleteSwipe(translationWidth: -50))
+        #expect(description.contains("List") || description.contains("refreshable"))
     }
 }
 
