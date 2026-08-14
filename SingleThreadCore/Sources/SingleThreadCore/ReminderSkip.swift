@@ -2,21 +2,21 @@ import Foundation
 
 /// Pure logic for the skip exclusion list.
 /// No UIKit, SwiftUI, or EventKit dependencies — fully unit-testable.
-nonisolated enum ReminderSkipLogic {
+public nonisolated enum ReminderSkipLogic {
     /// Prunes stale identifiers and returns the effective skip list.
     ///
     /// - Parameter fetched: Identifiers of all currently-available reminders.
     /// - Parameter skipped: Previously-persisted skip list (may contain stale IDs).
     /// - Returns: The skip list with stale IDs removed, preserving only IDs still
     ///   present in `fetched`.
-    static func resolve(fetched: [String], skipped: [String]) -> [String] {
+    public static func resolve(fetched: [String], skipped: [String]) -> [String] {
         let fetchedSet = Set(fetched)
         return Array(fetchedSet.intersection(skipped))
     }
 
     /// Returns the new skip list after skipping the given `identifier`.
     /// Calls through `resolve` to prune stale entries automatically.
-    static func skipping(
+    public static func skipping(
         _ identifier: String,
         fetched: [String],
         skipped: [String]) -> [String] {
@@ -25,11 +25,11 @@ nonisolated enum ReminderSkipLogic {
 }
 
 /// Cleans and formats reminder notes for display.
-nonisolated enum ReminderNotesFormatter {
-    // MARK: Internal
+public nonisolated enum ReminderNotesFormatter {
+    // MARK: Public
 
     /// Returns the note text suitable for display, with known prefix artifacts removed.
-    static func format(_ notes: String?) -> String? {
+    public static func format(_ notes: String?) -> String? {
         guard let notes else { return nil }
         let trimmed = notes.trimmingCharacters(in: .whitespacesAndNewlines)
         guard let firstScalar = trimmed.unicodeScalars.first else { return nil }
@@ -51,21 +51,21 @@ nonisolated enum ReminderNotesFormatter {
 }
 
 /// Persists the skipped reminder identifiers in UserDefaults.
-struct SkippedReminderStore {
+public struct SkippedReminderStore {
     // MARK: Lifecycle
 
-    init(defaults: UserDefaults = .standard, key: String = "skippedReminderIdentifiers") {
+    public init(defaults: UserDefaults = .standard, key: String = "skippedReminderIdentifiers") {
         self.defaults = defaults
         self.key = key
     }
 
-    // MARK: Internal
+    // MARK: Public
 
-    func load() -> [String] {
+    public func load() -> [String] {
         defaults.stringArray(forKey: key) ?? []
     }
 
-    func save(_ identifiers: [String]) {
+    public func save(_ identifiers: [String]) {
         defaults.set(identifiers, forKey: key)
     }
 

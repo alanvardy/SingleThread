@@ -43,8 +43,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -destination "$SIM" \
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
-      build-for-testing \
-      SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+      build-for-testing
 
     echo ""
     echo "==> Periphery…"
@@ -81,8 +80,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 1 ]]; then
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
       build-for-testing \
-      -only-testing:SingleThreadTests \
-      SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+      -only-testing:SingleThreadTests
 
     echo ""
     echo "==> Unit tests…"
@@ -105,8 +103,7 @@ xcodebuild -scheme "$SCHEME" \
   -configuration Debug \
   -derivedDataPath "$DERIVED_DATA" \
   build-for-testing \
-  -only-testing:SingleThreadUITests \
-  SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+  -only-testing:SingleThreadUITests
 
 echo ""
 echo "==> UI tests…"

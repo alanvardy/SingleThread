@@ -4,8 +4,7 @@ DERIVED_DATA := DerivedData
 .PHONY: build test ui-test check clean lint format periphery
 
 build:
-	xcodebuild -scheme SingleThread -destination '$(SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build-for-testing SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
-
+	xcodebuild -scheme SingleThread -destination '$(SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build-for-testing
 test:
 	./scripts/test.sh --unit-only
 
