@@ -33,8 +33,7 @@ struct WatchReminderView: View {
 
     private let store: ReminderStore
 
-    @ViewBuilder
-    private var reminderContent: some View {
+    @ViewBuilder private var reminderContent: some View {
         if store.visibleReminders.isEmpty && !store.reminders.isEmpty {
             VStack {
                 Text("All Done")

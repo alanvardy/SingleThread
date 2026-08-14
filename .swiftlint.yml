@@ -1,6 +1,8 @@
 # Paths to include/exclude
 included:
   - SingleThread
+  - SingleThreadCore
+  - SingleThreadWatch
   - SingleThreadTests
   - SingleThreadUITests
 

@@ -1248,9 +1248,15 @@ No other change — Periphery already scans the whole index store, and the watch
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` — full pipeline exits 0: format, SwiftFormat check, SwiftLint, iOS build, watch build, Periphery, unit tests, UI tests
-- [ ] `make lint` — zero warnings in `SingleThreadCore/` and `SingleThreadWatch/`
-- [ ] `make watch-build` — succeeds
+- [x] `./scripts/test.sh` — full pipeline exits 0: format, SwiftFormat check, SwiftLint, iOS build, watch build, Periphery, unit tests, UI tests
+- [x] `make lint` — zero warnings in `SingleThreadCore/` and `SingleThreadWatch/`
+- [x] `make watch-build` — succeeds
+- [x] `make periphery` — no unused code detected (package + watch sources included via the iOS build's index store)
+
+> **Adaptations:**
+> 1. The watch build uses the **`SingleThreadWatch` scheme** with destination **`generic/platform=watchOS Simulator`** (the `SingleThread` scheme has no watchOS destinations, and a name-based watch destination is ambiguous when a paired watch exists alongside a standalone one).
+> 2. `SWIFT_TREAT_WARNINGS_AS_ERRORS` now lives in the project-level build configs (Phase 1), so the command-line flag was removed from `Makefile`/`scripts/test.sh`/`ci.yml` rather than re-added.
+> 3. `ci.yml` gains `setup-xcode@v1` in the lint job so the watch build uses a pinned Xcode (26.6).
 
 #### Manual
 - [ ] Verify CI YAML is valid: `yamllint .github/workflows/ci.yml` or GitHub Actions editor

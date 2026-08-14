@@ -3,7 +3,9 @@ set -euo pipefail
 
 # ── Configuration ──────────────────────────────────────────────────────────────
 SIM="platform=iOS Simulator,name=iPhone 17"
+WATCH_SIM="generic/platform=watchOS Simulator"
 SCHEME="SingleThread"
+WATCH_SCHEME="SingleThreadWatch"
 DERIVED_DATA="DerivedData"
 
 cd "$(dirname "$0")/.."
@@ -26,12 +28,12 @@ esac
 # ── Full pipeline ──────────────────────────────────────────────────────────────
 if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
     echo "==> Formatting…"
-    swiftformat SingleThread/ SingleThreadTests/ SingleThreadUITests/
+    swiftformat SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadTests/ SingleThreadUITests/
     swiftlint --fix
 
     echo ""
     echo "==> SwiftFormat check…"
-    swiftformat --lint SingleThread/ SingleThreadTests/ SingleThreadUITests/
+    swiftformat --lint SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadTests/ SingleThreadUITests/
 
     echo ""
     echo "==> SwiftLint…"
@@ -44,6 +46,14 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
       build-for-testing
+
+    echo ""
+    echo "==> Watch build…"
+    xcodebuild -scheme "$WATCH_SCHEME" \
+      -destination "$WATCH_SIM" \
+      -configuration Debug \
+      -derivedDataPath "$DERIVED_DATA" \
+      build
 
     echo ""
     echo "==> Periphery…"
