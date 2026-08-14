@@ -41,7 +41,6 @@ jobs:
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA" \
             build-for-testing \
-            -only-testing:SingleThreadTests \
             SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
             -showBuildTimingSummary
 
@@ -55,6 +54,16 @@ jobs:
             -only-testing:SingleThreadTests \
             SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
             -resultBundlePath TestResults.xcresult
+
+      - name: UI tests
+        timeout-minutes: 20
+        run: |
+          xcodebuild -scheme SingleThread \
+            -destination "$SIM" \
+            -derivedDataPath "$DERIVED_DATA" \
+            test-without-building \
+            -only-testing:SingleThreadUITests \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
 
       - name: Upload test results on failure
         if: failure()
