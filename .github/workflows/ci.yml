@@ -30,8 +30,8 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/DerivedData
-          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThread.xcodeproj/project.pbxproj') }}
-          restore-keys: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
+          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThread.xcodeproj/project.pbxproj') }}
+          restore-keys: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
 
       - name: Build
         timeout-minutes: 20
