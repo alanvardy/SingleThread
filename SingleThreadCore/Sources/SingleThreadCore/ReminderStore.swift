@@ -45,6 +45,11 @@ public final class ReminderStore {
     /// Wired by each app layer to push skip-set changes via WatchConnectivity (Phase 4).
     public var onSkipSetChanged: (([String]) -> Void)?
 
+    /// Hook invoked when the user completes a reminder on watchOS, where EventKit
+    /// writes are unavailable. Passes the completed reminder's identifier. Wired by
+    /// the watch app layer to relay the completion to the iPhone via WatchConnectivity.
+    public var onCompleteReminder: ((String) -> Void)?
+
     public var visibleReminders: [EKReminder] {
         reminders.filter { !skippedIDs.contains($0.calendarItemIdentifier) }
     }
@@ -63,16 +68,31 @@ public final class ReminderStore {
         }
     }
 
+    /// Completes a specific reminder by identifier.
+    ///
+    /// On iOS: marks it done in EventKit and reloads. On watchOS (where EventKit is
+    /// read-only): removes it locally and relays the completion to the iPhone via
+    /// `onCompleteReminder`.
+    public func completeReminder(identifier: String) async {
+        #if os(watchOS)
+            reminders.removeAll { $0.calendarItemIdentifier == identifier }
+            onCompleteReminder?(identifier)
+        #else
+            guard let reminder = reminders.first(where: { $0.calendarItemIdentifier == identifier }) else { return }
+            do {
+                reminder.isCompleted = true
+                try eventStore.save(reminder, commit: true)
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                await reload()
+            } catch {
+                print("[\(Date.now.timeIntervalSince1970)] complete error \(error)")
+            }
+        #endif
+    }
+
     public func completeCurrentReminder() async {
         guard let reminder = visibleReminders.first else { return }
-        do {
-            reminder.isCompleted = true
-            try eventStore.save(reminder, commit: true)
-            try? await Task.sleep(nanoseconds: 200_000_000)
-            await reload()
-        } catch {
-            print("[\(Date.now.timeIntervalSince1970)] complete error \(error)")
-        }
+        await completeReminder(identifier: reminder.calendarItemIdentifier)
     }
 
     public func skipCurrentReminder() {

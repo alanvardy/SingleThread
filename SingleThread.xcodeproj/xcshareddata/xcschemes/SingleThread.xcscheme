@@ -20,6 +20,20 @@
                ReferencedContainer = "container:SingleThread.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "YES"
+            buildForAnalyzing = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "51AA3F220000000000000003"
+               BuildableName = "SingleThreadWatch.app"
+               BlueprintName = "SingleThreadWatch"
+               ReferencedContainer = "container:SingleThread.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
