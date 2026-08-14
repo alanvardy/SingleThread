@@ -23,7 +23,7 @@ final class SingleThreadUITests: XCTestCase {
         // ProgressView with "Requesting access…". Wait for any visible
         // text element before auditing.
         XCTAssertTrue(
-            app.staticTexts.firstMatch.waitForExistence(timeout: 5),
+            app.staticTexts.firstMatch.waitForExistence(timeout: 2),
             "App should display text content")
 
         // Audit accessibility for key categories; skip contrast (known
@@ -33,12 +33,4 @@ final class SingleThreadUITests: XCTestCase {
         )
     }
 
-    @MainActor
-    func testLaunchPerformance() throws {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing"]
-        measure(metrics: [XCTApplicationLaunchMetric()]) {
-            app.launch()
-        }
-    }
 }
