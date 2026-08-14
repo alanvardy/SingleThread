@@ -53,8 +53,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install mise
+        run: brew install mise
+
+      - name: Cache lint tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/share/mise
+          key: lint-tools-${{ runner.os }}-${{ hashFiles('.mise.toml') }}
+
       - name: Install tools
-        run: brew install swiftlint swiftformat
+        run: mise install
+
+      - name: Put mise shims on PATH
+        run: echo "$HOME/.local/share/mise/shims" >> "$GITHUB_PATH"
 
       - name: SwiftFormat check
         timeout-minutes: 5
