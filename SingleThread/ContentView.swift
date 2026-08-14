@@ -3,6 +3,19 @@ import SwiftUI
 
 extension EKReminder: @retroactive @unchecked Sendable {}
 
+/// Computes the due-date boundary for the "today or overdue" filter.
+nonisolated enum ReminderDateFilter {
+    /// The last instant of today (23:59:59), so reminders due tomorrow are excluded.
+    static func endOfToday(
+        calendar: Calendar = .current,
+        now: Date = Date()) -> Date {
+        let startOfToday = calendar.startOfDay(for: now)
+        return calendar.date(
+            byAdding: DateComponents(day: 1, second: -1),
+            to: startOfToday)!
+    }
+}
+
 struct ContentView: View {
     // MARK: Lifecycle
 
@@ -141,12 +154,9 @@ struct ContentView: View {
 
     private func loadReminders() async {
         print("[\(Date.now.timeIntervalSince1970)] loadReminders()")
-        let endOfToday = Calendar.current.date(
-            byAdding: .day, value: 1,
-            to: Calendar.current.startOfDay(for: Date()))!
         let predicate = store.predicateForIncompleteReminders(
             withDueDateStarting: nil,
-            ending: endOfToday,
+            ending: ReminderDateFilter.endOfToday(),
             calendars: nil)
         let fetched: [EKReminder] = await withCheckedContinuation { continuation in
             print("[\(Date.now.timeIntervalSince1970)] fetch dispatch")
