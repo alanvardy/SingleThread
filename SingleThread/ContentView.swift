@@ -130,6 +130,7 @@ struct ContentView: View {
                 }
             }
             .listStyle(.plain)
+            .scrollBounceBehavior(.always)
             .refreshable {
                 let shouldClear = allSkipped
                 await loadReminders(clearSkipped: shouldClear)
