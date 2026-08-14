@@ -46,21 +46,10 @@ struct ContentView: View {
                                     Spacer(minLength: 0)
 
                                     if let reminder = reminders.first {
-                                        VStack(alignment: .leading) {
-                                            Text(reminder.title)
-                                                .font(.headline)
-                                            if let due = reminder.dueDateComponents?.date {
-                                                Text(due, style: .date)
-                                                    .font(.caption)
-                                                    .foregroundStyle(.secondary)
-                                            }
-                                        }
-                                        .padding(.horizontal)
+                                        reminderCard(reminder)
                                     }
 
                                     Spacer(minLength: 0)
-
-                                    completeButton
                                 }
                                 .frame(minHeight: geometry.size.height)
                             }
@@ -95,32 +84,87 @@ struct ContentView: View {
         }
     }
 
+    static func shouldCompleteSwipe(translationWidth: CGFloat) -> Bool {
+        translationWidth >= swipeCompletionThreshold
+    }
+
     // MARK: Private
 
+    private static let swipeCompletionThreshold: CGFloat = 120
+    private static let swipeFlyOffDistance: CGFloat = 600
+
+    @State private var dragOffset: CGSize = .zero
+    @State private var isCompleting = false
     @State private var reminders: [EKReminder] = []
     @State private var authorizationStatus: EKAuthorizationStatus = .notDetermined
 
     private let loadsReminders: Bool
     private let store = EKEventStore()
 
-    private var completeButton: some View {
-        Button {
-            Task { await completeReminder() }
-        } label: {
-            Label("Mark Complete", systemImage: "checkmark.circle.fill")
-                .font(.callout.weight(.semibold))
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 8)
+    private var dragGesture: some Gesture {
+        DragGesture(minimumDistance: 10)
+            .onChanged { value in
+                guard !isCompleting else { return }
+                let horizontal = value.translation.width
+                dragOffset = CGSize(width: max(horizontal, 0), height: 0)
+            }
+            .onEnded { value in
+                handleSwipeEnd(translation: value.translation)
+            }
+    }
+
+    private func reminderCard(_ reminder: EKReminder) -> some View {
+        ZStack {
+            HStack {
+                HStack(spacing: 8) {
+                    Image(systemName: "checkmark.circle.fill")
+                    Text("Complete")
+                }
+                .font(.headline)
+                .foregroundStyle(.green)
+                .padding(.leading, 20)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+            VStack(alignment: .leading) {
+                Text(reminder.title)
+                    .font(.headline)
+                if let due = reminder.dueDateComponents?.date {
+                    Text(due, style: .date)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .padding()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(Color(.secondarySystemBackground)))
+            .offset(x: dragOffset.width)
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.green)
-        .containerRelativeFrame(.horizontal, count: 3, span: 2, spacing: 0)
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 6)
-        .background(
-            Rectangle()
-                .fill(.regularMaterial)
-                .ignoresSafeArea(edges: .bottom))
+        .padding(.horizontal)
+        .gesture(dragGesture)
+    }
+
+    private func handleSwipeEnd(translation: CGSize) {
+        guard !isCompleting else { return }
+        if Self.shouldCompleteSwipe(translationWidth: translation.width) {
+            isCompleting = true
+            withAnimation(.easeOut(duration: 0.3)) {
+                dragOffset = CGSize(width: Self.swipeFlyOffDistance, height: 0)
+            }
+            Task {
+                try? await Task.sleep(for: .milliseconds(300))
+                await completeReminder()
+                dragOffset = .zero
+                isCompleting = false
+            }
+        } else {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                dragOffset = .zero
+            }
+        }
     }
 
     private func completeReminder() async {

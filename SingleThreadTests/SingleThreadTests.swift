@@ -18,6 +18,17 @@ struct SingleThreadTests {
         let description = String(describing: bodyValue)
         #expect(description.contains("ScrollView") || description.contains("refreshable"))
     }
+
+    @Test func swipeCompletesAtOrBeyondThreshold() {
+        #expect(ContentView.shouldCompleteSwipe(translationWidth: 120))
+        #expect(ContentView.shouldCompleteSwipe(translationWidth: 300))
+    }
+
+    @Test func swipeDoesNotCompleteBelowThreshold() {
+        #expect(!ContentView.shouldCompleteSwipe(translationWidth: 119.9))
+        #expect(!ContentView.shouldCompleteSwipe(translationWidth: 0))
+        #expect(!ContentView.shouldCompleteSwipe(translationWidth: -50))
+    }
 }
 
 struct ReminderDateFilterTests {
