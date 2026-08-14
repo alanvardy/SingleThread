@@ -4,6 +4,7 @@ set -euo pipefail
 # ── Configuration ──────────────────────────────────────────────────────────────
 SIM="platform=iOS Simulator,name=iPhone 17"
 SCHEME="SingleThread"
+DERIVED_DATA="DerivedData"
 
 cd "$(dirname "$0")/.."
 
@@ -23,12 +24,17 @@ echo ""
 echo "==> Building…"
 xcodebuild -scheme "$SCHEME" \
   -destination "$SIM" \
-  -configuration Debug build
+  -configuration Debug \
+  -derivedDataPath "$DERIVED_DATA" \
+  build-for-testing \
+  -only-testing:SingleThreadTests
 
 echo ""
 echo "==> Unit tests…"
-xcodebuild test -scheme "$SCHEME" \
+xcodebuild -scheme "$SCHEME" \
   -destination "$SIM" \
+  -derivedDataPath "$DERIVED_DATA" \
+  test-without-building \
   -only-testing:SingleThreadTests
 
 echo ""
