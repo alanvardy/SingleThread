@@ -91,6 +91,7 @@ struct ContentView: View {
                         systemImage: "checkmark.circle",
                         description: Text("Pull to refresh to see all your reminders again."))
                         .listRowSeparator(.hidden)
+                        .frame(minHeight: rowHeight, alignment: .center)
                 } else if reminders.isEmpty {
                     ContentUnavailableView(
                         "No Reminders",
