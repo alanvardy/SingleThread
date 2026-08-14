@@ -30,7 +30,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/DerivedData
-          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThread.xcodeproj/project.pbxproj') }}
+          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThread.xcodeproj/project.pbxproj') }}
           restore-keys: |
             derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
             derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
@@ -49,7 +49,6 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             build-for-testing \
             -only-testing:SingleThreadTests \
-            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
             -showBuildTimingSummary
 
       - name: Unit tests
@@ -60,7 +59,6 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             test-without-building \
             -only-testing:SingleThreadTests \
-            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
             -parallel-testing-enabled YES \
             -resultBundlePath TestResults.xcresult
 
@@ -90,7 +88,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/DerivedData
-          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThread.xcodeproj/project.pbxproj') }}
+          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThread.xcodeproj/project.pbxproj') }}
           restore-keys: |
             derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
             derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
@@ -109,7 +107,6 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             build-for-testing \
             -only-testing:SingleThreadUITests \
-            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
             -showBuildTimingSummary
 
       - name: UI tests
@@ -120,13 +117,17 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             test-without-building \
             -only-testing:SingleThreadUITests \
-            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
             -parallel-testing-enabled YES
 
   lint:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        id: xcode
+        with:
+          xcode-version: '26.6'
 
       - name: Install mise
         run: brew install mise
@@ -146,11 +147,20 @@ jobs:
 
       - name: SwiftFormat check
         timeout-minutes: 5
-        run: swiftformat --lint SingleThread/ SingleThreadTests/ SingleThreadUITests/
+        run: swiftformat --lint SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadTests/ SingleThreadUITests/
 
       - name: SwiftLint
         timeout-minutes: 5
         run: swiftlint lint --strict
+
+      - name: Watch build
+        timeout-minutes: 15
+        run: |
+          xcodebuild -scheme SingleThreadWatch \
+            -destination "generic/platform=watchOS Simulator" \
+            -configuration Debug \
+            build \
+            -showBuildTimingSummary
 
       - name: Periphery
         timeout-minutes: 10

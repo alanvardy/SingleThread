@@ -56,10 +56,9 @@ import Foundation
         public func requestCompleteReminder(_ identifier: String) {
             session.sendMessage(
                 ["completeReminderIdentifier": identifier],
-                replyHandler: nil,
-                errorHandler: { error in
+                replyHandler: nil) { error in
                     print("[\(Date.now.timeIntervalSince1970)] requestCompleteReminder error \(error)")
-                })
+                }
         }
 
         // MARK: WCSessionDelegate
