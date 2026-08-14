@@ -4,14 +4,16 @@ import Testing
 
 @MainActor
 struct SingleThreadTests {
-    @Test func contentViewInitializesWithoutReminders() {
+    @Test
+    func contentViewInitializesWithoutReminders() {
         let view = ContentView(loadsReminders: false)
         // Verify the view body renders without crashing
         let bodyValue = view.body
         #expect(String(describing: bodyValue).isEmpty == false)
     }
 
-    @Test func contentViewBodyContainsRefreshableModifier() {
+    @Test
+    func contentViewBodyContainsRefreshableModifier() {
         let view = ContentView(loadsReminders: false)
         // Verify body renders with the List + refreshable structure
         let bodyValue = view.body
@@ -23,22 +25,26 @@ struct SingleThreadTests {
 struct ReminderDateFilterTests {
     // MARK: Internal
 
-    @Test func reminderDueTodayIsIncluded() {
+    @Test
+    func reminderDueTodayIsIncluded() {
         let end = ReminderDateFilter.endOfToday(calendar: calendar, now: now)
         #expect(date(6) <= end)
     }
 
-    @Test func reminderDueYesterdayIsIncluded() {
+    @Test
+    func reminderDueYesterdayIsIncluded() {
         let end = ReminderDateFilter.endOfToday(calendar: calendar, now: now)
         #expect(date(5) <= end)
     }
 
-    @Test func reminderDueTomorrowIsExcluded() {
+    @Test
+    func reminderDueTomorrowIsExcluded() {
         let end = ReminderDateFilter.endOfToday(calendar: calendar, now: now)
         #expect(date(7) > end)
     }
 
-    @Test func endOfTodayIsLastInstantOfToday() throws {
+    @Test
+    func endOfTodayIsLastInstantOfToday() throws {
         let end = ReminderDateFilter.endOfToday(calendar: calendar, now: now)
         let startOfTomorrow = try #require(calendar.date(
             byAdding: DateComponents(day: 1),

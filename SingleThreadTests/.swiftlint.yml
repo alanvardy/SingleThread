@@ -1,0 +1,4 @@
+# Relax rules for test code — force-unwrapping test fixtures and known-valid
+# date literals is idiomatic in Swift Testing.
+disabled_rules:
+  - force_unwrapping

@@ -89,4 +89,4 @@ jobs:
 
       - name: SwiftLint
         timeout-minutes: 5
-        run: swiftlint lint --strict --config .swiftlint.yml
+        run: swiftlint lint --strict
