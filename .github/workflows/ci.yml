@@ -31,7 +31,14 @@ jobs:
         with:
           path: ${{ github.workspace }}/DerivedData
           key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThread.xcodeproj/project.pbxproj') }}
-          restore-keys: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
+          restore-keys: |
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
+
+      - name: Pre-boot simulator
+        run: |
+          SIM_UDID=$(xcrun simctl list devices available | grep 'iPhone 17 (' | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+          xcrun simctl boot "$SIM_UDID" || true
 
       - name: Build
         timeout-minutes: 20
@@ -54,6 +61,7 @@ jobs:
             test-without-building \
             -only-testing:SingleThreadTests \
             SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
+            -parallel-testing-enabled YES \
             -resultBundlePath TestResults.xcresult
 
       - name: Upload test results on failure
@@ -83,7 +91,14 @@ jobs:
         with:
           path: ${{ github.workspace }}/DerivedData
           key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThread.xcodeproj/project.pbxproj') }}
-          restore-keys: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
+          restore-keys: |
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
+
+      - name: Pre-boot simulator
+        run: |
+          SIM_UDID=$(xcrun simctl list devices available | grep 'iPhone 17 (' | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+          xcrun simctl boot "$SIM_UDID" || true
 
       - name: Build
         timeout-minutes: 20
@@ -105,7 +120,8 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             test-without-building \
             -only-testing:SingleThreadUITests \
-            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
+            -parallel-testing-enabled YES
 
   lint:
     runs-on: macos-26
@@ -115,11 +131,12 @@ jobs:
       - name: Install mise
         run: brew install mise
 
-      - name: Cache lint tools
+      - name: Cache mise tools
         uses: actions/cache@v4
         with:
           path: ~/.local/share/mise
-          key: lint-tools-${{ runner.os }}-${{ hashFiles('.mise.toml') }}
+          key: mise-tools-${{ runner.os }}-${{ hashFiles('.mise.toml') }}
+          restore-keys: mise-tools-${{ runner.os }}-
 
       - name: Install tools
         run: mise install
