@@ -33,31 +33,7 @@ struct ContentView: View {
                 case .notDetermined:
                     ProgressView("Requesting access…")
                 case .fullAccess:
-                    GeometryReader { geometry in
-                        ScrollView {
-                            if reminders.isEmpty {
-                                ContentUnavailableView(
-                                    "No Reminders",
-                                    systemImage: "checklist",
-                                    description: Text("You don't have any reminders yet."))
-                                    .frame(minHeight: geometry.size.height)
-                            } else {
-                                VStack(spacing: 0) {
-                                    Spacer(minLength: 0)
-
-                                    if let reminder = reminders.first {
-                                        reminderCard(reminder)
-                                    }
-
-                                    Spacer(minLength: 0)
-                                }
-                                .frame(minHeight: geometry.size.height)
-                            }
-                        }
-                        .refreshable {
-                            await loadReminders()
-                        }
-                    }
+                    reminderList
                 default:
                     ContentUnavailableView(
                         "Reminders Access",
@@ -84,98 +60,100 @@ struct ContentView: View {
         }
     }
 
-    static func shouldCompleteSwipe(translationWidth: CGFloat) -> Bool {
-        translationWidth >= swipeCompletionThreshold
-    }
-
     // MARK: Private
 
-    private static let swipeCompletionThreshold: CGFloat = 120
-    private static let swipeFlyOffDistance: CGFloat = 600
-
-    @State private var dragOffset: CGSize = .zero
-    @State private var isCompleting = false
     @State private var reminders: [EKReminder] = []
+    @State private var skippedIDs: Set<String> = []
     @State private var authorizationStatus: EKAuthorizationStatus = .notDetermined
 
     private let loadsReminders: Bool
     private let store = EKEventStore()
+    private let skipStore = SkippedReminderStore()
 
-    private var dragGesture: some Gesture {
-        DragGesture(minimumDistance: 10)
-            .onChanged { value in
-                guard !isCompleting else { return }
-                let horizontal = value.translation.width
-                dragOffset = CGSize(width: max(horizontal, 0), height: 0)
-            }
-            .onEnded { value in
-                handleSwipeEnd(translation: value.translation)
-            }
+    private var visibleReminders: [EKReminder] {
+        reminders.filter { !skippedIDs.contains($0.calendarItemIdentifier) }
     }
 
-    private func reminderCard(_ reminder: EKReminder) -> some View {
-        ZStack {
-            HStack {
-                HStack(spacing: 8) {
-                    Image(systemName: "checkmark.circle.fill")
-                    Text("Complete")
-                }
-                .font(.headline)
-                .foregroundStyle(.green)
-                .padding(.leading, 20)
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-
-            VStack(alignment: .leading) {
-                Text(reminder.title)
-                    .font(.headline)
-                if let due = reminder.dueDateComponents?.date {
-                    Text(due, style: .date)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
-            .padding()
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.secondarySystemBackground)))
-            .offset(x: dragOffset.width)
-        }
-        .padding(.horizontal)
-        .gesture(dragGesture)
+    /// Every fetched reminder has been skipped (but there are reminders to show again).
+    private var allSkipped: Bool {
+        !reminders.isEmpty && visibleReminders.isEmpty
     }
 
-    private func handleSwipeEnd(translation: CGSize) {
-        guard !isCompleting else { return }
-        if Self.shouldCompleteSwipe(translationWidth: translation.width) {
-            isCompleting = true
-            withAnimation(.easeOut(duration: 0.3)) {
-                dragOffset = CGSize(width: Self.swipeFlyOffDistance, height: 0)
+    private var reminderList: some View {
+        GeometryReader { geometry in
+            let rowHeight = geometry.size.height
+                - geometry.safeAreaInsets.top
+                - geometry.safeAreaInsets.bottom
+            List {
+                if allSkipped {
+                    ContentUnavailableView(
+                        "All Done",
+                        systemImage: "checkmark.circle",
+                        description: Text("Pull to refresh to see all your reminders again."))
+                        .listRowSeparator(.hidden)
+                } else if reminders.isEmpty {
+                    ContentUnavailableView(
+                        "No Reminders",
+                        systemImage: "checklist",
+                        description: Text("You don't have any reminders yet."))
+                        .listRowSeparator(.hidden)
+                } else if let reminder = visibleReminders.first {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(reminder.title)
+                            .font(.headline)
+                        if let due = reminder.dueDateComponents?.date {
+                            Text(due, style: .date)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.vertical, 8)
+                    .frame(minHeight: rowHeight, alignment: .center)
+                    .swipeActions(edge: .leading) {
+                        Button {
+                            Task { await completeReminder() }
+                        } label: {
+                            Label("Complete", systemImage: "checkmark.circle.fill")
+                        }
+                        .tint(.green)
+                    }
+                    .swipeActions(edge: .trailing) {
+                        Button {
+                            skipReminder()
+                        } label: {
+                            Label("Skip", systemImage: "circle.slash")
+                        }
+                        .tint(.orange)
+                    }
+                }
             }
-            Task {
-                try? await Task.sleep(for: .milliseconds(300))
-                await completeReminder()
-                dragOffset = .zero
-                isCompleting = false
-            }
-        } else {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                dragOffset = .zero
+            .listStyle(.plain)
+            .refreshable {
+                let shouldClear = allSkipped
+                await loadReminders(clearSkipped: shouldClear)
             }
         }
+    }
+
+    private func skipReminder() {
+        guard let reminder = visibleReminders.first else { return }
+        let fetchedIDs = reminders.map(\.calendarItemIdentifier)
+        let updated = ReminderSkipLogic.skipping(
+            reminder.calendarItemIdentifier,
+            fetched: fetchedIDs,
+            skipped: Array(skippedIDs))
+        skippedIDs = Set(updated)
+        skipStore.save(updated)
     }
 
     private func completeReminder() async {
-        guard let reminder = reminders.first else { return }
+        guard let reminder = visibleReminders.first else { return }
         do {
             reminder.isCompleted = true
             try store.save(reminder, commit: true)
-            reminders.removeFirst()
             await loadReminders()
         } catch {
-            print("[\\(Date.now.timeIntervalSince1970)] complete error \\(error)")
+            print("[\(Date.now.timeIntervalSince1970)] complete error \(error)")
         }
     }
 
@@ -196,24 +174,30 @@ struct ContentView: View {
         }
     }
 
-    private func loadReminders() async {
+    private func loadReminders(clearSkipped: Bool = false) async {
         print("[\(Date.now.timeIntervalSince1970)] loadReminders()")
         let predicate = store.predicateForIncompleteReminders(
             withDueDateStarting: nil,
             ending: ReminderDateFilter.endOfToday(),
             calendars: nil)
         let fetched: [EKReminder] = await withCheckedContinuation { continuation in
-            print("[\(Date.now.timeIntervalSince1970)] fetch dispatch")
             DispatchQueue.main.async {
                 store.fetchReminders(matching: predicate) { results in
-                    let count = results?.count ?? 0
-                    print("[\(Date.now.timeIntervalSince1970)] callback \(count)")
                     continuation.resume(returning: results ?? [])
                 }
             }
         }
-        reminders = Array(fetched.prefix(1))
-        print("[\(Date.now.timeIntervalSince1970)] done \(reminders.count)/\(fetched.count)")
+        reminders = fetched
+        if clearSkipped {
+            skippedIDs = []
+            skipStore.save([])
+        } else {
+            let resolved = ReminderSkipLogic.resolve(
+                fetched: fetched.map(\.calendarItemIdentifier),
+                skipped: skipStore.load())
+            skippedIDs = Set(resolved)
+        }
+        print("[\(Date.now.timeIntervalSince1970)] done \(visibleReminders.count)/\(fetched.count)")
     }
 }
 
