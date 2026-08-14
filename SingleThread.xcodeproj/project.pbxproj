@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		518BF495302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
+		518BF496302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
+		518BF497302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		51AA3F29000000000000000A /* SingleThreadWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51AA3F200000000000000001 /* SingleThreadWatch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -83,6 +86,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				518BF495302FCC80004C5968 /* SingleThreadCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -90,6 +94,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				518BF497302FCC80004C5968 /* SingleThreadCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -104,6 +109,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				518BF496302FCC80004C5968 /* SingleThreadCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -264,10 +270,10 @@
 			);
 			mainGroup = 51AA3ECD302D5C4500960DFC;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
 			packageReferences = (
 				51AA3F100000000000000001 /* XCLocalSwiftPackageReference "SingleThreadCore" */,
 			);
+			preferredProjectObjectVersion = 77;
 			productRefGroup = 51AA3ED7302D5C4500960DFC /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -359,18 +365,6 @@
 			targetProxy = 51AA3F260000000000000007 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
-		51AA3F100000000000000001 /* XCLocalSwiftPackageReference "SingleThreadCore" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = SingleThreadCore;
-		};
-/* End XCLocalSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		51AA3F110000000000000002 /* SingleThreadCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = SingleThreadCore;
-		};
-/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		51AA3EF7302D5C4500960DFC /* Debug */ = {
@@ -780,6 +774,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		51AA3F100000000000000001 /* XCLocalSwiftPackageReference "SingleThreadCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = SingleThreadCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		51AA3F110000000000000002 /* SingleThreadCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SingleThreadCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 51AA3ECE302D5C4500960DFC /* Project object */;
 }

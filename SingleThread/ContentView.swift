@@ -5,8 +5,14 @@ import SwiftUI
 struct ContentView: View {
     // MARK: Lifecycle
 
+    /// Accepts a pre-configured store (used by the app entry point, which wires
+    /// WatchConnectivity hooks onto the store before handing it to the view).
+    init(store: ReminderStore) {
+        self.store = store
+    }
+
     init(loadsReminders: Bool = true) {
-        _store = State(initialValue: ReminderStore(loadsReminders: loadsReminders))
+        store = ReminderStore(loadsReminders: loadsReminders)
     }
 
     /// Pre-populates state for canvas previews.
@@ -15,11 +21,11 @@ struct ContentView: View {
         reminders: [EKReminder],
         skippedIDs: Set<String>,
         authorizationStatus: EKAuthorizationStatus) {
-        _store = State(initialValue: ReminderStore(
+        store = ReminderStore(
             loadsReminders: loadsReminders,
             reminders: reminders,
             skippedIDs: skippedIDs,
-            authorizationStatus: authorizationStatus))
+            authorizationStatus: authorizationStatus)
     }
 
     // MARK: Internal
@@ -44,7 +50,7 @@ struct ContentView: View {
 
     // MARK: Private
 
-    @State private var store: ReminderStore
+    private let store: ReminderStore
 
     private var allSkipped: Bool {
         !store.reminders.isEmpty && store.visibleReminders.isEmpty

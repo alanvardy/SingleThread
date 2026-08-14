@@ -1,11 +1,42 @@
+import SingleThreadCore
 import SwiftUI
+#if os(iOS)
+    import WatchConnectivity
+#endif
 
 @main
 struct SingleThreadApp: App {
+    // MARK: Lifecycle
+
+    init() {
+        let store = ReminderStore(
+            loadsReminders: !ProcessInfo.processInfo.arguments.contains("--ui-testing"))
+        self.store = store
+
+        #if os(iOS)
+            if WCSession.isSupported() {
+                let service = SkippedReminderSyncService(
+                    session: WCSession.default,
+                    skipStore: SkippedReminderStore())
+                service.activate()
+                service.onCompleteReminderReceived = { identifier in
+                    Task { await store.completeReminder(identifier: identifier) }
+                }
+                store.onSkipSetChanged = { ids in service.pushSkipIDs(ids) }
+                store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
+            }
+        #endif
+    }
+
+    // MARK: Internal
+
     var body: some Scene {
         WindowGroup {
-            ContentView(
-                loadsReminders: !ProcessInfo.processInfo.arguments.contains("--ui-testing"))
+            ContentView(store: store)
         }
     }
+
+    // MARK: Private
+
+    private let store: ReminderStore
 }

@@ -1088,7 +1088,14 @@ Test uses unique `UserDefaults` keys per test to avoid leakage between parallel 
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh --unit-only` — all tests pass including the 6 new `SkippedReminderSyncServiceTests`
+- [x] `./scripts/test.sh --unit-only` — all tests pass including 9 new `SkippedReminderSyncServiceTests` (6 skip-sync + 3 complete-relay)
+
+> **Adaptations (Phase 4 + option 2 — complete relay):**
+> 1. The sync service was **not** marked `@MainActor`. The plan's `@MainActor` + `WCSessionDelegate` conformance fails to compile in Swift 6 (`conformance … crosses into main actor-isolated code`), and WCSession's delegate queue is a fixed non-main serial queue (no `delegateQueue` setter). The `onCompleteReminderReceived` hook is instead `nonisolated(unsafe)` — written once on the main actor before `activate()`, read on WCSession's serial delegate queue.
+> 2. `SkipSyncSession` gained `sendMessage(_:replyHandler:errorHandler:)` to support the **complete relay** (option 2): the watch sends `completeReminderIdentifier`, the iPhone's `didReceiveMessage` completes it via the shared `ReminderStore`.
+> 3. `activate()` calls `session.activate()` even for non-`WCSession` sessions (the plan's `guard … else { return }` broke the `FakeSession` test seam).
+> 4. `ReminderStore.completeReminder(identifier:)` (platform-aware) + `onCompleteReminder` hook were added in Phase 3 to support the relay.
+> 5. App entry points now own a shared `ReminderStore` (passed to the view) so the iPhone-side service can complete reminders on the store it observes; `ContentView`/`SingleThreadWatchApp` switched from `@State`-owned store to a `let` reference.
 
 #### Manual
 - [ ] **Hardware required**: Pair Apple Watch with iPhone

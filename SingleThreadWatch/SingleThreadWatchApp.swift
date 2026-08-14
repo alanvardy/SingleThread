@@ -1,13 +1,24 @@
 import SingleThreadCore
 import SwiftUI
+import WatchConnectivity
 
 @main
 struct SingleThreadWatchApp: App {
     // MARK: Lifecycle
 
     init() {
-        _store = State(initialValue: ReminderStore(
-            loadsReminders: !ProcessInfo.processInfo.arguments.contains("--ui-testing")))
+        let store = ReminderStore(
+            loadsReminders: !ProcessInfo.processInfo.arguments.contains("--ui-testing"))
+        self.store = store
+
+        if WCSession.isSupported() {
+            let service = SkippedReminderSyncService(
+                session: WCSession.default,
+                skipStore: SkippedReminderStore())
+            service.activate()
+            store.onSkipSetChanged = { ids in service.pushSkipIDs(ids) }
+            store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
+        }
     }
 
     // MARK: Internal
@@ -20,5 +31,5 @@ struct SingleThreadWatchApp: App {
 
     // MARK: Private
 
-    @State private var store: ReminderStore
+    private let store: ReminderStore
 }
