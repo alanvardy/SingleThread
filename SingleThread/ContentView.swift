@@ -6,6 +6,10 @@ extension EKReminder: @retroactive @unchecked Sendable {}
 struct ContentView: View {
     // MARK: Internal
 
+    init(loadsReminders: Bool = true) {
+        self.loadsReminders = loadsReminders
+    }
+
     var body: some View {
         ZStack {
             Color(.systemBackground).ignoresSafeArea()
@@ -20,16 +24,25 @@ struct ContentView: View {
                             systemImage: "checklist",
                             description: Text("You don't have any reminders yet."))
                     } else {
-                        List(reminders, id: \.calendarItemIdentifier) { reminder in
-                            VStack(alignment: .leading) {
-                                Text(reminder.title)
-                                    .font(.headline)
-                                if let due = reminder.dueDateComponents?.date {
-                                    Text(due, style: .date)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                        VStack(spacing: 0) {
+                            Spacer(minLength: 0)
+
+                            if let reminder = reminders.first {
+                                VStack(alignment: .leading) {
+                                    Text(reminder.title)
+                                        .font(.headline)
+                                    if let due = reminder.dueDateComponents?.date {
+                                        Text(due, style: .date)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
+                                .padding(.horizontal)
                             }
+
+                            Spacer(minLength: 0)
+
+                            completeButton
                         }
                     }
                 default:
@@ -44,6 +57,7 @@ struct ContentView: View {
             print("[\(Date.now.timeIntervalSince1970)] onAppear \(authorizationStatus.rawValue)/\(reminders.count)")
         }
         .task {
+            guard loadsReminders else { return }
             print("[\(Date.now.timeIntervalSince1970)] task start")
             let currentStatus = EKEventStore.authorizationStatus(for: .reminder)
             print("[\(Date.now.timeIntervalSince1970)] auth \(currentStatus.rawValue)")
@@ -62,7 +76,39 @@ struct ContentView: View {
     @State private var reminders: [EKReminder] = []
     @State private var authorizationStatus: EKAuthorizationStatus = .notDetermined
 
+    private let loadsReminders: Bool
     private let store = EKEventStore()
+
+    private var completeButton: some View {
+        Button {
+            Task { await completeReminder() }
+        } label: {
+            Label("Mark Complete", systemImage: "checkmark.circle.fill")
+                .font(.callout.weight(.semibold))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.green)
+        .containerRelativeFrame(.horizontal, count: 3, span: 2, spacing: 0)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 6)
+        .background(
+            Rectangle()
+                .fill(.regularMaterial)
+                .ignoresSafeArea(edges: .bottom))
+    }
+
+    private func completeReminder() async {
+        guard let reminder = reminders.first else { return }
+        do {
+            reminder.isCompleted = true
+            try store.save(reminder, commit: true)
+            reminders.removeFirst()
+        } catch {
+            print("[\\(Date.now.timeIntervalSince1970)] complete error \\(error)")
+        }
+    }
 
     private func requestAccess() async {
         print("[\(Date.now.timeIntervalSince1970)] requestAccess()")
@@ -102,5 +148,11 @@ struct ContentView: View {
         }
         reminders = Array(fetched.prefix(1))
         print("[\(Date.now.timeIntervalSince1970)] done \(reminders.count)/\(fetched.count)")
+    }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView(loadsReminders: false)
     }
 }
