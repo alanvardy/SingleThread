@@ -4,11 +4,13 @@ import SwiftUI
 extension EKReminder: @retroactive @unchecked Sendable {}
 
 struct ContentView: View {
-    // MARK: Internal
+    // MARK: Lifecycle
 
     init(loadsReminders: Bool = true) {
         self.loadsReminders = loadsReminders
     }
+
+    // MARK: Internal
 
     var body: some View {
         ZStack {
@@ -105,6 +107,7 @@ struct ContentView: View {
             reminder.isCompleted = true
             try store.save(reminder, commit: true)
             reminders.removeFirst()
+            await loadReminders()
         } catch {
             print("[\\(Date.now.timeIntervalSince1970)] complete error \\(error)")
         }
