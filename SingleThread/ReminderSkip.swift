@@ -24,6 +24,32 @@ nonisolated enum ReminderSkipLogic {
     }
 }
 
+/// Cleans and formats reminder notes for display.
+nonisolated enum ReminderNotesFormatter {
+    // MARK: Internal
+
+    /// Returns the note text suitable for display, with known prefix artifacts removed.
+    static func format(_ notes: String?) -> String? {
+        guard let notes else { return nil }
+        let trimmed = notes.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard let firstScalar = trimmed.unicodeScalars.first else { return nil }
+        if leadingPrefixChars.contains(firstScalar) {
+            let cleaned = String(trimmed.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+            return cleaned.isEmpty ? nil : cleaned
+        }
+        return trimmed
+    }
+
+    // MARK: Private
+
+    /// Characters stripped when they appear as the first character of a note.
+    private static let leadingPrefixChars: CharacterSet = {
+        var set = CharacterSet()
+        set.insert(charactersIn: "t")
+        return set
+    }()
+}
+
 /// Persists the skipped reminder identifiers in UserDefaults.
 struct SkippedReminderStore {
     // MARK: Lifecycle
