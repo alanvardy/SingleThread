@@ -24,6 +24,18 @@ struct ContentView: View {
         self.loadsReminders = loadsReminders
     }
 
+    /// Pre-populates state for canvas previews.
+    init(
+        loadsReminders: Bool,
+        reminders: [EKReminder],
+        skippedIDs: Set<String>,
+        authorizationStatus: EKAuthorizationStatus) {
+        self.loadsReminders = loadsReminders
+        _reminders = State(initialValue: reminders)
+        _skippedIDs = State(initialValue: skippedIDs)
+        _authorizationStatus = State(initialValue: authorizationStatus)
+    }
+
     // MARK: Internal
 
     var body: some View {
@@ -225,6 +237,42 @@ struct ContentView: View {
     }
 }
 
-#Preview {
+// MARK: - Preview Helpers
+
+private let mockReminder: EKReminder = {
+    let store = EKEventStore()
+    let reminder = EKReminder(eventStore: store)
+    reminder.title = "Buy groceries"
+    reminder.dueDateComponents = DateComponents(year: 2024, month: 9, day: 15, hour: 14, minute: 0)
+    return reminder
+}()
+
+// MARK: - Previews
+
+#Preview("Empty") {
     ContentView(loadsReminders: false)
+}
+
+#Preview("With Reminder") {
+    ContentView(
+        loadsReminders: false,
+        reminders: [mockReminder],
+        skippedIDs: [],
+        authorizationStatus: .fullAccess)
+}
+
+#Preview("All Skipped") {
+    ContentView(
+        loadsReminders: false,
+        reminders: [mockReminder],
+        skippedIDs: [mockReminder.calendarItemIdentifier],
+        authorizationStatus: .fullAccess)
+}
+
+#Preview("No Access") {
+    ContentView(
+        loadsReminders: true,
+        reminders: [],
+        skippedIDs: [],
+        authorizationStatus: .denied)
 }
