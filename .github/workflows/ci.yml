@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: macos-26
@@ -37,7 +41,9 @@ jobs:
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA" \
             build-for-testing \
-            -only-testing:SingleThreadTests
+            -only-testing:SingleThreadTests \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            -showBuildTimingSummary
 
       - name: Unit tests
         timeout-minutes: 20
@@ -46,7 +52,15 @@ jobs:
             -destination "$SIM" \
             -derivedDataPath "$DERIVED_DATA" \
             test-without-building \
-            -only-testing:SingleThreadTests
+            -only-testing:SingleThreadTests \
+            -resultBundlePath TestResults.xcresult
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: TestResults.xcresult
 
   lint:
     runs-on: macos-26
