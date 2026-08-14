@@ -138,10 +138,23 @@ struct ContentView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
+                            if let noteText = ReminderNotesFormatter.format(reminder.notes) {
+                                Text(noteText)
+                                    .font(.callout)
+                                    .foregroundStyle(.secondary)
+                                    .lineLimit(3)
+                            }
+                            if let url = reminder.url {
+                                Link(url.absoluteString, destination: url)
+                                    .font(.caption)
+                                    .foregroundStyle(.blue)
+                                    .lineLimit(1)
+                            }
                         }
                         .padding(.horizontal, 40)
                         .padding(.vertical, 12)
                         .frame(minHeight: viewHeight, alignment: .center)
+                        .listRowSeparator(.hidden)
                         .swipeActions(edge: .leading) {
                             Button {
                                 Task { await completeReminder() }
@@ -245,6 +258,8 @@ private let mockReminder: EKReminder = {
     let reminder = EKReminder(eventStore: store)
     reminder.title = "Buy groceries"
     reminder.dueDateComponents = DateComponents(year: 2024, month: 9, day: 15, hour: 14, minute: 0)
+    reminder.notes = "Don't forget the milk"
+    reminder.url = URL(string: "https://example.com/shopping-list")
     return reminder
 }()
 

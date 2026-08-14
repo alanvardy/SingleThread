@@ -91,3 +91,85 @@ struct ReminderSkipLogicTests {
         #expect(Set(result) == ["A", "B", "C"])
     }
 }
+
+// MARK: - ReminderNotesFormatter
+
+struct ReminderNotesFormatterTests {
+    @Test
+    func formatReturnsNilForNilInput() {
+        #expect(ReminderNotesFormatter.format(nil) == nil)
+    }
+
+    @Test
+    func formatReturnsNilForWhitespaceOnly() {
+        #expect(ReminderNotesFormatter.format("   ") == nil)
+    }
+
+    @Test
+    func formatReturnsNilForEmptyString() {
+        #expect(ReminderNotesFormatter.format("") == nil)
+    }
+
+    @Test
+    func formatReturnsNilForNewlinesOnly() {
+        #expect(ReminderNotesFormatter.format("\n\n") == nil)
+    }
+
+    @Test
+    func formatPreservesPlainNotes() {
+        let result = ReminderNotesFormatter.format("Buy milk")
+        #expect(result == "Buy milk")
+    }
+
+    @Test
+    func formatTrimsLeadingWhitespace() {
+        let result = ReminderNotesFormatter.format("  hello")
+        #expect(result == "hello")
+    }
+
+    @Test
+    func formatTrimsTrailingWhitespace() {
+        let result = ReminderNotesFormatter.format("hello  ")
+        #expect(result == "hello")
+    }
+
+    @Test
+    func formatStripsLeadingTPrefix() {
+        let result = ReminderNotesFormatter.format("tBuy milk")
+        #expect(result == "Buy milk")
+    }
+
+    @Test
+    func formatStripsLeadingTPrefixWithSpace() {
+        let result = ReminderNotesFormatter.format("t Buy milk")
+        #expect(result == "Buy milk")
+    }
+
+    @Test
+    func formatKeepsTInsideText() {
+        let result = ReminderNotesFormatter.format("Get two items")
+        #expect(result == "Get two items")
+    }
+
+    @Test
+    func formatPreservesMultilineNotes() {
+        let result = ReminderNotesFormatter.format("Line one\nLine two")
+        #expect(result == "Line one\nLine two")
+    }
+
+    @Test
+    func formatStripsLeadingTPrefixFromMultiline() {
+        let result = ReminderNotesFormatter.format("tLine one\nLine two")
+        #expect(result == "Line one\nLine two")
+    }
+
+    @Test
+    func formatReturnsNilWhenOnlyLeadingPrefixChar() {
+        #expect(ReminderNotesFormatter.format("t") == nil)
+    }
+
+    @Test
+    func formatReturnsNilWhenOnlyLeadingPrefixCharWithSpace() {
+        #expect(ReminderNotesFormatter.format("t ") == nil)
+    }
+}
