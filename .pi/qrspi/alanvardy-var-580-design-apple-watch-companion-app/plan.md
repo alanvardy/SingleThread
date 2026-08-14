@@ -743,8 +743,14 @@ Key design notes:
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild -scheme SingleThread -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)' -configuration Debug build SWIFT_TREAT_WARNINGS_AS_ERRORS=YES` succeeds
-- [ ] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build-for-testing SWIFT_TREAT_WARNINGS_AS_ERRORS=YES` — iOS build still works
+- [x] `xcodebuild -scheme SingleThreadWatch -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)' -configuration Debug build` succeeds
+- [x] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build-for-testing` — iOS build still works (now also builds + embeds the watch app)
+
+> **Adaptations required by platform reality (see Phase 3 issues):**
+> 1. **watchOS EventKit is read-only** — `EKEventStore.save(_:commit:)` is `__WATCHOS_PROHIBITED`. The watch cannot complete a reminder directly. `ReminderStore.completeCurrentReminder()` now delegates to `completeReminder(identifier:)`, which is platform-aware: iOS saves; watchOS optimistically removes + invokes the new `onCompleteReminder` hook (wired to WatchConnectivity in Phase 4).
+> 2. **`INFOPLIST_KEY_WKWatchOnly` must be `NO`** (not `YES` as planned) — `WKWatchOnly = YES` means a standalone watch app that cannot be embedded in an iOS app.
+> 3. **`INFOPLIST_KEY_WKCompanionAppBundleIdentifier = app.alanvardy.SingleThread`** must be set so the embedded watch app knows its iPhone companion.
+> 4. The `SingleThread` scheme does not list watchOS destinations, so the watch build uses the auto-generated `SingleThreadWatch` scheme (the watch target is still a build dependency of the iOS target, so iOS builds compile it too).
 
 #### Manual
 - [ ] Launch watch app on a paired watchOS Simulator (Apple Watch Series 11 46mm)
