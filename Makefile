@@ -1,12 +1,13 @@
 SIM := platform=iOS Simulator,name=iPhone 17
+DERIVED_DATA := DerivedData
 
 .PHONY: build test clean lint format
 
 build:
-	xcodebuild -scheme SingleThread -destination '$(SIM)' -configuration Debug build
+	xcodebuild -scheme SingleThread -destination '$(SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build-for-testing -only-testing:SingleThreadTests
 
 test:
-	xcodebuild test -scheme SingleThread -destination '$(SIM)' -only-testing:SingleThreadTests
+	xcodebuild -scheme SingleThread -destination '$(SIM)' -derivedDataPath '$(DERIVED_DATA)' test-without-building -only-testing:SingleThreadTests
 
 clean:
 	xcodebuild -scheme SingleThread -destination '$(SIM)' clean
