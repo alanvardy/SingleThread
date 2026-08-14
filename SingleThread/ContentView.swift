@@ -1,84 +1,106 @@
-//
-//  ContentView.swift
-//  SingleThread
-//
-//  Created by Alan Vardy on 2026-08-12.
-//
-
-import SwiftData
+import EventKit
 import SwiftUI
+
+extension EKReminder: @retroactive @unchecked Sendable {}
 
 struct ContentView: View {
     // MARK: Internal
 
     var body: some View {
-        NavigationViewWrapper {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+        ZStack {
+            Color(.systemBackground).ignoresSafeArea()
+            Group {
+                switch authorizationStatus {
+                case .notDetermined:
+                    ProgressView("Requesting access…")
+                case .fullAccess:
+                    if reminders.isEmpty {
+                        ContentUnavailableView(
+                            "No Reminders",
+                            systemImage: "checklist",
+                            description: Text("You don't have any reminders yet."))
+                    } else {
+                        List(reminders, id: \.calendarItemIdentifier) { reminder in
+                            VStack(alignment: .leading) {
+                                Text(reminder.title)
+                                    .font(.headline)
+                                if let due = reminder.dueDateComponents?.date {
+                                    Text(due, style: .date)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                        }
                     }
+                default:
+                    ContentUnavailableView(
+                        "Reminders Access",
+                        systemImage: "lock.shield",
+                        description: Text("Enable access in Settings to see your reminders."))
                 }
-                .onDelete(perform: deleteItems)
             }
-            #if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-            #endif
-            .toolbar {
-                #if os(iOS)
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        EditButton()
-                    }
-                #endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
+        }
+        .onAppear {
+            print("[\(Date.now.timeIntervalSince1970)] onAppear \(authorizationStatus.rawValue)/\(reminders.count)")
+        }
+        .task {
+            print("[\(Date.now.timeIntervalSince1970)] task start")
+            let currentStatus = EKEventStore.authorizationStatus(for: .reminder)
+            print("[\(Date.now.timeIntervalSince1970)] auth \(currentStatus.rawValue)")
+            authorizationStatus = currentStatus
+            if currentStatus == .fullAccess {
+                await loadReminders()
+            } else {
+                await requestAccess()
             }
+            print("[\(Date.now.timeIntervalSince1970)] task done")
         }
     }
 
     // MARK: Private
 
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @State private var reminders: [EKReminder] = []
+    @State private var authorizationStatus: EKAuthorizationStatus = .notDetermined
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
+    private let store = EKEventStore()
+
+    private func requestAccess() async {
+        print("[\(Date.now.timeIntervalSince1970)] requestAccess()")
+        do {
+            let granted = try await store.requestFullAccessToReminders()
+            print("[\(Date.now.timeIntervalSince1970)] granted \(granted)")
+            if granted {
+                authorizationStatus = .fullAccess
+                await loadReminders()
+            } else {
+                authorizationStatus = EKEventStore.authorizationStatus(for: .reminder)
+            }
+        } catch {
+            authorizationStatus = EKEventStore.authorizationStatus(for: .reminder)
+            print("[\(Date.now.timeIntervalSince1970)] error \(error)")
         }
     }
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+    private func loadReminders() async {
+        print("[\(Date.now.timeIntervalSince1970)] loadReminders()")
+        let endOfToday = Calendar.current.date(
+            byAdding: .day, value: 1,
+            to: Calendar.current.startOfDay(for: Date()))!
+        let predicate = store.predicateForIncompleteReminders(
+            withDueDateStarting: nil,
+            ending: endOfToday,
+            calendars: nil)
+        let fetched: [EKReminder] = await withCheckedContinuation { continuation in
+            print("[\(Date.now.timeIntervalSince1970)] fetch dispatch")
+            DispatchQueue.main.async {
+                store.fetchReminders(matching: predicate) { results in
+                    let count = results?.count ?? 0
+                    print("[\(Date.now.timeIntervalSince1970)] callback \(count)")
+                    continuation.resume(returning: results ?? [])
+                }
             }
         }
+        reminders = Array(fetched.prefix(1))
+        print("[\(Date.now.timeIntervalSince1970)] done \(reminders.count)/\(fetched.count)")
     }
-}
-
-private struct NavigationViewWrapper<Content: View>: View {
-    let content: () -> Content
-
-    var body: some View {
-        #if os(macOS)
-            NavigationSplitView {
-                content()
-            } detail: {
-                Text("Select an item")
-            }
-        #else
-            content()
-        #endif
-    }
-}
-
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
