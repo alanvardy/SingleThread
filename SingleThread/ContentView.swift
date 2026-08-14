@@ -81,59 +81,69 @@ struct ContentView: View {
 
     private var reminderList: some View {
         GeometryReader { geometry in
-            let rowHeight = geometry.size.height
+            let viewHeight = geometry.size.height
                 - geometry.safeAreaInsets.top
                 - geometry.safeAreaInsets.bottom
-            List {
-                if allSkipped {
+            if allSkipped {
+                ScrollView {
                     ContentUnavailableView(
                         "All Done",
                         systemImage: "checkmark.circle",
                         description: Text("Pull to refresh to see all your reminders again."))
-                        .listRowSeparator(.hidden)
-                        .frame(minHeight: rowHeight, alignment: .center)
-                } else if reminders.isEmpty {
+                        .frame(minHeight: viewHeight, alignment: .center)
+                }
+                .scrollBounceBehavior(.always)
+                .refreshable {
+                    await loadReminders(clearSkipped: true)
+                }
+            } else if reminders.isEmpty {
+                ScrollView {
                     ContentUnavailableView(
                         "No Reminders",
                         systemImage: "checklist",
                         description: Text("You don't have any reminders yet."))
-                        .listRowSeparator(.hidden)
-                        .frame(minHeight: rowHeight, alignment: .center)
-                } else if let reminder = visibleReminders.first {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(reminder.title)
-                            .font(.headline)
-                        if let due = reminder.dueDateComponents?.date {
-                            Text(due, style: .date)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
+                        .frame(minHeight: viewHeight, alignment: .center)
+                }
+                .scrollBounceBehavior(.always)
+                .refreshable {
+                    await loadReminders()
+                }
+            } else {
+                List {
+                    if let reminder = visibleReminders.first {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(reminder.title)
+                                .font(.headline)
+                            if let due = reminder.dueDateComponents?.date {
+                                Text(due, style: .date)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
                         }
-                    }
-                    .padding(.vertical, 8)
-                    .frame(minHeight: rowHeight, alignment: .center)
-                    .swipeActions(edge: .leading) {
-                        Button {
-                            Task { await completeReminder() }
-                        } label: {
-                            Label("Complete", systemImage: "checkmark.circle.fill")
+                        .padding(.vertical, 8)
+                        .frame(minHeight: viewHeight, alignment: .center)
+                        .swipeActions(edge: .leading) {
+                            Button {
+                                Task { await completeReminder() }
+                            } label: {
+                                Label("Complete", systemImage: "checkmark.circle.fill")
+                            }
+                            .tint(.green)
                         }
-                        .tint(.green)
-                    }
-                    .swipeActions(edge: .trailing) {
-                        Button {
-                            skipReminder()
-                        } label: {
-                            Label("Skip", systemImage: "circle.slash")
+                        .swipeActions(edge: .trailing) {
+                            Button {
+                                skipReminder()
+                            } label: {
+                                Label("Skip", systemImage: "circle.slash")
+                            }
+                            .tint(.orange)
                         }
-                        .tint(.orange)
                     }
                 }
-            }
-            .listStyle(.plain)
-            .scrollBounceBehavior(.always)
-            .refreshable {
-                let shouldClear = allSkipped
-                await loadReminders(clearSkipped: shouldClear)
+                .listStyle(.plain)
+                .refreshable {
+                    await loadReminders()
+                }
             }
         }
     }
