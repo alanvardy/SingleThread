@@ -98,6 +98,7 @@ struct ContentView: View {
                         systemImage: "checklist",
                         description: Text("You don't have any reminders yet."))
                         .listRowSeparator(.hidden)
+                        .frame(minHeight: rowHeight, alignment: .center)
                 } else if let reminder = visibleReminders.first {
                     VStack(alignment: .leading, spacing: 4) {
                         Text(reminder.title)
