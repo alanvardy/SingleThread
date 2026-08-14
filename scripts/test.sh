@@ -31,6 +31,10 @@ xcodebuild -scheme "$SCHEME" \
   SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
 
 echo ""
+echo "==> Periphery…"
+periphery scan --skip-build --index-store-path DerivedData/Index.noindex/DataStore --strict
+
+echo ""
 echo "==> Unit tests…"
 xcodebuild -scheme "$SCHEME" \
   -destination "$SIM" \

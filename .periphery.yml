@@ -1,0 +1,16 @@
+# Periphery config for SingleThread
+# Generated for VAR-564: Additional checks
+
+project: SingleThread.xcodeproj
+schemes:
+  - SingleThread
+
+# Retain settings
+retain_public: false
+retain_objc_accessible: true
+retain_objc_annotated: true
+retain_swift_ui_previews: true
+
+# Exclude generated/test boilerplate
+report_exclude:
+  - "**/SingleThreadUITests/**"

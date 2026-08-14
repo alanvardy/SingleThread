@@ -90,3 +90,7 @@ jobs:
       - name: SwiftLint
         timeout-minutes: 5
         run: swiftlint lint --strict
+
+      - name: Periphery
+        timeout-minutes: 10
+        run: periphery scan --strict -- -destination "platform=iOS Simulator,name=iPhone 17"
