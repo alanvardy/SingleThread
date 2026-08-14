@@ -27,7 +27,6 @@ xcodebuild -scheme "$SCHEME" \
   -configuration Debug \
   -derivedDataPath "$DERIVED_DATA" \
   build-for-testing \
-  -only-testing:SingleThreadTests \
   SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
 
 echo ""
@@ -41,6 +40,14 @@ xcodebuild -scheme "$SCHEME" \
   -derivedDataPath "$DERIVED_DATA" \
   test-without-building \
   -only-testing:SingleThreadTests
+
+echo ""
+echo "==> UI tests…"
+xcodebuild -scheme "$SCHEME" \
+  -destination "$SIM" \
+  -derivedDataPath "$DERIVED_DATA" \
+  test-without-building \
+  -only-testing:SingleThreadUITests
 
 echo ""
 echo "✅ All CI checks passed."
