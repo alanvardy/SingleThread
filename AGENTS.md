@@ -30,7 +30,7 @@
   ```bash
   ./scripts/test.sh
   ```
-  This formats, lints, builds (with `SWIFT_TREAT_WARNINGS_AS_ERRORS=YES`),
+  This formats, lints, builds,
   runs Periphery dead-code detection (reusing the build's index store),
   runs unit tests, runs UI tests (including accessibility audit), and runs
   SwiftFormat + SwiftLint checks — identical to CI.
@@ -118,10 +118,14 @@ Xcode auto-discovers `.swift` files placed in `SingleThread/`,
 
 ## Compiler Warnings
 
-- `SWIFT_TREAT_WARNINGS_AS_ERRORS=YES` is passed to all `xcodebuild`
-  invocations in CI, `scripts/test.sh`, and `Makefile`. Warnings in CI
-  become hard failures. This is not set in the project file to avoid
-  blocking local iteration.
+- `SWIFT_TREAT_WARNINGS_AS_ERRORS = YES` is set in the project-level build
+  configuration (Debug + Release), inherited by all targets. Warnings are
+  hard failures everywhere — CI, local, and Xcode GUI. This was previously
+  a command-line flag (to keep local iteration unblocked), but the local
+  Swift Package (`SingleThreadCore`) requires scoping it to project targets
+  because `xcodebuild SWIFT_TREAT_WARNINGS_AS_ERRORS=YES` globally injects
+  `-warnings-as-errors` which conflicts with the package's `-suppress-warnings`
+  (a known Apple bug).
 
 ## Before Committing
 

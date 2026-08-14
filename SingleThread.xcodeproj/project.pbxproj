@@ -112,6 +112,7 @@
 			);
 			name = SingleThread;
 			packageProductDependencies = (
+				51AA3F110000000000000002 /* SingleThreadCore */,
 			);
 			productName = SingleThread;
 			productReference = 51AA3ED6302D5C4500960DFC /* SingleThread.app */;
@@ -135,6 +136,7 @@
 			);
 			name = SingleThreadTests;
 			packageProductDependencies = (
+				51AA3F110000000000000002 /* SingleThreadCore */,
 			);
 			productName = SingleThreadTests;
 			productReference = 51AA3EE5302D5C4500960DFC /* SingleThreadTests.xctest */;
@@ -195,6 +197,9 @@
 			mainGroup = 51AA3ECD302D5C4500960DFC;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
+			packageReferences = (
+				51AA3F100000000000000001 /* XCLocalSwiftPackageReference "SingleThreadCore" */,
+			);
 			productRefGroup = 51AA3ED7302D5C4500960DFC /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -265,7 +270,19 @@
 			target = 51AA3ED5302D5C4500960DFC /* SingleThread */;
 			targetProxy = 51AA3EF0302D5C4500960DFC /* PBXContainerItemProxy */;
 		};
-/* End PBXTargetDependency section */
+/* Begin XCLocalSwiftPackageReference section */
+		51AA3F100000000000000001 /* XCLocalSwiftPackageReference "SingleThreadCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = SingleThreadCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		51AA3F110000000000000002 /* SingleThreadCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = SingleThreadCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCBuildConfiguration section */
 		51AA3EF7302D5C4500960DFC /* Debug */ = {
@@ -327,6 +344,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 			};
 			name = Debug;
 		};
@@ -381,6 +399,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_TREAT_WARNINGS_AS_ERRORS = YES;
 			};
 			name = Release;
 		};

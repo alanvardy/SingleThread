@@ -1,4 +1,4 @@
-@testable import SingleThread
+import SingleThreadCore
 import Testing
 
 struct ReminderSkipLogicTests {
