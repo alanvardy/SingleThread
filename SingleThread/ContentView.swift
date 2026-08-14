@@ -6,7 +6,7 @@ struct ContentView: View {
     // MARK: Lifecycle
 
     init(loadsReminders: Bool = true) {
-        self.loadsReminders = loadsReminders
+        _store = State(initialValue: ReminderStore(loadsReminders: loadsReminders))
     }
 
     /// Pre-populates state for canvas previews.
@@ -15,10 +15,11 @@ struct ContentView: View {
         reminders: [EKReminder],
         skippedIDs: Set<String>,
         authorizationStatus: EKAuthorizationStatus) {
-        self.loadsReminders = loadsReminders
-        _reminders = State(initialValue: reminders)
-        _skippedIDs = State(initialValue: skippedIDs)
-        _authorizationStatus = State(initialValue: authorizationStatus)
+        _store = State(initialValue: ReminderStore(
+            loadsReminders: loadsReminders,
+            reminders: reminders,
+            skippedIDs: skippedIDs,
+            authorizationStatus: authorizationStatus))
     }
 
     // MARK: Internal
@@ -26,51 +27,31 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             Color(.systemBackground).ignoresSafeArea()
-            if loadsReminders {
+            if store.loadsReminders {
                 authGatedContent
             } else {
                 reminderList
             }
         }
         .onAppear {
-            print("[\(Date.now.timeIntervalSince1970)] onAppear \(authorizationStatus.rawValue)/\(reminders.count)")
+            print("[\(Date.now.timeIntervalSince1970)]"
+                + " onAppear \(store.authorizationStatus.rawValue)/\(store.reminders.count)")
         }
         .task {
-            guard loadsReminders else { return }
-            print("[\(Date.now.timeIntervalSince1970)] task start")
-            let currentStatus = EKEventStore.authorizationStatus(for: .reminder)
-            print("[\(Date.now.timeIntervalSince1970)] auth \(currentStatus.rawValue)")
-            authorizationStatus = currentStatus
-            if currentStatus == .fullAccess {
-                await loadReminders()
-            } else {
-                await requestAccess()
-            }
-            print("[\(Date.now.timeIntervalSince1970)] task done")
+            await store.start()
         }
     }
 
     // MARK: Private
 
-    @State private var reminders: [EKReminder] = []
-    @State private var skippedIDs: Set<String> = []
-    @State private var authorizationStatus: EKAuthorizationStatus = .notDetermined
+    @State private var store: ReminderStore
 
-    private let loadsReminders: Bool
-    private let store = EKEventStore()
-    private let skipStore = SkippedReminderStore()
-
-    private var visibleReminders: [EKReminder] {
-        reminders.filter { !skippedIDs.contains($0.calendarItemIdentifier) }
-    }
-
-    /// Every fetched reminder has been skipped (but there are reminders to show again).
     private var allSkipped: Bool {
-        !reminders.isEmpty && visibleReminders.isEmpty
+        !store.reminders.isEmpty && store.visibleReminders.isEmpty
     }
 
     @ViewBuilder private var authGatedContent: some View {
-        switch authorizationStatus {
+        switch store.authorizationStatus {
         case .notDetermined:
             ProgressView("Requesting access…")
         case .fullAccess:
@@ -98,9 +79,9 @@ struct ContentView: View {
                 }
                 .scrollBounceBehavior(.always)
                 .refreshable {
-                    await loadReminders(clearSkipped: true)
+                    await store.reload(clearSkipped: true)
                 }
-            } else if reminders.isEmpty {
+            } else if store.reminders.isEmpty {
                 ScrollView {
                     ContentUnavailableView(
                         "No Reminders",
@@ -110,11 +91,11 @@ struct ContentView: View {
                 }
                 .scrollBounceBehavior(.always)
                 .refreshable {
-                    await loadReminders()
+                    await store.reload()
                 }
             } else {
                 List {
-                    if let reminder = visibleReminders.first {
+                    if let reminder = store.visibleReminders.first {
                         VStack(alignment: .leading, spacing: 4) {
                             Text(reminder.title)
                                 .font(.title)
@@ -142,7 +123,7 @@ struct ContentView: View {
                         .listRowSeparator(.hidden)
                         .swipeActions(edge: .leading) {
                             Button {
-                                Task { await completeReminder() }
+                                Task { await store.completeCurrentReminder() }
                             } label: {
                                 Label("Complete", systemImage: "checkmark.circle.fill")
                             }
@@ -150,7 +131,7 @@ struct ContentView: View {
                         }
                         .swipeActions(edge: .trailing) {
                             Button {
-                                skipReminder()
+                                store.skipCurrentReminder()
                             } label: {
                                 Label("Skip", systemImage: "circle.slash")
                             }
@@ -160,79 +141,10 @@ struct ContentView: View {
                 }
                 .listStyle(.plain)
                 .refreshable {
-                    await loadReminders()
+                    await store.reload()
                 }
             }
         }
-    }
-
-    private func skipReminder() {
-        guard let reminder = visibleReminders.first else { return }
-        let fetchedIDs = reminders.map(\.calendarItemIdentifier)
-        let updated = ReminderSkipLogic.skipping(
-            reminder.calendarItemIdentifier,
-            fetched: fetchedIDs,
-            skipped: Array(skippedIDs))
-        Task {
-            try? await Task.sleep(nanoseconds: 200_000_000)
-            skippedIDs = Set(updated)
-            skipStore.save(updated)
-        }
-    }
-
-    private func completeReminder() async {
-        guard let reminder = visibleReminders.first else { return }
-        do {
-            reminder.isCompleted = true
-            try store.save(reminder, commit: true)
-            try? await Task.sleep(nanoseconds: 200_000_000)
-            await loadReminders()
-        } catch {
-            print("[\(Date.now.timeIntervalSince1970)] complete error \(error)")
-        }
-    }
-
-    private func requestAccess() async {
-        print("[\(Date.now.timeIntervalSince1970)] requestAccess()")
-        do {
-            let granted = try await store.requestFullAccessToReminders()
-            print("[\(Date.now.timeIntervalSince1970)] granted \(granted)")
-            if granted {
-                authorizationStatus = .fullAccess
-                await loadReminders()
-            } else {
-                authorizationStatus = EKEventStore.authorizationStatus(for: .reminder)
-            }
-        } catch {
-            authorizationStatus = EKEventStore.authorizationStatus(for: .reminder)
-            print("[\(Date.now.timeIntervalSince1970)] error \(error)")
-        }
-    }
-
-    private func loadReminders(clearSkipped: Bool = false) async {
-        print("[\(Date.now.timeIntervalSince1970)] loadReminders()")
-        let predicate = store.predicateForIncompleteReminders(
-            withDueDateStarting: nil,
-            ending: ReminderDateFilter.endOfToday(),
-            calendars: nil)
-        let fetched: [EKReminder] = await withCheckedContinuation { continuation in
-            DispatchQueue.main.async {
-                store.fetchReminders(matching: predicate) { results in
-                    continuation.resume(returning: results ?? [])
-                }
-            }
-        }
-        reminders = fetched
-        if clearSkipped {
-            skippedIDs = []
-            skipStore.save([])
-        } else {
-            let resolved = ReminderSkipLogic.resolve(
-                fetched: fetched.map(\.calendarItemIdentifier),
-                skipped: skipStore.load())
-            skippedIDs = Set(resolved)
-        }
-        print("[\(Date.now.timeIntervalSince1970)] done \(visibleReminders.count)/\(fetched.count)")
     }
 }
 

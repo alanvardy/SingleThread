@@ -488,8 +488,8 @@ The previews and `mockReminder` fixture remain exactly as-is in the file.
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh --unit-only` — unit tests build and pass (4 `ReminderDateFilterTests`, 2 `SingleThreadTests`, 10 `ReminderSkipLogicTests`, 15 `ReminderNotesFormatterTests`)
-- [ ] `./scripts/test.sh --ui-only` — accessibility audit passes; app renders with `loadsReminders: false` seam intact
+- [x] `./scripts/test.sh --unit-only` — unit tests build and pass (4 `ReminderDateFilterTests`, 2 `SingleThreadTests`, 10 `ReminderSkipLogicTests`, 14 `ReminderNotesFormatterTests`)
+- [x] `./scripts/test.sh --ui-only` — accessibility audit passes; app renders with `loadsReminders: false` seam intact
 
 #### Manual
 - [ ] Complete a reminder — swipe action works, next reminder appears
