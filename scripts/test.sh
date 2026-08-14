@@ -27,7 +27,8 @@ xcodebuild -scheme "$SCHEME" \
   -configuration Debug \
   -derivedDataPath "$DERIVED_DATA" \
   build-for-testing \
-  -only-testing:SingleThreadTests
+  -only-testing:SingleThreadTests \
+  SWIFT_TREAT_WARNINGS_AS_ERRORS=YES
 
 echo ""
 echo "==> Unit tests…"

@@ -42,7 +42,7 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             build-for-testing \
             -only-testing:SingleThreadTests \
-            COMPILER_INDEX_STORE_ENABLE=NO \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
             -showBuildTimingSummary
 
       - name: Unit tests
@@ -53,6 +53,7 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             test-without-building \
             -only-testing:SingleThreadTests \
+            SWIFT_TREAT_WARNINGS_AS_ERRORS=YES \
             -resultBundlePath TestResults.xcresult
 
       - name: Upload test results on failure
