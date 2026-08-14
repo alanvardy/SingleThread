@@ -16,19 +16,15 @@ final class SingleThreadUITests: XCTestCase {
     @MainActor
     func testAccessibilityAudit() throws {
         let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
         app.launch()
 
-        // Dismiss any system permission dialogs that appear.
-        addUIInterruptionMonitor(withDescription: "System Dialog") { alert in
-            if alert.buttons["Allow"].exists {
-                alert.buttons["Allow"].tap()
-                return true
-            }
-            alert.buttons.firstMatch.tap()
-            return true
-        }
-        // Trigger the interruption monitor by interacting with the app.
-        app.tap()
+        // App skips reminders access in UI testing mode, showing a
+        // ProgressView with "Requesting access…". Wait for any visible
+        // text element before auditing.
+        XCTAssertTrue(
+            app.staticTexts.firstMatch.waitForExistence(timeout: 5),
+            "App should display text content")
 
         // Audit accessibility for key categories; skip contrast (known
         // false-positive source for system colors) and textClipped.
@@ -39,8 +35,10 @@ final class SingleThreadUITests: XCTestCase {
 
     @MainActor
     func testLaunchPerformance() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
         measure(metrics: [XCTApplicationLaunchMetric()]) {
-            XCUIApplication().launch()
+            app.launch()
         }
     }
 }

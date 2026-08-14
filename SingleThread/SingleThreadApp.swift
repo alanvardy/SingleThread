@@ -4,7 +4,8 @@ import SwiftUI
 struct SingleThreadApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(
+                loadsReminders: !ProcessInfo.processInfo.arguments.contains("--ui-testing"))
         }
     }
 }
