@@ -24,6 +24,50 @@ public nonisolated enum ReminderSkipLogic {
     }
 }
 
+/// Maps EKReminder priority values to a display level and an exclamation marker.
+///
+/// EventKit uses the standard CalDAV priority scheme: `0` = none, `1` = high,
+/// `5` = medium, `9` = low.
+public nonisolated enum ReminderPriority {
+    public enum Level: Equatable, Sendable {
+        case high
+        case medium
+        case low
+    }
+
+    /// Resolves the reminder's numeric priority into a display level.
+    public static func level(for priority: Int) -> Level? {
+        switch priority {
+        case 1: return .high
+        case 5: return .medium
+        case 9: return .low
+        default: return nil
+        }
+    }
+
+    /// Returns the exclamation-marker prefix: `!!!` high, `!!` medium, `!` low,
+    /// or empty when there is no priority.
+    public static func marker(for priority: Int) -> String {
+        switch level(for: priority) {
+        case .high: return "!!!"
+        case .medium: return "!!"
+        case .low: return "!"
+        case nil: return ""
+        }
+    }
+
+    /// Ordinal used for sorting, lower sorts first. High (0) before medium (1)
+    /// before low (2); `nil` for no priority (sorts after all prioritized).
+    public static func rank(for priority: Int) -> Int? {
+        switch level(for: priority) {
+        case .high: return 0
+        case .medium: return 1
+        case .low: return 2
+        case nil: return nil
+        }
+    }
+}
+
 /// Cleans and formats reminder notes for display.
 public nonisolated enum ReminderNotesFormatter {
     // MARK: Public

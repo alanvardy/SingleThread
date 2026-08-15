@@ -33,6 +33,14 @@ struct WatchReminderView: View {
 
     private let store: ReminderStore
 
+    private func priorityColor(_ level: ReminderPriority.Level) -> Color {
+        switch level {
+        case .low: return .green
+        case .medium: return .yellow
+        case .high: return .red
+        }
+    }
+
     @ViewBuilder private var reminderContent: some View {
         if store.visibleReminders.isEmpty && !store.reminders.isEmpty {
             VStack {
@@ -44,9 +52,16 @@ struct WatchReminderView: View {
             }
         } else if let reminder = store.visibleReminders.first {
             VStack(alignment: .leading, spacing: 6) {
-                Text(reminder.title)
-                    .font(.headline)
-                    .lineLimit(3)
+                HStack(alignment: .firstTextBaseline, spacing: 3) {
+                    if let level = ReminderPriority.level(for: reminder.priority) {
+                        Text(ReminderPriority.marker(for: reminder.priority))
+                            .font(.headline)
+                            .foregroundStyle(priorityColor(level))
+                    }
+                    Text(reminder.title)
+                        .font(.headline)
+                        .lineLimit(3)
+                }
                 if let due = reminder.dueDateComponents?.date {
                     Text(due, style: .date)
                         .font(.caption)
