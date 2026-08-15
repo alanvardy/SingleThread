@@ -51,7 +51,9 @@ public final class ReminderStore {
     public var onCompleteReminder: ((String) -> Void)?
 
     public var visibleReminders: [EKReminder] {
-        reminders.filter { !skippedIDs.contains($0.calendarItemIdentifier) }
+        reminders
+            .filter { !skippedIDs.contains($0.calendarItemIdentifier) }
+            .sorted { ReminderSort.areInIncreasingOrder($0, $1) }
     }
 
     // MARK: - Public methods

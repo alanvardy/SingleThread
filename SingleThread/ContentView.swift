@@ -52,6 +52,14 @@ struct ContentView: View {
 
     private let store: ReminderStore
 
+    private func priorityColor(_ level: ReminderPriority.Level) -> Color {
+        switch level {
+        case .low: return .green
+        case .medium: return .yellow
+        case .high: return .red
+        }
+    }
+
     private var allSkipped: Bool {
         !store.reminders.isEmpty && store.visibleReminders.isEmpty
     }
@@ -103,8 +111,15 @@ struct ContentView: View {
                 List {
                     if let reminder = store.visibleReminders.first {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text(reminder.title)
-                                .font(.title)
+                            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                if let level = ReminderPriority.level(for: reminder.priority) {
+                                    Text(ReminderPriority.marker(for: reminder.priority))
+                                        .font(.title)
+                                        .foregroundStyle(priorityColor(level))
+                                }
+                                Text(reminder.title)
+                                    .font(.title)
+                            }
                             if let due = reminder.dueDateComponents?.date {
                                 Text(due, style: .date)
                                     .font(.caption)
@@ -115,12 +130,6 @@ struct ContentView: View {
                                     .font(.callout)
                                     .foregroundStyle(.secondary)
                                     .lineLimit(3)
-                            }
-                            if let url = reminder.url {
-                                Link(url.absoluteString, destination: url)
-                                    .font(.caption)
-                                    .foregroundStyle(.blue)
-                                    .lineLimit(1)
                             }
                         }
                         .padding(.horizontal, 40)
