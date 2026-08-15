@@ -33,3 +33,4 @@ struct SingleThreadWatchApp: App {
 
     private let store: ReminderStore
 }
+
