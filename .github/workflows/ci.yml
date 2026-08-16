@@ -37,6 +37,7 @@ jobs:
         run: |
           SIM_UDID=$(xcrun simctl list devices available | grep 'iPhone 17 (' | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
           xcrun simctl boot "$SIM_UDID" || true
+          xcrun simctl bootstatus "$SIM_UDID" -b
 
       - name: Build
         timeout-minutes: 20
@@ -57,7 +58,6 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             test-without-building \
             -only-testing:SingleThreadTests \
-            -parallel-testing-enabled YES \
             -resultBundlePath TestResults.xcresult
 
       - name: Upload test results on failure
@@ -95,6 +95,7 @@ jobs:
         run: |
           SIM_UDID=$(xcrun simctl list devices available | grep 'iPhone 17 (' | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
           xcrun simctl boot "$SIM_UDID" || true
+          xcrun simctl bootstatus "$SIM_UDID" -b
 
       - name: Build
         timeout-minutes: 20
@@ -114,8 +115,7 @@ jobs:
             -destination "$SIM" \
             -derivedDataPath "$DERIVED_DATA" \
             test-without-building \
-            -only-testing:SingleThreadUITests \
-            -parallel-testing-enabled YES
+            -only-testing:SingleThreadUITests
 
   lint:
     runs-on: macos-26

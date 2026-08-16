@@ -65,8 +65,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -destination "$SIM" \
       -derivedDataPath "$DERIVED_DATA" \
       test-without-building \
-      -only-testing:SingleThreadTests \
-      -parallel-testing-enabled YES
+      -only-testing:SingleThreadTests
 
     echo ""
     echo "==> UI tests…"
@@ -74,8 +73,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -destination "$SIM" \
       -derivedDataPath "$DERIVED_DATA" \
       test-without-building \
-      -only-testing:SingleThreadUITests \
-      -parallel-testing-enabled YES
+      -only-testing:SingleThreadUITests
 
     echo ""
     echo "✅ All CI checks passed."
@@ -98,8 +96,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 1 ]]; then
       -destination "$SIM" \
       -derivedDataPath "$DERIVED_DATA" \
       test-without-building \
-      -only-testing:SingleThreadTests \
-      -parallel-testing-enabled YES
+      -only-testing:SingleThreadTests
 
     echo ""
     echo "✅ Unit tests passed."
@@ -121,8 +118,7 @@ xcodebuild -scheme "$SCHEME" \
   -destination "$SIM" \
   -derivedDataPath "$DERIVED_DATA" \
   test-without-building \
-  -only-testing:SingleThreadUITests \
-  -parallel-testing-enabled YES
+  -only-testing:SingleThreadUITests
 
 echo ""
 echo "✅ UI tests passed."
