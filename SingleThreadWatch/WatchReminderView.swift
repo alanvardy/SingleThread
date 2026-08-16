@@ -1,6 +1,7 @@
 import EventKit
 import SingleThreadCore
 import SwiftUI
+import WatchKit
 
 struct WatchReminderView: View {
     // MARK: Lifecycle
@@ -24,6 +25,15 @@ struct WatchReminderView: View {
                     .multilineTextAlignment(.center)
             }
         }
+        .focusable(true)
+        .digitalCrownRotation(
+            $crownRotation,
+            onChange: { event in
+                crownDetector.record(offset: event.offset)
+            },
+            onIdle: {
+                refreshIfNeeded()
+            })
         .task {
             await store.start()
         }
@@ -31,14 +41,21 @@ struct WatchReminderView: View {
 
     // MARK: Private
 
+    @State private var crownDetector = CrownRefreshDetector()
+    @State private var crownRotation = 0.0
+
     private let store: ReminderStore
 
+    private var allSkipped: Bool {
+        store.visibleReminders.isEmpty && !store.reminders.isEmpty
+    }
+
     @ViewBuilder private var reminderContent: some View {
-        if store.visibleReminders.isEmpty && !store.reminders.isEmpty {
+        if allSkipped {
             VStack {
                 Text("All Done")
                     .font(.headline)
-                Text("Pull down to see all")
+                Text("Turn the crown to see all")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -86,8 +103,22 @@ struct WatchReminderView: View {
             }
             .padding()
         } else {
-            Text("No Reminders")
-                .foregroundStyle(.secondary)
+            VStack {
+                Text("No Reminders")
+                    .foregroundStyle(.secondary)
+                Text("Turn the crown to refresh")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func refreshIfNeeded() {
+        guard crownDetector.settle() else { return }
+        WKInterfaceDevice.current().play(.click)
+        let clearSkipped = allSkipped
+        Task {
+            await store.reload(clearSkipped: clearSkipped)
         }
     }
 
