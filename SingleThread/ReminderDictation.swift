@@ -90,9 +90,9 @@ final class ReminderDictation: SpeechTranscribing {
 
     private func prepareRecording() throws {
         #if os(iOS)
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
-        try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
+            try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
         #endif
 
         let request = SFSpeechAudioBufferRecognitionRequest()
@@ -118,7 +118,7 @@ final class ReminderDictation: SpeechTranscribing {
         recognitionTask = nil
         isRecording = false
         #if os(iOS)
-        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+            try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
         #endif
     }
 
