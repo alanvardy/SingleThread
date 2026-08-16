@@ -118,19 +118,19 @@ struct ContentView: View {
                     List {
                         if let reminder = store.visibleReminders.first {
                             VStack(alignment: .leading, spacing: 4) {
-                                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                    if let level = ReminderPriority.level(for: reminder.priority) {
-                                        Text(ReminderPriority.marker(for: reminder.priority))
-                                            .font(.title)
-                                            .foregroundStyle(priorityColor(level))
-                                    }
-                                    Text(reminder.title)
-                                        .font(.title)
-                                }
+                                Text(reminder.title)
+                                    .font(.title)
                                 if let due = reminder.dueDateComponents?.date {
-                                    Text(due, style: .date)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                        if let level = ReminderPriority.level(for: reminder.priority) {
+                                            Text(ReminderPriority.marker(for: reminder.priority))
+                                                .font(.caption)
+                                                .foregroundStyle(priorityColor(level))
+                                        }
+                                        Text(due, style: .date)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
                                 }
                                 if let noteText = ReminderNotesFormatter.format(reminder.notes) {
                                     Text(noteText)
