@@ -71,6 +71,7 @@ struct WatchReminderView: View {
                         Task { await store.completeCurrentReminder() }
                     } label: {
                         Label("Complete", systemImage: "checkmark.circle.fill")
+                            .labelStyle(.iconOnly)
                     }
                     .tint(.green)
 
@@ -78,6 +79,7 @@ struct WatchReminderView: View {
                         store.skipCurrentReminder()
                     } label: {
                         Label("Skip", systemImage: "circle.slash")
+                            .labelStyle(.iconOnly)
                     }
                     .tint(.orange)
                 }
