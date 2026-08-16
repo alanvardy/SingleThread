@@ -9,8 +9,8 @@ struct SingleThreadApp: App {
     // MARK: Lifecycle
 
     init() {
-        let store = ReminderStore(
-            loadsReminders: !ProcessInfo.processInfo.arguments.contains("--ui-testing"))
+        let loads = !ProcessInfo.processInfo.arguments.contains("--ui-testing")
+        let store = ReminderStore(loadsReminders: loads)
         self.store = store
 
         #if os(iOS)

@@ -53,7 +53,34 @@ struct ReminderDateFilterTests {
         #expect(end < startOfTomorrow)
     }
 
+    @Test
+    func overdueCutoffDefaultsToThirtyDaysAgo() throws {
+        let cutoff = ReminderDateFilter.overdueCutoff(calendar: calendar, now: now)
+        let startOfToday = calendar.startOfDay(for: now)
+        let thirtyDaysAgo = try #require(calendar.date(
+            byAdding: DateComponents(day: -30),
+            to: startOfToday))
+        #expect(cutoff == thirtyDaysAgo)
+    }
+
+    @Test
+    func overdueCutoffIncludesReminderThirtyDaysOverdue() {
+        let cutoff = ReminderDateFilter.overdueCutoff(calendar: calendar, now: now)
+        #expect(date(7, in: .august) >= cutoff)
+    }
+
+    @Test
+    func overdueCutoffExcludesReminderMoreThanThirtyDaysOverdue() {
+        let cutoff = ReminderDateFilter.overdueCutoff(calendar: calendar, now: now)
+        #expect(date(6, in: .august) < cutoff)
+    }
+
     // MARK: Private
+
+    private enum Month: Int {
+        case august = 8
+        case september = 9
+    }
 
     private let calendar: Calendar = {
         var calendar = Calendar(identifier: .gregorian)
@@ -63,7 +90,7 @@ struct ReminderDateFilterTests {
 
     private let now = Date(timeIntervalSince1970: 1_725_600_000) // 2024-09-06 05:20 UTC
 
-    private func date(_ day: Int) -> Date {
-        calendar.date(from: DateComponents(year: 2024, month: 9, day: day))!
+    private func date(_ day: Int, in month: Month = .september) -> Date {
+        calendar.date(from: DateComponents(year: 2024, month: month.rawValue, day: day))!
     }
 }

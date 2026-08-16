@@ -87,7 +87,7 @@ public final class ReminderStore {
                 try? await Task.sleep(nanoseconds: 200_000_000)
                 await reload()
             } catch {
-                print("[\(Date.now.timeIntervalSince1970)] complete error \(error)")
+                print("Failed to complete reminder: \(error)")
             }
         #endif
     }
@@ -95,6 +95,27 @@ public final class ReminderStore {
     public func completeCurrentReminder() async {
         guard let reminder = visibleReminders.first else { return }
         await completeReminder(identifier: reminder.calendarItemIdentifier)
+    }
+
+    /// Creates a new reminder in EventKit with the given title, notes, and optional due date.
+    /// On watchOS, EventKit is read-only, so this is a no-op.
+    public func addReminder(title: String, notes: String?, dueDate: DateComponents?) async {
+        #if os(watchOS)
+            return
+        #else
+            let reminder = Self.makeReminder(
+                title: title,
+                notes: notes,
+                dueDate: dueDate,
+                eventStore: eventStore)
+            do {
+                try eventStore.save(reminder, commit: true)
+                try? await Task.sleep(nanoseconds: 200_000_000)
+                await reload()
+            } catch {
+                print("Failed to add reminder: \(error)")
+            }
+        #endif
     }
 
     public func skipCurrentReminder() {
@@ -113,17 +134,15 @@ public final class ReminderStore {
     }
 
     public func reload(clearSkipped: Bool = false) async {
+        guard loadsReminders else { return }
+        #if !os(watchOS)
+            eventStore.refreshSourcesIfNecessary()
+        #endif
         let predicate = eventStore.predicateForIncompleteReminders(
-            withDueDateStarting: nil,
+            withDueDateStarting: ReminderDateFilter.overdueCutoff(),
             ending: ReminderDateFilter.endOfToday(),
             calendars: nil)
-        let fetched: [EKReminder] = await withCheckedContinuation { continuation in
-            DispatchQueue.main.async {
-                self.eventStore.fetchReminders(matching: predicate) { results in
-                    continuation.resume(returning: results ?? [])
-                }
-            }
-        }
+        let fetched: [EKReminder] = await fetchReminders(matching: predicate)
         reminders = fetched
         if clearSkipped {
             skippedIDs = []
@@ -137,10 +156,39 @@ public final class ReminderStore {
         }
     }
 
+    // MARK: Internal
+
+    #if !os(watchOS)
+        /// Builds a new `EKReminder` from the given fields. Extracted for testability.
+        static func makeReminder(
+            title: String,
+            notes: String?,
+            dueDate: DateComponents?,
+            eventStore: EKEventStore) -> EKReminder {
+            let reminder = EKReminder(eventStore: eventStore)
+            reminder.title = title
+            reminder.notes = notes
+            reminder.dueDateComponents = dueDate
+            reminder.calendar = eventStore.defaultCalendarForNewReminders()
+            return reminder
+        }
+    #endif
+
     // MARK: Private
 
     private let eventStore: EKEventStore
     private let skipStore: SkippedReminderStore
+
+    /// Bridges the EventKit completion-handler API to async/await.
+    /// `fetchReminders(matching:)` performs its work off the main thread; this
+    /// keeps the initial EventKit setup from blocking UI updates.
+    private func fetchReminders(matching predicate: NSPredicate) async -> [EKReminder] {
+        await withCheckedContinuation { (continuation: CheckedContinuation<[EKReminder], Never>) in
+            eventStore.fetchReminders(matching: predicate) { reminders in
+                continuation.resume(returning: reminders ?? [])
+            }
+        }
+    }
 
     private func requestAccess() async {
         do {

@@ -227,25 +227,7 @@ struct ReminderNotesFormatterTests {
 // MARK: - ReminderSort
 
 struct ReminderSortTests {
-    private func makeReminder(
-        title: String,
-        priority: Int = 0,
-        dateComponents: DateComponents? = nil) -> EKReminder {
-        let store = EKEventStore()
-        let reminder = EKReminder(eventStore: store)
-        reminder.title = title
-        reminder.priority = priority
-        reminder.dueDateComponents = dateComponents
-        return reminder
-    }
-
-    private func titles(of reminders: [EKReminder]) -> [String] {
-        reminders.sorted { ReminderSort.areInIncreasingOrder($0, $1) }.map(\.title)
-    }
-
-    private func date(_ day: Int) -> DateComponents {
-        DateComponents(year: 2024, month: 1, day: day)
-    }
+    // MARK: Internal
 
     @Test
     func sortsHighPriorityBeforeLow() {
@@ -288,5 +270,27 @@ struct ReminderSortTests {
         let beta = makeReminder(title: "Beta", priority: 5)
         let alpha = makeReminder(title: "Alpha", priority: 5)
         #expect(titles(of: [beta, alpha]) == ["Alpha", "Beta"])
+    }
+
+    // MARK: Private
+
+    private func makeReminder(
+        title: String,
+        priority: Int = 0,
+        dateComponents: DateComponents? = nil) -> EKReminder {
+        let store = EKEventStore()
+        let reminder = EKReminder(eventStore: store)
+        reminder.title = title
+        reminder.priority = priority
+        reminder.dueDateComponents = dateComponents
+        return reminder
+    }
+
+    private func titles(of reminders: [EKReminder]) -> [String] {
+        reminders.sorted { ReminderSort.areInIncreasingOrder($0, $1) }.map(\.title)
+    }
+
+    private func date(_ day: Int) -> DateComponents {
+        DateComponents(year: 2024, month: 1, day: day)
     }
 }

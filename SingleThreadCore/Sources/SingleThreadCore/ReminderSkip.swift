@@ -38,10 +38,10 @@ public nonisolated enum ReminderPriority {
     /// Resolves the reminder's numeric priority into a display level.
     public static func level(for priority: Int) -> Level? {
         switch priority {
-        case 1: return .high
-        case 5: return .medium
-        case 9: return .low
-        default: return nil
+        case 1: .high
+        case 5: .medium
+        case 9: .low
+        default: nil
         }
     }
 
@@ -49,10 +49,10 @@ public nonisolated enum ReminderPriority {
     /// or empty when there is no priority.
     public static func marker(for priority: Int) -> String {
         switch level(for: priority) {
-        case .high: return "!!!"
-        case .medium: return "!!"
-        case .low: return "!"
-        case nil: return ""
+        case .high: "!!!"
+        case .medium: "!!"
+        case .low: "!"
+        case nil: ""
         }
     }
 
@@ -60,10 +60,10 @@ public nonisolated enum ReminderPriority {
     /// before low (2); `nil` for no priority (sorts after all prioritized).
     public static func rank(for priority: Int) -> Int? {
         switch level(for: priority) {
-        case .high: return 0
-        case .medium: return 1
-        case .low: return 2
-        case nil: return nil
+        case .high: 0
+        case .medium: 1
+        case .low: 2
+        case nil: nil
         }
     }
 }
