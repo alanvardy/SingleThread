@@ -41,6 +41,10 @@ struct WatchReminderView: View {
 
     // MARK: Private
 
+    /// The refresh spinner stays visible for at least this long so brief
+    /// EventKit fetches still read as a refresh.
+    private static let refreshMinimumDisplayDuration: TimeInterval = 1
+
     @State private var crownDetector = CrownRefreshDetector()
     @State private var crownRotation = 0.0
     @State private var isRefreshing = false
@@ -127,8 +131,15 @@ struct WatchReminderView: View {
         WKInterfaceDevice.current().play(.click)
         let clearSkipped = allSkipped
         isRefreshing = true
+        let startedAt = Date()
         Task {
             await store.reload(clearSkipped: clearSkipped)
+            let remaining = MinimumDisplayDuration.remainingSleep(
+                elapsed: Date().timeIntervalSince(startedAt),
+                minimum: Self.refreshMinimumDisplayDuration)
+            if remaining > 0 {
+                try? await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000))
+            }
             isRefreshing = false
         }
     }
