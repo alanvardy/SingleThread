@@ -499,7 +499,9 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SingleThread needs microphone access to capture your voice for reminders.";
 				INFOPLIST_KEY_NSRemindersUsageDescription = "SingleThread needs access to show your reminders.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "SingleThread uses speech recognition to create reminders from your voice.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -545,7 +547,9 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SingleThread needs microphone access to capture your voice for reminders.";
 				INFOPLIST_KEY_NSRemindersUsageDescription = "SingleThread needs access to show your reminders.";
+				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "SingleThread uses speech recognition to create reminders from your voice.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

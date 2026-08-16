@@ -48,7 +48,7 @@ import Foundation
             do {
                 try session.updateApplicationContext(["skippedReminderIdentifiers": ids])
             } catch {
-                print("[\(Date.now.timeIntervalSince1970)] pushSkipIDs error \(error)")
+                print("Failed to push skip IDs: \(error)")
             }
         }
 
@@ -57,7 +57,7 @@ import Foundation
             session.sendMessage(
                 ["completeReminderIdentifier": identifier],
                 replyHandler: nil) { error in
-                    print("[\(Date.now.timeIntervalSince1970)] requestCompleteReminder error \(error)")
+                    print("Failed to send completion request: \(error)")
                 }
         }
 
@@ -84,7 +84,7 @@ import Foundation
             activationDidCompleteWith _: WCSessionActivationState,
             error: (any Error)?) {
             if let error {
-                print("[\(Date.now.timeIntervalSince1970)] WCSession activation error \(error)")
+                print("WCSession activation failed: \(error)")
             }
         }
 

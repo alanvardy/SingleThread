@@ -33,14 +33,6 @@ struct WatchReminderView: View {
 
     private let store: ReminderStore
 
-    private func priorityColor(_ level: ReminderPriority.Level) -> Color {
-        switch level {
-        case .low: return .green
-        case .medium: return .yellow
-        case .high: return .red
-        }
-    }
-
     @ViewBuilder private var reminderContent: some View {
         if store.visibleReminders.isEmpty && !store.reminders.isEmpty {
             VStack {
@@ -94,6 +86,14 @@ struct WatchReminderView: View {
         } else {
             Text("No Reminders")
                 .foregroundStyle(.secondary)
+        }
+    }
+
+    private func priorityColor(_ level: ReminderPriority.Level) -> Color {
+        switch level {
+        case .low: .green
+        case .medium: .yellow
+        case .high: .red
         }
     }
 }
