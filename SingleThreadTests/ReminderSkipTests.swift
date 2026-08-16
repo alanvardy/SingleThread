@@ -138,7 +138,7 @@ struct ReminderPriorityTests {
 
     @Test
     func markerIsEmptyWhenNoPriority() {
-        #expect(ReminderPriority.marker(for: 0) == "")
+        #expect(ReminderPriority.marker(for: 0).isEmpty)
     }
 }
 
