@@ -6,8 +6,7 @@ let package = Package(
     platforms: [
         .iOS("26.5"),
         .watchOS("26.5"),
-        .macOS("26.5"),
-        .visionOS("26.5")
+        .macOS("26.5")
     ],
     products: [
         .library(name: "SingleThreadCore", targets: ["SingleThreadCore"])
