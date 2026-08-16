@@ -8,8 +8,8 @@ public nonisolated enum ReminderSort {
         let lhsRank = ReminderPriority.rank(for: lhs.priority)
         let rhsRank = ReminderPriority.rank(for: rhs.priority)
         switch (lhsRank, rhsRank) {
-        case let (.some(a), .some(b)) where a != b:
-            return a < b
+        case let (.some(left), .some(right)) where left != right:
+            return left < right
         case (.some, .none):
             return true
         case (.none, .some):
@@ -21,8 +21,8 @@ public nonisolated enum ReminderSort {
         let lhsDate = lhs.dueDateComponents?.date
         let rhsDate = rhs.dueDateComponents?.date
         switch (lhsDate, rhsDate) {
-        case let (.some(a), .some(b)) where a != b:
-            return a < b
+        case let (.some(left), .some(right)) where left != right:
+            return left < right
         case (.some, .none):
             return true
         case (.none, .some):
