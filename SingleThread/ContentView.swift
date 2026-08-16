@@ -37,7 +37,7 @@ struct ContentView: View {
 
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
+            Color.systemBackground.ignoresSafeArea()
             if store.loadsReminders {
                 authGatedContent
             } else {
