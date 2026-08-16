@@ -58,8 +58,8 @@ final class ReminderDictation: SpeechTranscribing {
         isRecording = true
         partialText = ""
 
-        let audioSession = try prepareRecording()
-        defer { tearDownRecording(audioSession: audioSession) }
+        try prepareRecording()
+        defer { tearDownRecording() }
 
         return try await awaitFinalResult(recognizer: recognizer, onPartialResult: onPartialResult)
     }
@@ -88,10 +88,12 @@ final class ReminderDictation: SpeechTranscribing {
         }
     }
 
-    private func prepareRecording() throws -> AVAudioSession {
+    private func prepareRecording() throws {
+        #if os(iOS)
         let audioSession = AVAudioSession.sharedInstance()
         try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
+        #endif
 
         let request = SFSpeechAudioBufferRecognitionRequest()
         request.shouldReportPartialResults = true
@@ -106,17 +108,18 @@ final class ReminderDictation: SpeechTranscribing {
 
         audioEngine.prepare()
         try audioEngine.start()
-        return audioSession
     }
 
-    private func tearDownRecording(audioSession: AVAudioSession) {
+    private func tearDownRecording() {
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         recognitionRequest = nil
         recognitionTask?.cancel()
         recognitionTask = nil
         isRecording = false
-        try? audioSession.setActive(false, options: .notifyOthersOnDeactivation)
+        #if os(iOS)
+        try? AVAudioSession.sharedInstance().setActive(false, options: .notifyOthersOnDeactivation)
+        #endif
     }
 
     private func awaitFinalResult(
