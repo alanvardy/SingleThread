@@ -1,4 +1,5 @@
 @preconcurrency import AVFoundation
+import SingleThreadCore
 @preconcurrency import Speech
 
 // MARK: - SpeechTranscribing protocol
@@ -73,6 +74,7 @@ final class ReminderDictation: SpeechTranscribing {
     private var recognitionTask: SFSpeechRecognitionTask?
     private var isRecording = false
     private var partialText = ""
+    @ObservationIgnored private var transcriptionAccumulator = TranscriptionAccumulator()
 
     private func ensureMicrophoneAccess() async throws {
         switch AVCaptureDevice.authorizationStatus(for: .audio) {
@@ -133,12 +135,16 @@ final class ReminderDictation: SpeechTranscribing {
             var hasResumed = false
         }
         let gate = ResumptionGate()
+        transcriptionAccumulator = TranscriptionAccumulator()
 
         return try await withCheckedThrowingContinuation { continuation in
             recognitionTask = recognizer.recognitionTask(with: request) { @Sendable outcome, error in
                 // Extract Sendable values before hopping to the main actor.
                 let text = outcome?.bestTranscription.formattedString
                 let isFinal = outcome?.isFinal ?? false
+                // On-device recognition commits an utterance after a pause and
+                // starts a new one; committed segments have confidence > 0.
+                let isCommitted = (outcome?.bestTranscription.segments.first?.confidence ?? 0) > 0
                 Task { @MainActor in
                     guard !gate.hasResumed else { return }
                     if let error {
@@ -147,25 +153,27 @@ final class ReminderDictation: SpeechTranscribing {
                         return
                     }
                     guard let text else { return }
-                    self.partialText = text
-                    onPartialResult(text)
+                    let combined = self.transcriptionAccumulator.append(
+                        TranscriptionAccumulator.Chunk(text: text, isCommitted: isCommitted))
+                    self.partialText = combined
+                    onPartialResult(combined)
                     if isFinal {
                         gate.hasResumed = true
-                        continuation.resume(returning: text)
+                        continuation.resume(returning: combined)
                     }
                 }
             }
 
-            // Timeout: auto-stop after 10 seconds of no final result.
+            // Timeout: auto-stop after 5 seconds of no final result.
             Task { @MainActor [weak self] in
-                try? await Task.sleep(nanoseconds: 10_000_000_000)
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
                 guard let self, isRecording else { return }
                 guard !gate.hasResumed else { return }
                 gate.hasResumed = true
-                if partialText.isEmpty {
+                if transcriptionAccumulator.isEmpty {
                     continuation.resume(throwing: DictationError.noSpeechDetected)
                 } else {
-                    continuation.resume(returning: partialText)
+                    continuation.resume(returning: transcriptionAccumulator.combined)
                 }
             }
         }
