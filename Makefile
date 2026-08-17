@@ -1,6 +1,7 @@
-SIM := platform=iOS Simulator,name=iPhone 17
+SIM ?= platform=iOS Simulator,name=iPhone 17
 WATCH_SIM := generic/platform=watchOS Simulator
 DERIVED_DATA := DerivedData
+export SIM
 
 .PHONY: build watch-build test ui-test check clean lint format periphery
 
@@ -31,4 +32,4 @@ format:
 	swiftlint --fix
 
 periphery:
-	periphery scan --strict -- -destination "platform=iOS Simulator,name=iPhone 17"
+	periphery scan --strict -- -destination "$(SIM)"

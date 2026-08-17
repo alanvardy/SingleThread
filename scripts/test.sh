@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ── Configuration ──────────────────────────────────────────────────────────────
-SIM="platform=iOS Simulator,name=iPhone 17"
+SIM="${SIM:-platform=iOS Simulator,name=iPhone 17}"
 WATCH_SIM="generic/platform=watchOS Simulator"
 SCHEME="SingleThread"
 WATCH_SCHEME="SingleThreadWatch"
