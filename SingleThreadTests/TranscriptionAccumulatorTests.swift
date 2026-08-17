@@ -111,15 +111,15 @@ struct TranscriptionAccumulatorTests {
         // Utterance 1 — live then committed
         _ = accumulator.append(.init(text: "Buy", isCommitted: false))
         _ = accumulator.append(.init(text: "Buy milk", isCommitted: false))
-        let r1 = accumulator.append(.init(text: "Buy milk", isCommitted: true))
-        #expect(r1 == "Buy milk")
+        let first = accumulator.append(.init(text: "Buy milk", isCommitted: true))
+        #expect(first == "Buy milk")
 
         // Utterance 2 — live only
-        let r2 = accumulator.append(.init(text: "and eggs", isCommitted: false))
-        #expect(r2 == "Buy milk and eggs")
+        let second = accumulator.append(.init(text: "and eggs", isCommitted: false))
+        #expect(second == "Buy milk and eggs")
 
         // Utterance 2 committed
-        let r3 = accumulator.append(.init(text: "and eggs today", isCommitted: true))
-        #expect(r3 == "Buy milk and eggs today")
+        let third = accumulator.append(.init(text: "and eggs today", isCommitted: true))
+        #expect(third == "Buy milk and eggs today")
     }
 }

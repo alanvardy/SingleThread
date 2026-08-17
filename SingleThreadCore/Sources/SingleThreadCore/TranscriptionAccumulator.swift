@@ -41,6 +41,21 @@ public struct TranscriptionAccumulator: Sendable {
         public let isCommitted: Bool
     }
 
+    /// The full transcript: all finalized utterances followed by the current
+    /// live text, joined with spaces.
+    public var combined: String {
+        var parts = finalized
+        if !live.isEmpty {
+            parts.append(live)
+        }
+        return parts.joined(separator: " ")
+    }
+
+    /// Returns `true` when nothing has been accumulated.
+    public var isEmpty: Bool {
+        finalized.isEmpty && live.isEmpty
+    }
+
     /// Feeds the next recognition result and returns the combined transcript.
     ///
     /// When `chunk.isCommitted`:
@@ -62,19 +77,6 @@ public struct TranscriptionAccumulator: Sendable {
             live = trimmed
         }
         return combined
-    }
-
-    /// The full transcript: all finalized utterances followed by the current
-    /// live text, joined with spaces.
-    public var combined: String {
-        var parts = finalized
-        if !live.isEmpty { parts.append(live) }
-        return parts.joined(separator: " ")
-    }
-
-    /// Returns `true` when nothing has been accumulated.
-    public var isEmpty: Bool {
-        finalized.isEmpty && live.isEmpty
     }
 
     // MARK: Private
