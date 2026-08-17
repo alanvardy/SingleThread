@@ -67,6 +67,37 @@ struct ContentView: View {
             || speechTranscriber.authorizationStatus == .notDetermined
     }
 
+    #if os(macOS)
+        private var actionButtons: some View {
+            HStack(spacing: 32) {
+                Button {
+                    Task { await store.completeCurrentReminder() }
+                } label: {
+                    Label("Complete", systemImage: "checkmark.circle.fill")
+                        .labelStyle(.iconOnly)
+                        .font(.title)
+                }
+                .tint(.green)
+                .keyboardShortcut("c", modifiers: [])
+                .accessibilityLabel("Complete reminder")
+                .accessibilityAddTraits(.isButton)
+
+                Button {
+                    store.skipCurrentReminder()
+                } label: {
+                    Label("Skip", systemImage: "circle.slash")
+                        .labelStyle(.iconOnly)
+                        .font(.title)
+                }
+                .tint(.orange)
+                .keyboardShortcut("s", modifiers: [])
+                .accessibilityLabel("Skip reminder")
+                .accessibilityAddTraits(.isButton)
+            }
+            .padding(.bottom, 8)
+        }
+    #endif
+
     @ViewBuilder private var authGatedContent: some View {
         switch store.authorizationStatus {
         case .notDetermined:
@@ -111,7 +142,7 @@ struct ContentView: View {
                     .refreshable {
                         await store.reload()
                     }
-                    micOverlay
+                    bottomBar
                 }
             } else {
                 ZStack(alignment: .bottom) {
@@ -165,16 +196,19 @@ struct ContentView: View {
                     .refreshable {
                         await store.reload()
                     }
-                    micOverlay
+                    bottomBar
                 }
             }
         }
     }
 
-    // MARK: - Mic Dictation
-
-    private var micOverlay: some View {
+    private var bottomBar: some View {
         VStack(spacing: 8) {
+            #if os(macOS)
+                if store.visibleReminders.first != nil {
+                    actionButtons
+                }
+            #endif
             if let error = dictationError {
                 Text(error)
                     .font(.caption)
@@ -197,6 +231,8 @@ struct ContentView: View {
         }
         .padding(.bottom, 16)
     }
+
+    // MARK: - Mic Dictation
 
     private var micButton: some View {
         Button {
