@@ -98,6 +98,10 @@ struct ContentView: View {
         @AppStorage("allowsLandscape")
         private var allowsLandscape = true
     #endif
+
+    @AppStorage("showMicrophoneButton")
+    private var showMicrophoneButton = true
+
     @State private var isDictating = false
     @State private var dictationText = ""
     @State private var dictationError: String?
@@ -272,6 +276,7 @@ struct ContentView: View {
                     AppDelegate.applyLock(allowsLandscape: newValue)
                 }
             #endif
+            Toggle("Microphone", isOn: $showMicrophoneButton)
         } label: {
             Image(systemName: "gearshape")
                 .font(.title3)
@@ -307,7 +312,7 @@ struct ContentView: View {
                         .padding(.horizontal)
                 }
                 recordingIndicator
-            } else if canDictate {
+            } else if canDictate, showMicrophoneButton {
                 micButton
             }
         }
