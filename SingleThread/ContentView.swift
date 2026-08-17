@@ -58,6 +58,36 @@ struct ContentView: View {
 
     // MARK: Private
 
+    // MARK: - Creation Feedback
+
+    private enum CreationFeedback {
+        case success
+        case failure
+
+        // MARK: Internal
+
+        var systemImage: String {
+            switch self {
+            case .success: "checkmark"
+            case .failure: "xmark"
+            }
+        }
+
+        var backgroundColor: Color {
+            switch self {
+            case .success: .green
+            case .failure: .red
+            }
+        }
+
+        var accessibilityLabel: String {
+            switch self {
+            case .success: "Task created"
+            case .failure: "Task creation failed"
+            }
+        }
+    }
+
     @AppStorage("appearanceMode")
     private var appearanceMode = AppearanceMode.system
 
@@ -67,6 +97,7 @@ struct ContentView: View {
     @State private var isDictating = false
     @State private var dictationText = ""
     @State private var dictationError: String?
+    @State private var creationFeedback: CreationFeedback?
 
     private let store: ReminderStore
     private let speechTranscriber: any SpeechTranscribing
@@ -253,7 +284,9 @@ struct ContentView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
-            if isDictating {
+            if let feedback = creationFeedback {
+                creationFeedbackView(for: feedback)
+            } else if isDictating {
                 if !dictationText.isEmpty {
                     Text(dictationText)
                         .font(.callout)
@@ -297,6 +330,18 @@ struct ContentView: View {
             .accessibilityLabel("Recording")
     }
 
+    private func creationFeedbackView(for feedback: CreationFeedback) -> some View {
+        Image(systemName: feedback.systemImage)
+            .font(.title2)
+            .foregroundStyle(.white)
+            .frame(width: 56, height: 56)
+            .background(feedback.backgroundColor, in: Circle())
+            .shadow(radius: 4)
+            .accessibilityLabel(feedback.accessibilityLabel)
+    }
+
+    // MARK: - Priority
+
     private func priorityColor(_ level: ReminderPriority.Level) -> Color {
         switch level {
         case .low: .green
@@ -326,10 +371,17 @@ struct ContentView: View {
             }
             let parsed = ReminderDictationParser.parse(result)
             if !parsed.title.isEmpty {
-                await store.addReminder(
+                let saved = await store.addReminder(
                     title: parsed.title,
                     notes: nil,
                     dueDate: parsed.dueDateComponents)
+                if saved {
+                    creationFeedback = .success
+                } else {
+                    creationFeedback = .failure
+                }
+                try? await Task.sleep(nanoseconds: 2_000_000_000)
+                creationFeedback = nil
             }
         } catch {
             dictationError = error.localizedDescription
