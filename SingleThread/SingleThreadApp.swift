@@ -7,9 +7,6 @@ import SwiftUI
 
 @main
 struct SingleThreadApp: App {
-    #if os(iOS)
-        @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    #endif
     // MARK: Lifecycle
 
     init() {
@@ -41,6 +38,11 @@ struct SingleThreadApp: App {
     }
 
     // MARK: Private
+
+    #if os(iOS)
+        @UIApplicationDelegateAdaptor(AppDelegate.self)
+        private var appDelegate
+    #endif
 
     private let store: ReminderStore
 }

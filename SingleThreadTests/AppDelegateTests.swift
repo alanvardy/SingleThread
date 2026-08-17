@@ -5,8 +5,6 @@ import UIKit
 #if os(iOS)
     @MainActor
     struct AppDelegateTests {
-        // MARK: Internal
-
         @Test
         func allowsLandscapeTrueReturnsAllButUpsideDown() {
             UserDefaults.standard.set(true, forKey: "allowsLandscape")
