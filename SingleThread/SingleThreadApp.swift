@@ -1,11 +1,15 @@
 import SingleThreadCore
 import SwiftUI
 #if os(iOS)
+    import UIKit
     import WatchConnectivity
 #endif
 
 @main
 struct SingleThreadApp: App {
+    #if os(iOS)
+        @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
+    #endif
     // MARK: Lifecycle
 
     init() {
