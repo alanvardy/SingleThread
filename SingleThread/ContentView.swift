@@ -44,12 +44,21 @@ struct ContentView: View {
                 reminderList
             }
         }
+        .overlay(alignment: .topTrailing) {
+            settingsMenu
+                .padding(.top, 8)
+                .padding(.trailing, 12)
+        }
         .task {
             await store.start()
         }
+        .preferredColorScheme(appearanceMode.colorScheme)
     }
 
     // MARK: Private
+
+    @AppStorage("appearanceMode")
+    private var appearanceMode = AppearanceMode.system
 
     @State private var isDictating = false
     @State private var dictationText = ""
@@ -200,6 +209,24 @@ struct ContentView: View {
                 }
             }
         }
+    }
+
+    private var settingsMenu: some View {
+        Menu {
+            Picker("Appearance", selection: $appearanceMode) {
+                ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                    Label(mode.title, systemImage: mode.systemImage)
+                        .tag(mode)
+                }
+            }
+        } label: {
+            Image(systemName: "gearshape")
+                .font(.title3)
+                .foregroundStyle(.secondary)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
+        }
+        .accessibilityLabel("Settings")
     }
 
     private var bottomBar: some View {
