@@ -98,10 +98,12 @@ public final class ReminderStore {
     }
 
     /// Creates a new reminder in EventKit with the given title, notes, and optional due date.
-    /// On watchOS, EventKit is read-only, so this is a no-op.
-    public func addReminder(title: String, notes: String?, dueDate: DateComponents?) async {
+    /// Returns `true` if the save succeeded, `false` otherwise.
+    /// On watchOS, EventKit is read-only, so this always returns `false`.
+    @discardableResult
+    public func addReminder(title: String, notes: String?, dueDate: DateComponents?) async -> Bool {
         #if os(watchOS)
-            return
+            return false
         #else
             let reminder = Self.makeReminder(
                 title: title,
@@ -112,8 +114,10 @@ public final class ReminderStore {
                 try eventStore.save(reminder, commit: true)
                 try? await Task.sleep(nanoseconds: 200_000_000)
                 await reload()
+                return true
             } catch {
                 print("Failed to add reminder: \(error)")
+                return false
             }
         #endif
     }
