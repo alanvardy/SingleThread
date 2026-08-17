@@ -53,12 +53,16 @@ struct ContentView: View {
             await store.start()
         }
         .preferredColorScheme(appearanceMode.colorScheme)
+        .modifier(TextSizeModifier(textSize: textSize))
     }
 
     // MARK: Private
 
     @AppStorage("appearanceMode")
     private var appearanceMode = AppearanceMode.system
+
+    @AppStorage("textSize")
+    private var textSize = TextSize.system
 
     @State private var isDictating = false
     @State private var dictationText = ""
@@ -219,6 +223,12 @@ struct ContentView: View {
                         .tag(mode)
                 }
             }
+            Picker("Text Size", selection: $textSize) {
+                ForEach(TextSize.allCases, id: \.self) { size in
+                    Label(size.title, systemImage: size.systemImage)
+                        .tag(size)
+                }
+            }
         } label: {
             Image(systemName: "gearshape")
                 .font(.title3)
@@ -325,6 +335,23 @@ struct ContentView: View {
             dictationError = error.localizedDescription
         }
         isDictating = false
+    }
+}
+
+// MARK: - TextSizeModifier
+
+/// Conditionally applies ``TextSize`` to the view hierarchy.
+/// When the user selects `.system`, no `dynamicTypeSize` override is applied
+/// so the view follows the system Dynamic Type setting.
+private struct TextSizeModifier: ViewModifier {
+    let textSize: TextSize
+
+    func body(content: Content) -> some View {
+        if let size = textSize.dynamicTypeSize {
+            content.dynamicTypeSize(size)
+        } else {
+            content
+        }
     }
 }
 
