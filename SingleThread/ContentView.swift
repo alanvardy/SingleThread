@@ -94,6 +94,10 @@ struct ContentView: View {
     @AppStorage("textSize")
     private var textSize = TextSize.system
 
+    #if os(iOS)
+        @AppStorage("allowsLandscape")
+        private var allowsLandscape = true
+    #endif
     @State private var isDictating = false
     @State private var dictationText = ""
     @State private var dictationError: String?
@@ -260,6 +264,14 @@ struct ContentView: View {
                         .tag(size)
                 }
             }
+            #if os(iOS)
+                Toggle(isOn: $allowsLandscape) {
+                    Label("Landscape", systemImage: "rectangle.landscape.rotate")
+                }
+                .onChange(of: allowsLandscape) { _, newValue in
+                    AppDelegate.applyLock(allowsLandscape: newValue)
+                }
+            #endif
         } label: {
             Image(systemName: "gearshape")
                 .font(.title3)
