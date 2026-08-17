@@ -118,19 +118,19 @@ struct ContentView: View {
                     List {
                         if let reminder = store.visibleReminders.first {
                             VStack(alignment: .leading, spacing: 4) {
-                                Text(reminder.title)
-                                    .font(.title)
-                                if let due = reminder.dueDateComponents?.date {
-                                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                        if let level = ReminderPriority.level(for: reminder.priority) {
-                                            Text(ReminderPriority.marker(for: reminder.priority))
-                                                .font(.caption)
-                                                .foregroundStyle(priorityColor(level))
-                                        }
-                                        Text(due, style: .date)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
+                                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                    if let level = ReminderPriority.level(for: reminder.priority) {
+                                        Text(ReminderPriority.marker(for: reminder.priority))
+                                            .font(.title)
+                                            .foregroundStyle(priorityColor(level))
                                     }
+                                    Text(reminder.title)
+                                        .font(.title)
+                                }
+                                if let due = reminder.dueDateComponents?.date {
+                                    Text(due, style: .date)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
                                 }
                                 if let noteText = ReminderNotesFormatter.format(reminder.notes) {
                                     Text(noteText)
@@ -271,6 +271,7 @@ private let mockReminder: EKReminder = {
     let store = EKEventStore()
     let reminder = EKReminder(eventStore: store)
     reminder.title = "Buy groceries"
+    reminder.priority = 5
     reminder.dueDateComponents = DateComponents(year: 2024, month: 9, day: 15, hour: 14, minute: 0)
     reminder.notes = "Don't forget the milk"
     reminder.url = URL(string: "https://example.com/shopping-list")
