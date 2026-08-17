@@ -2,8 +2,12 @@
 
 ## Build & Test
 
-- **Simulator**: `iPhone 17` is the default. Check available devices with
-  `xcrun simctl list devices available | grep iPhone` if unavailable.
+- **Simulator**: `iPhone 17` is the default locally. `iPad (A16)` is also
+  supported; CI runs **both** in parallel matrix jobs. Check available devices
+  with `xcrun simctl list devices available | grep -iE 'iphone|ipad'` if
+  either is unavailable.
+- `make` targets and `scripts/test.sh` honor a `SIM` override, e.g.
+  `make test SIM='platform=iOS Simulator,name=iPad (A16)'`.
 - **Build**:
   ```bash
   xcodebuild -scheme SingleThread \
