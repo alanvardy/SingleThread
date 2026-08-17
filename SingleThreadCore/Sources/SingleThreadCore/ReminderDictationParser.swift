@@ -22,6 +22,12 @@ public enum ReminderDictationParser {
     ///
     /// If multiple date expressions are found, the first one wins. If none
     /// are found, `dueDateComponents` is `nil` and the title is returned as-is.
+    ///
+    /// When the matched date phrase contains no time-of-day specification
+    /// (e.g. "today", "tomorrow", "next Monday"), only year/month/day are
+    /// extracted so the reminder behaves as an all-day item. When the
+    /// phrase does include a time (e.g. "9am", "noon", "this evening",
+    /// "at 5pm"), hour and minute are included as well.
     public static func parse(
         _ text: String,
         calendar: Calendar = .current) -> Result {
@@ -30,9 +36,16 @@ public enum ReminderDictationParser {
             return Result(title: trimmed, dueDateComponents: nil)
         }
 
-        let dateComponents = calendar.dateComponents(
-            [.year, .month, .day, .hour, .minute],
-            from: match.date)
+        let hasTime = hasTimeSpecification(in: trimmed, range: match.range)
+        let dateComponents: DateComponents = if hasTime {
+            calendar.dateComponents(
+                [.year, .month, .day, .hour, .minute],
+                from: match.date)
+        } else {
+            calendar.dateComponents(
+                [.year, .month, .day],
+                from: match.date)
+        }
 
         let cleanedTitle = stripMatch(trimmed, range: match.range)
         return Result(title: cleanedTitle, dueDateComponents: dateComponents)
@@ -50,6 +63,39 @@ public enum ReminderDictationParser {
         let matches = dateDetector.matches(in: text, options: [], range: fullRange)
         guard let first = matches.first, let date = first.date else { return nil }
         return (range: first.range, date: date)
+    }
+
+    /// Returns whether the matched date phrase contains a time-of-day
+    /// specification — a numeric time like "9am" / "5:30 pm", a named time
+    /// like "noon" or "midnight", or an implied time-of-day word like
+    /// "morning", "afternoon", "evening", or "tonight".
+    private static func hasTimeSpecification(in text: String, range: NSRange) -> Bool {
+        guard let swiftRange = Range(range, in: text) else { return false }
+        let matched = String(text[swiftRange])
+
+        // Numeric time with am/pm: "9am", "5:30pm", "5 p.m."
+        let ampmPattern = /\d{1,2}(:\d{2})?\s*(am|pm|a\.m\.|p\.m\.)/.ignoresCase()
+        if matched.contains(ampmPattern) {
+            return true
+        }
+
+        // 24-hour minute-precision: "14:30", "9:15"
+        let hourMinutePattern = /\d{1,2}:\d{2}/
+        if matched.contains(hourMinutePattern) {
+            return true
+        }
+
+        // Named time markers and time-of-day words
+        let timeWords: Set = [
+            "noon", "midnight",
+            "morning", "afternoon", "evening", "tonight"
+        ]
+        let words = matched.lowercased().split(whereSeparator: \.isWhitespace)
+        for word in words where timeWords.contains(String(word)) {
+            return true
+        }
+
+        return false
     }
 
     /// Removes the matched date phrase and cleans up the remainder:
