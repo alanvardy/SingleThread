@@ -11,8 +11,11 @@ concurrency:
 jobs:
   unit-tests:
     runs-on: macos-26
+    strategy:
+      matrix:
+        device: ["iPhone 17", "iPad (A16)"]
     env:
-      SIM: platform=iOS Simulator,name=iPhone 17
+      SIM: platform=iOS Simulator,name=${{ matrix.device }}
       DERIVED_DATA: ${{ github.workspace }}/DerivedData
     steps:
       - uses: actions/checkout@v4
@@ -35,7 +38,7 @@ jobs:
 
       - name: Pre-boot simulator
         run: |
-          SIM_UDID=$(xcrun simctl list devices available | grep 'iPhone 17 (' | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+          SIM_UDID=$(xcrun simctl list devices available | grep -F "${{ matrix.device }} (" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
           xcrun simctl boot "$SIM_UDID" || true
           xcrun simctl bootstatus "$SIM_UDID" -b
 
@@ -69,8 +72,11 @@ jobs:
 
   ui-tests:
     runs-on: macos-26
+    strategy:
+      matrix:
+        device: ["iPhone 17", "iPad (A16)"]
     env:
-      SIM: platform=iOS Simulator,name=iPhone 17
+      SIM: platform=iOS Simulator,name=${{ matrix.device }}
       DERIVED_DATA: ${{ github.workspace }}/DerivedData
     steps:
       - uses: actions/checkout@v4
@@ -93,7 +99,7 @@ jobs:
 
       - name: Pre-boot simulator
         run: |
-          SIM_UDID=$(xcrun simctl list devices available | grep 'iPhone 17 (' | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+          SIM_UDID=$(xcrun simctl list devices available | grep -F "${{ matrix.device }} (" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
           xcrun simctl boot "$SIM_UDID" || true
           xcrun simctl bootstatus "$SIM_UDID" -b
 
