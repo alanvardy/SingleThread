@@ -3,6 +3,7 @@ included:
   - SingleThread
   - SingleThreadCore
   - SingleThreadWatch
+  - SingleThreadWidget
   - SingleThreadTests
   - SingleThreadUITests
 

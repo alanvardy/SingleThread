@@ -24,11 +24,11 @@ clean:
 	xcodebuild -scheme SingleThread -destination '$(SIM)' clean
 
 lint:
-	swiftformat --lint SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadTests/ SingleThreadUITests/
+	swiftformat --lint SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/
 	swiftlint lint --strict
 
 format:
-	swiftformat SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadTests/ SingleThreadUITests/
+	swiftformat SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/
 	swiftlint --fix
 
 periphery:
