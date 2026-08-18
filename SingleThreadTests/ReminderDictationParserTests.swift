@@ -293,6 +293,42 @@ struct ReminderDictationParserTests {
         #expect(result.dueDateComponents?.hour == 9)
         #expect(result.dueDateComponents?.minute == 0)
     }
+
+    // MARK: Recurrence — every other day / month / year
+
+    @Test
+    func everyOtherDaySetsDailyIntervalTwo() {
+        let result = ReminderDictationParser.parse("Take meds every other day")
+        #expect(result.title == "Take meds")
+        #expect(result.recurrenceRule?.frequency == .daily)
+        #expect(result.recurrenceRule?.interval == 2)
+    }
+
+    @Test
+    func everyOtherMonthSetsMonthlyIntervalTwo() {
+        let result = ReminderDictationParser.parse("Review budget every other month")
+        #expect(result.title == "Review budget")
+        #expect(result.recurrenceRule?.frequency == .monthly)
+        #expect(result.recurrenceRule?.interval == 2)
+    }
+
+    @Test
+    func everyOtherYearSetsYearlyIntervalTwo() {
+        let result = ReminderDictationParser.parse("Renew passport every other year")
+        #expect(result.title == "Renew passport")
+        #expect(result.recurrenceRule?.frequency == .yearly)
+        #expect(result.recurrenceRule?.interval == 2)
+    }
+
+    // MARK: Time — 24-hour format
+
+    @Test
+    func time24HourFormatExtractsHourAndMinute() {
+        let result = ReminderDictationParser.parse("Meeting at 14:30")
+        #expect(result.title == "Meeting")
+        #expect(result.dueDateComponents?.hour == 14)
+        #expect(result.dueDateComponents?.minute == 30)
+    }
 }
 
 // MARK: - Helpers
