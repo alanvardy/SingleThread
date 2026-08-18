@@ -32,33 +32,37 @@ struct SettingsView: View {
     // MARK: Internal
 
     var body: some View {
-        Form {
-            Picker("Appearance", selection: $appearanceMode) {
-                ForEach(AppearanceMode.allCases, id: \.self) { mode in
-                    Label(mode.title, systemImage: mode.systemImage)
-                        .tag(mode)
+        NavigationStack {
+            Form {
+                Picker("Appearance", selection: $appearanceMode) {
+                    ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                        Label(mode.title, systemImage: mode.systemImage)
+                            .tag(mode)
+                    }
+                }
+                Picker("Text Size", selection: $textSize) {
+                    ForEach(TextSize.allCases, id: \.self) { size in
+                        Label(size.title, systemImage: size.systemImage)
+                            .tag(size)
+                    }
+                }
+                #if os(iOS)
+                    Toggle(isOn: $allowsLandscape) {
+                        Label("Allow Landscape", systemImage: "rectangle.landscape.rotate")
+                    }
+                    .onChange(of: allowsLandscape) { _, newValue in
+                        AppDelegate.applyLock(allowsLandscape: newValue)
+                    }
+                #endif
+                Toggle(isOn: $showMicrophoneButton) {
+                    Label("Show Microphone", systemImage: "microphone")
                 }
             }
-            Picker("Text Size", selection: $textSize) {
-                ForEach(TextSize.allCases, id: \.self) { size in
-                    Label(size.title, systemImage: size.systemImage)
-                        .tag(size)
-                }
-            }
-            #if os(iOS)
-                Toggle(isOn: $allowsLandscape) {
-                    Label("Allow Landscape", systemImage: "rectangle.landscape.rotate")
-                }
-                .onChange(of: allowsLandscape) { _, newValue in
-                    AppDelegate.applyLock(allowsLandscape: newValue)
-                }
-            #endif
-            Toggle("Show Microphone", isOn: $showMicrophoneButton)
-        }
-        .toolbar {
-            ToolbarItem(placement: .confirmationAction) {
-                Button("Done") {
-                    dismiss()
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
                 }
             }
         }
@@ -82,31 +86,25 @@ struct SettingsView: View {
 
 #if os(iOS)
     #Preview("Default") {
-        NavigationStack {
-            SettingsView(
-                appearanceMode: .constant(.system),
-                textSize: .constant(.system),
-                allowsLandscape: .constant(true),
-                showMicrophoneButton: .constant(true))
-        }
+        SettingsView(
+            appearanceMode: .constant(.system),
+            textSize: .constant(.system),
+            allowsLandscape: .constant(true),
+            showMicrophoneButton: .constant(true))
     }
 
     #Preview("Dark + Extra Large") {
-        NavigationStack {
-            SettingsView(
-                appearanceMode: .constant(.dark),
-                textSize: .constant(.extraLarge),
-                allowsLandscape: .constant(false),
-                showMicrophoneButton: .constant(false))
-        }
+        SettingsView(
+            appearanceMode: .constant(.dark),
+            textSize: .constant(.extraLarge),
+            allowsLandscape: .constant(false),
+            showMicrophoneButton: .constant(false))
     }
 #else
     #Preview("Default") {
-        NavigationStack {
-            SettingsView(
-                appearanceMode: .constant(.system),
-                textSize: .constant(.system),
-                showMicrophoneButton: .constant(true))
-        }
+        SettingsView(
+            appearanceMode: .constant(.system),
+            textSize: .constant(.system),
+            showMicrophoneButton: .constant(true))
     }
 #endif
