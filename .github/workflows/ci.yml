@@ -31,7 +31,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/DerivedData
-          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThread.xcodeproj/project.pbxproj') }}
+          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
           restore-keys: |
             derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
             derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
@@ -92,7 +92,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/DerivedData
-          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThread.xcodeproj/project.pbxproj') }}
+          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
           restore-keys: |
             derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
             derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
@@ -151,7 +151,7 @@ jobs:
 
       - name: SwiftFormat check
         timeout-minutes: 5
-        run: swiftformat --lint SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadTests/ SingleThreadUITests/
+        run: swiftformat --lint SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/
 
       - name: SwiftLint
         timeout-minutes: 5

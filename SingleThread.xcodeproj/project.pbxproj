@@ -11,6 +11,8 @@
 		518BF496302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		518BF497302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		51AA3F29000000000000000A /* SingleThreadWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51AA3F200000000000000001 /* SingleThreadWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		518BF498302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
+		51AA3F480000000000000000 /* SingleThreadWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 51AA3F410000000000000000 /* SingleThreadWidget.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +37,13 @@
 			remoteGlobalIDString = 51AA3F220000000000000003;
 			remoteInfo = SingleThreadWatch;
 		};
+		51AA3F4A0000000000000000 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 51AA3ECE302D5C4500960DFC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 51AA3F420000000000000000;
+			remoteInfo = SingleThreadWidget;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -49,6 +58,17 @@
 			name = "Embed Watch Content";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AA3F470000000000000000 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				51AA3F480000000000000000 /* SingleThreadWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +76,7 @@
 		51AA3EE5302D5C4500960DFC /* SingleThreadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SingleThreadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51AA3EEF302D5C4500960DFC /* SingleThreadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SingleThreadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51AA3F200000000000000001 /* SingleThreadWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SingleThreadWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		51AA3F410000000000000000 /* SingleThreadWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SingleThreadWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -79,7 +100,25 @@
 			path = SingleThreadWatch;
 			sourceTree = "<group>";
 		};
+		51AA3F400000000000000000 /* SingleThreadWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				51AA3F4E0000000000000000 /* Exceptions for "SingleThreadWidget" folder in "SingleThreadWidget" target */,
+			);
+			path = SingleThreadWidget;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		51AA3F4E0000000000000000 /* Exceptions for "SingleThreadWidget" folder in "SingleThreadWidget" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 51AA3F420000000000000000 /* SingleThreadWidget */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		51AA3ED3302D5C4500960DFC /* Frameworks */ = {
@@ -113,6 +152,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AA3F440000000000000000 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				518BF498302FCC80004C5968 /* SingleThreadCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -123,6 +170,7 @@
 				51AA3EE8302D5C4500960DFC /* SingleThreadTests */,
 				51AA3EF2302D5C4500960DFC /* SingleThreadUITests */,
 				51AA3F210000000000000002 /* SingleThreadWatch */,
+				51AA3F400000000000000000 /* SingleThreadWidget */,
 				51AA3ED7302D5C4500960DFC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -134,6 +182,7 @@
 				51AA3EE5302D5C4500960DFC /* SingleThreadTests.xctest */,
 				51AA3EEF302D5C4500960DFC /* SingleThreadUITests.xctest */,
 				51AA3F200000000000000001 /* SingleThreadWatch.app */,
+				51AA3F410000000000000000 /* SingleThreadWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -149,11 +198,13 @@
 				51AA3ED3302D5C4500960DFC /* Frameworks */,
 				51AA3ED4302D5C4500960DFC /* Resources */,
 				51AA3F280000000000000009 /* Embed Watch Content */,
+				51AA3F470000000000000000 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				51AA3F270000000000000008 /* PBXTargetDependency */,
+				51AA3F490000000000000000 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				51AA3ED8302D5C4500960DFC /* SingleThread */,
@@ -236,6 +287,29 @@
 			productReference = 51AA3F200000000000000001 /* SingleThreadWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
+		51AA3F420000000000000000 /* SingleThreadWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51AA3F4D0000000000000000 /* Build configuration list for PBXNativeTarget "SingleThreadWidget" */;
+			buildPhases = (
+				51AA3F430000000000000000 /* Sources */,
+				51AA3F440000000000000000 /* Frameworks */,
+				51AA3F450000000000000000 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				51AA3F400000000000000000 /* SingleThreadWidget */,
+			);
+			name = SingleThreadWidget;
+			packageProductDependencies = (
+				51AA3F110000000000000002 /* SingleThreadCore */,
+			);
+			productName = SingleThreadWidget;
+			productReference = 51AA3F410000000000000000 /* SingleThreadWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -257,6 +331,9 @@
 						CreatedOnToolsVersion = 26.6;
 					};
 					51AA3F220000000000000003 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					51AA3F420000000000000000 = {
 						CreatedOnToolsVersion = 26.6;
 					};
 				};
@@ -282,6 +359,7 @@
 				51AA3EE4302D5C4500960DFC /* SingleThreadTests */,
 				51AA3EEE302D5C4500960DFC /* SingleThreadUITests */,
 				51AA3F220000000000000003 /* SingleThreadWatch */,
+				51AA3F420000000000000000 /* SingleThreadWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -309,6 +387,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		51AA3F250000000000000006 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		51AA3F450000000000000000 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -346,6 +431,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AA3F430000000000000000 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -364,6 +456,12 @@
 			platformFilter = ios;
 			target = 51AA3F220000000000000003 /* SingleThreadWatch */;
 			targetProxy = 51AA3F260000000000000007 /* PBXContainerItemProxy */;
+		};
+		51AA3F490000000000000000 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			platformFilter = ios;
+			target = 51AA3F420000000000000000 /* SingleThreadWidget */;
+			targetProxy = 51AA3F4A0000000000000000 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -492,6 +590,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = SingleThread/SingleThread.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = SingleThread/AppGroup.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = SingleThread/AppGroup.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -540,6 +640,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = SingleThread/SingleThread.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = SingleThread/AppGroup.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = SingleThread/AppGroup.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -732,6 +834,62 @@
 			};
 			name = Release;
 		};
+		51AA3F4B0000000000000000 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SingleThread/AppGroup.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6NWX2DHB9Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SingleThreadWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SingleThread;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "SingleThread needs access to show your reminders.";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.alanvardy.SingleThread.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		51AA3F4C0000000000000000 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SingleThread/AppGroup.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6NWX2DHB9Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SingleThreadWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SingleThread;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "SingleThread needs access to show your reminders.";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @executable_path/../../Frameworks";
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.alanvardy.SingleThread.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -776,6 +934,15 @@
 			buildConfigurations = (
 				51AA3F2B000000000000000C /* Debug */,
 				51AA3F2C000000000000000D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		51AA3F4D0000000000000000 /* Build configuration list for PBXNativeTarget "SingleThreadWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51AA3F4B0000000000000000 /* Debug */,
+				51AA3F4C0000000000000000 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
