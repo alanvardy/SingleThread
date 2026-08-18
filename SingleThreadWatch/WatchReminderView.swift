@@ -10,6 +10,19 @@ struct WatchReminderView: View {
         self.store = store
     }
 
+    /// Pre-populates state for canvas previews.
+    init(
+        loadsReminders: Bool,
+        reminders: [EKReminder],
+        skippedIDs: Set<String>,
+        authorizationStatus: EKAuthorizationStatus) {
+        store = ReminderStore(
+            loadsReminders: loadsReminders,
+            reminders: reminders,
+            skippedIDs: skippedIDs,
+            authorizationStatus: authorizationStatus)
+    }
+
     // MARK: Internal
 
     var body: some View {
@@ -180,4 +193,56 @@ struct WatchReminderView: View {
         case .high: .red
         }
     }
+}
+
+// MARK: - Previews
+
+private let mockWatchReminder: EKReminder = {
+    let eventStore = EKEventStore()
+    let reminder = EKReminder(eventStore: eventStore)
+    reminder.title = "Buy groceries"
+    reminder.priority = 5
+    reminder.dueDateComponents = DateComponents(year: 2026, month: 8, day: 18, hour: 14, minute: 0)
+    reminder.notes = "Don't forget the milk"
+    return reminder
+}()
+
+#Preview("Requesting Access") {
+    WatchReminderView(
+        loadsReminders: false,
+        reminders: [],
+        skippedIDs: [],
+        authorizationStatus: .notDetermined)
+}
+
+#Preview("Reminder") {
+    WatchReminderView(
+        loadsReminders: false,
+        reminders: [mockWatchReminder],
+        skippedIDs: [],
+        authorizationStatus: .fullAccess)
+}
+
+#Preview("All Skipped") {
+    WatchReminderView(
+        loadsReminders: false,
+        reminders: [mockWatchReminder],
+        skippedIDs: [mockWatchReminder.calendarItemIdentifier],
+        authorizationStatus: .fullAccess)
+}
+
+#Preview("No Reminders") {
+    WatchReminderView(
+        loadsReminders: false,
+        reminders: [],
+        skippedIDs: [],
+        authorizationStatus: .fullAccess)
+}
+
+#Preview("No Access") {
+    WatchReminderView(
+        loadsReminders: false,
+        reminders: [],
+        skippedIDs: [],
+        authorizationStatus: .denied)
 }
