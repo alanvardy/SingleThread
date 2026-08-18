@@ -1,3 +1,4 @@
+import EventKit
 import Foundation
 @testable import SingleThreadCore
 import Testing
@@ -142,6 +143,156 @@ struct ReminderDictationParserTests {
         #expect(result.title == "Meeting rescheduled to tomorrow")
         #expect(Calendar.current.isDateInToday(from: result.dueDateComponents))
     }
+
+    // MARK: Recurrence — no recurrence
+
+    @Test
+    func plainTextHasNoRecurrence() {
+        let result = ReminderDictationParser.parse("Buy groceries tomorrow")
+        #expect(result.recurrenceRule == nil)
+    }
+
+    // MARK: Recurrence — bare frequencies
+
+    @Test
+    func everyWeekSetsWeeklyRecurrence() {
+        let result = ReminderDictationParser.parse("Buy milk every week")
+        #expect(result.title == "Buy milk")
+        #expect(result.recurrenceRule?.frequency == .weekly)
+        #expect(result.recurrenceRule?.interval == 1)
+        #expect(result.recurrenceRule?.daysOfTheWeek == nil)
+        // No explicit date, so today (all-day) is the fallback due date.
+        #expect(Calendar.current.isDateInToday(from: result.dueDateComponents))
+        #expect(result.dueDateComponents?.hour == nil)
+    }
+
+    @Test
+    func everyDaySetsDailyRecurrence() {
+        let result = ReminderDictationParser.parse("Feed the cat every day")
+        #expect(result.title == "Feed the cat")
+        #expect(result.recurrenceRule?.frequency == .daily)
+        #expect(result.recurrenceRule?.interval == 1)
+    }
+
+    @Test
+    func everyMonthSetsMonthlyRecurrence() {
+        let result = ReminderDictationParser.parse("Pay rent every month")
+        #expect(result.title == "Pay rent")
+        #expect(result.recurrenceRule?.frequency == .monthly)
+        #expect(result.recurrenceRule?.interval == 1)
+    }
+
+    @Test
+    func everyYearSetsYearlyRecurrence() {
+        let result = ReminderDictationParser.parse("Anniversary every year")
+        #expect(result.title == "Anniversary")
+        #expect(result.recurrenceRule?.frequency == .yearly)
+        #expect(result.recurrenceRule?.interval == 1)
+    }
+
+    // MARK: Recurrence — intervals
+
+    @Test
+    func everyTwoWeeksSetsWeeklyIntervalTwo() {
+        let result = ReminderDictationParser.parse("Call mom every 2 weeks")
+        #expect(result.title == "Call mom")
+        #expect(result.recurrenceRule?.frequency == .weekly)
+        #expect(result.recurrenceRule?.interval == 2)
+    }
+
+    @Test
+    func everyThreeDaysSetsDailyIntervalThree() {
+        let result = ReminderDictationParser.parse("Take meds every 3 days")
+        #expect(result.title == "Take meds")
+        #expect(result.recurrenceRule?.frequency == .daily)
+        #expect(result.recurrenceRule?.interval == 3)
+    }
+
+    @Test
+    func everyOtherWeekSetsWeeklyIntervalTwo() {
+        let result = ReminderDictationParser.parse("Take out trash every other week")
+        #expect(result.title == "Take out trash")
+        #expect(result.recurrenceRule?.frequency == .weekly)
+        #expect(result.recurrenceRule?.interval == 2)
+    }
+
+    // MARK: Recurrence — weekday-specific weekly
+
+    @Test
+    func everyWeekOnSundaySetsSundayRecurrence() {
+        let result = ReminderDictationParser.parse("Buy milk every week on Sunday")
+        #expect(result.title == "Buy milk")
+        #expect(result.recurrenceRule?.frequency == .weekly)
+        #expect(result.recurrenceRule?.interval == 1)
+        #expect(result.recurrenceRule?.daysOfTheWeek?.first?.dayOfTheWeek == .sunday)
+        #expect(weekday(from: result.dueDateComponents) == 1) // Sunday
+    }
+
+    @Test
+    func everyMondaySetsMondayRecurrence() {
+        let result = ReminderDictationParser.parse("Submit report every Monday")
+        #expect(result.title == "Submit report")
+        #expect(result.recurrenceRule?.frequency == .weekly)
+        #expect(result.recurrenceRule?.interval == 1)
+        #expect(result.recurrenceRule?.daysOfTheWeek?.first?.dayOfTheWeek == .monday)
+        #expect(weekday(from: result.dueDateComponents) == 2) // Monday
+    }
+
+    @Test
+    func everyTwoWeeksOnMondayKeepsIntervalAndDay() {
+        let result = ReminderDictationParser.parse("Team sync every 2 weeks on Monday")
+        #expect(result.title == "Team sync")
+        #expect(result.recurrenceRule?.frequency == .weekly)
+        #expect(result.recurrenceRule?.interval == 2)
+        #expect(result.recurrenceRule?.daysOfTheWeek?.first?.dayOfTheWeek == .monday)
+        #expect(weekday(from: result.dueDateComponents) == 2) // Monday
+    }
+
+    // MARK: Recurrence — synonyms
+
+    @Test
+    func dailySetsDailyRecurrence() {
+        let result = ReminderDictationParser.parse("Stretch daily")
+        #expect(result.title == "Stretch")
+        #expect(result.recurrenceRule?.frequency == .daily)
+        #expect(result.recurrenceRule?.interval == 1)
+    }
+
+    @Test
+    func weeklySetsWeeklyRecurrence() {
+        let result = ReminderDictationParser.parse("Water plants weekly")
+        #expect(result.title == "Water plants")
+        #expect(result.recurrenceRule?.frequency == .weekly)
+        #expect(result.recurrenceRule?.interval == 1)
+    }
+
+    @Test
+    func monthlySetsMonthlyRecurrence() {
+        let result = ReminderDictationParser.parse("Review budget monthly")
+        #expect(result.title == "Review budget")
+        #expect(result.recurrenceRule?.frequency == .monthly)
+        #expect(result.recurrenceRule?.interval == 1)
+    }
+
+    @Test
+    func annuallySetsYearlyRecurrence() {
+        let result = ReminderDictationParser.parse("Renew passport annually")
+        #expect(result.title == "Renew passport")
+        #expect(result.recurrenceRule?.frequency == .yearly)
+        #expect(result.recurrenceRule?.interval == 1)
+    }
+
+    // MARK: Recurrence — combined with time
+
+    @Test
+    func everyDayAtNineKeepsTimeAndDailyRecurrence() {
+        let result = ReminderDictationParser.parse("Water plants every day at 9am")
+        #expect(result.title == "Water plants")
+        #expect(result.recurrenceRule?.frequency == .daily)
+        #expect(result.recurrenceRule?.interval == 1)
+        #expect(result.dueDateComponents?.hour == 9)
+        #expect(result.dueDateComponents?.minute == 0)
+    }
 }
 
 // MARK: - Helpers
@@ -156,4 +307,9 @@ private extension Calendar {
         guard let components, let date = date(from: components) else { return false }
         return isDateInTomorrow(date)
     }
+}
+
+private func weekday(from components: DateComponents?) -> Int? {
+    guard let components, let date = Calendar.current.date(from: components) else { return nil }
+    return Calendar.current.component(.weekday, from: date)
 }
