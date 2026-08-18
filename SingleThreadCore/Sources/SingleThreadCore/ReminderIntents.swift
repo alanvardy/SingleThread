@@ -40,12 +40,11 @@ public struct SkipReminderIntent: AppIntent {
     public func perform() async throws -> some IntentResult {
         let store = ReminderStore(loadsReminders: true)
         await store.reload()
-        guard let current = store.visibleReminders.first else { return .result() }
-        let updated = ReminderSkipLogic.skipping(
-            current.calendarItemIdentifier,
-            fetched: store.reminders.map(\.calendarItemIdentifier),
-            skipped: Array(store.skippedIDs))
-        SkippedReminderStore().save(updated)
+        // Route the skip through the store like `CompleteReminderIntent` so the
+        // write goes through the same code path (persistence plus the
+        // onSkipSetChanged / onRemindersChanged hooks) instead of duplicating the
+        // skip logic and writing UserDefaults directly.
+        store.skipCurrentReminderImmediately()
         return .result()
     }
 }

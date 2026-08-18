@@ -56,10 +56,20 @@ final class ReminderDictation: SpeechTranscribing {
         }
         try await ensureMicrophoneAccess()
 
-        isRecording = true
         partialText = ""
 
-        try prepareRecording()
+        // Establish `isRecording` (and the `defer` teardown) only after setup
+        // succeeds. If `prepareRecording()` throws midway, tearing down here
+        // releases a partially-installed tap / audio session and leaves the
+        // recorder usable for the next attempt — otherwise `isRecording == true`
+        // would remain and every later call would fail with `.alreadyRecording`.
+        do {
+            try prepareRecording()
+        } catch {
+            tearDownRecording()
+            throw error
+        }
+        isRecording = true
         defer { tearDownRecording() }
 
         return try await awaitFinalResult(recognizer: recognizer, onPartialResult: onPartialResult)
@@ -182,7 +192,7 @@ final class ReminderDictation: SpeechTranscribing {
 
 // MARK: - DictationError
 
-enum DictationError: Error, LocalizedError {
+enum DictationError: Error, LocalizedError, Sendable {
     case alreadyRecording
     case recognizerUnavailable
     case microphoneDenied

@@ -147,6 +147,7 @@ struct WatchReminderView: View {
                     Text(ReminderPriority.marker(for: reminder.priority))
                         .font(.headline)
                         .foregroundStyle(priorityColor(level))
+                        .accessibilityLabel("\(level.displayName) priority")
                 }
                 Text(reminder.title)
                     .font(.headline)

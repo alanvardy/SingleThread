@@ -202,6 +202,14 @@ struct ReminderNotesFormatterTests {
     }
 
     @Test
+    func formatPreservesLeadingLowercaseTWord() {
+        // A note that legitimately starts with a lowercase "t" must not have its
+        // first letter stripped.
+        #expect(ReminderNotesFormatter.format("take out trash") == "take out trash")
+        #expect(ReminderNotesFormatter.format("two percent") == "two percent")
+    }
+
+    @Test
     func formatPreservesMultilineNotes() {
         let result = ReminderNotesFormatter.format("Line one\nLine two")
         #expect(result == "Line one\nLine two")
