@@ -4,6 +4,7 @@ set -euo pipefail
 # ── Configuration ──────────────────────────────────────────────────────────────
 SIM="${SIM:-platform=iOS Simulator,name=iPhone 17}"
 WATCH_SIM="generic/platform=watchOS Simulator"
+MAC_SIM="platform=macOS"
 SCHEME="SingleThread"
 WATCH_SCHEME="SingleThreadWatch"
 DERIVED_DATA="DerivedData"
@@ -74,6 +75,24 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -derivedDataPath "$DERIVED_DATA" \
       test-without-building \
       -only-testing:SingleThreadUITests
+
+    echo ""
+    echo "==> macOS build…"
+    xcodebuild -scheme "$SCHEME" \
+      -destination "$MAC_SIM" \
+      -configuration Debug \
+      -derivedDataPath "$DERIVED_DATA" \
+      CODE_SIGNING_ALLOWED=NO \
+      build
+
+    echo ""
+    echo "==> macOS unit tests…"
+    xcodebuild -scheme "$SCHEME" \
+      -destination "$MAC_SIM" \
+      -derivedDataPath "$DERIVED_DATA" \
+      CODE_SIGNING_ALLOWED=NO \
+      test \
+      -only-testing:SingleThreadTests
 
     echo ""
     echo "✅ All CI checks passed."

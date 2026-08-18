@@ -84,12 +84,17 @@ struct ReminderStoreTests {
             dueDate: DateComponents(year: 2025, month: 1, day: 2))
     }
 
-    @Test
-    func addReminderReturnsFalseWithoutAccess() async {
-        let store = ReminderStore(loadsReminders: false)
-        let saved = await store.addReminder(title: "Test", notes: nil, dueDate: nil)
-        #expect(!saved)
-    }
+    // macOS only: without access, `eventStore.save` may still succeed when the
+    // host has Reminders access (and the unsigned test build isn't sandboxed),
+    // so the no-access path can't be exercised deterministically there.
+    #if !os(macOS)
+        @Test
+        func addReminderReturnsFalseWithoutAccess() async {
+            let store = ReminderStore(loadsReminders: false)
+            let saved = await store.addReminder(title: "Test", notes: nil, dueDate: nil)
+            #expect(!saved)
+        }
+    #endif
 
     @Test
     func addReminderKeepsExistingRemindersUntouched() async {

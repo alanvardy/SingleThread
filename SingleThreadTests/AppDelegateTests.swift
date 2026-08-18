@@ -1,8 +1,8 @@
-@testable import SingleThread
-import Testing
-import UIKit
-
 #if os(iOS)
+    @testable import SingleThread
+    import Testing
+    import UIKit
+
     @MainActor
     struct AppDelegateTests {
         @Test

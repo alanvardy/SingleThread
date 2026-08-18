@@ -1,6 +1,6 @@
-import UIKit
-
 #if os(iOS)
+    import UIKit
+
     /// Bridges UIKit orientation locking into the SwiftUI `App` lifecycle.
     ///
     /// Registered via `@UIApplicationDelegateAdaptor` in `SingleThreadApp`.

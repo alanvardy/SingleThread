@@ -123,6 +123,58 @@ jobs:
             test-without-building \
             -only-testing:SingleThreadUITests
 
+  mac-tests:
+    runs-on: macos-26
+    env:
+      DERIVED_DATA: ${{ github.workspace }}/DerivedData
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        id: xcode
+        with:
+          xcode-version: '26.6'
+
+      - name: Override development team
+        run: echo "DEVELOPMENT_TEAM=" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/DerivedData
+          key: derived-data-mac-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadCore/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
+          restore-keys: |
+            derived-data-mac-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
+            derived-data-mac-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
+
+      - name: Build (macOS)
+        timeout-minutes: 20
+        run: |
+          xcodebuild -scheme SingleThread \
+            -destination "platform=macOS" \
+            -configuration Debug \
+            -derivedDataPath "$DERIVED_DATA" \
+            CODE_SIGNING_ALLOWED=NO \
+            build \
+            -showBuildTimingSummary
+
+      - name: Unit tests (macOS)
+        timeout-minutes: 20
+        run: |
+          xcodebuild -scheme SingleThread \
+            -destination "platform=macOS" \
+            -derivedDataPath "$DERIVED_DATA" \
+            CODE_SIGNING_ALLOWED=NO \
+            test \
+            -only-testing:SingleThreadTests \
+            -resultBundlePath TestResults-mac.xcresult
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-unit-test-results
+          path: TestResults-mac.xcresult
+
   lint:
     runs-on: macos-26
     steps:
