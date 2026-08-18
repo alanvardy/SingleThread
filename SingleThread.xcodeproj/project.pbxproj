@@ -10,7 +10,7 @@
 		518BF495302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		518BF496302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		518BF497302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
-		51AA3F29000000000000000A /* SingleThreadWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51AA3F200000000000000001 /* SingleThreadWatch.app */; platformFilters = (ios,); settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		51AA3F29000000000000000A /* SingleThreadWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51AA3F200000000000000001 /* SingleThreadWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -361,7 +361,7 @@
 		};
 		51AA3F270000000000000008 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			platformFilters = (ios,);
+			platformFilter = ios;
 			target = 51AA3F220000000000000003 /* SingleThreadWatch */;
 			targetProxy = 51AA3F260000000000000007 /* PBXContainerItemProxy */;
 		};
