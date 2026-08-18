@@ -98,7 +98,7 @@ public nonisolated enum ReminderNotesFormatter {
 public struct SkippedReminderStore {
     // MARK: Lifecycle
 
-    public init(defaults: UserDefaults = .standard, key: String = "skippedReminderIdentifiers") {
+    public init(defaults: UserDefaults = AppGroup.defaults, key: String = "skippedReminderIdentifiers") {
         self.defaults = defaults
         self.key = key
     }

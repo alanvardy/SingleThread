@@ -50,6 +50,11 @@ public final class ReminderStore {
     /// the watch app layer to relay the completion to the iPhone via WatchConnectivity.
     public var onCompleteReminder: ((String) -> Void)?
 
+    /// Hook invoked after any mutation that changes the visible reminder set
+    /// (complete, skip, add, or clear-skipped reload). Wired by the iOS app layer
+    /// to reload widget timelines.
+    public var onRemindersChanged: (() -> Void)?
+
     public var visibleReminders: [EKReminder] {
         reminders
             .filter { !skippedIDs.contains($0.calendarItemIdentifier) }
@@ -134,6 +139,7 @@ public final class ReminderStore {
             skippedIDs = Set(updated)
             skipStore.save(updated)
             onSkipSetChanged?(updated)
+            onRemindersChanged?()
         }
     }
 
@@ -158,6 +164,7 @@ public final class ReminderStore {
                 skipped: skipStore.load())
             skippedIDs = Set(resolved)
         }
+        onRemindersChanged?()
     }
 
     // MARK: Internal
