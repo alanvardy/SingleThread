@@ -14,29 +14,10 @@ struct WatchReminderView: View {
     // MARK: Internal
 
     var body: some View {
-        Group {
-            switch store.authorizationStatus {
-            case .notDetermined:
-                ProgressView("Requesting access…")
-            case .fullAccess:
-                reminderContent
-            default:
-                Text("Enable Reminders access in Settings")
-                    .multilineTextAlignment(.center)
+        crownRefreshContent
+            .task {
+                await store.start()
             }
-        }
-        .focusable(true)
-        .digitalCrownRotation(
-            $crownRotation,
-            onChange: { event in
-                crownDetector.record(offset: event.offset)
-            },
-            onIdle: {
-                refreshIfNeeded()
-            })
-        .task {
-            await store.start()
-        }
     }
 
     // MARK: Private
@@ -48,12 +29,54 @@ struct WatchReminderView: View {
     @State private var crownDetector = CrownRefreshDetector()
     @State private var crownRotation = 0.0
     @State private var isRefreshing = false
+    @State private var presentation = WatchReminderPresentation()
 
     private let store: ReminderStore
 
     private var allSkipped: Bool {
         store.visibleReminders.isEmpty && !store.reminders.isEmpty
     }
+
+    // MARK: - Crown refresh gating
+
+    /// When expanded, the `ScrollView` owns the Digital Crown for scrolling.
+    /// Gating `.digitalCrownRotation` keeps the crown from being captured by
+    /// both the ScrollView and the refresh gesture at the same time.
+    @ViewBuilder private var crownRefreshContent: some View {
+        if presentation.allowsCrownRefresh {
+            statusContent
+                .focusable(true)
+                .digitalCrownRotation(
+                    $crownRotation,
+                    onChange: { event in
+                        crownDetector.record(offset: event.offset)
+                    },
+                    onIdle: {
+                        refreshIfNeeded()
+                    })
+        } else {
+            statusContent
+        }
+    }
+
+    private var statusContent: some View {
+        Group {
+            switch store.authorizationStatus {
+            case .notDetermined:
+                ProgressView("Requesting access…")
+            case .fullAccess:
+                reminderContent
+            default:
+                Text("Enable Reminders access in Settings")
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .onChange(of: store.visibleReminders.first?.calendarItemIdentifier) { _, _ in
+            presentation = WatchReminderPresentation()
+        }
+    }
+
+    // MARK: - Reminder card
 
     private var reminderContent: some View {
         ZStack {
@@ -67,26 +90,12 @@ struct WatchReminderView: View {
                 }
             } else if let reminder = store.visibleReminders.first {
                 VStack(alignment: .leading, spacing: 6) {
-                    HStack(alignment: .firstTextBaseline, spacing: 3) {
-                        if let level = ReminderPriority.level(for: reminder.priority) {
-                            Text(ReminderPriority.marker(for: reminder.priority))
-                                .font(.headline)
-                                .foregroundStyle(priorityColor(level))
+                    if presentation.isExpanded {
+                        ScrollView {
+                            reminderDetails(reminder)
                         }
-                        Text(reminder.title)
-                            .font(.headline)
-                            .lineLimit(3)
-                    }
-                    if let due = reminder.dueDateComponents?.date {
-                        Text(due, style: .date)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    if let noteText = ReminderNotesFormatter.format(reminder.notes) {
-                        Text(noteText)
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
-                            .lineLimit(2)
+                    } else {
+                        reminderDetails(reminder)
                     }
 
                     HStack {
@@ -120,11 +129,51 @@ struct WatchReminderView: View {
 
             if isRefreshing {
                 ProgressView()
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                    .frame(
+                        maxWidth: .infinity,
+                        maxHeight: .infinity,
+                        alignment: .top)
                     .padding(.top, 8)
             }
         }
     }
+
+    /// Tappable reminder details — expandable to full length.
+    private func reminderDetails(_ reminder: EKReminder) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 3) {
+                if let level = ReminderPriority.level(for: reminder.priority) {
+                    Text(ReminderPriority.marker(for: reminder.priority))
+                        .font(.headline)
+                        .foregroundStyle(priorityColor(level))
+                }
+                Text(reminder.title)
+                    .font(.headline)
+                    .lineLimit(presentation.isExpanded ? nil : 3)
+            }
+            if let due = reminder.dueDateComponents?.date {
+                Text(due, style: .date)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            if let noteText = ReminderNotesFormatter.format(reminder.notes) {
+                Text(noteText)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(presentation.isExpanded ? nil : 2)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
+        .onTapGesture {
+            presentation.toggle()
+        }
+        .accessibilityLabel(presentation.isExpanded ? "Collapse reminder" : "Expand reminder")
+        .accessibilityHint("Toggles full title and notes")
+        .accessibilityAddTraits(.isButton)
+    }
+
+    // MARK: - Refresh
 
     private func refreshIfNeeded() {
         guard crownDetector.settle(), !isRefreshing else { return }
@@ -143,6 +192,8 @@ struct WatchReminderView: View {
             isRefreshing = false
         }
     }
+
+    // MARK: - Helpers
 
     private func priorityColor(_ level: ReminderPriority.Level) -> Color {
         switch level {
