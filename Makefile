@@ -1,15 +1,22 @@
 SIM ?= platform=iOS Simulator,name=iPhone 17
 WATCH_SIM := generic/platform=watchOS Simulator
+MAC_SIM := platform=macOS
 DERIVED_DATA := DerivedData
 export SIM
 
-.PHONY: build watch-build test ui-test check clean lint format periphery
+.PHONY: build watch-build test ui-test mac-build mac-test check clean lint format periphery
 
 build:
 	xcodebuild -scheme SingleThread -destination '$(SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build-for-testing
 
 watch-build:
 	xcodebuild -scheme SingleThreadWatch -destination '$(WATCH_SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build
+
+mac-build:
+	xcodebuild -scheme SingleThread -destination '$(MAC_SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build
+
+mac-test:
+	xcodebuild -scheme SingleThread -destination '$(MAC_SIM)' -derivedDataPath '$(DERIVED_DATA)' test -only-testing:SingleThreadTests
 
 test:
 	./scripts/test.sh --unit-only

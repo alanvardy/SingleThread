@@ -28,9 +28,14 @@ final class SingleThreadUITests: XCTestCase {
 
         // Audit accessibility for key categories; skip contrast (known
         // false-positive source for system colors) and textClipped.
-        try app.performAccessibilityAudit(
-            for: [.dynamicType, .hitRegion, .sufficientElementDescription, .trait]
-        )
+        #if os(iOS)
+            try app.performAccessibilityAudit(
+                for: [.dynamicType, .hitRegion, .sufficientElementDescription, .trait]
+            )
+        #else
+            // macOS offers a different set of audit categories; run the defaults.
+            try app.performAccessibilityAudit()
+        #endif
     }
 
 }

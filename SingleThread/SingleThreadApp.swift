@@ -3,6 +3,8 @@ import SwiftUI
 #if os(iOS)
     import UIKit
     import WatchConnectivity
+#endif
+#if os(iOS) || os(macOS)
     import WidgetKit
 #endif
 
@@ -27,6 +29,8 @@ struct SingleThreadApp: App {
                 store.onSkipSetChanged = { ids in service.pushSkipIDs(ids) }
                 store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
             }
+        #endif
+        #if os(iOS) || os(macOS)
             store.onRemindersChanged = {
                 WidgetCenter.shared.reloadAllTimelines()
             }

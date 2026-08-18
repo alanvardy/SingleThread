@@ -12,7 +12,7 @@
 		518BF497302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		51AA3F29000000000000000A /* SingleThreadWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51AA3F200000000000000001 /* SingleThreadWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		518BF498302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
-		51AA3F480000000000000000 /* SingleThreadWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 51AA3F410000000000000000 /* SingleThreadWidget.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		51AA3F480000000000000000 /* SingleThreadWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 51AA3F410000000000000000 /* SingleThreadWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -853,7 +853,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
@@ -881,7 +881,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
