@@ -11,7 +11,7 @@ public final class ReminderStore {
 
     /// Production init: uses real EventKit + UserDefaults.
     public init(
-        eventStore: EKEventStore = EKEventStore(),
+        eventStore: any EventKitStoring = EKEventStore(),
         skipStore: SkippedReminderStore = SkippedReminderStore(),
         loadsReminders: Bool = true) {
         self.eventStore = eventStore
@@ -67,7 +67,7 @@ public final class ReminderStore {
     /// Kicks off authorization + loading. Call from `.task` in the view layer.
     public func start() async {
         guard loadsReminders else { return }
-        let current = EKEventStore.authorizationStatus(for: .reminder)
+        let current = eventStore.authorizationStatus(for: .reminder)
         authorizationStatus = current
         if current == .fullAccess {
             await reload()
@@ -116,11 +116,10 @@ public final class ReminderStore {
         #if os(watchOS)
             return false
         #else
-            let reminder = Self.makeReminder(
+            let reminder = eventStore.makeReminder(
                 title: title,
                 notes: notes,
                 dueDate: dueDate,
-                eventStore: eventStore,
                 recurrenceRule: recurrenceRule)
             do {
                 try eventStore.save(reminder, commit: true)
@@ -183,25 +182,21 @@ public final class ReminderStore {
 
     // MARK: Internal
 
-    #if !os(watchOS)
-        /// Builds a new `EKReminder` from the given fields. Extracted for testability.
-        static func makeReminder(
-            title: String,
-            notes: String?,
-            dueDate: DateComponents?,
-            eventStore: EKEventStore,
-            recurrenceRule: EKRecurrenceRule? = nil) -> EKReminder {
-            let reminder = EKReminder(eventStore: eventStore)
-            reminder.title = title
-            reminder.notes = notes
-            reminder.dueDateComponents = dueDate
-            if let recurrenceRule {
-                reminder.addRecurrenceRule(recurrenceRule)
+    /// Requests full access to reminders, updating `authorizationStatus` and
+    /// reloading on success. Extracted from `start()` for testability.
+    func requestAccess() async {
+        do {
+            let granted = try await eventStore.requestFullAccessToReminders()
+            if granted {
+                authorizationStatus = .fullAccess
+                await reload()
+            } else {
+                authorizationStatus = eventStore.authorizationStatus(for: .reminder)
             }
-            reminder.calendar = eventStore.defaultCalendarForNewReminders()
-            return reminder
+        } catch {
+            authorizationStatus = eventStore.authorizationStatus(for: .reminder)
         }
-    #endif
+    }
 
     // MARK: Private
 
@@ -211,7 +206,7 @@ public final class ReminderStore {
 
     private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderStore")
 
-    private let eventStore: EKEventStore
+    private let eventStore: any EventKitStoring
     private let skipStore: SkippedReminderStore
 
     /// Computes the skip list that results from skipping `identifier`, pruning
@@ -239,20 +234,6 @@ public final class ReminderStore {
             eventStore.fetchReminders(matching: predicate) { reminders in
                 continuation.resume(returning: reminders ?? [])
             }
-        }
-    }
-
-    private func requestAccess() async {
-        do {
-            let granted = try await eventStore.requestFullAccessToReminders()
-            if granted {
-                authorizationStatus = .fullAccess
-                await reload()
-            } else {
-                authorizationStatus = EKEventStore.authorizationStatus(for: .reminder)
-            }
-        } catch {
-            authorizationStatus = EKEventStore.authorizationStatus(for: .reminder)
         }
     }
 }
