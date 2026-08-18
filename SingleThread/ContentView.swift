@@ -391,7 +391,8 @@ struct ContentView: View {
                 let saved = await store.addReminder(
                     title: parsed.title,
                     notes: nil,
-                    dueDate: parsed.dueDateComponents)
+                    dueDate: parsed.dueDateComponents,
+                    recurrenceRule: parsed.recurrenceRule)
                 if saved {
                     creationFeedback = .success
                 } else {

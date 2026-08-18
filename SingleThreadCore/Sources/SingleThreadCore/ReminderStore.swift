@@ -98,10 +98,15 @@ public final class ReminderStore {
     }
 
     /// Creates a new reminder in EventKit with the given title, notes, and optional due date.
+    /// A recurrence rule (e.g. weekly on Sunday) can optionally be applied.
     /// Returns `true` if the save succeeded, `false` otherwise.
     /// On watchOS, EventKit is read-only, so this always returns `false`.
     @discardableResult
-    public func addReminder(title: String, notes: String?, dueDate: DateComponents?) async -> Bool {
+    public func addReminder(
+        title: String,
+        notes: String?,
+        dueDate: DateComponents?,
+        recurrenceRule: EKRecurrenceRule? = nil) async -> Bool {
         #if os(watchOS)
             return false
         #else
@@ -109,7 +114,8 @@ public final class ReminderStore {
                 title: title,
                 notes: notes,
                 dueDate: dueDate,
-                eventStore: eventStore)
+                eventStore: eventStore,
+                recurrenceRule: recurrenceRule)
             do {
                 try eventStore.save(reminder, commit: true)
                 try? await Task.sleep(nanoseconds: 200_000_000)
@@ -168,11 +174,15 @@ public final class ReminderStore {
             title: String,
             notes: String?,
             dueDate: DateComponents?,
-            eventStore: EKEventStore) -> EKReminder {
+            eventStore: EKEventStore,
+            recurrenceRule: EKRecurrenceRule? = nil) -> EKReminder {
             let reminder = EKReminder(eventStore: eventStore)
             reminder.title = title
             reminder.notes = notes
             reminder.dueDateComponents = dueDate
+            if let recurrenceRule {
+                reminder.addRecurrenceRule(recurrenceRule)
+            }
             reminder.calendar = eventStore.defaultCalendarForNewReminders()
             return reminder
         }
