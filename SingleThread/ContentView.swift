@@ -107,6 +107,9 @@ struct ContentView: View {
     @State private var dictationError: String?
     @State private var creationFeedback: CreationFeedback?
 
+    @Environment(\.openURL)
+    private var openURL
+
     private let store: ReminderStore
     private let speechTranscriber: any SpeechTranscribing
 
@@ -226,22 +229,35 @@ struct ContentView: View {
                             .padding(.vertical, 12)
                             .frame(minHeight: viewHeight, alignment: .center)
                             .listRowSeparator(.hidden)
-                            .swipeActions(edge: .leading) {
-                                Button {
-                                    Task { await store.completeCurrentReminder() }
-                                } label: {
-                                    Label("Complete", systemImage: "checkmark.circle.fill")
+                            #if os(iOS)
+                                .contextMenu {
+                                    Button {
+                                        let deepLink = ReminderDeepLink.url(
+                                            forReminderIdentifier: reminder.calendarItemIdentifier)
+                                        if let url = deepLink {
+                                            openURL(url)
+                                        }
+                                    } label: {
+                                        Label("View in Reminders", systemImage: "eye")
+                                    }
                                 }
-                                .tint(.green)
-                            }
-                            .swipeActions(edge: .trailing) {
-                                Button {
-                                    store.skipCurrentReminder()
-                                } label: {
-                                    Label("Skip", systemImage: "circle.slash")
+                            #endif
+                                .swipeActions(edge: .leading) {
+                                    Button {
+                                        Task { await store.completeCurrentReminder() }
+                                    } label: {
+                                        Label("Complete", systemImage: "checkmark.circle.fill")
+                                    }
+                                    .tint(.green)
                                 }
-                                .tint(.orange)
-                            }
+                                .swipeActions(edge: .trailing) {
+                                    Button {
+                                        store.skipCurrentReminder()
+                                    } label: {
+                                        Label("Skip", systemImage: "circle.slash")
+                                    }
+                                    .tint(.orange)
+                                }
                         }
                     }
                     .listStyle(.plain)
