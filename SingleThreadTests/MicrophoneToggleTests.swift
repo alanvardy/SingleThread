@@ -6,9 +6,13 @@ import Testing
 
 @MainActor
 private final class MicToggleFakeTranscriber: SpeechTranscribing {
+    // MARK: Lifecycle
+
     init(authorizationStatus: SFSpeechRecognizerAuthorizationStatus = .authorized) {
         self.authorizationStatus = authorizationStatus
     }
+
+    // MARK: Internal
 
     private(set) var authorizationStatus: SFSpeechRecognizerAuthorizationStatus
 
@@ -17,7 +21,7 @@ private final class MicToggleFakeTranscriber: SpeechTranscribing {
     }
 
     func transcribe(
-        onPartialResult: @escaping @MainActor (String) -> Void) async throws -> String {
+        onPartialResult _: @escaping @MainActor (String) -> Void) async throws -> String {
         ""
     }
 }
@@ -32,8 +36,9 @@ struct MicrophoneToggleTests {
         let bodyDescription = String(describing: view.body)
 
         // The settings menu should contain the Microphone toggle.
-        #expect(bodyDescription.contains("Microphone"),
-                "Settings menu should contain microphone toggle label")
+        #expect(
+            bodyDescription.contains("Microphone"),
+            "Settings menu should contain microphone toggle label")
     }
 
     @Test
@@ -51,8 +56,9 @@ struct MicrophoneToggleTests {
         // "Microphone" toggle label is in settings menu, but mic/recording
         // views (which include "Circle") should not appear in bottomBar
         // since canDictate is false.
-        #expect(!bodyDescription.contains("mic.fill"),
-                "Mic button should be absent when speech recognition is denied")
+        #expect(
+            !bodyDescription.contains("mic.fill"),
+            "Mic button should be absent when speech recognition is denied")
     }
 
     @Test
