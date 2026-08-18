@@ -49,6 +49,9 @@ struct SettingsView: View {
                 Toggle(isOn: $allowsLandscape) {
                     Label("Landscape", systemImage: "rectangle.landscape.rotate")
                 }
+                .onChange(of: allowsLandscape) { _, newValue in
+                    AppDelegate.applyLock(allowsLandscape: newValue)
+                }
             #endif
             Toggle("Microphone", isOn: $showMicrophoneButton)
         }
