@@ -16,12 +16,7 @@ public enum ReminderDictationParser {
 
     /// Outcome of parsing a dictated string.
     public struct Result {
-        /// The title with the matched date phrase removed (or the original text if none found).
-        public let title: String
-        /// The matched date as `DateComponents`, suitable for `EKReminder.dueDateComponents`.
-        public let dueDateComponents: DateComponents?
-        /// A recurrence rule extracted from the text, suitable for `EKReminder.addRecurrenceRule(_:)`.
-        public let recurrenceRule: EKRecurrenceRule?
+        // MARK: Lifecycle
 
         public init(
             title: String,
@@ -31,6 +26,15 @@ public enum ReminderDictationParser {
             self.dueDateComponents = dueDateComponents
             self.recurrenceRule = recurrenceRule
         }
+
+        // MARK: Public
+
+        /// The title with the matched date phrase removed (or the original text if none found).
+        public let title: String
+        /// The matched date as `DateComponents`, suitable for `EKReminder.dueDateComponents`.
+        public let dueDateComponents: DateComponents?
+        /// A recurrence rule extracted from the text, suitable for `EKReminder.addRecurrenceRule(_:)`.
+        public let recurrenceRule: EKRecurrenceRule?
     }
 
     /// Extracts a natural-language date and optional recurrence from the given
@@ -93,6 +97,8 @@ public enum ReminderDictationParser {
             recurrenceRule: rule)
     }
 
+    // MARK: Private
+
     // MARK: Private — Recurrence Detection
 
     /// Weekday name → `EKWeekday` mapping.
@@ -142,126 +148,130 @@ public enum ReminderDictationParser {
             pattern: #"\b(daily|weekly|monthly|yearly|annually)\b"#,
             options: .caseInsensitive)
 
+    // MARK: Private — Date Detection
+
+    private static let connectors: Set<String> = ["at", "on", "by"]
+
+    private static let dateDetector: NSDataDetector = // swiftlint:disable:next force_try
+        try! NSDataDetector(types: NSTextCheckingResult.CheckingType.date.rawValue)
+
     /// Detects a recurrence phrase at the start of any word in the text,
     /// builds an `EKRecurrenceRule`, and returns the stripped text.
     /// Patterns are tried in priority order; the first match wins.
     /// Weekday-bearing patterns keep the weekday name in the text so
     /// `NSDataDetector` can pick it up as the first due date.
     private static func detectRecurrence(in text: String) -> (text: String, rule: EKRecurrenceRule?) {
-        let fullRange = NSRange(text.startIndex..., in: text)
-
-        // A: "every [weekday]" — e.g. "every Monday"
-        if let match = everyWeekdayRegex.firstMatch(in: text, options: [], range: fullRange),
-           let dayRange = Range(match.range(at: 1), in: text),
-           let weekday = weekdays[text[dayRange].lowercased()] {
-            let stripped = stripPrefix(text, matchRange: match.range, keepRange: match.range(at: 1))
-            let dofw = EKRecurrenceDayOfWeek(dayOfTheWeek: weekday, weekNumber: 0)
-            let rule = EKRecurrenceRule(
-                recurrenceWith: .weekly,
-                interval: 1,
-                daysOfTheWeek: [dofw],
-                daysOfTheMonth: nil,
-                monthsOfTheYear: nil,
-                weeksOfTheYear: nil,
-                daysOfTheYear: nil,
-                setPositions: nil,
-                end: nil)
-            return (stripped, rule)
+        if let result = matchEveryWeekday(in: text) {
+            return result
         }
-
-        // B: "every week on [weekday]" — e.g. "every week on Sunday"
-        if let match = everyWeekOnWeekdayRegex.firstMatch(in: text, options: [], range: fullRange),
-           let dayRange = Range(match.range(at: 1), in: text),
-           let weekday = weekdays[text[dayRange].lowercased()] {
-            let stripped = stripPrefix(text, matchRange: match.range, keepRange: match.range(at: 1))
-            let dofw = EKRecurrenceDayOfWeek(dayOfTheWeek: weekday, weekNumber: 0)
-            let rule = EKRecurrenceRule(
-                recurrenceWith: .weekly,
-                interval: 1,
-                daysOfTheWeek: [dofw],
-                daysOfTheMonth: nil,
-                monthsOfTheYear: nil,
-                weeksOfTheYear: nil,
-                daysOfTheYear: nil,
-                setPositions: nil,
-                end: nil)
-            return (stripped, rule)
+        if let result = matchEveryWeekOnWeekday(in: text) {
+            return result
         }
-
-        // C: "every N weeks on [weekday]" — e.g. "every 2 weeks on Monday"
-        if let match = everyWeeksOnWeekdayRegex.firstMatch(in: text, options: [], range: fullRange),
-           let intervalRange = Range(match.range(at: 1), in: text),
-           let dayRange = Range(match.range(at: 2), in: text),
-           let interval = Int(text[intervalRange]),
-           let weekday = weekdays[text[dayRange].lowercased()] {
-            let stripped = stripPrefix(text, matchRange: match.range, keepRange: match.range(at: 2))
-            let dofw = EKRecurrenceDayOfWeek(dayOfTheWeek: weekday, weekNumber: 0)
-            let rule = EKRecurrenceRule(
-                recurrenceWith: .weekly,
-                interval: interval,
-                daysOfTheWeek: [dofw],
-                daysOfTheMonth: nil,
-                monthsOfTheYear: nil,
-                weeksOfTheYear: nil,
-                daysOfTheYear: nil,
-                setPositions: nil,
-                end: nil)
-            return (stripped, rule)
+        if let result = matchEveryWeeksOnWeekday(in: text) {
+            return result
         }
-
-        // D: "every other day/week/month/year" — interval 2
-        if let match = everyOtherRegex.firstMatch(in: text, options: [], range: fullRange),
-           let unitRange = Range(match.range(at: 1), in: text) {
-            let stripped = stripFullMatch(text, range: match.range)
-            let unit = text[unitRange].lowercased()
-            let frequency: EKRecurrenceFrequency = switch unit {
-            case "day": .daily
-            case "week": .weekly
-            case "month": .monthly
-            case "year": .yearly
-            default: .weekly
-            }
-            let rule = EKRecurrenceRule(recurrenceWith: frequency, interval: 2, end: nil)
-            return (stripped, rule)
+        if let result = matchEveryOther(in: text) {
+            return result
         }
-
-        // E: "every [N] day(s)/week(s)/month(s)/year(s)" — bare frequency
-        if let match = everyFrequencyRegex.firstMatch(in: text, options: [], range: fullRange),
-           let unitRange = Range(match.range(at: 2), in: text) {
-            let stripped = stripFullMatch(text, range: match.range)
-            let unit = text[unitRange].lowercased()
-            var interval = 1
-            if let intervalRange = Range(match.range(at: 1), in: text) {
-                interval = Int(text[intervalRange]) ?? 1
-            }
-            let frequency: EKRecurrenceFrequency = switch unit {
-            case "day", "days": .daily
-            case "week", "weeks": .weekly
-            case "month", "months": .monthly
-            case "year", "years": .yearly
-            default: .weekly
-            }
-            let rule = EKRecurrenceRule(recurrenceWith: frequency, interval: interval, end: nil)
-            return (stripped, rule)
+        if let result = matchEveryFrequency(in: text) {
+            return result
         }
-
-        // F: "daily", "weekly", "monthly", "yearly", "annually"
-        if let match = synonymRegex.firstMatch(in: text, options: [], range: fullRange),
-           let wordRange = Range(match.range(at: 1), in: text) {
-            let stripped = stripFullMatch(text, range: match.range)
-            let word = text[wordRange].lowercased()
-            let frequency: EKRecurrenceFrequency = switch word {
-            case "daily": .daily
-            case "weekly": .weekly
-            case "monthly": .monthly
-            case "yearly", "annually": .yearly
-            default: .weekly
-            }
-            let rule = EKRecurrenceRule(recurrenceWith: frequency, interval: 1, end: nil)
-            return (stripped, rule)
+        if let result = matchSynonym(in: text) {
+            return result
         }
-
         return (text, nil)
+    }
+
+    /// "every [weekday]" — e.g. "every Monday"
+    private static func matchEveryWeekday(in text: String) -> (text: String, rule: EKRecurrenceRule?)? {
+        guard let match = firstMatch(of: everyWeekdayRegex, in: text),
+              let dayRange = Range(match.range(at: 1), in: text),
+              let weekday = weekdays[text[dayRange].lowercased()] else { return nil }
+        let stripped = stripPrefix(text, matchRange: match.range, keepRange: match.range(at: 1))
+        return (stripped, weeklyRule(interval: 1, weekday: weekday))
+    }
+
+    /// "every week on [weekday]" — e.g. "every week on Sunday"
+    private static func matchEveryWeekOnWeekday(in text: String) -> (text: String, rule: EKRecurrenceRule?)? {
+        guard let match = firstMatch(of: everyWeekOnWeekdayRegex, in: text),
+              let dayRange = Range(match.range(at: 1), in: text),
+              let weekday = weekdays[text[dayRange].lowercased()] else { return nil }
+        let stripped = stripPrefix(text, matchRange: match.range, keepRange: match.range(at: 1))
+        return (stripped, weeklyRule(interval: 1, weekday: weekday))
+    }
+
+    /// "every N weeks on [weekday]" — e.g. "every 2 weeks on Monday"
+    private static func matchEveryWeeksOnWeekday(in text: String) -> (text: String, rule: EKRecurrenceRule?)? {
+        guard let match = firstMatch(of: everyWeeksOnWeekdayRegex, in: text),
+              let intervalRange = Range(match.range(at: 1), in: text),
+              let dayRange = Range(match.range(at: 2), in: text),
+              let interval = Int(text[intervalRange]),
+              let weekday = weekdays[text[dayRange].lowercased()] else { return nil }
+        let stripped = stripPrefix(text, matchRange: match.range, keepRange: match.range(at: 2))
+        return (stripped, weeklyRule(interval: interval, weekday: weekday))
+    }
+
+    /// "every other day/week/month/year" — interval 2
+    private static func matchEveryOther(in text: String) -> (text: String, rule: EKRecurrenceRule?)? {
+        guard let match = firstMatch(of: everyOtherRegex, in: text),
+              let unitRange = Range(match.range(at: 1), in: text),
+              let frequency = frequency(for: text[unitRange]) else { return nil }
+        let stripped = stripFullMatch(text, range: match.range)
+        return (stripped, EKRecurrenceRule(recurrenceWith: frequency, interval: 2, end: nil))
+    }
+
+    /// "every [N] day(s)/week(s)/month(s)/year(s)" — bare frequency
+    private static func matchEveryFrequency(in text: String) -> (text: String, rule: EKRecurrenceRule?)? {
+        guard let match = firstMatch(of: everyFrequencyRegex, in: text),
+              let unitRange = Range(match.range(at: 2), in: text),
+              let frequency = frequency(for: text[unitRange]) else { return nil }
+        var interval = 1
+        if let intervalRange = Range(match.range(at: 1), in: text) {
+            interval = Int(text[intervalRange]) ?? 1
+        }
+        let stripped = stripFullMatch(text, range: match.range)
+        return (stripped, EKRecurrenceRule(recurrenceWith: frequency, interval: interval, end: nil))
+    }
+
+    /// "daily", "weekly", "monthly", "yearly", "annually"
+    private static func matchSynonym(in text: String) -> (text: String, rule: EKRecurrenceRule?)? {
+        guard let match = firstMatch(of: synonymRegex, in: text),
+              let wordRange = Range(match.range(at: 1), in: text),
+              let frequency = frequency(for: text[wordRange]) else { return nil }
+        let stripped = stripFullMatch(text, range: match.range)
+        return (stripped, EKRecurrenceRule(recurrenceWith: frequency, interval: 1, end: nil))
+    }
+
+    /// Runs the given regex against the text and returns the first match.
+    private static func firstMatch(of regex: NSRegularExpression, in text: String) -> NSTextCheckingResult? {
+        let fullRange = NSRange(text.startIndex..., in: text)
+        return regex.firstMatch(in: text, options: [], range: fullRange)
+    }
+
+    /// Builds a weekly recurrence rule for a specific weekday.
+    private static func weeklyRule(interval: Int, weekday: EKWeekday) -> EKRecurrenceRule {
+        let dofw = EKRecurrenceDayOfWeek(dayOfTheWeek: weekday, weekNumber: 0)
+        return EKRecurrenceRule(
+            recurrenceWith: .weekly,
+            interval: interval,
+            daysOfTheWeek: [dofw],
+            daysOfTheMonth: nil,
+            monthsOfTheYear: nil,
+            weeksOfTheYear: nil,
+            daysOfTheYear: nil,
+            setPositions: nil,
+            end: nil)
+    }
+
+    /// Maps a frequency word ("day", "week", "daily", "annually", …) to an `EKRecurrenceFrequency`.
+    private static func frequency(for word: Substring) -> EKRecurrenceFrequency? {
+        switch word.lowercased() {
+        case "day", "days", "daily": .daily
+        case "week", "weeks", "weekly": .weekly
+        case "month", "months", "monthly": .monthly
+        case "year", "years", "yearly", "annually": .yearly
+        default: nil
+        }
     }
 
     /// Removes everything from `matchRange.location` up to (but not including)
@@ -290,13 +300,6 @@ public enum ReminderDictationParser {
             .replacingOccurrences(of: #"\s{2,}"#, with: " ", options: .regularExpression)
             .trimmingCharacters(in: .whitespaces)
     }
-
-    // MARK: Private — Date Detection
-
-    private static let connectors: Set<String> = ["at", "on", "by"]
-
-    private static let dateDetector: NSDataDetector = // swiftlint:disable:next force_try
-        try! NSDataDetector(types: NSTextCheckingResult.CheckingType.date.rawValue)
 
     private static func firstDateMatch(in text: String) -> (range: NSRange, date: Date)? {
         let fullRange = NSRange(text.startIndex..., in: text)

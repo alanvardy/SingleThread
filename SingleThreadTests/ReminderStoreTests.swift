@@ -77,6 +77,21 @@ struct ReminderStoreTests {
                 eventStore: EKEventStore())
             #expect(reminder.notes == nil)
             #expect(reminder.dueDateComponents == nil)
+            #expect(reminder.hasRecurrenceRules == false)
+        }
+
+        @Test
+        func makeReminderSetsRecurrenceRule() {
+            let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
+            let reminder = ReminderStore.makeReminder(
+                title: "Buy milk",
+                notes: nil,
+                dueDate: nil,
+                eventStore: EKEventStore(),
+                recurrenceRule: rule)
+            #expect(reminder.recurrenceRules?.count == 1)
+            #expect(reminder.recurrenceRules?.first?.frequency == .weekly)
+            #expect(reminder.recurrenceRules?.first?.interval == 1)
         }
 
         @Test
