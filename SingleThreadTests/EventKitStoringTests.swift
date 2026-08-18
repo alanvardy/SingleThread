@@ -22,6 +22,8 @@ private final class FakeEventStore: EventKitStoring {
         self.defaultCalendar = defaultCalendar
     }
 
+    // MARK: Internal
+
     // MARK: Configuration
 
     var authStatus: EKAuthorizationStatus
@@ -34,7 +36,7 @@ private final class FakeEventStore: EventKitStoring {
     // MARK: Recording
 
     private(set) var saved: [EKReminder] = []
-    private(set) var lastSaveCommit: Bool?
+    private(set) var lastSaveCommit = false
     private(set) var lastPredicate: NSPredicate?
     private(set) var fetchCallCount = 0
     private(set) var requestAccessCallCount = 0
@@ -74,10 +76,6 @@ private final class FakeEventStore: EventKitStoring {
     #if !os(watchOS)
         func refreshSourcesIfNecessary() {
             refreshCallCount += 1
-        }
-
-        func defaultCalendarForNewReminders() -> EKCalendar? {
-            defaultCalendar
         }
 
         func save(_ reminder: EKReminder, commit: Bool) throws {
@@ -181,6 +179,120 @@ private final class FakeEventStore: EventKitStoring {
         }
     }
 #endif
+
+// MARK: - Lifecycle tests
+
+@MainActor
+@Suite(.serialized)
+struct ReminderStoreLifecycleTests {
+    @Test
+    func reloadPopulatesRemindersFromFetch() async {
+        let first = makeReminder(title: "A")
+        let second = makeReminder(title: "B")
+        let fake = FakeEventStore(fetchResult: [first, second])
+        let store = testStore(eventStore: fake)
+
+        await store.reload()
+
+        #expect(store.reminders.map(\.title) == ["A", "B"])
+        #expect(fake.fetchCallCount == 1)
+        #expect(fake.lastPredicate != nil)
+        #if !os(watchOS)
+            #expect(fake.refreshCallCount == 1)
+        #endif
+    }
+
+    @Test
+    func startWithFullAccessFetchesWithoutRequesting() async {
+        let fake = FakeEventStore(
+            authStatus: .fullAccess,
+            fetchResult: [makeReminder(title: "A")])
+        let store = testStore(eventStore: fake)
+
+        await store.start()
+
+        #expect(store.authorizationStatus == .fullAccess)
+        #expect(fake.fetchCallCount == 1)
+        #expect(fake.requestAccessCallCount == 0)
+    }
+
+    @Test
+    func startWithoutAccessRequestsThenReloads() async {
+        let fake = FakeEventStore(
+            authStatus: .notDetermined,
+            accessGranted: true,
+            fetchResult: [makeReminder(title: "A")])
+        let store = testStore(eventStore: fake)
+
+        await store.start()
+
+        #expect(fake.requestAccessCallCount == 1)
+        #expect(store.authorizationStatus == .fullAccess)
+        #expect(fake.fetchCallCount == 1)
+    }
+
+    @Test
+    func requestAccessGrantSetsFullAccessAndReloads() async {
+        let fake = FakeEventStore(
+            authStatus: .notDetermined,
+            accessGranted: true,
+            fetchResult: [makeReminder(title: "A")])
+        let store = testStore(eventStore: fake)
+
+        await store.requestAccess()
+
+        #expect(fake.requestAccessCallCount == 1)
+        #expect(store.authorizationStatus == .fullAccess)
+        #expect(fake.fetchCallCount == 1)
+    }
+
+    @Test
+    func requestAccessDenyRereadsStatusWithoutFetching() async {
+        let fake = FakeEventStore(authStatus: .denied, accessGranted: false)
+        let store = testStore(eventStore: fake)
+
+        await store.requestAccess()
+
+        #expect(fake.requestAccessCallCount == 1)
+        #expect(store.authorizationStatus == .denied)
+        #expect(fake.fetchCallCount == 0)
+    }
+
+    @Test
+    func requestAccessErrorRereadsStatusWithoutFetching() async {
+        let fake = FakeEventStore(
+            authStatus: .restricted,
+            accessError: NSError(domain: "test", code: 1))
+        let store = testStore(eventStore: fake)
+
+        await store.requestAccess()
+
+        #expect(fake.requestAccessCallCount == 1)
+        #expect(store.authorizationStatus == .restricted)
+        #expect(fake.fetchCallCount == 0)
+    }
+
+    @Test
+    func loadsRemindersFalseMakesReadPathsNoOps() async {
+        let fake = FakeEventStore(
+            authStatus: .fullAccess,
+            fetchResult: [makeReminder(title: "A")])
+        let skipStore = SkippedReminderStore(
+            defaults: .standard,
+            key: "test-\(UUID().uuidString)")
+        let store = ReminderStore(
+            eventStore: fake,
+            skipStore: skipStore,
+            loadsReminders: false)
+
+        await store.start()
+        await store.reload()
+
+        #expect(fake.fetchCallCount == 0)
+        #expect(fake.requestAccessCallCount == 0)
+        #expect(store.reminders.isEmpty)
+    }
+}
 
 // MARK: - Fixtures
 
