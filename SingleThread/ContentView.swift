@@ -209,6 +209,7 @@ struct ContentView: View {
                                         Text(ReminderPriority.marker(for: reminder.priority))
                                             .font(.title)
                                             .foregroundStyle(priorityColor(level))
+                                            .accessibilityLabel("\(level.displayName) priority")
                                     }
                                     Text(reminder.title)
                                         .font(.title)

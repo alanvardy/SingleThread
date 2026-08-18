@@ -1,5 +1,5 @@
 @testable import SingleThread
-import SingleThreadCore
+@testable import SingleThreadCore
 import SwiftUI
 import Testing
 

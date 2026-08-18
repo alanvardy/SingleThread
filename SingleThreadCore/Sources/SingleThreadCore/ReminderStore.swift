@@ -1,5 +1,6 @@
 import EventKit
 import Foundation
+import os
 
 @MainActor
 @Observable
@@ -89,10 +90,10 @@ public final class ReminderStore {
             do {
                 reminder.isCompleted = true
                 try eventStore.save(reminder, commit: true)
-                try? await Task.sleep(nanoseconds: 200_000_000)
+                try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
                 await reload()
             } catch {
-                print("Failed to complete reminder: \(error)")
+                Self.logger.error("Failed to complete reminder: \(error.localizedDescription, privacy: .public)")
             }
         #endif
     }
@@ -123,11 +124,11 @@ public final class ReminderStore {
                 recurrenceRule: recurrenceRule)
             do {
                 try eventStore.save(reminder, commit: true)
-                try? await Task.sleep(nanoseconds: 200_000_000)
+                try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
                 await reload()
                 return true
             } catch {
-                print("Failed to add reminder: \(error)")
+                Self.logger.error("Failed to add reminder: \(error.localizedDescription, privacy: .public)")
                 return false
             }
         #endif
@@ -135,18 +136,25 @@ public final class ReminderStore {
 
     public func skipCurrentReminder() {
         guard let reminder = visibleReminders.first else { return }
-        let fetchedIDs = reminders.map(\.calendarItemIdentifier)
-        let updated = ReminderSkipLogic.skipping(
-            reminder.calendarItemIdentifier,
-            fetched: fetchedIDs,
-            skipped: Array(skippedIDs))
+        let updated = updatedSkipSet(afterSkipping: reminder.calendarItemIdentifier)
         Task {
-            try? await Task.sleep(nanoseconds: 200_000_000)
-            skippedIDs = Set(updated)
-            skipStore.save(updated)
-            onSkipSetChanged?(updated)
-            onRemindersChanged?()
+            try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
+            applySkipSet(updated)
         }
+    }
+
+    /// Skips the first visible reminder synchronously.
+    ///
+    /// Unlike `skipCurrentReminder()`, this writes the skip list before returning.
+    /// It exists for the widget's `SkipReminderIntent`, whose process WidgetKit may
+    /// suspend right after `perform()` returns — the settle sleep used by the
+    /// interactive path is unsafe there.
+    @discardableResult
+    public func skipCurrentReminderImmediately() -> Bool {
+        guard let reminder = visibleReminders.first else { return false }
+        let updated = updatedSkipSet(afterSkipping: reminder.calendarItemIdentifier)
+        applySkipSet(updated)
+        return true
     }
 
     public func reload(clearSkipped: Bool = false) async {
@@ -197,8 +205,31 @@ public final class ReminderStore {
 
     // MARK: Private
 
+    /// EventKit may not reflect an in-flight save immediately; settle briefly
+    /// before re-fetching so the just-written change shows up in `reload()`.
+    private static let eventKitSettleDelay: UInt64 = 200_000_000
+
+    private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderStore")
+
     private let eventStore: EKEventStore
     private let skipStore: SkippedReminderStore
+
+    /// Computes the skip list that results from skipping `identifier`, pruning
+    /// stale IDs against the currently-fetched reminders.
+    private func updatedSkipSet(afterSkipping identifier: String) -> [String] {
+        ReminderSkipLogic.skipping(
+            identifier,
+            fetched: reminders.map(\.calendarItemIdentifier),
+            skipped: Array(skippedIDs))
+    }
+
+    /// Applies a new skip list to in-memory state, persistence, and hooks.
+    private func applySkipSet(_ updated: [String]) {
+        skippedIDs = Set(updated)
+        skipStore.save(updated)
+        onSkipSetChanged?(updated)
+        onRemindersChanged?()
+    }
 
     /// Bridges the EventKit completion-handler API to async/await.
     /// `fetchReminders(matching:)` performs its work off the main thread; this

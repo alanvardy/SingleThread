@@ -41,31 +41,34 @@
 
 ## Concurrency Model
 
-- `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` is set at the project level.
-  All async functions default to `@MainActor`. Do not wrap in
-  `Task { @MainActor in }` — it's redundant.
+- `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` is set on the iOS app and
+  watch app targets (not project-wide). Async functions in those targets
+  default to `@MainActor`; do not wrap in `Task { @MainActor in }` there —
+  it's redundant. The `SingleThreadCore` package, widget, and test targets do
+  **not** enable it — annotate `@MainActor` explicitly where needed in those.
 - The compiler language mode is **Swift 6** (`SWIFT_VERSION = 6.0`).
   `SWIFT_APPROACHABLE_CONCURRENCY = YES` is also set (the Xcode 26 default),
-  which keeps concurrency diagnostics approachable while retaining the
-  default `MainActor` isolation.
+  which keeps concurrency diagnostics approachable.
 
-## SwiftData
+## Persistence (EventKit + App Group)
 
-- The app uses SwiftData. `SingleThreadApp` builds a `ModelContainer` for the
-  `Item` `@Model`; `ContentView` drives it with `@Query` and
-  `@Environment(\.modelContext)`.
-- `@Model` classes must be `final`.
-- Previews and tests that need a container use
-  `.modelContainer(for: Item.self, inMemory: true)`.
+- The app reads and writes Apple Reminders through **EventKit**, not SwiftData.
+  `ReminderStore` (a `@MainActor @Observable` class in `SingleThreadCore`)
+  owns the `EKEventStore` and the skipped-reminder list.
+- Skipped-reminder identifiers persist in a shared App Group `UserDefaults`
+  (see `AppGroup.swift`); the phone and watch sync them over WatchConnectivity.
+- Previews and tests inject a pre-populated `ReminderStore` (or use
+  `loadsReminders: false`) instead of a real `EKEventStore`.
 
 ## Project Layout
 
 ```
 SingleThread/                  # git root
 ├── SingleThread.xcodeproj/    # Xcode project
-├── SingleThread/              # app sources
-│   ├── Assets.xcassets/
-│   └── *.swift                # SingleThreadApp, ContentView, ReminderSkip
+├── SingleThread/              # iOS app sources (SingleThreadApp, ContentView, ReminderDictation)
+├── SingleThreadCore/          # local SPM package — model/domain layer (ReminderStore, ReminderSkip, …)
+├── SingleThreadWatch/         # watchOS app
+├── SingleThreadWidget/        # widget extension
 ├── SingleThreadTests/         # unit tests (Swift Testing)
 ├── SingleThreadUITests/       # UI tests (XCTest, accessibility audit)
 ├── scripts/                   # CI-identical test script

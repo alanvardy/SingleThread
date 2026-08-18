@@ -70,19 +70,34 @@
         // MARK: - Skip-set receive
 
         @Test
-        func receiveContextMergesIDs() {
+        func receiveContextReplacesLocalIDs() {
             let fake = FakeSession()
             let key = "test-sync-receive-\(UUID().uuidString)"
             let store = SkippedReminderStore(defaults: .standard, key: key)
             // Pre-populate local store with ["A"]
             store.save(["A"])
             let service = SkippedReminderSyncService(session: fake, skipStore: store)
-            // Simulate receiving ["B", "C"] from counterpart
+            // The received context is the sender's full skip set — latest-wins, so
+            // it replaces (not unions with) the local list.
             service.session(
                 WCSession.default,
                 didReceiveApplicationContext: ["skippedReminderIdentifiers": ["B", "C"]])
-            let saved = store.load()
-            #expect(Set(saved) == ["A", "B", "C"])
+            #expect(Set(store.load()) == ["B", "C"])
+        }
+
+        @Test
+        func receiveContextClearPropagates() {
+            let fake = FakeSession()
+            let key = "test-sync-receive-clear-\(UUID().uuidString)"
+            let store = SkippedReminderStore(defaults: .standard, key: key)
+            store.save(["A", "B"])
+            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            // An empty skip list is a legitimate "clear all skips" update and must
+            // clear the local list rather than being ignored as a no-op.
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: ["skippedReminderIdentifiers": [String]()])
+            #expect(store.load().isEmpty)
         }
 
         @Test

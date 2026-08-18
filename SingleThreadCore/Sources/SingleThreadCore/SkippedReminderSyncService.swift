@@ -1,4 +1,5 @@
 import Foundation
+import os
 
 #if os(iOS) || os(watchOS)
     import WatchConnectivity
@@ -31,9 +32,17 @@ import Foundation
         // MARK: Public
 
         /// Hook invoked on the iPhone when the watch asks to complete a reminder.
-        /// Passes the completed reminder's identifier. Written once from the main
-        /// actor before `activate()` is called; read from WCSession's delegate
-        /// queue (a non-main serial queue) thereafter.
+        /// Passes the completed reminder's identifier.
+        ///
+        /// Safety: written once from the main actor *before* `activate()` is
+        /// called and only read afterwards on WCSession's delegate queue, giving
+        /// a happens-before edge between the two threads. It is
+        /// `nonisolated(unsafe)` because the closure captures the `@MainActor`
+        /// `ReminderStore` and is therefore not `Sendable`.
+        ///
+        /// Removal plan: inject the handler through `init` as an immutable
+        /// `@Sendable (String) -> Void` (capturing the store `[weak]`), and then
+        /// delete the `nonisolated(unsafe)` annotation.
         public nonisolated(unsafe) var onCompleteReminderReceived: ((String) -> Void)?
 
         public func activate() {
@@ -46,18 +55,20 @@ import Foundation
         /// Push the full skip array to the counterpart.
         public func pushSkipIDs(_ ids: [String]) {
             do {
-                try session.updateApplicationContext(["skippedReminderIdentifiers": ids])
+                try session.updateApplicationContext([PayloadKey.skippedReminderIdentifiers: ids])
             } catch {
-                print("Failed to push skip IDs: \(error)")
+                let description = error.localizedDescription
+                Self.logger.error("Failed to push skip IDs: \(description, privacy: .public)")
             }
         }
 
         /// Ask the iPhone to complete a reminder (watch-side action).
         public func requestCompleteReminder(_ identifier: String) {
             session.sendMessage(
-                ["completeReminderIdentifier": identifier],
+                [PayloadKey.completeReminderIdentifier: identifier],
                 replyHandler: nil) { error in
-                    print("Failed to send completion request: \(error)")
+                    let description = error.localizedDescription
+                    Self.logger.error("Failed to send completion request: \(description, privacy: .public)")
                 }
         }
 
@@ -66,15 +77,20 @@ import Foundation
         public func session(
             _: WCSession,
             didReceiveApplicationContext applicationContext: [String: Any]) {
-            guard let receivedIDs = applicationContext["skippedReminderIdentifiers"] as? [String] else { return }
-            // Merge with local IDs; resolve prunes stale entries next time reload runs.
-            let localIDs = skipStore.load()
-            let merged = Array(Set(localIDs + receivedIDs))
-            skipStore.save(merged)
+            guard
+                let receivedIDs = applicationContext[PayloadKey.skippedReminderIdentifiers] as? [String]
+            else {
+                return
+            }
+            // Latest-wins: `updateApplicationContext` transmits the sender's full
+            // skip set, so the received array is authoritative. Replacing (rather
+            // than unioning) local IDs is what makes a "clear skips" update ([])
+            // propagate. ReminderStore.reload() prunes stale IDs on the next fetch.
+            skipStore.save(receivedIDs)
         }
 
         public func session(_: WCSession, didReceiveMessage message: [String: Any]) {
-            guard let identifier = message["completeReminderIdentifier"] as? String else { return }
+            guard let identifier = message[PayloadKey.completeReminderIdentifier] as? String else { return }
             let handler = onCompleteReminderReceived
             handler?(identifier)
         }
@@ -84,7 +100,7 @@ import Foundation
             activationDidCompleteWith _: WCSessionActivationState,
             error: (any Error)?) {
             if let error {
-                print("WCSession activation failed: \(error)")
+                Self.logger.error("WCSession activation failed: \(error.localizedDescription, privacy: .public)")
             }
         }
 
@@ -96,6 +112,15 @@ import Foundation
         #endif
 
         // MARK: Private
+
+        /// Keys used in the WatchConnectivity payloads, shared by the sender and
+        /// receiver so the two sides of the wire protocol cannot drift.
+        private enum PayloadKey {
+            static let skippedReminderIdentifiers = "skippedReminderIdentifiers"
+            static let completeReminderIdentifier = "completeReminderIdentifier"
+        }
+
+        private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")
 
         private let session: any SkipSyncSession
         private let skipStore: SkippedReminderStore

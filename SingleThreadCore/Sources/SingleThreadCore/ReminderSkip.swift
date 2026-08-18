@@ -33,6 +33,17 @@ public nonisolated enum ReminderPriority {
         case high
         case medium
         case low
+
+        // MARK: Public
+
+        /// Human-readable name used for accessibility labels on priority markers.
+        public var displayName: String {
+            switch self {
+            case .high: "High"
+            case .medium: "Medium"
+            case .low: "Low"
+            }
+        }
     }
 
     /// Resolves the reminder's numeric priority into a display level.
@@ -70,28 +81,30 @@ public nonisolated enum ReminderPriority {
 
 /// Cleans and formats reminder notes for display.
 public nonisolated enum ReminderNotesFormatter {
-    // MARK: Public
-
-    /// Returns the note text suitable for display, with known prefix artifacts removed.
+    /// Returns the note text suitable for display, with the known leading "t"
+    /// artifact removed.
+    ///
+    /// EventKit/Siri occasionally prepends a stray lowercase "t" to a note's
+    /// text before the real (capitalized) content — e.g. `"tBuy milk"`. Strip
+    /// that artifact, but only when the "t" is followed by a word boundary
+    /// (whitespace/newline), an uppercase letter, or the end of the string, so
+    /// a legitimate note beginning with a lowercase "t" (`"take out trash"`)
+    /// is left intact.
     public static func format(_ notes: String?) -> String? {
         guard let notes else { return nil }
         let trimmed = notes.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard let firstScalar = trimmed.unicodeScalars.first else { return nil }
-        if leadingPrefixChars.contains(firstScalar) {
-            let cleaned = String(trimmed.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
-            return cleaned.isEmpty ? nil : cleaned
+        guard let first = trimmed.first else { return nil }
+
+        if first == Character("t") {
+            let remainder = trimmed.dropFirst()
+            let isArtifact = remainder.first.map { $0.isWhitespace || $0.isUppercase } ?? true
+            if isArtifact {
+                let cleaned = String(remainder).trimmingCharacters(in: .whitespacesAndNewlines)
+                return cleaned.isEmpty ? nil : cleaned
+            }
         }
         return trimmed
     }
-
-    // MARK: Private
-
-    /// Characters stripped when they appear as the first character of a note.
-    private static let leadingPrefixChars: CharacterSet = {
-        var set = CharacterSet()
-        set.insert(charactersIn: "t")
-        return set
-    }()
 }
 
 /// Persists the skipped reminder identifiers in UserDefaults.

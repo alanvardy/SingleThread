@@ -22,10 +22,15 @@ struct SingleThreadApp: App {
                 let service = SkippedReminderSyncService(
                     session: WCSession.default,
                     skipStore: SkippedReminderStore())
-                service.activate()
-                service.onCompleteReminderReceived = { identifier in
-                    Task { await store.completeReminder(identifier: identifier) }
+                // Assign the handler before activating: the service documents a
+                // write-once-before-activate invariant, and a completion message
+                // delivered right after activation must not observe a nil (or an
+                // unsynchronized) handler. `[weak store]` breaks the retain cycle
+                // otherwise formed with the hooks below.
+                service.onCompleteReminderReceived = { [weak store] identifier in
+                    Task { await store?.completeReminder(identifier: identifier) }
                 }
+                service.activate()
                 store.onSkipSetChanged = { ids in service.pushSkipIDs(ids) }
                 store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
             }
