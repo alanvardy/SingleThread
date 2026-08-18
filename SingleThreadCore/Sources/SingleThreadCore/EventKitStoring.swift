@@ -24,8 +24,6 @@ public protocol EventKitStoring: AnyObject {
     #if !os(watchOS)
         func refreshSourcesIfNecessary()
 
-        func defaultCalendarForNewReminders() -> EKCalendar?
-
         func save(_ reminder: EKReminder, commit: Bool) throws
 
         /// Builds a new `EKReminder` from the given fields (was the static
@@ -40,7 +38,7 @@ public protocol EventKitStoring: AnyObject {
 
 extension EKEventStore: EventKitStoring {
     public func authorizationStatus(for entityType: EKEntityType) -> EKAuthorizationStatus {
-        EKEventStore.authorizationStatus(for: entityType)
+        Self.authorizationStatus(for: entityType)
     }
 
     #if !os(watchOS)
