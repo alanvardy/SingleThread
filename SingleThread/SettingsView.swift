@@ -59,6 +59,8 @@ struct SettingsView: View {
                 }
             }
         }
+        .preferredColorScheme(appearanceMode.colorScheme)
+        .modifier(TextSizeModifier(textSize: textSize))
     }
 
     // MARK: Private
