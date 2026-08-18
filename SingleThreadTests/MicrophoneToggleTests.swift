@@ -31,14 +31,18 @@ private final class MicToggleFakeTranscriber: SpeechTranscribing {
 @MainActor
 struct MicrophoneToggleTests {
     @Test
-    func settingsMenuContainsMicrophoneToggle() {
+    func settingsGearButtonIsPresent() {
         let view = ContentView(loadsReminders: false)
         let bodyDescription = String(describing: view.body)
 
-        // The settings menu should contain the Microphone toggle.
+        // The settings entry point (gear button) should survive the
+        // Menu → sheet swap. Assert on its accessibility label, not the
+        // SF Symbol name: `Image(systemName:)` describes as a boxed
+        // `NamedImageProvider`, so "gearshape" never appears in the
+        // body description.
         #expect(
-            bodyDescription.contains("Microphone"),
-            "Settings menu should contain microphone toggle label")
+            bodyDescription.contains("Settings"),
+            "Settings gear button should be present on the main view")
     }
 
     @Test

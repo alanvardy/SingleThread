@@ -45,15 +45,39 @@ struct ContentView: View {
             }
         }
         .overlay(alignment: .topTrailing) {
-            settingsMenu
-                .padding(.top, 8)
-                .padding(.trailing, 12)
+            Button {
+                isShowingSettings = true
+            } label: {
+                Image(systemName: "gearshape")
+                    .font(.title3)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Rectangle())
+            }
+            .accessibilityLabel("Settings")
+            .accessibilityAddTraits(.isButton)
+            .padding(.top, 8)
+            .padding(.trailing, 12)
         }
         .task {
             await store.start()
         }
         .preferredColorScheme(appearanceMode.colorScheme)
         .modifier(TextSizeModifier(textSize: textSize))
+        .sheet(isPresented: $isShowingSettings) {
+            #if os(iOS)
+                SettingsView(
+                    appearanceMode: $appearanceMode,
+                    textSize: $textSize,
+                    allowsLandscape: $allowsLandscape,
+                    showMicrophoneButton: $showMicrophoneButton)
+            #else
+                SettingsView(
+                    appearanceMode: $appearanceMode,
+                    textSize: $textSize,
+                    showMicrophoneButton: $showMicrophoneButton)
+            #endif
+        }
     }
 
     // MARK: Private
@@ -106,6 +130,7 @@ struct ContentView: View {
     @State private var dictationText = ""
     @State private var dictationError: String?
     @State private var creationFeedback: CreationFeedback?
+    @State private var isShowingSettings = false
 
     @Environment(\.openURL)
     private var openURL
@@ -269,39 +294,6 @@ struct ContentView: View {
                 }
             }
         }
-    }
-
-    private var settingsMenu: some View {
-        Menu {
-            Picker("Appearance", selection: $appearanceMode) {
-                ForEach(AppearanceMode.allCases, id: \.self) { mode in
-                    Label(mode.title, systemImage: mode.systemImage)
-                        .tag(mode)
-                }
-            }
-            Picker("Text Size", selection: $textSize) {
-                ForEach(TextSize.allCases, id: \.self) { size in
-                    Label(size.title, systemImage: size.systemImage)
-                        .tag(size)
-                }
-            }
-            #if os(iOS)
-                Toggle(isOn: $allowsLandscape) {
-                    Label("Landscape", systemImage: "rectangle.landscape.rotate")
-                }
-                .onChange(of: allowsLandscape) { _, newValue in
-                    AppDelegate.applyLock(allowsLandscape: newValue)
-                }
-            #endif
-            Toggle("Microphone", isOn: $showMicrophoneButton)
-        } label: {
-            Image(systemName: "gearshape")
-                .font(.title3)
-                .foregroundStyle(.secondary)
-                .frame(width: 44, height: 44)
-                .contentShape(Rectangle())
-        }
-        .accessibilityLabel("Settings")
     }
 
     private var bottomBar: some View {
