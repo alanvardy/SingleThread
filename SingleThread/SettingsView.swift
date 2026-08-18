@@ -47,13 +47,13 @@ struct SettingsView: View {
             }
             #if os(iOS)
                 Toggle(isOn: $allowsLandscape) {
-                    Label("Landscape", systemImage: "rectangle.landscape.rotate")
+                    Label("Allow Landscape", systemImage: "rectangle.landscape.rotate")
                 }
                 .onChange(of: allowsLandscape) { _, newValue in
                     AppDelegate.applyLock(allowsLandscape: newValue)
                 }
             #endif
-            Toggle("Microphone", isOn: $showMicrophoneButton)
+            Toggle("Show Microphone", isOn: $showMicrophoneButton)
         }
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
@@ -77,3 +77,36 @@ struct SettingsView: View {
     @Environment(\.dismiss)
     private var dismiss
 }
+
+// MARK: - Previews
+
+#if os(iOS)
+    #Preview("Default") {
+        NavigationStack {
+            SettingsView(
+                appearanceMode: .constant(.system),
+                textSize: .constant(.system),
+                allowsLandscape: .constant(true),
+                showMicrophoneButton: .constant(true))
+        }
+    }
+
+    #Preview("Dark + Extra Large") {
+        NavigationStack {
+            SettingsView(
+                appearanceMode: .constant(.dark),
+                textSize: .constant(.extraLarge),
+                allowsLandscape: .constant(false),
+                showMicrophoneButton: .constant(false))
+        }
+    }
+#else
+    #Preview("Default") {
+        NavigationStack {
+            SettingsView(
+                appearanceMode: .constant(.system),
+                textSize: .constant(.system),
+                showMicrophoneButton: .constant(true))
+        }
+    }
+#endif
