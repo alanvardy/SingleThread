@@ -1,4 +1,5 @@
 @testable import SingleThread
+import SingleThreadCore
 import SwiftUI
 import Testing
 
@@ -16,7 +17,8 @@ struct SettingsViewTests {
                 showMicrophoneButton: .constant(true),
                 showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
-                availableProjects: ["Work", "Personal"])
+                availableProjects: ["Work", "Personal"],
+                sortOption: .constant(.priority))
         #else
             let view = SettingsView(
                 appearanceMode: .constant(.system),
@@ -24,7 +26,8 @@ struct SettingsViewTests {
                 showMicrophoneButton: .constant(true),
                 showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
-                availableProjects: ["Work", "Personal"])
+                availableProjects: ["Work", "Personal"],
+                sortOption: .constant(.priority))
         #endif
 
         let bodyDescription = String(describing: view.body)
@@ -33,6 +36,7 @@ struct SettingsViewTests {
         // body description, so the row labels below are assertable.
         #expect(bodyDescription.contains("Appearance"))
         #expect(bodyDescription.contains("Text Size"))
+        #expect(bodyDescription.contains("Sort By"))
         #expect(bodyDescription.contains("Microphone"))
         #expect(bodyDescription.contains("Show Undated"))
         #expect(bodyDescription.contains("Excluded Projects"))

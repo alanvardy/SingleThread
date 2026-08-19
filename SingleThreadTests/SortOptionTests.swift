@@ -1,4 +1,5 @@
 import Foundation
+@testable import SingleThread
 import SingleThreadCore
 import Testing
 
@@ -18,6 +19,20 @@ struct SortOptionTests {
     @Test
     func defaultsKeyIsTheSharedConstant() {
         #expect(SortOption.defaultsKey == "sortOption")
+    }
+
+    @Test
+    func presentationTitlesAreHumanReadable() {
+        #expect(SortOption.priority.title == "Priority")
+        #expect(SortOption.dueDate.title == "Due Date")
+        #expect(SortOption.title.title == "Title")
+    }
+
+    @Test
+    func presentationSystemImagesAreValidSFSymbols() {
+        #expect(!SortOption.priority.systemImage.isEmpty)
+        #expect(!SortOption.dueDate.systemImage.isEmpty)
+        #expect(!SortOption.title.systemImage.isEmpty)
     }
 }
 

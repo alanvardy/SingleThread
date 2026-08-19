@@ -140,6 +140,60 @@ struct ReminderStoreTests {
         #expect(remindersChanged)
     }
 
+    // MARK: - setSortOption
+
+    @Test
+    func setSortOptionReordersVisibleReminders() {
+        let highLater = makeReminder(
+            title: "HighLater",
+            priority: 1,
+            dateComponents: DateComponents(year: 2024, month: 1, day: 10))
+        let lowSooner = makeReminder(
+            title: "LowSooner",
+            priority: 9,
+            dateComponents: DateComponents(year: 2024, month: 1, day: 2))
+        let store = ReminderStore(
+            loadsReminders: false,
+            reminders: [lowSooner, highLater],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        #expect(store.visibleReminders.map(\.title) == ["HighLater", "LowSooner"]) // default .priority
+        store.setSortOption(.dueDate)
+        #expect(store.visibleReminders.map(\.title) == ["LowSooner", "HighLater"])
+    }
+
+    @Test
+    func setSortOptionFiresBothHooks() {
+        let rem = makeReminder(title: "A")
+        let store = ReminderStore(
+            loadsReminders: false,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        var received: SortOption?
+        var remindersChanged = false
+        store.onSortOptionChanged = { received = $0 }
+        store.onRemindersChanged = { remindersChanged = true }
+        store.setSortOption(.title)
+        #expect(received == .title)
+        #expect(remindersChanged)
+    }
+
+    @Test
+    func setSortOptionIsIdempotent() {
+        let store = ReminderStore(
+            loadsReminders: false,
+            reminders: [],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        var fired = 0
+        store.onSortOptionChanged = { _ in fired += 1 }
+        store.setSortOption(.title)
+        store.setSortOption(.title)
+        store.setSortOption(.title)
+        #expect(fired == 1)
+    }
+
     // MARK: - addReminder
 
     @Test

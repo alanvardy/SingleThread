@@ -69,6 +69,9 @@ struct ContentView: View {
             store.showsUndatedReminders = newValue
             Task { await store.reload() }
         }
+        .onChange(of: sortOption) { _, newValue in
+            store.setSortOption(newValue)
+        }
         .preferredColorScheme(appearanceMode.colorScheme)
         .modifier(TextSizeModifier(textSize: textSize))
         .sheet(isPresented: $isShowingSettings) {
@@ -80,7 +83,8 @@ struct ContentView: View {
                     showMicrophoneButton: $showMicrophoneButton,
                     showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
-                    availableProjects: store.availableProjects)
+                    availableProjects: store.availableProjects,
+                    sortOption: $sortOption)
             #else
                 SettingsView(
                     appearanceMode: $appearanceMode,
@@ -88,7 +92,8 @@ struct ContentView: View {
                     showMicrophoneButton: $showMicrophoneButton,
                     showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
-                    availableProjects: store.availableProjects)
+                    availableProjects: store.availableProjects,
+                    sortOption: $sortOption)
             #endif
         }
     }
@@ -142,6 +147,8 @@ struct ContentView: View {
     @AppStorage("showUndatedReminders", store: AppGroup.defaults)
     private var showUndatedReminders = false
 
+    @AppStorage(SortOption.defaultsKey, store: AppGroup.defaults)
+    private var sortOption = SortOption.priority
     @State private var isDictating = false
     @State private var dictationText = ""
     @State private var dictationError: String?
