@@ -17,6 +17,7 @@ public struct CompleteReminderIntent: AppIntent {
     @MainActor
     public func perform() async throws -> some IntentResult {
         let store = ReminderStore(loadsReminders: true)
+        store.setSortOption(SortOptionStore().load())
         await store.reload()
         await store.completeCurrentReminder()
         return .result()
@@ -39,6 +40,7 @@ public struct SkipReminderIntent: AppIntent {
     @MainActor
     public func perform() async throws -> some IntentResult {
         let store = ReminderStore(loadsReminders: true)
+        store.setSortOption(SortOptionStore().load())
         await store.reload()
         // Route the skip through the store like `CompleteReminderIntent` so the
         // write goes through the same code path (persistence plus the
