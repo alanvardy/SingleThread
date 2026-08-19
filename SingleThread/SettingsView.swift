@@ -1,3 +1,4 @@
+import SingleThreadCore
 import SwiftUI
 
 // MARK: - ExcludedProjectsView
@@ -64,7 +65,8 @@ struct SettingsView: View {
             showMicrophoneButton: Binding<Bool>,
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
-            availableProjects: [String]) {
+            availableProjects: [String],
+            sortOption: Binding<SortOption>) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _allowsLandscape = allowsLandscape
@@ -72,6 +74,7 @@ struct SettingsView: View {
             _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
             self.availableProjects = availableProjects
+            _sortOption = sortOption
         }
     #else
         init(
@@ -80,13 +83,15 @@ struct SettingsView: View {
             showMicrophoneButton: Binding<Bool>,
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
-            availableProjects: [String]) {
+            availableProjects: [String],
+            sortOption: Binding<SortOption>) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _showMicrophoneButton = showMicrophoneButton
             _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
             self.availableProjects = availableProjects
+            _sortOption = sortOption
         }
     #endif
 
@@ -105,6 +110,12 @@ struct SettingsView: View {
                     ForEach(TextSize.allCases, id: \.self) { size in
                         Label(size.title, systemImage: size.systemImage)
                             .tag(size)
+                    }
+                }
+                Picker("Sort By", selection: $sortOption) {
+                    ForEach(SortOption.allCases, id: \.self) { option in
+                        Label(option.title, systemImage: option.systemImage)
+                            .tag(option)
                     }
                 }
                 #if os(iOS)
@@ -147,6 +158,7 @@ struct SettingsView: View {
 
     @Binding private var appearanceMode: AppearanceMode
     @Binding private var textSize: TextSize
+    @Binding private var sortOption: SortOption
     #if os(iOS)
         @Binding private var allowsLandscape: Bool
     #endif
@@ -170,7 +182,8 @@ struct SettingsView: View {
             showMicrophoneButton: .constant(true),
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
-            availableProjects: ["Work", "Personal"])
+            availableProjects: ["Work", "Personal"],
+            sortOption: .constant(.priority))
     }
 
     #Preview("Dark + Extra Large") {
@@ -181,7 +194,8 @@ struct SettingsView: View {
             showMicrophoneButton: .constant(false),
             showUndatedReminders: .constant(true),
             excludedProjects: .constant([]),
-            availableProjects: ["Work", "Personal"])
+            availableProjects: ["Work", "Personal"],
+            sortOption: .constant(.dueDate))
     }
 #else
     #Preview("Default") {
@@ -191,6 +205,7 @@ struct SettingsView: View {
             showMicrophoneButton: .constant(true),
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
-            availableProjects: ["Work", "Personal"])
+            availableProjects: ["Work", "Personal"],
+            sortOption: .constant(.priority))
     }
 #endif

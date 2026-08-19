@@ -50,6 +50,14 @@ public final class ReminderStore {
     public private(set) var authorizationStatus: EKAuthorizationStatus = .notDetermined
     public let loadsReminders: Bool
 
+    /// The active sort ordering. Direct assignment (e.g. launch injection) does not
+    /// fire hooks; use `setSortOption` for user-initiated changes.
+    public var sortOption: SortOption = .priority
+
+    /// Hook fired when the user changes sort (watch push, Phase 4). Wired by the
+    /// app layer; Core never reads UserDefaults.
+    public var onSortOptionChanged: ((SortOption) -> Void)?
+
     /// Hook invoked after every skip/clear mutation — passes the full skip ID array.
     /// Wired by each app layer to push skip-set changes via WatchConnectivity (Phase 4).
     public var onSkipSetChanged: (([String]) -> Void)?
@@ -88,7 +96,7 @@ public final class ReminderStore {
         reminders
             .filter { !skippedIDs.contains($0.calendarItemIdentifier) }
             .filter { !excludedProjectTitles.contains($0.calendar?.title ?? "") }
-            .sorted { ReminderSort.areInIncreasingOrder($0, $1) }
+            .sorted { ReminderSort.areInIncreasingOrder($0, $1, using: sortOption) }
     }
 
     // MARK: - Public methods
@@ -169,6 +177,15 @@ public final class ReminderStore {
             try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
             applySkipSet(updated)
         }
+    }
+
+    /// Assigns a new sort option, firing hooks only on an actual change so a
+    /// redundant setting (or widget/intent process with nil hooks) is a no-op.
+    public func setSortOption(_ option: SortOption) {
+        guard option != sortOption else { return }
+        sortOption = option
+        onSortOptionChanged?(option)
+        onRemindersChanged?()
     }
 
     /// Skips the first visible reminder synchronously.
