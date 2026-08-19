@@ -41,6 +41,7 @@ struct SingleThreadApp: App {
                 }
                 store.onExcludedProjectsChanged = { titles in service.pushExcludedProjectTitles(titles) }
                 store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
+                store.onSortOptionChanged = { option in service.pushSortOption(option) }
             }
         #endif
         #if os(iOS) || os(macOS)

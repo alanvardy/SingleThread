@@ -714,8 +714,8 @@ func receiveContextLeavesSortUnchangedOnMissingOrMalformedKey() {
 ### Verification
 
 #### Automated
-- [ ] `make watch-build` — watch app compiles with the new wiring
-- [ ] `make test` — updated `SkippedReminderSyncServiceTests` (combined push/receive, malformed/missing sort key) pass
+- [x] `make watch-build` — watch app compiles with the new wiring
+- [x] `make test` — updated `SkippedReminderSyncServiceTests` (combined push/receive, malformed/missing sort key) pass
 
 #### Manual
 - [ ] Change sort on iPhone → the Apple Watch companion shows the same first reminder
