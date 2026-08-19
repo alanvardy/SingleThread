@@ -8,6 +8,20 @@
     /// lock takes effect at launch — before any SwiftUI view appears —
     /// avoiding a wrong-orientation flash.
     final class AppDelegate: NSObject, UIApplicationDelegate {
+        /// Applies the persisted appearance to every window in every connected
+        /// scene, and on demand to explicit windows. The `.system` sentinel
+        /// (`.unspecified`) clears any prior override so the window re-follows
+        /// the device — replaying Light → System converges reliably.
+        static func applyAppearance(_ mode: AppearanceMode, to windows: [UIWindow]? = nil) {
+            let targets = windows
+                ?? UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .flatMap(\.windows)
+            for window in targets {
+                window.overrideUserInterfaceStyle = mode.windowOverrideStyle
+            }
+        }
+
         /// Re-evaluates the orientation lock and requests an immediate rotation
         /// if the current orientation violates the new mask.
         ///
@@ -26,6 +40,10 @@
             scene.requestGeometryUpdate(.iOS(interfaceOrientations: mask)) { error in
                 print("Orientation request failed: \(error.localizedDescription)")
             }
+        }
+
+        func applicationDidBecomeActive(_: UIApplication) {
+            Self.applyAppearance(AppearanceMode.load())
         }
 
         func application(
