@@ -156,5 +156,52 @@
             service.session(WCSession.default, didReceiveMessage: ["wrongKey": 42])
             #expect(!received)
         }
+
+        // MARK: - Excluded-project push/receive
+
+        @Test
+        func pushExcludedProjectTitlesUpdatesApplicationContext() throws {
+            let fake = FakeSession()
+            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-excl-push-skip-\(UUID().uuidString)")
+            let excludeStore = ExcludedProjectStore(defaults: .standard, key: "test-excl-push-\(UUID().uuidString)")
+            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, excludeStore: excludeStore)
+
+            service.pushExcludedProjectTitles(["Work", "Home"])
+
+            let context = try #require(fake.lastContext)
+            let titles = try #require(context["excludedProjectTitles"] as? [String])
+            #expect(Set(titles) == ["Work", "Home"])
+        }
+
+        @Test
+        func receiveContextReplacesLocalExcludedTitles() {
+            let fake = FakeSession()
+            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-excl-recv-skip-\(UUID().uuidString)")
+            let excludeStore = ExcludedProjectStore(defaults: .standard, key: "test-excl-recv-\(UUID().uuidString)")
+            excludeStore.save(["A"])
+            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, excludeStore: excludeStore)
+
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: ["excludedProjectTitles": ["B", "C"]])
+
+            #expect(Set(excludeStore.load()) == ["B", "C"])
+        }
+
+        @Test
+        func receiveContextMissingExcludedTitleKeyIsNoOp() {
+            let fake = FakeSession()
+            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-excl-noop-skip-\(UUID().uuidString)")
+            let excludeStore = ExcludedProjectStore(defaults: .standard, key: "test-excl-noop-\(UUID().uuidString)")
+            excludeStore.save(["A"])
+            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, excludeStore: excludeStore)
+
+            // A skip-only payload must not clobber exclusions (independent keys).
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: ["skippedReminderIdentifiers": ["X"]])
+
+            #expect(excludeStore.load() == ["A"])
+        }
     }
 #endif

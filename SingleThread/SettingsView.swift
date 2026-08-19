@@ -1,5 +1,54 @@
 import SwiftUI
 
+// MARK: - ExcludedProjectsView
+
+/// Submenu listing the projects the user has chosen to exclude. Pushed from
+/// the settings screen so the main settings view stays focused on its core
+/// preferences.
+struct ExcludedProjectsView: View {
+    // MARK: Lifecycle
+
+    init(excludedProjects: Binding<Set<String>>, availableProjects: [String]) {
+        _excludedProjects = excludedProjects
+        self.availableProjects = availableProjects
+    }
+
+    // MARK: Internal
+
+    var body: some View {
+        Form {
+            Section {
+                ForEach(availableProjects, id: \.self) { project in
+                    Toggle(isOn: excludedBinding(for: project)) {
+                        Text(project)
+                    }
+                }
+            } footer: {
+                Text("Excluded projects are hidden from the reminder list.")
+            }
+        }
+        .navigationTitle("Excluded Projects")
+    }
+
+    // MARK: Private
+
+    @Binding private var excludedProjects: Set<String>
+
+    private let availableProjects: [String]
+
+    private func excludedBinding(for project: String) -> Binding<Bool> {
+        Binding(
+            get: { excludedProjects.contains(project) },
+            set: { isExcluded in
+                if isExcluded {
+                    excludedProjects.insert(project)
+                } else {
+                    excludedProjects.remove(project)
+                }
+            })
+    }
+}
+
 // MARK: - SettingsView
 
 /// Modal settings screen presented from the gear button. Owns no state —
@@ -65,11 +114,13 @@ struct SettingsView: View {
                 Toggle(isOn: $showMicrophoneButton) {
                     Label("Show Microphone", systemImage: "microphone")
                 }
-                Section("Excluded Projects") {
-                    ForEach(availableProjects, id: \.self) { project in
-                        Toggle(isOn: excludedBinding(for: project)) {
-                            Text(project)
-                        }
+                Section {
+                    NavigationLink {
+                        ExcludedProjectsView(
+                            excludedProjects: $excludedProjects,
+                            availableProjects: availableProjects)
+                    } label: {
+                        Label("Excluded Projects", systemImage: "eye.slash")
                     }
                 }
             }
@@ -98,18 +149,6 @@ struct SettingsView: View {
     private var dismiss
 
     private let availableProjects: [String]
-
-    private func excludedBinding(for project: String) -> Binding<Bool> {
-        Binding(
-            get: { excludedProjects.contains(project) },
-            set: { isExcluded in
-                if isExcluded {
-                    excludedProjects.insert(project)
-                } else {
-                    excludedProjects.remove(project)
-                }
-            })
-    }
 }
 
 // MARK: - Previews

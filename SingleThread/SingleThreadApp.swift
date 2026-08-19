@@ -32,6 +32,7 @@ struct SingleThreadApp: App {
                 }
                 service.activate()
                 store.onSkipSetChanged = { ids in service.pushSkipIDs(ids) }
+                store.onExcludedProjectsChanged = { titles in service.pushExcludedProjectTitles(titles) }
                 store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
             }
         #endif
