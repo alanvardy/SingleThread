@@ -315,6 +315,87 @@
             #expect(excludeStore.load() == ["A"])
         }
 
+        // MARK: - Show-date sync
+
+        @Test
+        func pushIncludesShowDate() throws {
+            let fake = FakeSession()
+            let showDateStore = ShowDatePreference(defaults: .standard, key: "test-sync-showdate-push")
+            showDateStore.set(false)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-sync-showdate-ids"),
+                showDateStore: showDateStore,
+                sendsShowDate: true)
+            service.push(["A"], showUndatedReminders: false)
+            let context = try #require(fake.lastContext)
+            #expect((context["showDate"] as? Bool) == false)
+            #expect(context["skippedReminderIdentifiers"] as? [String] == ["A"])
+        }
+
+        @Test
+        func pushShowDateSendsBothKeys() throws {
+            let fake = FakeSession()
+            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-sync-showdate-both")
+            skipStore.save(["X", "Y"])
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: skipStore,
+                showDateStore: ShowDatePreference(defaults: .standard, key: "test-sync-showdate-both-pref"),
+                sendsShowDate: true)
+            service.pushShowDate(false)
+            let context = try #require(fake.lastContext)
+            #expect((context["showDate"] as? Bool) == false)
+            #expect(context["skippedReminderIdentifiers"] as? [String] == ["X", "Y"])
+        }
+
+        @Test
+        func receiveContextWritesShowDate() {
+            let fake = FakeSession()
+            let showDateStore = ShowDatePreference(defaults: .standard, key: "test-sync-showdate-receive")
+            showDateStore.set(true)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-sync-showdate-receive-ids"),
+                showDateStore: showDateStore)
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: [
+                    "skippedReminderIdentifiers": ["A"],
+                    "showDate": false
+                ])
+            #expect(showDateStore.isEnabled == false)
+        }
+
+        @Test
+        func receiveContextMissingShowDateLeavesLocalUnchanged() {
+            let fake = FakeSession()
+            let showDateStore = ShowDatePreference(defaults: .standard, key: "test-sync-showdate-missing")
+            showDateStore.set(true)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-sync-showdate-missing-ids"),
+                showDateStore: showDateStore)
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: ["skippedReminderIdentifiers": ["A"]])
+            #expect(showDateStore.isEnabled) // unchanged
+        }
+
+        @Test
+        func sendsShowDateFalseOmitsKey() throws {
+            let fake = FakeSession()
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-sync-showdate-false"),
+                showDateStore: ShowDatePreference(defaults: .standard, key: "test-sync-showdate-false-pref"),
+                sendsShowDate: false)
+            service.push(["A"], showUndatedReminders: false)
+            let context = try #require(fake.lastContext)
+            #expect(context["showDate"] == nil)
+            #expect(context["skippedReminderIdentifiers"] as? [String] == ["A"])
+        }
+
         // MARK: Private
 
         /// An isolated sort store that never touches `AppGroup.defaults`.

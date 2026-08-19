@@ -51,6 +51,9 @@ struct WatchReminderView: View {
     @State private var isRefreshing = false
     @State private var isShowingRefreshConfirmation = false
 
+    @AppStorage("showDate")
+    private var showDate = true
+
     private let store: ReminderStore
 
     private var allSkipped: Bool {
@@ -152,7 +155,7 @@ struct WatchReminderView: View {
                 Text(reminder.title)
                     .font(.headline)
             }
-            if let due = reminder.dueDateComponents?.date {
+            if showDate, let due = reminder.dueDateComponents?.date {
                 Text(due, style: .date)
                     .font(.caption)
                     .foregroundStyle(.secondary)
