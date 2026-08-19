@@ -18,7 +18,8 @@ struct SettingsViewTests {
                 showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
                 availableProjects: ["Work", "Personal"],
-                sortOption: .constant(.priority))
+                sortOption: .constant(.priority),
+                showDate: .constant(true))
         #else
             let view = SettingsView(
                 appearanceMode: .constant(.system),
@@ -27,7 +28,8 @@ struct SettingsViewTests {
                 showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
                 availableProjects: ["Work", "Personal"],
-                sortOption: .constant(.priority))
+                sortOption: .constant(.priority),
+                showDate: .constant(true))
         #endif
 
         let bodyDescription = String(describing: view.body)
@@ -39,6 +41,7 @@ struct SettingsViewTests {
         #expect(bodyDescription.contains("Sort By"))
         #expect(bodyDescription.contains("Microphone"))
         #expect(bodyDescription.contains("Show Undated"))
+        #expect(bodyDescription.contains("Show Date"))
         #expect(bodyDescription.contains("Excluded Projects"))
         #expect(bodyDescription.contains("Done"))
         #if os(iOS)
