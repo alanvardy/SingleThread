@@ -62,7 +62,12 @@ struct ContentView: View {
             .padding(.trailing, 12)
         }
         .task {
+            store.showsUndatedReminders = showUndatedReminders
             await store.start()
+        }
+        .onChange(of: showUndatedReminders) { _, newValue in
+            store.showsUndatedReminders = newValue
+            Task { await store.reload() }
         }
         .preferredColorScheme(appearanceMode.colorScheme)
         .modifier(TextSizeModifier(textSize: textSize))
@@ -73,6 +78,7 @@ struct ContentView: View {
                     textSize: $textSize,
                     allowsLandscape: $allowsLandscape,
                     showMicrophoneButton: $showMicrophoneButton,
+                    showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
                     availableProjects: store.availableProjects)
             #else
@@ -80,6 +86,7 @@ struct ContentView: View {
                     appearanceMode: $appearanceMode,
                     textSize: $textSize,
                     showMicrophoneButton: $showMicrophoneButton,
+                    showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
                     availableProjects: store.availableProjects)
             #endif
@@ -131,6 +138,9 @@ struct ContentView: View {
 
     @AppStorage("showMicrophoneButton")
     private var showMicrophoneButton = true
+
+    @AppStorage("showUndatedReminders", store: AppGroup.defaults)
+    private var showUndatedReminders = false
 
     @State private var isDictating = false
     @State private var dictationText = ""

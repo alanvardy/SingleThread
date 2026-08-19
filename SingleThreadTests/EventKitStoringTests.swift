@@ -39,6 +39,8 @@ private final class FakeEventStore: EventKitStoring {
     private(set) var saved: [EKReminder] = []
     private(set) var lastSaveCommit = false
     private(set) var lastPredicate: NSPredicate?
+    private(set) var lastStartDate: Date?
+    private(set) var lastEndDate: Date?
     private(set) var fetchCallCount = 0
     private(set) var requestAccessCallCount = 0
     private(set) var refreshCallCount = 0
@@ -64,10 +66,12 @@ private final class FakeEventStore: EventKitStoring {
     }
 
     func predicateForIncompleteReminders(
-        withDueDateStarting _: Date?,
-        ending _: Date?,
+        withDueDateStarting startDate: Date?,
+        ending endDate: Date?,
         calendars _: [EKCalendar]?) -> NSPredicate {
-        NSPredicate(value: true)
+        lastStartDate = startDate
+        lastEndDate = endDate
+        return NSPredicate(value: true)
     }
 
     @discardableResult
@@ -277,6 +281,38 @@ struct ReminderStoreLifecycleTests {
         #expect(fake.requestAccessCallCount == 1)
         #expect(store.authorizationStatus == .restricted)
         #expect(fake.fetchCallCount == 0)
+    }
+
+    @Test
+    func reloadDefaultUsesWindowPredicate() async {
+        let fake = FakeEventStore(fetchResult: [makeReminder(title: "A")])
+        let store = testStore(eventStore: fake)
+
+        await store.reload()
+
+        #expect(fake.lastStartDate != nil)
+        #expect(fake.lastEndDate != nil)
+    }
+
+    @Test
+    func reloadWithShowsUndatedUsesNilPredicateAndFiltersWindow() async {
+        let undated = makeReminder(title: "Undated")
+        let inWindow = makeReminder(title: "Now")
+        inWindow.dueDateComponents = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second], from: Date())
+        let outOfWindow = makeReminder(title: "Future")
+        outOfWindow.dueDateComponents = Calendar.current.dateComponents(
+            [.year, .month, .day, .hour, .minute, .second],
+            from: Date().addingTimeInterval(40 * 86400))
+        let fake = FakeEventStore(fetchResult: [undated, inWindow, outOfWindow])
+        let store = testStore(eventStore: fake)
+        store.showsUndatedReminders = true
+
+        await store.reload()
+
+        #expect(fake.lastStartDate == nil)
+        #expect(fake.lastEndDate == nil)
+        #expect(store.reminders.map(\.title) == ["Undated", "Now"])
     }
 
     @Test

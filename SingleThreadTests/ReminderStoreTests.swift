@@ -287,6 +287,12 @@ struct ReminderStoreTests {
     // MARK: - start / reload guards
 
     @Test
+    func showsUndatedRemindersDefaultsToFalse() {
+        let store = ReminderStore(loadsReminders: false)
+        #expect(store.showsUndatedReminders == false)
+    }
+
+    @Test
     func startDoesNothingWhenLoadsRemindersFalse() async {
         let store = ReminderStore(loadsReminders: false)
         await store.start()

@@ -75,6 +75,32 @@ struct ReminderDateFilterTests {
         #expect(date(6, in: .august) < cutoff)
     }
 
+    @Test
+    func isInCurrentWindowIncludesNilDate() {
+        #expect(ReminderDateFilter.isInCurrentWindow(nil, calendar: calendar, now: now))
+    }
+
+    @Test
+    func isInCurrentWindowIncludesTodaysReminder() {
+        #expect(ReminderDateFilter.isInCurrentWindow(date(6), calendar: calendar, now: now))
+    }
+
+    @Test
+    func isInCurrentWindowIncludesOverdueCutoffBoundary() {
+        let cutoff = ReminderDateFilter.overdueCutoff(calendar: calendar, now: now)
+        #expect(ReminderDateFilter.isInCurrentWindow(cutoff, calendar: calendar, now: now))
+    }
+
+    @Test
+    func isInCurrentWindowExcludesTomorrow() {
+        #expect(!ReminderDateFilter.isInCurrentWindow(date(7), calendar: calendar, now: now))
+    }
+
+    @Test
+    func isInCurrentWindowExcludesOldOverdue() {
+        #expect(!ReminderDateFilter.isInCurrentWindow(date(6, in: .august), calendar: calendar, now: now))
+    }
+
     // MARK: Private
 
     private enum Month: Int {

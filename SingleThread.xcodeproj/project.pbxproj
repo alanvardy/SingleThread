@@ -10,8 +10,8 @@
 		518BF495302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		518BF496302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		518BF497302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
-		51AA3F29000000000000000A /* SingleThreadWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51AA3F200000000000000001 /* SingleThreadWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		518BF498302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
+		51AA3F29000000000000000A /* SingleThreadWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51AA3F200000000000000001 /* SingleThreadWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		51AA3F480000000000000000 /* SingleThreadWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 51AA3F410000000000000000 /* SingleThreadWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -79,6 +79,16 @@
 		51AA3F410000000000000000 /* SingleThreadWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SingleThreadWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		51AA3F4E0000000000000000 /* Exceptions for "SingleThreadWidget" folder in "SingleThreadWidget" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 51AA3F420000000000000000 /* SingleThreadWidget */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		51AA3ED8302D5C4500960DFC /* SingleThread */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
@@ -109,16 +119,6 @@
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		51AA3F4E0000000000000000 /* Exceptions for "SingleThreadWidget" folder in "SingleThreadWidget" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = 51AA3F420000000000000000 /* SingleThreadWidget */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		51AA3ED3302D5C4500960DFC /* Frameworks */ = {
@@ -589,9 +589,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = SingleThread/SingleThread.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = SingleThread/AppGroup.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = SingleThread/AppGroup.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = SingleThread/SingleThread.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -639,9 +639,9 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = SingleThread/SingleThread.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphoneos*]" = SingleThread/AppGroup.entitlements;
 				"CODE_SIGN_ENTITLEMENTS[sdk=iphonesimulator*]" = SingleThread/AppGroup.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = SingleThread/SingleThread.entitlements;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -851,7 +851,10 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "SingleThread needs access to show your reminders.";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
-				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.alanvardy.SingleThread.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -879,7 +882,10 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "SingleThread needs access to show your reminders.";
 				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
-				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks @executable_path/../../Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = app.alanvardy.SingleThread.widget;
 				PRODUCT_NAME = "$(TARGET_NAME)";

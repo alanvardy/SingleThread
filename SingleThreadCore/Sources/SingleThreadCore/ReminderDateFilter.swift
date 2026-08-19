@@ -48,4 +48,15 @@ nonisolated enum ReminderDateFilter {
         }
         return cutoff
     }
+
+    /// Returns `true` when a reminder is undated (`date == nil`) or its date falls
+    /// within the "today or overdue" window `[overdueCutoff, endOfToday]`.
+    static func isInCurrentWindow(
+        _ date: Date?,
+        calendar: Calendar = .current,
+        now: Date = Date()) -> Bool {
+        guard let date else { return true }
+        return overdueCutoff(calendar: calendar, now: now) <= date
+            && date <= endOfToday(calendar: calendar, now: now)
+    }
 }

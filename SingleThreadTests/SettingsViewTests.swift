@@ -14,6 +14,7 @@ struct SettingsViewTests {
                 textSize: .constant(.system),
                 allowsLandscape: .constant(true),
                 showMicrophoneButton: .constant(true),
+                showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
                 availableProjects: ["Work", "Personal"])
         #else
@@ -21,6 +22,7 @@ struct SettingsViewTests {
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
                 showMicrophoneButton: .constant(true),
+                showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
                 availableProjects: ["Work", "Personal"])
         #endif
@@ -32,6 +34,7 @@ struct SettingsViewTests {
         #expect(bodyDescription.contains("Appearance"))
         #expect(bodyDescription.contains("Text Size"))
         #expect(bodyDescription.contains("Microphone"))
+        #expect(bodyDescription.contains("Show Undated"))
         #expect(bodyDescription.contains("Excluded Projects"))
         #expect(bodyDescription.contains("Done"))
         #if os(iOS)
