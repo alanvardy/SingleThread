@@ -280,6 +280,47 @@ struct ReminderSortTests {
         #expect(titles(of: [beta, alpha]) == ["Alpha", "Beta"])
     }
 
+    @Test
+    func priorityOptionMatchesLegacyComparator() {
+        let lowPriority = makeReminder(title: "a", priority: 9, dateComponents: date(2))
+        let highPriority = makeReminder(title: "b", priority: 1)
+        let viaPriority = [lowPriority, highPriority].sorted {
+            ReminderSort.areInIncreasingOrder($0, $1, using: .priority)
+        }.map(\.title)
+        let viaLegacy = [lowPriority, highPriority].sorted { ReminderSort.areInIncreasingOrder($0, $1) }.map(\.title)
+        #expect(viaPriority == viaLegacy)
+    }
+
+    @Test
+    func dueDateSortsSoonestFirstIgnoringPriority() {
+        let lowSoon = makeReminder(title: "sooner", priority: 9, dateComponents: date(2))
+        let highLater = makeReminder(title: "later", priority: 1, dateComponents: date(10))
+        #expect(titles(of: [lowSoon, highLater], using: .dueDate) == ["sooner", "later"])
+    }
+
+    @Test
+    func dueDateSortsDatedBeforeUndated() {
+        let undated = makeReminder(title: "undated")
+        let dated = makeReminder(title: "dated", dateComponents: date(3))
+        #expect(titles(of: [undated, dated], using: .dueDate) == ["dated", "undated"])
+    }
+
+    @Test
+    func titleSortIsCaseInsensitiveAlphabetical() {
+        let zebra = makeReminder(title: "Zebra", priority: 1) // priority ignored
+        let apple = makeReminder(title: "apple", priority: 9)
+        #expect(titles(of: [zebra, apple], using: .title) == ["apple", "Zebra"])
+    }
+
+    @Test
+    func titleSortBreaksTiesByDueDate() {
+        let later = makeReminder(title: "Same", dateComponents: date(10))
+        let sooner = makeReminder(title: "Same", dateComponents: date(2))
+        let sorted = [later, sooner].sorted { ReminderSort.areInIncreasingOrder($0, $1, using: .title) }
+        #expect(sorted[0].dueDateComponents?.day == 2)
+        #expect(sorted[1].dueDateComponents?.day == 10)
+    }
+
     // MARK: Private
 
     private func makeReminder(
@@ -296,6 +337,10 @@ struct ReminderSortTests {
 
     private func titles(of reminders: [EKReminder]) -> [String] {
         reminders.sorted { ReminderSort.areInIncreasingOrder($0, $1) }.map(\.title)
+    }
+
+    private func titles(of reminders: [EKReminder], using option: SortOption) -> [String] {
+        reminders.sorted { ReminderSort.areInIncreasingOrder($0, $1, using: option) }.map(\.title)
     }
 
     private func date(_ day: Int) -> DateComponents {
