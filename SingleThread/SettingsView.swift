@@ -1,5 +1,8 @@
 import SingleThreadCore
 import SwiftUI
+#if os(iOS) || os(macOS)
+    import WidgetKit
+#endif
 
 // MARK: - ExcludedProjectsView
 
@@ -139,6 +142,11 @@ struct SettingsView: View {
                 Toggle(isOn: $showDate) {
                     Label("Show Date", systemImage: "calendar")
                 }
+                #if os(iOS) || os(macOS)
+                .onChange(of: showDate) { _, _ in
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
+                #endif
                 Section {
                     NavigationLink {
                         ExcludedProjectsView(
