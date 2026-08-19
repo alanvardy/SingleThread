@@ -108,6 +108,20 @@ struct ReminderStoreTests {
         #expect(store.visibleReminders.isEmpty)
     }
 
+    // MARK: - availableProjects
+
+    @Test
+    func availableProjectsDefaultsToEmpty() {
+        let store = ReminderStore(
+            loadsReminders: false,
+            reminders: [],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        #expect(store.availableProjects.isEmpty)
+    }
+
+    // MARK: - setExcludedProjectTitles
+
     @Test
     func setExcludedProjectTitlesPersistsAndFiresHooks() {
         let key = "test-excluded-\(UUID().uuidString)"

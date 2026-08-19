@@ -9,6 +9,8 @@ public protocol EventKitStoring: AnyObject {
     /// Instance-form authorization check wrapping the `EKEventStore` static.
     func authorizationStatus(for entityType: EKEntityType) -> EKAuthorizationStatus
 
+    func calendars(for entityType: EKEntityType) -> [EKCalendar]
+
     func requestFullAccessToReminders() async throws -> Bool
 
     func predicateForIncompleteReminders(
