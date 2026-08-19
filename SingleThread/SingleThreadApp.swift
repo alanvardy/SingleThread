@@ -19,9 +19,10 @@ struct SingleThreadApp: App {
 
         #if os(iOS)
             if WCSession.isSupported() {
+                let skipStore = SkippedReminderStore()
                 let service = SkippedReminderSyncService(
                     session: WCSession.default,
-                    skipStore: SkippedReminderStore())
+                    skipStore: skipStore)
                 // Assign the handler before activating: the service documents a
                 // write-once-before-activate invariant, and a completion message
                 // delivered right after activation must not observe a nil (or an
@@ -31,7 +32,12 @@ struct SingleThreadApp: App {
                     Task { await store?.completeReminder(identifier: identifier) }
                 }
                 service.activate()
-                store.onSkipSetChanged = { ids in service.pushSkipIDs(ids) }
+                store.onSkipSetChanged = { ids in
+                    service.push(ids, showUndatedReminders: store.showsUndatedReminders)
+                }
+                store.onShowUndatedRemindersChanged = { newValue in
+                    service.push(skipStore.load(), showUndatedReminders: newValue)
+                }
                 store.onExcludedProjectsChanged = { titles in service.pushExcludedProjectTitles(titles) }
                 store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
             }

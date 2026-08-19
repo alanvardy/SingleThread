@@ -69,11 +69,20 @@ public final class ReminderStore {
     /// to reload widget timelines.
     public var onRemindersChanged: (() -> Void)?
 
+    /// Hook invoked when `showsUndatedReminders` changes. Wired by the iPhone app
+    /// layer to push the combined sync context to the watch.
+    public var onShowUndatedRemindersChanged: ((Bool) -> Void)?
+
     /// When `true`, `reload()` fetches with a nil/nil date predicate and keeps
     /// undated reminders plus dated reminders still inside the current window.
     /// Each surface sets this before its own `reload()` (phone from the Settings
     /// toggle, widget and watch from synced state).
-    public var showsUndatedReminders = false
+    public var showsUndatedReminders = false {
+        didSet {
+            guard showsUndatedReminders != oldValue else { return }
+            onShowUndatedRemindersChanged?(showsUndatedReminders)
+        }
+    }
 
     public var visibleReminders: [EKReminder] {
         reminders
