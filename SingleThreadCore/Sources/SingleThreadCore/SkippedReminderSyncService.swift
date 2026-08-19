@@ -23,9 +23,13 @@ import os
     public final class SkippedReminderSyncService: NSObject, WCSessionDelegate {
         // MARK: Lifecycle
 
-        public init(session: any SkipSyncSession, skipStore: SkippedReminderStore) {
+        public init(
+            session: any SkipSyncSession,
+            skipStore: SkippedReminderStore,
+            excludeStore: ExcludedProjectStore = ExcludedProjectStore()) {
             self.session = session
             self.skipStore = skipStore
+            self.excludeStore = excludeStore
             super.init()
         }
 
@@ -62,6 +66,16 @@ import os
             }
         }
 
+        /// Push the full excluded-project title array to the counterpart.
+        public func pushExcludedProjectTitles(_ titles: [String]) {
+            do {
+                try session.updateApplicationContext([PayloadKey.excludedProjectTitles: titles])
+            } catch {
+                let description = error.localizedDescription
+                Self.logger.error("Failed to push excluded project titles: \(description, privacy: .public)")
+            }
+        }
+
         /// Ask the iPhone to complete a reminder (watch-side action).
         public func requestCompleteReminder(_ identifier: String) {
             session.sendMessage(
@@ -77,16 +91,19 @@ import os
         public func session(
             _: WCSession,
             didReceiveApplicationContext applicationContext: [String: Any]) {
-            guard
-                let receivedIDs = applicationContext[PayloadKey.skippedReminderIdentifiers] as? [String]
-            else {
-                return
-            }
             // Latest-wins: `updateApplicationContext` transmits the sender's full
-            // skip set, so the received array is authoritative. Replacing (rather
-            // than unioning) local IDs is what makes a "clear skips" update ([])
-            // propagate. ReminderStore.reload() prunes stale IDs on the next fetch.
-            skipStore.save(receivedIDs)
+            // set, so the received array is authoritative. Replacing (rather than
+            // unioning) local values makes a "clear" update ([]) propagate.
+            // ReminderStore.reload() prunes stale skip IDs on the next fetch.
+            // The two keys are independent — pushSkipIDs and
+            // pushExcludedProjectTitles each send a separate application context,
+            // so one key may be present without the other.
+            if let receivedIDs = applicationContext[PayloadKey.skippedReminderIdentifiers] as? [String] {
+                skipStore.save(receivedIDs)
+            }
+            if let receivedTitles = applicationContext[PayloadKey.excludedProjectTitles] as? [String] {
+                excludeStore.save(receivedTitles)
+            }
         }
 
         public func session(_: WCSession, didReceiveMessage message: [String: Any]) {
@@ -117,6 +134,7 @@ import os
         /// receiver so the two sides of the wire protocol cannot drift.
         private enum PayloadKey {
             static let skippedReminderIdentifiers = "skippedReminderIdentifiers"
+            static let excludedProjectTitles = "excludedProjectTitles"
             static let completeReminderIdentifier = "completeReminderIdentifier"
         }
 
@@ -124,5 +142,6 @@ import os
 
         private let session: any SkipSyncSession
         private let skipStore: SkippedReminderStore
+        private let excludeStore: ExcludedProjectStore
     }
 #endif
