@@ -16,6 +16,7 @@ struct NextThingEntry: TimelineEntry {
 
     let date: Date
     let state: State
+    let showsDate: Bool
 }
 
 // MARK: - Provider
@@ -26,14 +27,16 @@ struct NextThingProvider: TimelineProvider {
     func placeholder(in _: Context) -> NextThingEntry {
         NextThingEntry(
             date: Date(),
-            state: .reminder(ReminderDisplay(title: "Next thing")))
+            state: .reminder(ReminderDisplay(title: "Next thing")),
+            showsDate: true)
     }
 
     func getSnapshot(in _: Context, completion: @escaping @Sendable (NextThingEntry) -> Void) {
         completion(
             NextThingEntry(
                 date: Date(),
-                state: .reminder(ReminderDisplay(title: "Buy groceries"))))
+                state: .reminder(ReminderDisplay(title: "Buy groceries")),
+                showsDate: true))
     }
 
     func getTimeline(in _: Context, completion: @escaping @Sendable (Timeline<NextThingEntry>) -> Void) {
@@ -49,6 +52,7 @@ struct NextThingProvider: TimelineProvider {
     @MainActor
     private static func makeEntry() async -> NextThingEntry {
         let date = Date()
+        let showsDate = ShowDatePreference().isEnabled
         switch EKEventStore.authorizationStatus(for: .reminder) {
         case .fullAccess:
             let store = ReminderStore(loadsReminders: true)
@@ -56,16 +60,17 @@ struct NextThingProvider: TimelineProvider {
             store.setSortOption(SortOptionStore().load())
             await store.reload()
             if store.reminders.isEmpty {
-                return NextThingEntry(date: date, state: .empty)
+                return NextThingEntry(date: date, state: .empty, showsDate: showsDate)
             }
             guard let current = store.visibleReminders.first else {
-                return NextThingEntry(date: date, state: .allDone)
+                return NextThingEntry(date: date, state: .allDone, showsDate: showsDate)
             }
             return NextThingEntry(
                 date: date,
-                state: .reminder(ReminderDisplay(reminder: current)))
+                state: .reminder(ReminderDisplay(reminder: current)),
+                showsDate: showsDate)
         default:
-            return NextThingEntry(date: date, state: .noAccess)
+            return NextThingEntry(date: date, state: .noAccess, showsDate: showsDate)
         }
     }
 }
@@ -168,7 +173,7 @@ struct NextThingWidgetView: View {
                     .font(.headline)
                     .lineLimit(2)
             }
-            if let dueDate = display.dueDate {
+            if entry.showsDate, let dueDate = display.dueDate {
                 Text(dueDate, style: .date)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -196,17 +201,18 @@ struct NextThingWidgetView: View {
             title: "Buy groceries",
             notes: "Don't forget the milk",
             dueDate: Date(),
-            priorityMarker: "!!")))
+            priorityMarker: "!!")),
+        showsDate: true)
 }
 
 #Preview("No Access", as: .systemMedium) {
     NextThingWidget()
 } timeline: {
-    NextThingEntry(date: Date(), state: .noAccess)
+    NextThingEntry(date: Date(), state: .noAccess, showsDate: true)
 }
 
 #Preview("All Done", as: .systemSmall) {
     NextThingWidget()
 } timeline: {
-    NextThingEntry(date: Date(), state: .allDone)
+    NextThingEntry(date: Date(), state: .allDone, showsDate: true)
 }
