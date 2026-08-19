@@ -668,6 +668,6 @@ preserve the skip-store behavior for empty/malformed payloads.
   as the phone via the App Group.
 - **After Phase 3**: full suite green; watch mirrors the phone toggle; skip sync and
   toggle sync share one coherent latest-wins context.
-- **Final gate**: [ ] `./scripts/test.sh` passes (format, lint, iOS build, watch build,
+- **Final gate**: [x] `./scripts/test.sh` passes (format, lint, iOS build, watch build,
   Periphery, unit tests, UI tests + accessibility audit, macOS build + unit tests) —
   identical to CI.
