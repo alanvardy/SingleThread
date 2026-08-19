@@ -46,28 +46,75 @@
         // MARK: - Skip-set push
 
         @Test
-        func pushSkipIDsUpdatesApplicationContext() throws {
+        func pushUpdatesApplicationContext() throws {
             let fake = FakeSession()
             let store = SkippedReminderStore(defaults: .standard, key: "test-sync-push")
             let service = SkippedReminderSyncService(session: fake, skipStore: store)
-            service.pushSkipIDs(["A", "B", "C"])
+            service.push(["A", "B", "C"], showUndatedReminders: false)
             let context = try #require(fake.lastContext)
             let ids = try #require(context["skippedReminderIdentifiers"] as? [String])
             #expect(Set(ids) == ["A", "B", "C"])
         }
 
         @Test
-        func pushSkipIDsHandlesError() {
+        func pushHandlesError() {
             let fake = FakeSession()
             fake.pushShouldThrow = true
             let store = SkippedReminderStore(defaults: .standard, key: "test-sync-push-error")
             let service = SkippedReminderSyncService(session: fake, skipStore: store)
             // Should not crash/throw — error is logged internally
-            service.pushSkipIDs(["A"])
+            service.push(["A"], showUndatedReminders: false)
             #expect(Bool(true)) // reached without crashing
         }
 
+        @Test
+        func pushCarriesCombinedContext() throws {
+            let fake = FakeSession()
+            let store = SkippedReminderStore(defaults: .standard, key: "test-sync-combined")
+            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            service.push(["A"], showUndatedReminders: true)
+            let context = try #require(fake.lastContext)
+            let flag = try #require(context["showUndatedReminders"] as? Bool)
+            #expect(flag)
+        }
+
         // MARK: - Skip-set receive
+
+        @Test
+        func receiveContextFiresToggleHookAndKeepsSkipIDs() {
+            let fake = FakeSession()
+            let key = "test-sync-toggle-\(UUID().uuidString)"
+            let store = SkippedReminderStore(defaults: .standard, key: key)
+            store.save(["A"])
+            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            var received: [Bool] = []
+            service.onShowUndatedRemindersReceived = { received.append($0) }
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: [
+                    "skippedReminderIdentifiers": ["B"],
+                    "showUndatedReminders": true
+                ])
+            #expect(received == [true])
+            #expect(Set(store.load()) == ["B"])
+        }
+
+        @Test
+        func receiveContextFalsePropagates() {
+            let fake = FakeSession()
+            let store = SkippedReminderStore(defaults: .standard, key: "test-sync-toggle-false")
+            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            var received: [Bool] = []
+            service.onShowUndatedRemindersReceived = { received.append($0) }
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: [
+                    "skippedReminderIdentifiers": [String](),
+                    "showUndatedReminders": false
+                ])
+            #expect(received == [false])
+            #expect(store.load().isEmpty)
+        }
 
         @Test
         func receiveContextReplacesLocalIDs() {

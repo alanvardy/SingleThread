@@ -49,6 +49,12 @@ import os
         /// delete the `nonisolated(unsafe)` annotation.
         public nonisolated(unsafe) var onCompleteReminderReceived: ((String) -> Void)?
 
+        /// Hook invoked on the watch when the iPhone's "show undated reminders"
+        /// preference arrives in a combined application context. Passes the new value.
+        /// Same write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onCompleteReminderReceived`.
+        public nonisolated(unsafe) var onShowUndatedRemindersReceived: ((Bool) -> Void)?
+
         public func activate() {
             if let wcSession = session as? WCSession {
                 wcSession.delegate = self
@@ -56,13 +62,17 @@ import os
             session.activate()
         }
 
-        /// Push the full skip array to the counterpart.
-        public func pushSkipIDs(_ ids: [String]) {
+        /// Push the full skip array plus the "show undated reminders" flag to the
+        /// counterpart as one latest-wins application context.
+        public func push(_ skipIDs: [String], showUndatedReminders: Bool) {
             do {
-                try session.updateApplicationContext([PayloadKey.skippedReminderIdentifiers: ids])
+                try session.updateApplicationContext([
+                    PayloadKey.skippedReminderIdentifiers: skipIDs,
+                    PayloadKey.showUndatedReminders: showUndatedReminders
+                ])
             } catch {
                 let description = error.localizedDescription
-                Self.logger.error("Failed to push skip IDs: \(description, privacy: .public)")
+                Self.logger.error("Failed to push sync context: \(description, privacy: .public)")
             }
         }
 
@@ -92,17 +102,20 @@ import os
             _: WCSession,
             didReceiveApplicationContext applicationContext: [String: Any]) {
             // Latest-wins: `updateApplicationContext` transmits the sender's full
-            // set, so the received array is authoritative. Replacing (rather than
+            // set, so the received value is authoritative. Replacing (rather than
             // unioning) local values makes a "clear" update ([]) propagate.
             // ReminderStore.reload() prunes stale skip IDs on the next fetch.
-            // The two keys are independent — pushSkipIDs and
-            // pushExcludedProjectTitles each send a separate application context,
-            // so one key may be present without the other.
+            // The three keys are independent — the skip IDs + toggle travel in one
+            // combined context, while excluded-project titles use a separate one —
+            // so any key may be present without the others.
             if let receivedIDs = applicationContext[PayloadKey.skippedReminderIdentifiers] as? [String] {
                 skipStore.save(receivedIDs)
             }
             if let receivedTitles = applicationContext[PayloadKey.excludedProjectTitles] as? [String] {
                 excludeStore.save(receivedTitles)
+            }
+            if let received = applicationContext[PayloadKey.showUndatedReminders] as? Bool {
+                onShowUndatedRemindersReceived?(received)
             }
         }
 
@@ -136,6 +149,7 @@ import os
             static let skippedReminderIdentifiers = "skippedReminderIdentifiers"
             static let excludedProjectTitles = "excludedProjectTitles"
             static let completeReminderIdentifier = "completeReminderIdentifier"
+            static let showUndatedReminders = "showUndatedReminders"
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")

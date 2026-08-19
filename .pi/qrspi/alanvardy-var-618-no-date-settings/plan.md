@@ -644,9 +644,9 @@ preserve the skip-store behavior for empty/malformed payloads.
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes (extended
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes (extended
   `SkippedReminderSyncServiceTests` included).
-- [ ] `make watch-build` passes (compiles the watch app + its combined-push wiring).
+- [x] `make watch-build` passes (compiles the watch app + its combined-push wiring).
 
 #### Manual
 - [ ] Toggle ON on the phone → the undated reminder appears on the watch within a few
