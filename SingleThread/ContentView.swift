@@ -24,12 +24,14 @@ struct ContentView: View {
         reminders: [EKReminder],
         skippedIDs: Set<String>,
         authorizationStatus: EKAuthorizationStatus,
+        excludedProjectTitles: Set<String> = [],
         speechTranscriber: (any SpeechTranscribing)? = nil) {
         store = ReminderStore(
             loadsReminders: loadsReminders,
             reminders: reminders,
             skippedIDs: skippedIDs,
-            authorizationStatus: authorizationStatus)
+            authorizationStatus: authorizationStatus,
+            excludedProjectTitles: excludedProjectTitles)
         self.speechTranscriber = speechTranscriber ?? ReminderDictation()
     }
 
@@ -70,12 +72,16 @@ struct ContentView: View {
                     appearanceMode: $appearanceMode,
                     textSize: $textSize,
                     allowsLandscape: $allowsLandscape,
-                    showMicrophoneButton: $showMicrophoneButton)
+                    showMicrophoneButton: $showMicrophoneButton,
+                    excludedProjects: excludedProjectsBinding,
+                    availableProjects: store.availableProjects)
             #else
                 SettingsView(
                     appearanceMode: $appearanceMode,
                     textSize: $textSize,
-                    showMicrophoneButton: $showMicrophoneButton)
+                    showMicrophoneButton: $showMicrophoneButton,
+                    excludedProjects: excludedProjectsBinding,
+                    availableProjects: store.availableProjects)
             #endif
         }
     }
@@ -137,6 +143,12 @@ struct ContentView: View {
 
     private let store: ReminderStore
     private let speechTranscriber: any SpeechTranscribing
+
+    private var excludedProjectsBinding: Binding<Set<String>> {
+        Binding(
+            get: { store.excludedProjectTitles },
+            set: { store.setExcludedProjectTitles($0) })
+    }
 
     private var allSkipped: Bool {
         !store.reminders.isEmpty && store.visibleReminders.isEmpty
@@ -447,6 +459,16 @@ private let mockReminder: EKReminder = {
     return reminder
 }()
 
+private let mockReminderInProject: EKReminder = {
+    let eventStore = EKEventStore()
+    let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
+    calendar.title = "Groceries"
+    let reminder = EKReminder(eventStore: eventStore)
+    reminder.title = "Buy milk"
+    reminder.calendar = calendar
+    return reminder
+}()
+
 // MARK: - Previews
 
 #Preview("Empty") {
@@ -467,6 +489,15 @@ private let mockReminder: EKReminder = {
         reminders: [mockReminder],
         skippedIDs: [mockReminder.calendarItemIdentifier],
         authorizationStatus: .fullAccess)
+}
+
+#Preview("All Excluded") {
+    ContentView(
+        loadsReminders: false,
+        reminders: [mockReminderInProject],
+        skippedIDs: [],
+        authorizationStatus: .fullAccess,
+        excludedProjectTitles: ["Groceries"])
 }
 
 #Preview("No Access") {

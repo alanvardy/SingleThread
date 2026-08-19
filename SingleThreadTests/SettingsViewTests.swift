@@ -13,12 +13,16 @@ struct SettingsViewTests {
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
                 allowsLandscape: .constant(true),
-                showMicrophoneButton: .constant(true))
+                showMicrophoneButton: .constant(true),
+                excludedProjects: .constant([]),
+                availableProjects: ["Work", "Personal"])
         #else
             let view = SettingsView(
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
-                showMicrophoneButton: .constant(true))
+                showMicrophoneButton: .constant(true),
+                excludedProjects: .constant([]),
+                availableProjects: ["Work", "Personal"])
         #endif
 
         let bodyDescription = String(describing: view.body)
@@ -28,6 +32,7 @@ struct SettingsViewTests {
         #expect(bodyDescription.contains("Appearance"))
         #expect(bodyDescription.contains("Text Size"))
         #expect(bodyDescription.contains("Microphone"))
+        #expect(bodyDescription.contains("Excluded Projects"))
         #expect(bodyDescription.contains("Done"))
         #if os(iOS)
             #expect(bodyDescription.contains("Landscape"))

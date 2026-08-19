@@ -12,20 +12,28 @@ struct SettingsView: View {
             appearanceMode: Binding<AppearanceMode>,
             textSize: Binding<TextSize>,
             allowsLandscape: Binding<Bool>,
-            showMicrophoneButton: Binding<Bool>) {
+            showMicrophoneButton: Binding<Bool>,
+            excludedProjects: Binding<Set<String>>,
+            availableProjects: [String]) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _allowsLandscape = allowsLandscape
             _showMicrophoneButton = showMicrophoneButton
+            _excludedProjects = excludedProjects
+            self.availableProjects = availableProjects
         }
     #else
         init(
             appearanceMode: Binding<AppearanceMode>,
             textSize: Binding<TextSize>,
-            showMicrophoneButton: Binding<Bool>) {
+            showMicrophoneButton: Binding<Bool>,
+            excludedProjects: Binding<Set<String>>,
+            availableProjects: [String]) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _showMicrophoneButton = showMicrophoneButton
+            _excludedProjects = excludedProjects
+            self.availableProjects = availableProjects
         }
     #endif
 
@@ -57,6 +65,13 @@ struct SettingsView: View {
                 Toggle(isOn: $showMicrophoneButton) {
                     Label("Show Microphone", systemImage: "microphone")
                 }
+                Section("Excluded Projects") {
+                    ForEach(availableProjects, id: \.self) { project in
+                        Toggle(isOn: excludedBinding(for: project)) {
+                            Text(project)
+                        }
+                    }
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -78,8 +93,23 @@ struct SettingsView: View {
         @Binding private var allowsLandscape: Bool
     #endif
     @Binding private var showMicrophoneButton: Bool
+    @Binding private var excludedProjects: Set<String>
     @Environment(\.dismiss)
     private var dismiss
+
+    private let availableProjects: [String]
+
+    private func excludedBinding(for project: String) -> Binding<Bool> {
+        Binding(
+            get: { excludedProjects.contains(project) },
+            set: { isExcluded in
+                if isExcluded {
+                    excludedProjects.insert(project)
+                } else {
+                    excludedProjects.remove(project)
+                }
+            })
+    }
 }
 
 // MARK: - Previews
@@ -90,7 +120,9 @@ struct SettingsView: View {
             appearanceMode: .constant(.system),
             textSize: .constant(.system),
             allowsLandscape: .constant(true),
-            showMicrophoneButton: .constant(true))
+            showMicrophoneButton: .constant(true),
+            excludedProjects: .constant([]),
+            availableProjects: ["Work", "Personal"])
     }
 
     #Preview("Dark + Extra Large") {
@@ -98,13 +130,17 @@ struct SettingsView: View {
             appearanceMode: .constant(.dark),
             textSize: .constant(.extraLarge),
             allowsLandscape: .constant(false),
-            showMicrophoneButton: .constant(false))
+            showMicrophoneButton: .constant(false),
+            excludedProjects: .constant([]),
+            availableProjects: ["Work", "Personal"])
     }
 #else
     #Preview("Default") {
         SettingsView(
             appearanceMode: .constant(.system),
             textSize: .constant(.system),
-            showMicrophoneButton: .constant(true))
+            showMicrophoneButton: .constant(true),
+            excludedProjects: .constant([]),
+            availableProjects: ["Work", "Personal"])
     }
 #endif
