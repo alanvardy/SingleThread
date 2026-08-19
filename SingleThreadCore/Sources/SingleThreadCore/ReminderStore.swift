@@ -13,9 +13,11 @@ public final class ReminderStore {
     public init(
         eventStore: any EventKitStoring = EKEventStore(),
         skipStore: SkippedReminderStore = SkippedReminderStore(),
+        excludeStore: ExcludedProjectStore = ExcludedProjectStore(),
         loadsReminders: Bool = true) {
         self.eventStore = eventStore
         self.skipStore = skipStore
+        self.excludeStore = excludeStore
         self.loadsReminders = loadsReminders
     }
 
@@ -24,13 +26,16 @@ public final class ReminderStore {
         loadsReminders: Bool,
         reminders: [EKReminder],
         skippedIDs: Set<String>,
-        authorizationStatus: EKAuthorizationStatus) {
+        authorizationStatus: EKAuthorizationStatus,
+        excludedProjectTitles: Set<String> = []) {
         self.loadsReminders = loadsReminders
         self.reminders = reminders
         self.skippedIDs = skippedIDs
+        self.excludedProjectTitles = excludedProjectTitles
         self.authorizationStatus = authorizationStatus
         eventStore = EKEventStore()
         skipStore = SkippedReminderStore()
+        excludeStore = ExcludedProjectStore()
     }
 
     // MARK: Public
@@ -39,12 +44,18 @@ public final class ReminderStore {
 
     public private(set) var reminders: [EKReminder] = []
     public private(set) var skippedIDs: Set<String> = []
+    public private(set) var excludedProjectTitles: Set<String> = []
     public private(set) var authorizationStatus: EKAuthorizationStatus = .notDetermined
     public let loadsReminders: Bool
 
     /// Hook invoked after every skip/clear mutation — passes the full skip ID array.
     /// Wired by each app layer to push skip-set changes via WatchConnectivity (Phase 4).
     public var onSkipSetChanged: (([String]) -> Void)?
+
+    /// Hook invoked after any excluded-project mutation — passes the full excluded
+    /// title array. Wired by each app layer to push exclusion changes via
+    /// WatchConnectivity.
+    public var onExcludedProjectsChanged: (([String]) -> Void)?
 
     /// Hook invoked when the user completes a reminder on watchOS, where EventKit
     /// writes are unavailable. Passes the completed reminder's identifier. Wired by
@@ -59,6 +70,7 @@ public final class ReminderStore {
     public var visibleReminders: [EKReminder] {
         reminders
             .filter { !skippedIDs.contains($0.calendarItemIdentifier) }
+            .filter { !excludedProjectTitles.contains($0.calendar?.title ?? "") }
             .sorted { ReminderSort.areInIncreasingOrder($0, $1) }
     }
 
@@ -176,7 +188,18 @@ public final class ReminderStore {
                 fetched: fetched.map(\.calendarItemIdentifier),
                 skipped: skipStore.load())
             skippedIDs = Set(resolved)
+            excludedProjectTitles = Set(excludeStore.load())
         }
+        onRemindersChanged?()
+    }
+
+    /// Replaces the excluded-project title set, persisting immediately and firing
+    /// both `onExcludedProjectsChanged` and `onRemindersChanged`.
+    public func setExcludedProjectTitles(_ titles: Set<String>) {
+        excludedProjectTitles = titles
+        let array = Array(titles)
+        excludeStore.save(array)
+        onExcludedProjectsChanged?(array)
         onRemindersChanged?()
     }
 
@@ -208,6 +231,7 @@ public final class ReminderStore {
 
     private let eventStore: any EventKitStoring
     private let skipStore: SkippedReminderStore
+    private let excludeStore: ExcludedProjectStore
 
     /// Computes the skip list that results from skipping `identifier`, pruning
     /// stale IDs against the currently-fetched reminders.

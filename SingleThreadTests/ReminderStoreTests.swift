@@ -71,6 +71,61 @@ struct ReminderStoreTests {
         #expect(titles == ["dated", "undated"])
     }
 
+    @Test
+    func visibleRemindersFiltersOutExcludedProjectTitles() {
+        let excluded = makeReminder(title: "A", calendarTitle: "Work")
+        let kept = makeReminder(title: "B", calendarTitle: "Personal")
+        let store = ReminderStore(
+            loadsReminders: false,
+            reminders: [excluded, kept],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            excludedProjectTitles: ["Work"])
+        #expect(store.visibleReminders.map(\.title) == ["B"])
+    }
+
+    @Test
+    func visibleRemindersKeepsNilCalendarReminders() {
+        let noCalendar = makeReminder(title: "A") // calendar == nil
+        let store = ReminderStore(
+            loadsReminders: false,
+            reminders: [noCalendar],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            excludedProjectTitles: ["Work"])
+        #expect(store.visibleReminders.count == 1)
+    }
+
+    @Test
+    func visibleRemindersEmptyWhenAllProjectsExcluded() {
+        let inProject = makeReminder(title: "A", calendarTitle: "Work")
+        let store = ReminderStore(
+            loadsReminders: false,
+            reminders: [inProject],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            excludedProjectTitles: ["Work"])
+        #expect(store.visibleReminders.isEmpty)
+    }
+
+    @Test
+    func setExcludedProjectTitlesPersistsAndFiresHooks() {
+        let key = "test-excluded-\(UUID().uuidString)"
+        let excludeStore = ExcludedProjectStore(defaults: .standard, key: key)
+        let store = ReminderStore(excludeStore: excludeStore, loadsReminders: false)
+        var changedTitles: [String]?
+        var remindersChanged = false
+        store.onExcludedProjectsChanged = { changedTitles = $0 }
+        store.onRemindersChanged = { remindersChanged = true }
+
+        store.setExcludedProjectTitles(["Work", "Personal"])
+
+        #expect(store.excludedProjectTitles == ["Work", "Personal"])
+        #expect(Set(excludeStore.load()) == ["Work", "Personal"])
+        #expect(Set(changedTitles ?? []) == ["Work", "Personal"])
+        #expect(remindersChanged)
+    }
+
     // MARK: - addReminder
 
     @Test
@@ -322,5 +377,14 @@ private func makeReminder(title: String, priority: Int = 0, dateComponents: Date
     reminder.title = title
     reminder.priority = priority
     reminder.dueDateComponents = dateComponents
+    return reminder
+}
+
+private func makeReminder(title: String, calendarTitle: String) -> EKReminder {
+    let reminder = EKReminder(eventStore: EKEventStore())
+    reminder.title = title
+    let calendar = EKCalendar(for: .reminder, eventStore: EKEventStore())
+    calendar.title = calendarTitle
+    reminder.calendar = calendar
     return reminder
 }
