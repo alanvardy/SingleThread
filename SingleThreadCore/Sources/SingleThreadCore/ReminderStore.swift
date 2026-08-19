@@ -45,6 +45,8 @@ public final class ReminderStore {
     public private(set) var reminders: [EKReminder] = []
     public private(set) var skippedIDs: Set<String> = []
     public private(set) var excludedProjectTitles: Set<String> = []
+    /// All reminder-list titles (sorted, deduplicated) the settings UI presents.
+    public private(set) var availableProjects: [String] = []
     public private(set) var authorizationStatus: EKAuthorizationStatus = .notDetermined
     public let loadsReminders: Bool
 
@@ -179,6 +181,11 @@ public final class ReminderStore {
             calendars: nil)
         let fetched: [EKReminder] = await fetchReminders(matching: predicate)
         reminders = fetched
+        availableProjects = Set(
+            eventStore.calendars(for: .reminder)
+                .map(\.title)
+                .filter { !$0.isEmpty })
+            .sorted()
         if clearSkipped {
             skippedIDs = []
             skipStore.save([])

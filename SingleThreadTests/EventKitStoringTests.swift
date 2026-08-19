@@ -32,6 +32,7 @@ private final class FakeEventStore: EventKitStoring {
     var fetchResult: [EKReminder]
     var defaultCalendar: EKCalendar?
     var saveShouldThrow = false
+    var returnedCalendars: [EKCalendar] = []
 
     // MARK: Recording
 
@@ -41,11 +42,17 @@ private final class FakeEventStore: EventKitStoring {
     private(set) var fetchCallCount = 0
     private(set) var requestAccessCallCount = 0
     private(set) var refreshCallCount = 0
+    private(set) var calendarFetchCallCount = 0
 
     // MARK: EventKitStoring
 
     func authorizationStatus(for _: EKEntityType) -> EKAuthorizationStatus {
         authStatus
+    }
+
+    func calendars(for _: EKEntityType) -> [EKCalendar] {
+        calendarFetchCallCount += 1
+        return returnedCalendars
     }
 
     func requestFullAccessToReminders() async throws -> Bool {
@@ -294,12 +301,53 @@ struct ReminderStoreLifecycleTests {
     }
 }
 
+// MARK: - Available projects tests
+
+@MainActor
+@Suite(.serialized)
+struct ReminderStoreAvailableProjectsTests {
+    @Test
+    func availableProjectsSortedAndDeduplicatedAfterReload() async {
+        let fake = FakeEventStore()
+        fake.returnedCalendars = [
+            makeCalendar(title: "Work"),
+            makeCalendar(title: "Personal"),
+            makeCalendar(title: "work"),
+            makeCalendar(title: "Work"),
+            makeCalendar(title: "")
+        ]
+        let store = testStore(eventStore: fake)
+
+        await store.reload()
+
+        #expect(store.availableProjects == ["Personal", "Work", "work"])
+        #expect(fake.calendarFetchCallCount == 1)
+    }
+
+    @Test
+    func availableProjectsEmptyWhenNoCalendars() async {
+        let fake = FakeEventStore()
+        let store = testStore(eventStore: fake)
+
+        await store.reload()
+
+        #expect(store.availableProjects.isEmpty)
+        #expect(fake.calendarFetchCallCount == 1)
+    }
+}
+
 // MARK: - Fixtures
 
 private func makeReminder(title: String) -> EKReminder {
     let reminder = EKReminder(eventStore: EKEventStore())
     reminder.title = title
     return reminder
+}
+
+private func makeCalendar(title: String) -> EKCalendar {
+    let calendar = EKCalendar(for: .reminder, eventStore: EKEventStore())
+    calendar.title = title
+    return calendar
 }
 
 @MainActor
