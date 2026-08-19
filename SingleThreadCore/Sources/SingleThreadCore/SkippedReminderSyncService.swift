@@ -27,11 +27,15 @@ import os
             session: any SkipSyncSession,
             skipStore: SkippedReminderStore,
             excludeStore: ExcludedProjectStore = ExcludedProjectStore(),
-            sortStore: SortOptionStore = SortOptionStore()) {
+            sortStore: SortOptionStore = SortOptionStore(),
+            showDateStore: ShowDatePreference = ShowDatePreference(),
+            sendsShowDate: Bool = true) {
             self.session = session
             self.skipStore = skipStore
             self.excludeStore = excludeStore
             self.sortStore = sortStore
+            self.showDateStore = showDateStore
+            self.sendsShowDate = sendsShowDate
             super.init()
         }
 
@@ -73,11 +77,15 @@ import os
         /// counterpart as one latest-wins application context.
         public func push(_ skipIDs: [String], showUndatedReminders: Bool) {
             do {
-                try session.updateApplicationContext([
+                var context: [String: Any] = [
                     PayloadKey.skippedReminderIdentifiers: skipIDs,
                     PayloadKey.showUndatedReminders: showUndatedReminders,
                     PayloadKey.sortOption: sortStore.load().rawValue
-                ])
+                ]
+                if sendsShowDate {
+                    context[PayloadKey.showDate] = showDateStore.isEnabled
+                }
+                try session.updateApplicationContext(context)
             } catch {
                 let description = error.localizedDescription
                 Self.logger.error("Failed to push sync context: \(description, privacy: .public)")
@@ -109,6 +117,21 @@ import os
             }
         }
 
+        /// Push the current skip set **and** the show-date preference in one
+        /// context. `updateApplicationContext` replaces the whole context, so
+        /// both keys must travel together or one clobbers the other.
+        public func pushShowDate(_ enabled: Bool) {
+            do {
+                try session.updateApplicationContext([
+                    PayloadKey.skippedReminderIdentifiers: skipStore.load(),
+                    PayloadKey.showDate: enabled
+                ])
+            } catch {
+                let description = error.localizedDescription
+                Self.logger.error("Failed to push show-date preference: \(description, privacy: .public)")
+            }
+        }
+
         /// Ask the iPhone to complete a reminder (watch-side action).
         public func requestCompleteReminder(_ identifier: String) {
             session.sendMessage(
@@ -128,9 +151,10 @@ import os
             // set, so the received values are authoritative. Replacing (rather
             // than unioning) local values makes a "clear" update ([]) propagate.
             // ReminderStore.reload() prunes stale skip IDs on the next fetch.
-            // The keys are independent — the skip IDs + show-undated + sort travel
-            // in one combined context, while excluded-project titles use a separate
-            // one — so any key may be present without the others.
+            // The keys are independent — the skip IDs + show-undated + sort +
+            // show-date travel in one combined context, while excluded-project
+            // titles use a separate one — so any key may be present without the
+            // others.
             if let receivedIDs = applicationContext[PayloadKey.skippedReminderIdentifiers] as? [String] {
                 skipStore.save(receivedIDs)
             }
@@ -145,6 +169,11 @@ import os
                 sortStore.save(option)
                 let handler = onSortOptionReceived
                 handler?(option)
+            }
+            // Absent key → no-op, so a push that omits show-date never clobbers
+            // the receiver's preference.
+            if let showDate = applicationContext[PayloadKey.showDate] as? Bool {
+                showDateStore.set(showDate)
             }
         }
 
@@ -180,6 +209,7 @@ import os
             static let completeReminderIdentifier = "completeReminderIdentifier"
             static let showUndatedReminders = "showUndatedReminders"
             static let sortOption = "sortOption"
+            static let showDate = "showDate"
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")
@@ -188,5 +218,7 @@ import os
         private let skipStore: SkippedReminderStore
         private let excludeStore: ExcludedProjectStore
         private let sortStore: SortOptionStore
+        private let showDateStore: ShowDatePreference
+        private let sendsShowDate: Bool
     }
 #endif

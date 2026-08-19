@@ -17,7 +17,9 @@ struct SingleThreadWatchApp: App {
         if WCSession.isSupported() {
             let service = SkippedReminderSyncService(
                 session: WCSession.default,
-                skipStore: SkippedReminderStore())
+                skipStore: SkippedReminderStore(),
+                showDateStore: ShowDatePreference(defaults: .standard),
+                sendsShowDate: false)
             service.onShowUndatedRemindersReceived = { [weak store] value in
                 Task {
                     store?.showsUndatedReminders = value

@@ -23,7 +23,9 @@ struct SingleThreadApp: App {
                 let skipStore = SkippedReminderStore()
                 let service = SkippedReminderSyncService(
                     session: WCSession.default,
-                    skipStore: skipStore)
+                    skipStore: skipStore,
+                    showDateStore: ShowDatePreference(),
+                    sendsShowDate: true)
                 // Assign the handler before activating: the service documents a
                 // write-once-before-activate invariant, and a completion message
                 // delivered right after activation must not observe a nil (or an
@@ -33,6 +35,7 @@ struct SingleThreadApp: App {
                     Task { await store?.completeReminder(identifier: identifier) }
                 }
                 service.activate()
+                syncService = service
                 store.onSkipSetChanged = { ids in
                     service.push(ids, showUndatedReminders: store.showsUndatedReminders)
                 }
@@ -56,6 +59,11 @@ struct SingleThreadApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView(store: store)
+            #if os(iOS)
+                .onChange(of: showDate) { _, newValue in
+                    syncService?.pushShowDate(newValue)
+                }
+            #endif
         }
     }
 
@@ -64,7 +72,12 @@ struct SingleThreadApp: App {
     #if os(iOS)
         @UIApplicationDelegateAdaptor(AppDelegate.self)
         private var appDelegate
+
+        private var syncService: SkippedReminderSyncService?
     #endif
+
+    @AppStorage("showDate", store: AppGroup.defaults)
+    private var showDate = true
 
     private let store: ReminderStore
 }
