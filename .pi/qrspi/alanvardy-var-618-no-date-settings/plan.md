@@ -382,9 +382,9 @@ already hides the line when `dueDate == nil`.
 ### Verification
 
 #### Automated
-- [ ] `make build` passes (builds the `SingleThread` scheme, which builds the
+- [x] `make build` passes (builds the `SingleThread` scheme, which builds the
   embedded widget extension target).
-- [ ] `make lint` passes.
+- [x] `make lint` passes.
 
 #### Manual
 - [ ] Toggle "Show Undated" ON on the phone; add an undated reminder; open the Today
