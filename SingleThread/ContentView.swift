@@ -84,7 +84,8 @@ struct ContentView: View {
                     showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
                     availableProjects: store.availableProjects,
-                    sortOption: $sortOption)
+                    sortOption: $sortOption,
+                    showDate: $showDate)
             #else
                 SettingsView(
                     appearanceMode: $appearanceMode,
@@ -93,7 +94,8 @@ struct ContentView: View {
                     showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
                     availableProjects: store.availableProjects,
-                    sortOption: $sortOption)
+                    sortOption: $sortOption,
+                    showDate: $showDate)
             #endif
         }
     }
@@ -149,6 +151,9 @@ struct ContentView: View {
 
     @AppStorage(SortOption.defaultsKey, store: AppGroup.defaults)
     private var sortOption = SortOption.priority
+
+    @AppStorage("showDate", store: AppGroup.defaults)
+    private var showDate = true
     @State private var isDictating = false
     @State private var dictationText = ""
     @State private var dictationError: String?
@@ -257,33 +262,11 @@ struct ContentView: View {
                 ZStack(alignment: .bottom) {
                     List {
                         if let reminder = store.visibleReminders.first {
-                            VStack(alignment: .leading, spacing: 4) {
-                                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                    if let level = ReminderPriority.level(for: reminder.priority) {
-                                        Text(ReminderPriority.marker(for: reminder.priority))
-                                            .font(.title)
-                                            .foregroundStyle(priorityColor(level))
-                                            .accessibilityLabel("\(level.displayName) priority")
-                                    }
-                                    Text(reminder.title)
-                                        .font(.title)
-                                }
-                                if let due = reminder.dueDateComponents?.date {
-                                    Text(due, style: .date)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                if let noteText = ReminderNotesFormatter.format(reminder.notes) {
-                                    Text(noteText)
-                                        .font(.callout)
-                                        .foregroundStyle(.secondary)
-                                        .lineLimit(3)
-                                }
-                            }
-                            .padding(.horizontal, 40)
-                            .padding(.vertical, 12)
-                            .frame(minHeight: viewHeight, alignment: .center)
-                            .listRowSeparator(.hidden)
+                            ReminderCardView(reminder: reminder, showDate: showDate)
+                                .padding(.horizontal, 40)
+                                .padding(.vertical, 12)
+                                .frame(minHeight: viewHeight, alignment: .center)
+                                .listRowSeparator(.hidden)
                             #if os(iOS)
                                 .contextMenu {
                                     Button {
@@ -393,16 +376,6 @@ struct ContentView: View {
             .background(feedback.backgroundColor, in: Circle())
             .shadow(radius: 4)
             .accessibilityLabel(feedback.accessibilityLabel)
-    }
-
-    // MARK: - Priority
-
-    private func priorityColor(_ level: ReminderPriority.Level) -> Color {
-        switch level {
-        case .low: .green
-        case .medium: .yellow
-        case .high: .red
-        }
     }
 
     private func startDictation() async {

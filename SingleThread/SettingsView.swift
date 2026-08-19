@@ -66,7 +66,8 @@ struct SettingsView: View {
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
             availableProjects: [String],
-            sortOption: Binding<SortOption>) {
+            sortOption: Binding<SortOption>,
+            showDate: Binding<Bool>) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _allowsLandscape = allowsLandscape
@@ -75,6 +76,7 @@ struct SettingsView: View {
             _excludedProjects = excludedProjects
             self.availableProjects = availableProjects
             _sortOption = sortOption
+            _showDate = showDate
         }
     #else
         init(
@@ -84,7 +86,8 @@ struct SettingsView: View {
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
             availableProjects: [String],
-            sortOption: Binding<SortOption>) {
+            sortOption: Binding<SortOption>,
+            showDate: Binding<Bool>) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _showMicrophoneButton = showMicrophoneButton
@@ -92,6 +95,7 @@ struct SettingsView: View {
             _excludedProjects = excludedProjects
             self.availableProjects = availableProjects
             _sortOption = sortOption
+            _showDate = showDate
         }
     #endif
 
@@ -132,6 +136,9 @@ struct SettingsView: View {
                 Toggle(isOn: $showUndatedReminders) {
                     Label("Show Undated", systemImage: "calendar.badge.minus")
                 }
+                Toggle(isOn: $showDate) {
+                    Label("Show Date", systemImage: "calendar")
+                }
                 Section {
                     NavigationLink {
                         ExcludedProjectsView(
@@ -165,6 +172,7 @@ struct SettingsView: View {
     @Binding private var showMicrophoneButton: Bool
     @Binding private var showUndatedReminders: Bool
     @Binding private var excludedProjects: Set<String>
+    @Binding private var showDate: Bool
     @Environment(\.dismiss)
     private var dismiss
 
@@ -183,7 +191,8 @@ struct SettingsView: View {
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],
-            sortOption: .constant(.priority))
+            sortOption: .constant(.priority),
+            showDate: .constant(true))
     }
 
     #Preview("Dark + Extra Large") {
@@ -195,7 +204,8 @@ struct SettingsView: View {
             showUndatedReminders: .constant(true),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],
-            sortOption: .constant(.dueDate))
+            sortOption: .constant(.dueDate),
+            showDate: .constant(false))
     }
 #else
     #Preview("Default") {
@@ -206,6 +216,7 @@ struct SettingsView: View {
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],
-            sortOption: .constant(.priority))
+            sortOption: .constant(.priority),
+            showDate: .constant(true))
     }
 #endif
