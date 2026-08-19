@@ -26,10 +26,12 @@ import os
         public init(
             session: any SkipSyncSession,
             skipStore: SkippedReminderStore,
-            excludeStore: ExcludedProjectStore = ExcludedProjectStore()) {
+            excludeStore: ExcludedProjectStore = ExcludedProjectStore(),
+            sortStore: SortOptionStore = SortOptionStore()) {
             self.session = session
             self.skipStore = skipStore
             self.excludeStore = excludeStore
+            self.sortStore = sortStore
             super.init()
         }
 
@@ -55,6 +57,11 @@ import os
         /// `onCompleteReminderReceived`.
         public nonisolated(unsafe) var onShowUndatedRemindersReceived: ((Bool) -> Void)?
 
+        /// Hook fired on the counterpart when a new sort option is received.
+        /// Shares the same write-once-before-activate invariant as
+        /// `onCompleteReminderReceived`.
+        public nonisolated(unsafe) var onSortOptionReceived: ((SortOption) -> Void)?
+
         public func activate() {
             if let wcSession = session as? WCSession {
                 wcSession.delegate = self
@@ -68,7 +75,8 @@ import os
             do {
                 try session.updateApplicationContext([
                     PayloadKey.skippedReminderIdentifiers: skipIDs,
-                    PayloadKey.showUndatedReminders: showUndatedReminders
+                    PayloadKey.showUndatedReminders: showUndatedReminders,
+                    PayloadKey.sortOption: sortStore.load().rawValue
                 ])
             } catch {
                 let description = error.localizedDescription
@@ -83,6 +91,21 @@ import os
             } catch {
                 let description = error.localizedDescription
                 Self.logger.error("Failed to push excluded project titles: \(description, privacy: .public)")
+            }
+        }
+
+        /// Persist a new sort option and push it alongside the current skip list
+        /// so the latest sort value survives a skip-only push on the counterpart.
+        public func pushSortOption(_ option: SortOption) {
+            sortStore.save(option)
+            do {
+                try session.updateApplicationContext([
+                    PayloadKey.skippedReminderIdentifiers: skipStore.load(),
+                    PayloadKey.sortOption: option.rawValue
+                ])
+            } catch {
+                let description = error.localizedDescription
+                Self.logger.error("Failed to push sort option: \(description, privacy: .public)")
             }
         }
 
@@ -102,12 +125,12 @@ import os
             _: WCSession,
             didReceiveApplicationContext applicationContext: [String: Any]) {
             // Latest-wins: `updateApplicationContext` transmits the sender's full
-            // set, so the received value is authoritative. Replacing (rather than
-            // unioning) local values makes a "clear" update ([]) propagate.
+            // set, so the received values are authoritative. Replacing (rather
+            // than unioning) local values makes a "clear" update ([]) propagate.
             // ReminderStore.reload() prunes stale skip IDs on the next fetch.
-            // The three keys are independent — the skip IDs + toggle travel in one
-            // combined context, while excluded-project titles use a separate one —
-            // so any key may be present without the others.
+            // The keys are independent — the skip IDs + show-undated + sort travel
+            // in one combined context, while excluded-project titles use a separate
+            // one — so any key may be present without the others.
             if let receivedIDs = applicationContext[PayloadKey.skippedReminderIdentifiers] as? [String] {
                 skipStore.save(receivedIDs)
             }
@@ -116,6 +139,12 @@ import os
             }
             if let received = applicationContext[PayloadKey.showUndatedReminders] as? Bool {
                 onShowUndatedRemindersReceived?(received)
+            }
+            if let rawValue = applicationContext[PayloadKey.sortOption] as? String,
+               let option = SortOption(rawValue: rawValue) {
+                sortStore.save(option)
+                let handler = onSortOptionReceived
+                handler?(option)
             }
         }
 
@@ -150,6 +179,7 @@ import os
             static let excludedProjectTitles = "excludedProjectTitles"
             static let completeReminderIdentifier = "completeReminderIdentifier"
             static let showUndatedReminders = "showUndatedReminders"
+            static let sortOption = "sortOption"
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")
@@ -157,5 +187,6 @@ import os
         private let session: any SkipSyncSession
         private let skipStore: SkippedReminderStore
         private let excludeStore: ExcludedProjectStore
+        private let sortStore: SortOptionStore
     }
 #endif

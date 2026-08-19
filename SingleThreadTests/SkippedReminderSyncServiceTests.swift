@@ -32,13 +32,15 @@
 
     @MainActor
     struct SkippedReminderSyncServiceTests {
+        // MARK: Internal
+
         // MARK: - Activation
 
         @Test
         func activateSetsDelegateAndActivates() {
             let fake = FakeSession()
             let store = SkippedReminderStore(defaults: .standard, key: "test-sync-activate")
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             service.activate()
             #expect(fake.activated)
         }
@@ -49,7 +51,7 @@
         func pushUpdatesApplicationContext() throws {
             let fake = FakeSession()
             let store = SkippedReminderStore(defaults: .standard, key: "test-sync-push")
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             service.push(["A", "B", "C"], showUndatedReminders: false)
             let context = try #require(fake.lastContext)
             let ids = try #require(context["skippedReminderIdentifiers"] as? [String])
@@ -61,7 +63,7 @@
             let fake = FakeSession()
             fake.pushShouldThrow = true
             let store = SkippedReminderStore(defaults: .standard, key: "test-sync-push-error")
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             // Should not crash/throw — error is logged internally
             service.push(["A"], showUndatedReminders: false)
             #expect(Bool(true)) // reached without crashing
@@ -123,7 +125,7 @@
             let store = SkippedReminderStore(defaults: .standard, key: key)
             // Pre-populate local store with ["A"]
             store.save(["A"])
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             // The received context is the sender's full skip set — latest-wins, so
             // it replaces (not unions with) the local list.
             service.session(
@@ -138,7 +140,7 @@
             let key = "test-sync-receive-clear-\(UUID().uuidString)"
             let store = SkippedReminderStore(defaults: .standard, key: key)
             store.save(["A", "B"])
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             // An empty skip list is a legitimate "clear all skips" update and must
             // clear the local list rather than being ignored as a no-op.
             service.session(
@@ -153,7 +155,7 @@
             let key = "test-sync-receive-empty-\(UUID().uuidString)"
             let store = SkippedReminderStore(defaults: .standard, key: key)
             store.save(["A"])
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             service.session(WCSession.default, didReceiveApplicationContext: [:])
             #expect(store.load() == ["A"]) // unchanged
         }
@@ -164,9 +166,71 @@
             let key = "test-sync-receive-bad-\(UUID().uuidString)"
             let store = SkippedReminderStore(defaults: .standard, key: key)
             store.save(["A"])
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             service.session(WCSession.default, didReceiveApplicationContext: ["wrongKey": 42])
             #expect(store.load() == ["A"]) // unchanged
+        }
+
+        // MARK: - Sort push
+
+        @Test
+        func pushSkipIDsIncludesSortOption() throws {
+            let fake = FakeSession()
+            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-push-skip-\(UUID().uuidString)")
+            let sortStore = SortOptionStore(defaults: .standard, key: "test-push-sort-\(UUID().uuidString)")
+            sortStore.save(.dueDate)
+            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, sortStore: sortStore)
+            service.push(["A"], showUndatedReminders: false)
+            let context = try #require(fake.lastContext)
+            #expect(context["sortOption"] as? String == "dueDate")
+            #expect(Set(context["skippedReminderIdentifiers"] as? [String] ?? []) == ["A"])
+        }
+
+        @Test
+        func pushSortOptionIncludesSkipIDs() throws {
+            let fake = FakeSession()
+            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-push-sort-skip-\(UUID().uuidString)")
+            skipStore.save(["X"])
+            let sortStore = SortOptionStore(defaults: .standard, key: "test-push-sort-sort-\(UUID().uuidString)")
+            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, sortStore: sortStore)
+            service.pushSortOption(.title)
+            let context = try #require(fake.lastContext)
+            #expect(context["sortOption"] as? String == "title")
+            #expect(Set(context["skippedReminderIdentifiers"] as? [String] ?? []) == ["X"])
+        }
+
+        // MARK: - Sort receive
+
+        @Test
+        func receiveContextSavesSortAndFiresHook() {
+            let fake = FakeSession()
+            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-recv-skip-\(UUID().uuidString)")
+            let sortStore = SortOptionStore(defaults: .standard, key: "test-recv-sort-\(UUID().uuidString)")
+            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, sortStore: sortStore)
+            var received: SortOption?
+            service.onSortOptionReceived = { received = $0 }
+            service.session(WCSession.default, didReceiveApplicationContext: [
+                "skippedReminderIdentifiers": ["A"],
+                "sortOption": "title"
+            ])
+            #expect(sortStore.load() == .title)
+            #expect(received == .title)
+        }
+
+        @Test
+        func receiveContextLeavesSortUnchangedOnMissingOrMalformedKey() {
+            let fake = FakeSession()
+            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-recv-skip-bad-\(UUID().uuidString)")
+            let sortStore = SortOptionStore(defaults: .standard, key: "test-recv-sort-bad-\(UUID().uuidString)")
+            sortStore.save(.dueDate)
+            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, sortStore: sortStore)
+            var received = false
+            service.onSortOptionReceived = { _ in received = true }
+            service.session(WCSession.default, didReceiveApplicationContext: ["sortOption": "notAValue"])
+            #expect(sortStore.load() == .dueDate) // unchanged
+            #expect(!received)
+            service.session(WCSession.default, didReceiveApplicationContext: [:])
+            #expect(sortStore.load() == .dueDate) // unchanged
         }
 
         // MARK: - Completion relay
@@ -175,7 +239,7 @@
         func requestCompleteReminderSendsMessage() throws {
             let fake = FakeSession()
             let store = SkippedReminderStore(defaults: .standard, key: "test-complete-request")
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             service.requestCompleteReminder("ABC")
             let message = try #require(fake.lastMessage)
             let identifier = try #require(message["completeReminderIdentifier"] as? String)
@@ -186,7 +250,7 @@
         func receiveMessageTriggersCompletionHook() {
             let fake = FakeSession()
             let store = SkippedReminderStore(defaults: .standard, key: "test-complete-receive")
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             var received: String?
             service.onCompleteReminderReceived = { received = $0 }
             service.session(WCSession.default, didReceiveMessage: ["completeReminderIdentifier": "XYZ"])
@@ -197,7 +261,7 @@
         func receiveMessageIgnoresMalformedPayload() {
             let fake = FakeSession()
             let store = SkippedReminderStore(defaults: .standard, key: "test-complete-bad")
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             var received = false
             service.onCompleteReminderReceived = { _ in received = true }
             service.session(WCSession.default, didReceiveMessage: ["wrongKey": 42])
@@ -249,6 +313,13 @@
                 didReceiveApplicationContext: ["skippedReminderIdentifiers": ["X"]])
 
             #expect(excludeStore.load() == ["A"])
+        }
+
+        // MARK: Private
+
+        /// An isolated sort store that never touches `AppGroup.defaults`.
+        private func makeTestSortStore() -> SortOptionStore {
+            SortOptionStore(defaults: .standard, key: "test-sort-store-\(UUID().uuidString)")
         }
     }
 #endif
