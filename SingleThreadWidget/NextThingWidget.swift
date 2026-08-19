@@ -53,6 +53,7 @@ struct NextThingProvider: TimelineProvider {
         case .fullAccess:
             let store = ReminderStore(loadsReminders: true)
             store.showsUndatedReminders = AppGroup.defaults.bool(forKey: "showUndatedReminders")
+            store.setSortOption(SortOptionStore().load())
             await store.reload()
             if store.reminders.isEmpty {
                 return NextThingEntry(date: date, state: .empty)

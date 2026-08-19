@@ -518,8 +518,8 @@ await store.reload()
 ### Verification
 
 #### Automated
-- [ ] `make test` — unit tests build `SingleThreadCore` (both intents live there) and pass
-- [ ] `make build` — builds the embedded `SingleThreadWidget` appex with the new `setSortOption` call
+- [x] `make test` — unit tests build `SingleThreadCore` (both intents live there) and pass
+- [x] `make build` — builds the embedded `SingleThreadWidget` appex with the new `setSortOption` call
 
 #### Manual
 - [ ] Change sort on iPhone → the widget's "Next Thing" shows the same first reminder (may take up to the 15-min refresh; pull the widget or wait)
