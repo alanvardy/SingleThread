@@ -69,6 +69,12 @@ public final class ReminderStore {
     /// to reload widget timelines.
     public var onRemindersChanged: (() -> Void)?
 
+    /// When `true`, `reload()` fetches with a nil/nil date predicate and keeps
+    /// undated reminders plus dated reminders still inside the current window.
+    /// Each surface sets this before its own `reload()` (phone from the Settings
+    /// toggle, widget and watch from synced state).
+    public var showsUndatedReminders = false
+
     public var visibleReminders: [EKReminder] {
         reminders
             .filter { !skippedIDs.contains($0.calendarItemIdentifier) }
@@ -175,12 +181,24 @@ public final class ReminderStore {
         #if !os(watchOS)
             eventStore.refreshSourcesIfNecessary()
         #endif
+        let startDate: Date?
+        let endDate: Date?
+        if showsUndatedReminders {
+            startDate = nil
+            endDate = nil
+        } else {
+            startDate = ReminderDateFilter.overdueCutoff()
+            endDate = ReminderDateFilter.endOfToday()
+        }
         let predicate = eventStore.predicateForIncompleteReminders(
-            withDueDateStarting: ReminderDateFilter.overdueCutoff(),
-            ending: ReminderDateFilter.endOfToday(),
+            withDueDateStarting: startDate,
+            ending: endDate,
             calendars: nil)
         let fetched: [EKReminder] = await fetchReminders(matching: predicate)
-        reminders = fetched
+        let shown = showsUndatedReminders
+            ? fetched.filter { ReminderDateFilter.isInCurrentWindow($0.dueDateComponents?.date) }
+            : fetched
+        reminders = shown
         availableProjects = Set(
             eventStore.calendars(for: .reminder)
                 .map(\.title)
@@ -192,7 +210,7 @@ public final class ReminderStore {
             onSkipSetChanged?([])
         } else {
             let resolved = ReminderSkipLogic.resolve(
-                fetched: fetched.map(\.calendarItemIdentifier),
+                fetched: shown.map(\.calendarItemIdentifier),
                 skipped: skipStore.load())
             skippedIDs = Set(resolved)
             excludedProjectTitles = Set(excludeStore.load())

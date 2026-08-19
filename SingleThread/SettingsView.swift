@@ -62,12 +62,14 @@ struct SettingsView: View {
             textSize: Binding<TextSize>,
             allowsLandscape: Binding<Bool>,
             showMicrophoneButton: Binding<Bool>,
+            showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
             availableProjects: [String]) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _allowsLandscape = allowsLandscape
             _showMicrophoneButton = showMicrophoneButton
+            _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
             self.availableProjects = availableProjects
         }
@@ -76,11 +78,13 @@ struct SettingsView: View {
             appearanceMode: Binding<AppearanceMode>,
             textSize: Binding<TextSize>,
             showMicrophoneButton: Binding<Bool>,
+            showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
             availableProjects: [String]) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _showMicrophoneButton = showMicrophoneButton
+            _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
             self.availableProjects = availableProjects
         }
@@ -114,6 +118,9 @@ struct SettingsView: View {
                 Toggle(isOn: $showMicrophoneButton) {
                     Label("Show Microphone", systemImage: "microphone")
                 }
+                Toggle(isOn: $showUndatedReminders) {
+                    Label("Show Undated", systemImage: "calendar.badge.minus")
+                }
                 Section {
                     NavigationLink {
                         ExcludedProjectsView(
@@ -144,6 +151,7 @@ struct SettingsView: View {
         @Binding private var allowsLandscape: Bool
     #endif
     @Binding private var showMicrophoneButton: Bool
+    @Binding private var showUndatedReminders: Bool
     @Binding private var excludedProjects: Set<String>
     @Environment(\.dismiss)
     private var dismiss
@@ -160,6 +168,7 @@ struct SettingsView: View {
             textSize: .constant(.system),
             allowsLandscape: .constant(true),
             showMicrophoneButton: .constant(true),
+            showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"])
     }
@@ -170,6 +179,7 @@ struct SettingsView: View {
             textSize: .constant(.extraLarge),
             allowsLandscape: .constant(false),
             showMicrophoneButton: .constant(false),
+            showUndatedReminders: .constant(true),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"])
     }
@@ -179,6 +189,7 @@ struct SettingsView: View {
             appearanceMode: .constant(.system),
             textSize: .constant(.system),
             showMicrophoneButton: .constant(true),
+            showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"])
     }
