@@ -16,7 +16,7 @@ watch-build:
 	xcodebuild -scheme SingleThreadWatch -destination '$(WATCH_SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build
 
 mac-build:
-	xcodebuild -scheme SingleThread -destination '$(MAC_SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build
+	xcodebuild -scheme SingleThread -destination '$(MAC_SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' CODE_SIGNING_ALLOWED=NO build
 
 mac-test:
 	xcodebuild -scheme SingleThread -destination '$(MAC_SIM)' -derivedDataPath '$(DERIVED_DATA)' CODE_SIGNING_ALLOWED=NO test -only-testing:SingleThreadTests
