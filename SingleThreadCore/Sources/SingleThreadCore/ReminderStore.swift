@@ -27,12 +27,14 @@ public final class ReminderStore {
         reminders: [EKReminder],
         skippedIDs: Set<String>,
         authorizationStatus: EKAuthorizationStatus,
-        excludedProjectTitles: Set<String> = []) {
+        excludedProjectTitles: Set<String> = [],
+        hasHidden: Bool = false) {
         self.loadsReminders = loadsReminders
         self.reminders = reminders
         self.skippedIDs = skippedIDs
         self.excludedProjectTitles = excludedProjectTitles
         self.authorizationStatus = authorizationStatus
+        self.hasHidden = hasHidden
         eventStore = EKEventStore()
         skipStore = SkippedReminderStore()
         excludeStore = ExcludedProjectStore()
@@ -45,6 +47,11 @@ public final class ReminderStore {
     public private(set) var reminders: [EKReminder] = []
     public private(set) var skippedIDs: Set<String> = []
     public private(set) var excludedProjectTitles: Set<String> = []
+    /// `true` when incomplete reminders exist outside the current date window
+    /// (or are undated while `showsUndatedReminders` is off). Set by `reload()`;
+    /// seeded by the preview/test init. Lets surfaces explain an empty state
+    /// that is actually "nothing due right now".
+    public private(set) var hasHidden = false
     /// All reminder-list titles (sorted, deduplicated) the settings UI presents.
     public private(set) var availableProjects: [String] = []
     public private(set) var authorizationStatus: EKAuthorizationStatus = .notDetermined
@@ -97,6 +104,14 @@ public final class ReminderStore {
             .filter { !skippedIDs.contains($0.calendarItemIdentifier) }
             .filter { !excludedProjectTitles.contains($0.calendar?.title ?? "") }
             .sorted { ReminderSort.areInIncreasingOrder($0, $1, using: sortOption) }
+    }
+
+    /// Returns `true` when `allIncomplete` contains a reminder absent from
+    /// `shown` (by `calendarItemIdentifier`) — i.e. the current in-window view
+    /// is hiding at least one incomplete reminder.
+    public static func hasHiddenFor(shown: [EKReminder], allIncomplete: [EKReminder]) -> Bool {
+        let shownIDs = Set(shown.map(\.calendarItemIdentifier))
+        return allIncomplete.contains { !shownIDs.contains($0.calendarItemIdentifier) }
     }
 
     // MARK: - Public methods
@@ -224,6 +239,19 @@ public final class ReminderStore {
         let shown = showsUndatedReminders
             ? fetched.filter { ReminderDateFilter.isInCurrentWindow($0.dueDateComponents?.date) }
             : fetched
+        if showsUndatedReminders {
+            // Broad fetch already in hand — derive from fetched vs shown.
+            hasHidden = Self.hasHiddenFor(shown: shown, allIncomplete: fetched)
+        } else {
+            // Narrow fetch excludes future/old/undated work; one extra broad fetch
+            // reveals whether the window is hiding reminders.
+            let broadPredicate = eventStore.predicateForIncompleteReminders(
+                withDueDateStarting: nil,
+                ending: nil,
+                calendars: nil)
+            let allIncomplete: [EKReminder] = await fetchReminders(matching: broadPredicate)
+            hasHidden = Self.hasHiddenFor(shown: shown, allIncomplete: allIncomplete)
+        }
         reminders = shown
         availableProjects = Set(
             eventStore.calendars(for: .reminder)

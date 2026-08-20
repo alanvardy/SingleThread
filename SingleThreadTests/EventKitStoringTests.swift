@@ -41,6 +41,8 @@ private final class FakeEventStore: EventKitStoring {
     private(set) var lastPredicate: NSPredicate?
     private(set) var lastStartDate: Date?
     private(set) var lastEndDate: Date?
+    private(set) var firstStartDate: Date?
+    private(set) var firstEndDate: Date?
     private(set) var fetchCallCount = 0
     private(set) var requestAccessCallCount = 0
     private(set) var refreshCallCount = 0
@@ -69,6 +71,10 @@ private final class FakeEventStore: EventKitStoring {
         withDueDateStarting startDate: Date?,
         ending endDate: Date?,
         calendars _: [EKCalendar]?) -> NSPredicate {
+        if lastStartDate == nil && lastEndDate == nil && fetchCallCount == 0 {
+            firstStartDate = startDate
+            firstEndDate = endDate
+        }
         lastStartDate = startDate
         lastEndDate = endDate
         return NSPredicate(value: true)
@@ -136,7 +142,7 @@ private final class FakeEventStore: EventKitStoring {
             #expect(fake.saved.first === reminder)
             #expect(fake.lastSaveCommit == true)
             #expect(fake.lastPredicate != nil)
-            #expect(fake.fetchCallCount == before + 1) // reload-after-save
+            #expect(fake.fetchCallCount == before + 2) // reload-after-save (narrow + broad)
         }
 
         @Test
@@ -206,7 +212,7 @@ struct ReminderStoreLifecycleTests {
         await store.reload()
 
         #expect(store.reminders.map(\.title) == ["A", "B"])
-        #expect(fake.fetchCallCount == 1)
+        #expect(fake.fetchCallCount == 2) // narrow + extra broad detect fetch
         #expect(fake.lastPredicate != nil)
         #if !os(watchOS)
             #expect(fake.refreshCallCount == 1)
@@ -223,7 +229,7 @@ struct ReminderStoreLifecycleTests {
         await store.start()
 
         #expect(store.authorizationStatus == .fullAccess)
-        #expect(fake.fetchCallCount == 1)
+        #expect(fake.fetchCallCount == 2) // narrow + extra broad fetch in reload
         #expect(fake.requestAccessCallCount == 0)
     }
 
@@ -239,7 +245,7 @@ struct ReminderStoreLifecycleTests {
 
         #expect(fake.requestAccessCallCount == 1)
         #expect(store.authorizationStatus == .fullAccess)
-        #expect(fake.fetchCallCount == 1)
+        #expect(fake.fetchCallCount == 2) // narrow + broad fetch in reload
     }
 
     @Test
@@ -254,7 +260,8 @@ struct ReminderStoreLifecycleTests {
 
         #expect(fake.requestAccessCallCount == 1)
         #expect(store.authorizationStatus == .fullAccess)
-        #expect(fake.fetchCallCount == 1)
+        #expect(fake.fetchCallCount == 2) // narrow + broad fetch in reload
+        #expect(fake.firstStartDate != nil) // narrow window predicate comes first
     }
 
     @Test
@@ -290,8 +297,8 @@ struct ReminderStoreLifecycleTests {
 
         await store.reload()
 
-        #expect(fake.lastStartDate != nil)
-        #expect(fake.lastEndDate != nil)
+        #expect(fake.firstStartDate != nil)
+        #expect(fake.firstEndDate != nil)
     }
 
     @Test
