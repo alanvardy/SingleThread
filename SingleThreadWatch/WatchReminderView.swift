@@ -91,6 +91,8 @@ struct WatchReminderView: View {
                     .labelStyle(.iconOnly)
             }
             .tint(.green)
+            .accessibilityLabel("Complete reminder")
+            .accessibilityAddTraits(.isButton)
 
             Button {
                 store.skipCurrentReminder()
@@ -99,6 +101,8 @@ struct WatchReminderView: View {
                     .labelStyle(.iconOnly)
             }
             .tint(.orange)
+            .accessibilityLabel("Skip reminder")
+            .accessibilityAddTraits(.isButton)
         }
     }
 
