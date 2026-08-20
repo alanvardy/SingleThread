@@ -13,14 +13,38 @@ struct SingleThreadApp: App {
     // MARK: Lifecycle
 
     init() {
-        let loads = !ProcessInfo.processInfo.arguments.contains("--ui-testing")
-            && !ProcessInfo.processInfo.arguments.contains("--no-reminders")
-        let store = ReminderStore(loadsReminders: loads)
+        let arguments = ProcessInfo.processInfo.arguments
+
+        // Deterministic UI-test store: seed an in-memory EventKit store from a
+        // `--seed` launch argument so tests can drive complete/delete/add flows
+        // without a real EventKit store, and reset persisted UserDefaults so no
+        // state leaks between launches.
+        let store: ReminderStore
+        let usesInMemory: Bool
+        if let seed = UITestingSeed.fromLaunchArguments(arguments) {
+            UITestingSeed.resetPersistedState()
+            let inMemoryStore = InMemoryEventStore(
+                reminders: seed.reminders,
+                calendars: seed.calendars)
+            store = ReminderStore(
+                eventStore: inMemoryStore,
+                loadsReminders: true)
+            if !seed.excludedProjectTitles.isEmpty {
+                store.setExcludedProjectTitles(seed.excludedProjectTitles)
+            }
+            usesInMemory = true
+        } else {
+            let loads = !arguments.contains("--ui-testing")
+                && !arguments.contains("--no-reminders")
+            store = ReminderStore(loadsReminders: loads)
+            usesInMemory = false
+        }
         self.store = store
+        usesInMemoryStore = usesInMemory
         store.sortOption = SortOptionStore().load()
 
         #if os(iOS)
-            if WCSession.isSupported() {
+            if WCSession.isSupported(), !usesInMemoryStore {
                 let skipStore = SkippedReminderStore()
                 let service = SkippedReminderSyncService(
                     session: WCSession.default,
@@ -94,4 +118,5 @@ struct SingleThreadApp: App {
     private var showDate = true
 
     private let store: ReminderStore
+    private let usesInMemoryStore: Bool
 }
