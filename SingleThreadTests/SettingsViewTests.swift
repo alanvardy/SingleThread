@@ -14,6 +14,7 @@ struct SettingsViewTests {
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
                 allowsLandscape: .constant(true),
+                enableActionButtons: .constant(true),
                 showMicrophoneButton: .constant(true),
                 showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
@@ -46,6 +47,7 @@ struct SettingsViewTests {
         #expect(bodyDescription.contains("Done"))
         #if os(iOS)
             #expect(bodyDescription.contains("Landscape"))
+            #expect(bodyDescription.contains("Enable action buttons"))
         #endif
     }
 }

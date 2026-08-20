@@ -65,6 +65,7 @@ struct SettingsView: View {
             appearanceMode: Binding<AppearanceMode>,
             textSize: Binding<TextSize>,
             allowsLandscape: Binding<Bool>,
+            enableActionButtons: Binding<Bool>,
             showMicrophoneButton: Binding<Bool>,
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
@@ -74,6 +75,7 @@ struct SettingsView: View {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _allowsLandscape = allowsLandscape
+            _enableActionButtons = enableActionButtons
             _showMicrophoneButton = showMicrophoneButton
             _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
@@ -136,6 +138,11 @@ struct SettingsView: View {
                 Toggle(isOn: $showMicrophoneButton) {
                     Label("Show Microphone", systemImage: "microphone")
                 }
+                #if os(iOS)
+                    Toggle(isOn: $enableActionButtons) {
+                        Label("Enable action buttons", systemImage: "hand.tap")
+                    }
+                #endif
                 Toggle(isOn: $showUndatedReminders) {
                     Label("Show Undated", systemImage: "calendar.badge.minus")
                 }
@@ -175,6 +182,7 @@ struct SettingsView: View {
     @Binding private var sortOption: SortOption
     #if os(iOS)
         @Binding private var allowsLandscape: Bool
+        @Binding private var enableActionButtons: Bool
     #endif
     @Binding private var showMicrophoneButton: Bool
     @Binding private var showUndatedReminders: Bool
@@ -194,6 +202,7 @@ struct SettingsView: View {
             appearanceMode: .constant(.system),
             textSize: .constant(.system),
             allowsLandscape: .constant(true),
+            enableActionButtons: .constant(false),
             showMicrophoneButton: .constant(true),
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
@@ -207,6 +216,7 @@ struct SettingsView: View {
             appearanceMode: .constant(.dark),
             textSize: .constant(.extraLarge),
             allowsLandscape: .constant(false),
+            enableActionButtons: .constant(false),
             showMicrophoneButton: .constant(false),
             showUndatedReminders: .constant(true),
             excludedProjects: .constant([]),
