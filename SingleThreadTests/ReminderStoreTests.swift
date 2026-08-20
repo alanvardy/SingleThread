@@ -366,6 +366,42 @@ struct ReminderStoreTests {
         await store.reload(clearSkipped: true)
         #expect(store.reminders.isEmpty)
     }
+
+    // MARK: - hasHidden
+
+    @Test
+    func hasHiddenDefaultsToFalse() {
+        let store = ReminderStore(
+            loadsReminders: false,
+            reminders: [],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        #expect(!store.hasHidden)
+    }
+
+    @Test
+    func hasHiddenSeedsFromInit() {
+        let store = ReminderStore(
+            loadsReminders: false,
+            reminders: [],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            hasHidden: true)
+        #expect(store.hasHidden)
+    }
+
+    @Test
+    func hasHiddenForFalseWhenSetsMatch() {
+        let reminder = makeReminder(title: "A")
+        #expect(!ReminderStore.hasHiddenFor(shown: [reminder], allIncomplete: [reminder]))
+    }
+
+    @Test
+    func hasHiddenForTrueWhenIncompleteHasHidden() {
+        let shown = makeReminder(title: "In")
+        let hidden = makeReminder(title: "Hidden")
+        #expect(ReminderStore.hasHiddenFor(shown: [shown], allIncomplete: [shown, hidden]))
+    }
 }
 
 // MARK: - makeReminder test seam
