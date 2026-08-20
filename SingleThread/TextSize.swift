@@ -20,7 +20,7 @@ enum TextSize: String, CaseIterable {
         case .system: nil
         case .small: .small
         case .medium: .medium
-        case .large: .large
+        case .large: .xLarge
         case .extraLarge: .xxxLarge
         }
     }
