@@ -48,6 +48,16 @@ struct ContentView: View {
         let description: String
     }
 
+    #if os(iOS)
+        /// Whether the Complete/Skip cluster replaces the plain mic in the bottom
+        /// bar: the toggle must be on AND a visible reminder must exist. Readable
+        /// outside a live view (unit-test seam); inside the app it reads the live
+        /// `@AppStorage` value.
+        var showsActionButtons: Bool {
+            enableActionButtons && store.visibleReminders.first != nil
+        }
+    #endif
+
     var body: some View {
         ZStack {
             Color.systemBackground.ignoresSafeArea()
@@ -398,11 +408,55 @@ struct ContentView: View {
                 }
                 recordingIndicator
             } else if canDictate, showMicrophoneButton {
-                micButton
+                #if os(iOS)
+                    if showsActionButtons {
+                        actionCluster
+                    } else {
+                        micButton
+                    }
+                #else
+                    micButton
+                #endif
             }
         }
         .padding(.bottom, 16)
     }
+
+    #if os(iOS)
+        private var completeButton: some View {
+            Button {
+                Task { await store.completeCurrentReminder() }
+            } label: {
+                Label("Complete", systemImage: "checkmark.circle.fill")
+                    .labelStyle(.iconOnly)
+            }
+            .tint(.green)
+            .frame(width: 44, height: 44)
+            .accessibilityLabel("Complete reminder")
+            .accessibilityAddTraits(.isButton)
+        }
+
+        private var skipButton: some View {
+            Button {
+                store.skipCurrentReminder()
+            } label: {
+                Label("Skip", systemImage: "circle.slash")
+                    .labelStyle(.iconOnly)
+            }
+            .tint(.orange)
+            .frame(width: 44, height: 44)
+            .accessibilityLabel("Skip reminder")
+            .accessibilityAddTraits(.isButton)
+        }
+
+        private var actionCluster: some View {
+            HStack(alignment: .center, spacing: 16) {
+                completeButton
+                micButton
+                skipButton
+            }
+        }
+    #endif
 
     // MARK: - Mic Dictation
 
