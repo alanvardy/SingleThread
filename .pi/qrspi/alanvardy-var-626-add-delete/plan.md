@@ -402,9 +402,9 @@ Button {
 ### Verification
 
 #### Automated
-- [ ] Watch target builds: `xcodebuild -scheme SingleThreadWatch -destination 'generic/platform=watchOS Simulator' -configuration Debug build`
-- [ ] Full CI-equivalent pipeline green: `./scripts/test.sh` (format, lint, build singleThread + watch, Periphery dead-code, unit tests, UI/accessibility audit).
-- [ ] `make format` + `make lint` (or the formatting inside `./scripts/test.sh`) is clean.
+- [x] Watch target builds: `xcodebuild -scheme SingleThreadWatch -destination 'generic/platform=watchOS Simulator' -configuration Debug build`
+- [x] Full CI-equivalent pipeline green: `./scripts/test.sh` (format, lint, build singleThread + watch, Periphery dead-code, unit tests, UI/accessibility audit).
+- [x] `make format` + `make lint` (or the formatting inside `./scripts/test.sh`) is clean.
 
 #### Manual
 - [ ] On-simulator: tapping Delete clears the card and relays to the paired iPhone (the phone's reminder disappears).
