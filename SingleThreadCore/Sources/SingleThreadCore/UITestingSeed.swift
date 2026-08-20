@@ -72,6 +72,16 @@ private struct SeedPayload: Codable {
     var calendars: [String] = []
     var excludedProjects: [String] = []
 
+    init(from decoder: Decoder) throws {
+        // Defaults do not make the synthesized `decode` optional, so absent
+        // `calendars`/`excludedProjects` keys would throw keyNotFound. Use
+        // decodeIfPresent so a seed omitting them still parses.
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        reminders = try container.decode([ReminderSeed].self, forKey: .reminders)
+        calendars = try container.decodeIfPresent([String].self, forKey: .calendars) ?? []
+        excludedProjects = try container.decodeIfPresent([String].self, forKey: .excludedProjects) ?? []
+    }
+
     func materialize() -> UITestingSeed {
         let eventStore = EKEventStore()
         let createdCalendars = calendars.map { title in
