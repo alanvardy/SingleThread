@@ -15,12 +15,14 @@ struct WatchReminderView: View {
         loadsReminders: Bool,
         reminders: [EKReminder],
         skippedIDs: Set<String>,
-        authorizationStatus: EKAuthorizationStatus) {
+        authorizationStatus: EKAuthorizationStatus,
+        hasHidden: Bool = false) {
         store = ReminderStore(
             loadsReminders: loadsReminders,
             reminders: reminders,
             skippedIDs: skippedIDs,
-            authorizationStatus: authorizationStatus)
+            authorizationStatus: authorizationStatus,
+            hasHidden: hasHidden)
     }
 
     // MARK: Internal
@@ -112,6 +114,10 @@ struct WatchReminderView: View {
         VStack(spacing: 6) {
             Text("No Reminders")
                 .foregroundStyle(.secondary)
+            Text(store.hasHidden ? "Nothing due right now" : "No reminders yet")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
             refreshButton
         }
     }
@@ -241,6 +247,15 @@ private let mockWatchReminder: EKReminder = {
         reminders: [],
         skippedIDs: [],
         authorizationStatus: .fullAccess)
+}
+
+#Preview("Nothing Due") {
+    WatchReminderView(
+        loadsReminders: false,
+        reminders: [],
+        skippedIDs: [],
+        authorizationStatus: .fullAccess,
+        hasHidden: true)
 }
 
 #Preview("No Access") {

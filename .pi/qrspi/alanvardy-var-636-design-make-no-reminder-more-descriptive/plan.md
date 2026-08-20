@@ -412,9 +412,9 @@ and is unchanged.)
 
 ### Verification
 #### Automated
-- [ ] `make watch-build` compiles the watch target; `make build` compiles the iOS/widget targets.
-- [ ] `swiftlint lint --strict` passes (watch/widget target rules already extend the Core opt-in set).
-- [ ] No production-signature changes elsewhere — `store.reload()` still populates `hasHidden` for the widget's `loadsReminders: true` path.
+- [x] `make watch-build` compiles the watch target; `make build` compiles the iOS/widget targets.
+- [x] `swiftlint lint --strict` passes (watch/widget target rules already extend the Core opt-in set).
+- [x] No production-signature changes elsewhere — `store.reload()` still populates `hasHidden` for the widget's `loadsReminders: true` path.
 
 #### Manual
 - [ ] Watch `#Preview("No Reminders")` shows "No Reminders" + "No reminders yet" + Refresh button.
