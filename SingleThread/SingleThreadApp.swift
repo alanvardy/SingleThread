@@ -14,6 +14,7 @@ struct SingleThreadApp: App {
 
     init() {
         let loads = !ProcessInfo.processInfo.arguments.contains("--ui-testing")
+            && !ProcessInfo.processInfo.arguments.contains("--no-reminders")
         let store = ReminderStore(loadsReminders: loads)
         self.store = store
         store.sortOption = SortOptionStore().load()
