@@ -4,6 +4,11 @@ set -euo pipefail
 # ── Configuration ──────────────────────────────────────────────────────────────
 SIM="${SIM:-platform=iOS Simulator,name=iPhone 17}"
 WATCH_SIM="generic/platform=watchOS Simulator"
+# Concrete watchOS Simulator for watch UI tests (xcodebuild requires a concrete
+# device to run XCTests). Name-only works when one standalone watch simulator
+# exists; override with WATCH_TEST_SIM='platform=watchOS Simulator,id=…' on
+# machines where the name is ambiguous.
+WATCH_TEST_SIM="${WATCH_TEST_SIM:-platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)}"
 MAC_SIM="platform=macOS"
 SCHEME="SingleThread"
 WATCH_SCHEME="SingleThreadWatch"
@@ -159,12 +164,12 @@ verify_deployment_target
 # ── Full pipeline ──────────────────────────────────────────────────────────────
 if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
     echo "==> Formatting…"
-    swiftformat SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/
+    swiftformat SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/ SingleThreadWatchUITests/
     swiftlint --fix
 
     echo ""
     echo "==> SwiftFormat check…"
-    swiftformat --lint SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/
+    swiftformat --lint SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/ SingleThreadWatchUITests/
 
     echo ""
     echo "==> SwiftLint…"
@@ -205,6 +210,21 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -derivedDataPath "$DERIVED_DATA" \
       test-without-building \
       -only-testing:SingleThreadUITests
+
+    echo ""
+    echo "==> Watch UI tests…"
+    xcodebuild -scheme "$WATCH_SCHEME" \
+      -destination "$WATCH_TEST_SIM" \
+      -configuration Debug \
+      -derivedDataPath "$DERIVED_DATA" \
+      build-for-testing \
+      -only-testing:SingleThreadWatchUITests
+
+    xcodebuild -scheme "$WATCH_SCHEME" \
+      -destination "$WATCH_TEST_SIM" \
+      -derivedDataPath "$DERIVED_DATA" \
+      test-without-building \
+      -only-testing:SingleThreadWatchUITests
 
     echo ""
     echo "==> macOS build…"
