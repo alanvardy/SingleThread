@@ -1,3 +1,4 @@
+import EventKit
 import SingleThreadCore
 import SwiftUI
 import WatchConnectivity
@@ -7,8 +8,12 @@ struct SingleThreadWatchApp: App {
     // MARK: Lifecycle
 
     init() {
-        let store = ReminderStore(
-            loadsReminders: !ProcessInfo.processInfo.arguments.contains("--ui-testing"))
+        let isUITesting = ProcessInfo.processInfo.arguments.contains("--ui-testing")
+        let store: ReminderStore = if isUITesting {
+            Self.uiTestingStore()
+        } else {
+            ReminderStore(loadsReminders: true)
+        }
         self.store = store
         // Restore the last-received sort (persisted to .standard on receive) so the
         // watch shows the correct order even before the next context push arrives.
@@ -52,4 +57,19 @@ struct SingleThreadWatchApp: App {
     // MARK: Private
 
     private let store: ReminderStore
+
+    /// Builds a deterministic store for `--ui-testing` launches so a real reminder
+    /// card presents without requesting EventKit access.
+    private static func uiTestingStore() -> ReminderStore {
+        let eventStore = EKEventStore()
+        let reminder = EKReminder(eventStore: eventStore)
+        reminder.title = "Buy groceries"
+        reminder.priority = 5
+        reminder.notes = "Don't forget the milk"
+        return ReminderStore(
+            loadsReminders: false,
+            reminders: [reminder],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+    }
 }
