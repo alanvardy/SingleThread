@@ -52,7 +52,8 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testSkipAdvancesToNextReminder() {
         // "First" (high priority) sorts before "Second" (low priority).
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"First","priority":1},{"title":"Second","priority":9}]}"#)
+        let seed = #"{"reminders":[{"title":"First","priority":1},{"title":"Second","priority":9}]}"#
+        let app = launchApp(seedJSON: seed)
 
         let first = app.staticTexts["First"]
         XCTAssertTrue(first.waitForExistence(timeout: 5), "Highest-priority reminder should be shown first")

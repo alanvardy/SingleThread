@@ -1,16 +1,10 @@
 import XCTest
 
 final class SingleThreadWatchUITestsFlows: XCTestCase {
+    // MARK: Internal
+
     override func setUpWithError() throws {
         continueAfterFailure = false
-    }
-
-    @MainActor
-    private func launchApp() -> XCUIApplication {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing"]
-        app.launch()
-        return app
     }
 
     // MARK: - View
@@ -94,5 +88,15 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         XCTAssertTrue(
             app.buttons["Refresh"].waitForExistence(timeout: 3),
             "No Reminders state should offer a Refresh button")
+    }
+
+    // MARK: Private
+
+    @MainActor
+    private func launchApp() -> XCUIApplication {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+        return app
     }
 }

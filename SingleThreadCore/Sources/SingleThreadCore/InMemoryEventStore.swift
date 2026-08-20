@@ -14,17 +14,15 @@ public final class InMemoryEventStore: EventKitStoring {
     // MARK: Lifecycle
 
     public init(reminders: [EKReminder] = [], calendars: [EKCalendar] = []) {
-        self.allReminders = reminders
+        allReminders = reminders
         self.calendars = calendars
     }
 
-    // MARK: Internal
+    // MARK: Public
 
     /// The complete set of reminders held in memory, including any completed ones
     /// so a caller can observe them via `allReminders` if desired.
     public private(set) var allReminders: [EKReminder]
-
-    private let calendars: [EKCalendar]
 
     // MARK: EventKitStoring
 
@@ -82,4 +80,8 @@ public final class InMemoryEventStore: EventKitStoring {
             return reminder
         }
     #endif
+
+    // MARK: Private
+
+    private let calendars: [EKCalendar]
 }

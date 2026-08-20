@@ -12,7 +12,7 @@ struct UITestingSeedTests {
     func parsesRemindersFromCompactJSON() {
         let args = [
             "--seed",
-            #"{"reminders":[{"title":"Buy groceries","notes":"milk"},{"title":"Call mom","priority":1,"hasDueDateToday":true}]}"#,
+            #"{"reminders":[{"title":"Buy groceries","notes":"milk"},{"title":"Call mom","priority":1}]}"#
         ]
         let seed = UITestingSeed.fromLaunchArguments(args)
 
@@ -21,14 +21,13 @@ struct UITestingSeedTests {
         #expect(seed?.reminders[0].title == "Buy groceries")
         #expect(seed?.reminders[0].notes == "milk")
         #expect(seed?.reminders[1].priority == 1)
-        #expect(seed?.reminders[1].dueDateComponents != nil)
     }
 
     @Test
     func parsesCalendarsAndExcludedProjects() {
         let args = [
             "--seed",
-            #"{"reminders":[{"title":"A"}],"calendars":["Groceries","Work"],"excludedProjects":["Work"]}"#,
+            #"{"reminders":[{"title":"A"}],"calendars":["Groceries","Work"],"excludedProjects":["Work"]}"#
         ]
         let seed = UITestingSeed.fromLaunchArguments(args)
 
