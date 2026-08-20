@@ -32,12 +32,15 @@ private final class FakeEventStore: EventKitStoring {
     var fetchResult: [EKReminder]
     var defaultCalendar: EKCalendar?
     var saveShouldThrow = false
+    var removeShouldThrow = false
     var returnedCalendars: [EKCalendar] = []
 
     // MARK: Recording
 
     private(set) var saved: [EKReminder] = []
+    private(set) var removed: [EKReminder] = []
     private(set) var lastSaveCommit = false
+    private(set) var lastRemoveCommit = false
     private(set) var lastPredicate: NSPredicate?
     private(set) var lastStartDate: Date?
     private(set) var lastEndDate: Date?
@@ -101,6 +104,16 @@ private final class FakeEventStore: EventKitStoring {
                 throw NSError(domain: "FakeEventStore", code: 1)
             }
             saved.append(reminder)
+        }
+
+        func remove(_ reminder: EKReminder, commit: Bool) throws {
+            lastRemoveCommit = commit
+            if removeShouldThrow {
+                throw NSError(domain: "FakeEventStore", code: 1)
+            }
+            removed.append(reminder)
+            // Mirror the real store: a removed reminder no longer appears in fetches.
+            fetchResult.removeAll { $0 === reminder }
         }
 
         func makeReminder(
@@ -193,6 +206,59 @@ private final class FakeEventStore: EventKitStoring {
 
             #expect(!savedResult)
             #expect(fake.saved.isEmpty)
+        }
+
+        @Test
+        func deleteReminderRemovesAndReloads() async {
+            let reminder = makeReminder(title: "Task")
+            let fake = FakeEventStore(fetchResult: [reminder])
+            let store = testStore(eventStore: fake)
+            await store.reload()
+            let before = fake.fetchCallCount
+
+            await store.deleteReminder(identifier: reminder.calendarItemIdentifier)
+
+            #expect(fake.removed.count == 1)
+            #expect(fake.removed.first === reminder)
+            #expect(fake.lastRemoveCommit == true)
+            #expect(fake.lastPredicate != nil)
+            #expect(fake.fetchCallCount == before + 1) // reload-after-remove
+            #expect(store.visibleReminders.isEmpty)
+        }
+
+        @Test
+        func deleteReminderRemoveErrorStaysSilentAndSkipsReload() async {
+            let reminder = makeReminder(title: "Task")
+            let fake = FakeEventStore(fetchResult: [reminder])
+            fake.removeShouldThrow = true
+            let store = testStore(eventStore: fake)
+            await store.reload()
+            let before = fake.fetchCallCount
+
+            await store.deleteReminder(identifier: reminder.calendarItemIdentifier)
+
+            #expect(fake.removed.isEmpty)
+            #expect(fake.fetchCallCount == before) // no reload on remove error
+        }
+
+        @Test
+        func deleteReminderWhileSkippedPrunesSkipIDOnReload() async {
+            let reminder = makeReminder(title: "Task")
+            let fake = FakeEventStore(fetchResult: [reminder])
+            let skipStore = SkippedReminderStore(
+                defaults: .standard,
+                key: "test-delete-skip-\(UUID().uuidString)")
+            let store = ReminderStore(eventStore: fake, skipStore: skipStore, loadsReminders: true)
+            await store.reload()
+            // Skip it so the ID is in the persisted skip set; then the reminder is gone.
+            store.skipCurrentReminderImmediately()
+            #expect(Set(skipStore.load()).contains(reminder.calendarItemIdentifier))
+
+            fake.fetchResult = []
+            await store.deleteReminder(identifier: reminder.calendarItemIdentifier)
+
+            #expect(fake.removed.first === reminder)
+            #expect(!Set(skipStore.load()).contains(reminder.calendarItemIdentifier))
         }
     }
 #endif
