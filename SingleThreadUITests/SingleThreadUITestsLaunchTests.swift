@@ -22,12 +22,11 @@ final class SingleThreadUITestsLaunchTests: XCTestCase {
     @MainActor
     func testLaunch() throws {
         let app = XCUIApplication()
+        // Launch through the test seam so EventKit auth is never requested: a
+        // real launch would hit the Reminders TCC prompt on a fresh simulator
+        // (VAR-639), which can steal foreground and stall the test.
+        app.launchArguments = ["--ui-testing"]
         app.launch()
-
-        // Insert steps here to perform after app launch but before taking a screenshot,
-        // such as logging into a test account or navigating somewhere in the app
-        // XCUIAutomation Documentation
-        // https://developer.apple.com/documentation/xcuiautomation
 
         let attachment = XCTAttachment(screenshot: app.screenshot())
         attachment.name = "Launch Screen"
