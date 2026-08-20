@@ -10,9 +10,12 @@ import XCTest
 final class SingleThreadUITestsLaunchTests: XCTestCase {
 
     // `class` is required to override XCTestCase's class property; `static` cannot override it.
+    // Run once (not once per target app configuration): on cold CI simulators the
+    // launch test is slow, and multiplying it by the number of configurations
+    // pushes the whole UI suite past its step timeout.
     // swiftlint:disable:next static_over_final_class
     override class var runsForEachTargetApplicationUIConfiguration: Bool {
-        true
+        false
     }
 
     override func setUpWithError() throws {
