@@ -9,7 +9,7 @@ import WidgetKit
 struct NextThingEntry: TimelineEntry {
     enum State {
         case noAccess
-        case empty(Bool)   // hasHidden — true when reminders exist but are out-of-window
+        case empty(Bool) // hasHidden — true when reminders exist but are out-of-window
         case allDone
         case reminder(ReminderDisplay)
     }

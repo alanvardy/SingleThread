@@ -39,9 +39,9 @@ struct ContentView: View {
 
     // MARK: Internal
 
-    /// Copy + icon describing why the empty `reminderList` state is showing,
-    /// keyed off whether the view is hiding incomplete reminders outside the
-    /// current date window.
+    /// Copy + icon describing why the `reminderList` has nothing to show —
+    /// either an empty/in-window-hiding state (keyed off `hasHidden`) or the
+    /// fully-skipped "All Done" state.
     struct EmptyStateCopy {
         let title: String
         let systemImage: String
@@ -128,6 +128,14 @@ struct ContentView: View {
             title: "No Reminders",
             systemImage: "checklist",
             description: "You don't have any reminders yet.")
+    }
+
+    /// Copy + icon for the fully-skipped `reminderList` state.
+    static func allDoneStateCopy() -> EmptyStateCopy {
+        EmptyStateCopy(
+            title: "All Done",
+            systemImage: "checkmark.circle",
+            description: "Pull to refresh to see all your reminders again.")
     }
 
     // MARK: Private
@@ -262,11 +270,12 @@ struct ContentView: View {
                 - geometry.safeAreaInsets.top
                 - geometry.safeAreaInsets.bottom
             if allSkipped {
+                let allDoneCopy = Self.allDoneStateCopy()
                 ScrollView {
                     ContentUnavailableView(
-                        "All Done",
-                        systemImage: "checkmark.circle",
-                        description: Text("Pull to refresh to see all your reminders again."))
+                        allDoneCopy.title,
+                        systemImage: allDoneCopy.systemImage,
+                        description: Text(allDoneCopy.description))
                         .frame(minHeight: viewHeight, alignment: .center)
                 }
                 .scrollBounceBehavior(.always)

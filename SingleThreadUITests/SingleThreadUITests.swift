@@ -19,9 +19,10 @@ final class SingleThreadUITests: XCTestCase {
         app.launchArguments = ["--ui-testing"]
         app.launch()
 
-        // App skips reminders access in UI testing mode, showing a
-        // ProgressView with "Requesting access…". Wait for any visible
-        // text element before auditing.
+        // With --ui-testing, the app instantiates an empty store
+        // (loadsReminders: false), so the view renders the "No Reminders"
+        // empty reminderList branch. Wait for any visible text element before
+        // auditing.
         XCTAssertTrue(
             app.staticTexts.firstMatch.waitForExistence(timeout: 2),
             "App should display text content")

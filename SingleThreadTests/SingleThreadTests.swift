@@ -35,6 +35,14 @@ struct SingleThreadTests {
         #expect(nothingDueCopy.description == "Only today's and overdue reminders show here — pull to refresh.")
         #expect(emptyCopy.title != nothingDueCopy.title)
     }
+
+    @Test
+    func contentViewAllDoneShowsAllDoneCopy() {
+        let allDoneCopy = ContentView.allDoneStateCopy()
+        #expect(allDoneCopy.title == "All Done")
+        #expect(allDoneCopy.systemImage == "checkmark.circle")
+        #expect(allDoneCopy.description == "Pull to refresh to see all your reminders again.")
+    }
 }
 
 struct ReminderDateFilterTests {
