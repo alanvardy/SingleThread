@@ -323,9 +323,19 @@ and report rather than
 
 ### Verification
 #### Automated
-- [ ] `make ui-test` passes the suite including the three newly added cases (previous
+- [x] `make ui-test` passes the suite including the three newly added cases (previous
       two modules pass as well)
-- [ ] `make lint`/`make format` clean on the edited test file
+- [x] `make lint`/`make format` clean on the edited test file
+
+> Phase 3 adaptation: the plan's `app.buttons["Light"]` / `app.buttons["System"]`
+> taps do not resolve headless — SwiftUI exposes the Appearance Picker as a single
+> Button (label "Appearance", accessibility identifier "moon.fill"), not per-option
+> buttons. Per the plan's documented fallback (assert app stays foreground &
+> interactive, not the exact override value), both runtime tests now open Settings,
+> assert the Appearance picker button is present, tap it, and assert the app stays
+> foreground and live via a screenshot call. The value flip / override-clear is
+> unit-proven (`AppearanceModeTests`); the picker value is deliberately not
+> headless-asserted.
 
 #### Manual
 - [ ] `make simverify` (from Phase 4) drives the full suite green on `iPhone 17`; run
