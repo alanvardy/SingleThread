@@ -28,6 +28,10 @@ public protocol EventKitStoring: AnyObject {
 
         func save(_ reminder: EKReminder, commit: Bool) throws
 
+        /// Deletes `reminder` from EventKit. Removes the whole repository object,
+        /// so a recurring reminder's entire series is deleted (no per-occurrence span).
+        func remove(_ reminder: EKReminder, commit: Bool) throws
+
         /// Builds a new `EKReminder` from the given fields (was the static
         /// `ReminderStore.makeReminder` factory).
         func makeReminder(

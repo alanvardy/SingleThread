@@ -72,6 +72,11 @@ public final class ReminderStore {
     /// the watch app layer to relay the completion to the iPhone via WatchConnectivity.
     public var onCompleteReminder: ((String) -> Void)?
 
+    /// Hook invoked when the user deletes a reminder on watchOS, where EventKit
+    /// writes are unavailable. Passes the deleted reminder's identifier. Wired by
+    /// the watch app layer to relay the deletion to the iPhone via WatchConnectivity.
+    public var onDeleteReminder: ((String) -> Void)?
+
     /// Hook invoked after any mutation that changes the visible reminder set
     /// (complete, skip, add, or clear-skipped reload). Wired by the iOS app layer
     /// to reload widget timelines.
@@ -138,6 +143,32 @@ public final class ReminderStore {
     public func completeCurrentReminder() async {
         guard let reminder = visibleReminders.first else { return }
         await completeReminder(identifier: reminder.calendarItemIdentifier)
+    }
+
+    /// Deletes a specific reminder by identifier.
+    ///
+    /// On iOS: removes the whole `EKReminder` object from EventKit and reloads.
+    /// On watchOS (where EventKit is read-only): removes it locally and relays the
+    /// deletion to the iPhone via `onDeleteReminder`.
+    public func deleteReminder(identifier: String) async {
+        #if os(watchOS)
+            reminders.removeAll { $0.calendarItemIdentifier == identifier }
+            onDeleteReminder?(identifier)
+        #else
+            guard let reminder = reminders.first(where: { $0.calendarItemIdentifier == identifier }) else { return }
+            do {
+                try eventStore.remove(reminder, commit: true)
+                try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
+                await reload()
+            } catch {
+                Self.logger.error("Failed to delete reminder: \(error.localizedDescription, privacy: .public)")
+            }
+        #endif
+    }
+
+    public func deleteCurrentReminder() async {
+        guard let reminder = visibleReminders.first else { return }
+        await deleteReminder(identifier: reminder.calendarItemIdentifier)
     }
 
     /// Creates a new reminder in EventKit with the given title, notes, and optional due date.
@@ -240,6 +271,10 @@ public final class ReminderStore {
                 skipped: skipStore.load())
             skippedIDs = Set(resolved)
             excludedProjectTitles = Set(excludeStore.load())
+            // Persist the pruned list so stale IDs (a deleted-while-skipped
+            // reminder, for example) drop cleanly from UserDefaults too, keeping
+            // the on-disk skip store consistent with in-memory `skippedIDs`.
+            skipStore.save(resolved)
         }
         onRemindersChanged?()
     }
