@@ -13,14 +13,14 @@ struct SingleThreadApp: App {
     // MARK: Lifecycle
 
     init() {
-        let loads = !ProcessInfo.processInfo.arguments.contains("--ui-testing")
-            && !ProcessInfo.processInfo.arguments.contains("--no-reminders")
-        let store = ReminderStore(loadsReminders: loads)
+        let arguments = ProcessInfo.processInfo.arguments
+        let (store, usesInMemory) = Self.makeStore(arguments: arguments)
         self.store = store
+        usesInMemoryStore = usesInMemory
         store.sortOption = SortOptionStore().load()
 
         #if os(iOS)
-            if WCSession.isSupported() {
+            if WCSession.isSupported(), !usesInMemoryStore {
                 let skipStore = SkippedReminderStore()
                 let service = SkippedReminderSyncService(
                     session: WCSession.default,
@@ -94,4 +94,32 @@ struct SingleThreadApp: App {
     private var showDate = true
 
     private let store: ReminderStore
+    private let usesInMemoryStore: Bool
+
+    /// Builds the app's ``ReminderStore`` from launch arguments.
+    ///
+    /// When a `--seed '<json>'` argument is present (UI tests), backs the store
+    /// with an in-memory ``InMemoryEventStore`` seeded with reminders/calendars
+    /// so complete/delete/add flows run deterministically without EventKit, and
+    /// resets persisted UserDefaults so no state leaks between test launches.
+    /// Otherwise falls back to the production EventKit-backed store (suppressing
+    /// load for `--ui-testing`/`--no-reminders`).
+    private static func makeStore(arguments: [String]) -> (store: ReminderStore, usesInMemory: Bool) {
+        if let seed = UITestingSeed.fromLaunchArguments(arguments) {
+            UITestingSeed.resetPersistedState()
+            let inMemoryStore = InMemoryEventStore(
+                reminders: seed.reminders,
+                calendars: seed.calendars)
+            let store = ReminderStore(
+                eventStore: inMemoryStore,
+                loadsReminders: true)
+            if !seed.excludedProjectTitles.isEmpty {
+                store.setExcludedProjectTitles(seed.excludedProjectTitles)
+            }
+            return (store, true)
+        }
+        let loads = !arguments.contains("--ui-testing")
+            && !arguments.contains("--no-reminders")
+        return (ReminderStore(loadsReminders: loads), false)
+    }
 }
