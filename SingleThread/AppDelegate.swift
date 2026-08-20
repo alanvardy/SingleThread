@@ -57,3 +57,35 @@
         }
     }
 #endif
+
+#if os(macOS)
+    import AppKit
+
+    /// Bridges the persisted appearance into every `NSWindow`, mirroring the
+    /// iOS `AppDelegate` seam. Registered via `@NSApplicationDelegateAdaptor`.
+    final class MacAppDelegate: NSObject, NSApplicationDelegate {
+        // MARK: Internal
+
+        /// Re-applies `mode` to every open window. `.system` sets `nil`,
+        /// clearing the explicit appearance so the window follows the system.
+        static func applyAppearance(_ mode: AppearanceMode) {
+            for window in NSApp.windows {
+                window.appearance = mode.appKitAppearance
+            }
+        }
+
+        func applicationDidFinishLaunching(_: Notification) {
+            applyLaunchAppearance()
+        }
+
+        func applicationDidBecomeActive(_: Notification) {
+            applyLaunchAppearance()
+        }
+
+        // MARK: Private
+
+        private func applyLaunchAppearance() {
+            Self.applyAppearance(AppearanceMode.load())
+        }
+    }
+#endif

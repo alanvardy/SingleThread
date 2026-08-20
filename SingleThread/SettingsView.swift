@@ -165,9 +165,6 @@ struct SettingsView: View {
                 }
             }
         }
-        #if os(macOS)
-        .preferredColorScheme(appearanceMode.colorScheme)
-        #endif
         .modifier(TextSizeModifier(textSize: textSize))
     }
 

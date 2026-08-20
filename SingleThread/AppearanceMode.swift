@@ -1,7 +1,8 @@
-import SwiftUI
-
 #if os(iOS)
     import UIKit
+#endif
+#if os(macOS)
+    import AppKit
 #endif
 
 // MARK: - AppearanceMode
@@ -29,14 +30,17 @@ enum AppearanceMode: String, CaseIterable {
         }
     #endif
 
-    /// The `ColorScheme` to prefer, or `nil` to follow the system.
-    var colorScheme: ColorScheme? {
-        switch self {
-        case .system: nil
-        case .light: .light
-        case .dark: .dark
+    #if os(macOS)
+        /// The `NSAppearance` to force, or `nil` for `.system` (clear override
+        /// → follow the system).
+        var appKitAppearance: NSAppearance? {
+            switch self {
+            case .system: nil
+            case .light: NSAppearance(named: .aqua)
+            case .dark: NSAppearance(named: .darkAqua)
+            }
         }
-    }
+    #endif
 
     /// SF Symbol shown alongside the label in the appearance picker.
     var systemImage: String {
