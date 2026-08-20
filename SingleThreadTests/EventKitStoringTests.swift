@@ -222,7 +222,7 @@ private final class FakeEventStore: EventKitStoring {
             #expect(fake.removed.first === reminder)
             #expect(fake.lastRemoveCommit == true)
             #expect(fake.lastPredicate != nil)
-            #expect(fake.fetchCallCount == before + 1) // reload-after-remove
+            #expect(fake.fetchCallCount == before + 2) // reload-after-remove (narrow + broad)
             #expect(store.visibleReminders.isEmpty)
         }
 
