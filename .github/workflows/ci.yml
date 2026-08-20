@@ -121,6 +121,7 @@ jobs:
           xcodebuild -scheme SingleThread \
             -destination "$SIM" \
             -derivedDataPath "$DERIVED_DATA" \
+            -maximum-test-execution-time-allowance 900 \
             test-without-building \
             -only-testing:SingleThreadUITests
 
@@ -245,11 +246,28 @@ jobs:
           restore-keys: |
             watch-ui-derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
 
+      - name: Create standalone watch simulator
+        run: |
+          # GitHub's macOS image ships a standalone watchOS Simulator AND watch
+          # simulators paired with iPhones, so a name-only destination is
+          # ambiguous and xcodebuild fails to resolve it. Create a fresh,
+          # unpaired watch (deterministic name + id) to run UI tests against.
+          RUNTIME=$(xcrun simctl list runtimes | grep -i watchos | \
+            grep -oE 'com.apple.CoreSimulator.SimRuntime.watchOS-[0-9-]+' | sort -V | tail -1)
+          UDID=$(xcrun simctl create "CI Watch S11" \
+            "com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Series-11-46mm" "$RUNTIME")
+          echo "WATCH_UDID=$UDID" >> "$GITHUB_ENV"
+
+      - name: Boot watch simulator
+        run: |
+          xcrun simctl boot "${{ env.WATCH_UDID }}" || true
+          xcrun simctl bootstatus "${{ env.WATCH_UDID }}" -b
+
       - name: Build watch app + tests
         timeout-minutes: 20
         run: |
           xcodebuild -scheme SingleThreadWatch \
-            -destination "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)" \
+            -destination "platform=watchOS Simulator,id=${{ env.WATCH_UDID }}" \
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA" \
             build-for-testing \
@@ -260,7 +278,8 @@ jobs:
         timeout-minutes: 20
         run: |
           xcodebuild -scheme SingleThreadWatch \
-            -destination "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)" \
+            -destination "platform=watchOS Simulator,id=${{ env.WATCH_UDID }}" \
             -derivedDataPath "$DERIVED_DATA" \
+            -maximum-test-execution-time-allowance 900 \
             test-without-building \
             -only-testing:SingleThreadWatchUITests
