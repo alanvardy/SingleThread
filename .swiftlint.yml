@@ -6,6 +6,7 @@ included:
   - SingleThreadWidget
   - SingleThreadTests
   - SingleThreadUITests
+  - SingleThreadWatchUITests
 
 # XCTest-specific rules disabled — project uses Swift Testing
 disabled_rules:

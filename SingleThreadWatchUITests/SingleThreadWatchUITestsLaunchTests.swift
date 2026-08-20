@@ -12,7 +12,7 @@ final class SingleThreadWatchUITestsLaunchTests: XCTestCase {
     }
 
     @MainActor
-    func testLaunch() throws {
+    func testLaunch() {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing"]
         app.launch()

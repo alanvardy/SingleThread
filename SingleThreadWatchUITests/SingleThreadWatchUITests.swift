@@ -1,13 +1,12 @@
 import XCTest
 
 final class SingleThreadWatchUITests: XCTestCase {
-
     override func setUpWithError() throws {
         continueAfterFailure = false
     }
 
     @MainActor
-    func testTapRevealsConfirmationDialog() throws {
+    func testTapRevealsConfirmationDialog() {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing"]
         app.launch()
@@ -19,7 +18,8 @@ final class SingleThreadWatchUITests: XCTestCase {
         title.tap()
 
         let refresh = app.buttons["Refresh"]
-        XCTAssertTrue(refresh.waitForExistence(timeout: 5),
+        XCTAssertTrue(
+            refresh.waitForExistence(timeout: 5),
             "Tapping the card should present the Refresh confirmation dialog")
     }
 
