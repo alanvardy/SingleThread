@@ -34,6 +34,10 @@ struct SingleThreadApp: App {
                 service.onCompleteReminderReceived = { [weak store] identifier in
                     Task { await store?.completeReminder(identifier: identifier) }
                 }
+                // Receive-side: a watch Delete arrives and is executed on the phone.
+                service.onDeleteReminderReceived = { [weak store] identifier in
+                    Task { await store?.deleteReminder(identifier: identifier) }
+                }
                 service.activate()
                 syncService = service
                 store.onSkipSetChanged = { ids in
@@ -44,6 +48,11 @@ struct SingleThreadApp: App {
                 }
                 store.onExcludedProjectsChanged = { titles in service.pushExcludedProjectTitles(titles) }
                 store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
+                // Send-side (defensive/consistent): a phone-side delete relays to the
+                // watch. The iPhone's `deleteReminder` never fires `onDeleteReminder`
+                // (only the watchOS branch does), so this is inert on iOS but kept for
+                // symmetry with the completion path.
+                store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
                 store.onSortOptionChanged = { option in service.pushSortOption(option) }
             }
         #endif

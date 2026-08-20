@@ -268,6 +268,41 @@
             #expect(!received)
         }
 
+        // MARK: - Delete relay
+
+        @Test
+        func requestDeleteReminderSendsMessage() throws {
+            let fake = FakeSession()
+            let store = SkippedReminderStore(defaults: .standard, key: "test-delete-request")
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
+            service.requestDeleteReminder("ABC")
+            let message = try #require(fake.lastMessage)
+            let identifier = try #require(message["deleteReminderIdentifier"] as? String)
+            #expect(identifier == "ABC")
+        }
+
+        @Test
+        func receiveMessageTriggersDeleteHook() {
+            let fake = FakeSession()
+            let store = SkippedReminderStore(defaults: .standard, key: "test-delete-receive")
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
+            var received: String?
+            service.onDeleteReminderReceived = { received = $0 }
+            service.session(WCSession.default, didReceiveMessage: ["deleteReminderIdentifier": "XYZ"])
+            #expect(received == "XYZ")
+        }
+
+        @Test
+        func receiveMessageIgnoringDeleteKeyIsNoOp() {
+            let fake = FakeSession()
+            let store = SkippedReminderStore(defaults: .standard, key: "test-delete-bad")
+            let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
+            var received = false
+            service.onDeleteReminderReceived = { _ in received = true }
+            service.session(WCSession.default, didReceiveMessage: ["wrongKey": 42])
+            #expect(!received)
+        }
+
         // MARK: - Excluded-project push/receive
 
         @Test
