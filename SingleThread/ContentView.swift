@@ -97,6 +97,7 @@ struct ContentView: View {
                     appearanceMode: $appearanceMode,
                     textSize: $textSize,
                     allowsLandscape: $allowsLandscape,
+                    enableActionButtons: $enableActionButtons,
                     showMicrophoneButton: $showMicrophoneButton,
                     showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
@@ -183,6 +184,11 @@ struct ContentView: View {
 
     @AppStorage("showMicrophoneButton")
     private var showMicrophoneButton = true
+
+    #if os(iOS)
+        @AppStorage("enableActionButtons")
+        private var enableActionButtons = false
+    #endif
 
     @AppStorage("showUndatedReminders", store: AppGroup.defaults)
     private var showUndatedReminders = false
