@@ -8,8 +8,49 @@ MAC_SIM="platform=macOS"
 SCHEME="SingleThread"
 WATCH_SCHEME="SingleThreadWatch"
 DERIVED_DATA="DerivedData"
+# Delete XCTest simulator runtimes older than this many hours. Keeps space in
+# check without ever touching runtimes from an in-flight parallel test run.
+# Override with RUNTIME_AGE_HOURS=... on the command line.
+RUNTIME_AGE_HOURS="${RUNTIME_AGE_HOURS:-1}"
+RUNTIMES_DIR="$HOME/Library/Developer/XCTestDevices"
 
 cd "$(dirname "$0")/.."
+
+# Clean up abandoned XCTests runtimes. Each UI test run leaves a fresh
+# ~3 GB runtime in ~/Library/Developer/XCTestDevices that Xcode never prunes.
+# This deletes only entries older than RUNTIME_AGE_HOURS, so it cannot
+# interfere with parallel tests that are actively writing to a runtime.
+cleanup_xctest_runtimes() {
+    if [[ ! -d "$RUNTIMES_DIR" ]]; then
+        echo "    (no $RUNTIMES_DIR; nothing to clean)"
+        return
+    fi
+
+    local now cutoff_sec
+    local removed=0
+    now=$(date +%s)
+    cutoff_sec=$((RUNTIME_AGE_HOURS * 3600))
+
+    echo "==> Pruning XCTest runtimes older than ${RUNTIME_AGE_HOURS}h…"
+    for entry in "$RUNTIMES_DIR"/*; do
+        # Skip non-directories and symlinks.
+        [[ -d "$entry" ]] || continue
+        [[ -L "$entry" ]] && continue
+
+        local mtime
+        mtime=$(stat -f '%m' "$entry" 2>/dev/null) || continue
+        if ((now - mtime > cutoff_sec)); then
+            rm -rf "$entry"
+            removed=$((removed + 1))
+        fi
+    done
+
+    if [[ "$removed" -gt 0 ]]; then
+        echo "==> Removed $removed stale runtime director(ies)."
+    else
+        echo "==> No stale runtimes to remove."
+    fi
+}
 
 # ── Mode ───────────────────────────────────────────────────────────────────────
 MODE="${1:-full}"
@@ -25,6 +66,11 @@ case "$MODE" in
         exit 1
         ;;
 esac
+
+# Reclaim space before any test/build runs. Safe under parallel execution:
+# only entries older than RUNTIME_AGE_HOURS are removed, and APFS keeps open
+# handles alive anyway, so an in-flight UI test is never disturbed.
+cleanup_xctest_runtimes
 
 # ── Full pipeline ──────────────────────────────────────────────────────────────
 if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
