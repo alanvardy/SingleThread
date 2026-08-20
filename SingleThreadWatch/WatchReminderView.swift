@@ -99,15 +99,6 @@ struct WatchReminderView: View {
                     .labelStyle(.iconOnly)
             }
             .tint(.orange)
-
-            Button {
-                Task { await store.deleteCurrentReminder() }
-            } label: {
-                Label("Delete", systemImage: "trash")
-                    .labelStyle(.iconOnly)
-            }
-            .tint(.red)
-            .accessibilityLabel("Delete reminder")
         }
     }
 
@@ -150,6 +141,10 @@ struct WatchReminderView: View {
             .confirmationDialog("Reminder", isPresented: $isShowingRefreshConfirmation) {
                 Button("Refresh") {
                     refresh()
+                }
+
+                Button("Delete", role: .destructive) {
+                    Task { await store.deleteCurrentReminder() }
                 }
             }
 
