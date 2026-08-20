@@ -245,6 +245,17 @@ struct ContentView: View {
                 .keyboardShortcut("s", modifiers: [])
                 .accessibilityLabel("Skip reminder")
                 .accessibilityAddTraits(.isButton)
+
+                Button {
+                    Task { await store.deleteCurrentReminder() }
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                        .labelStyle(.iconOnly)
+                        .font(.title)
+                }
+                .tint(.red)
+                .accessibilityLabel("Delete reminder")
+                .accessibilityAddTraits(.isButton)
             }
             .padding(.bottom, 8)
         }
@@ -318,6 +329,13 @@ struct ContentView: View {
                                     } label: {
                                         Label("View in Reminders", systemImage: "eye")
                                     }
+
+                                    Button {
+                                        Task { await store.deleteCurrentReminder() }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
+                                    }
+                                    .tint(.red)
                                 }
                             #endif
                                 .swipeActions(edge: .leading) {
