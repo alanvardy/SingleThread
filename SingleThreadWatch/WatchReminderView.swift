@@ -135,9 +135,10 @@ struct WatchReminderView: View {
             ScrollView {
                 reminderDetails(reminder)
             }
-            .onLongPressGesture {
+            .onTapGesture {
                 isShowingRefreshConfirmation = true
             }
+            .accessibilityAddTraits(.isButton)
             .confirmationDialog("Reminder", isPresented: $isShowingRefreshConfirmation) {
                 Button("Refresh") {
                     refresh()
