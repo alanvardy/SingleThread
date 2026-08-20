@@ -46,12 +46,14 @@ final class SingleThreadUITestsAppearanceLaunchTests: XCTestCase {
     /// Runtime reachability: open Settings (gear), locate the Appearance picker,
     /// and tap it. The app must remain foreground and live (a screenshot throws
     /// if the app is not the foreground scene). SwiftUI exposes the Appearance
-    /// Picker headless as a single Button (label "Appearance", accessibility
-    /// identifier "moon.fill") — not as individual System/Light/Dark option
-    /// buttons — so pressing the picker row is the reachable, deterministic
-    /// surface. The actual override value is mapped and unit-proven
-    /// (`SingleThreadTests/AppearanceModeTests.swift`); the picker value flip is
-    /// not headless-asserted (the plan's documented fallback).
+    /// Picker headless as a single Button labeled "Appearance" — not as individual
+    /// System/Light/Dark option buttons — so pressing the picker row is the
+    /// reachable, deterministic surface. The row's accessibility *identifier*
+    /// varies (it is the currently-selected mode's symbol, e.g. "moon.fill" /
+    /// "circle.lefthalf.filled" depending on the persisted appearance), so the
+    /// test matches by the stable label. The actual override value is mapped and
+    /// unit-proven (`SingleThreadTests/AppearanceModeTests.swift`); the picker
+    /// value flip is not headless-asserted (the plan's documented fallback).
     @MainActor
     func testRuntimeAppearanceToggle() throws {
         let app = XCUIApplication()
@@ -59,12 +61,15 @@ final class SingleThreadUITestsAppearanceLaunchTests: XCTestCase {
         app.launch()
 
         app.buttons["Settings"].tap()
+        let appearancePicker = app.buttons
+            .matching(NSPredicate(format: "label == %@", "Appearance"))
+            .firstMatch
         XCTAssertTrue(
-            app.buttons["moon.fill"].waitForExistence(timeout: 2),
+            appearancePicker.waitForExistence(timeout: 2),
             "Settings sheet should present the appearance picker (label Appearance)")
         // Open the appearance picker. A screenshot here proves the app stayed
         // foreground and alive through the interaction (screenshot throws if not).
-        app.buttons["moon.fill"].tap()
+        appearancePicker.tap()
         app.screenshot()
         XCTAssertTrue(
             app.staticTexts.firstMatch.waitForExistence(timeout: 2),
@@ -87,10 +92,13 @@ final class SingleThreadUITestsAppearanceLaunchTests: XCTestCase {
         app.launch()
 
         app.buttons["Settings"].tap()
+        let appearancePicker = app.buttons
+            .matching(NSPredicate(format: "label == %@", "Appearance"))
+            .firstMatch
         XCTAssertTrue(
-            app.buttons["moon.fill"].waitForExistence(timeout: 2),
+            appearancePicker.waitForExistence(timeout: 2),
             "Settings sheet should present the appearance picker (label Appearance)")
-        app.buttons["moon.fill"].tap()
+        appearancePicker.tap()
         app.screenshot()
         XCTAssertTrue(
             app.staticTexts.firstMatch.waitForExistence(timeout: 2),
