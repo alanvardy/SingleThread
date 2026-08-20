@@ -107,6 +107,25 @@ Xcode auto-discovers `.swift` files placed in `SingleThread/`,
 - Force-unwrapping is banned outside test code. Test fixtures relax this rule
   via `SingleThreadTests/.swiftlint.yml`.
 
+## Testing Requirements
+
+- **Every new feature or behavior change must ship with tests.** A change is
+  not "done" until it is covered by:
+  - a **unit test** (`SingleThreadTests`, Swift Testing) for any new logic —
+    persistence, filtering, sorting, parsing, formatting, state transitions;
+  - a **UI test** (`SingleThreadUITests` / `SingleThreadWatchUITests`, XCTest)
+    for any new end-to-end user flow — e.g. view, complete, skip, delete,
+    settings. This is the regression guard for the user-facing use cases.
+- The `--seed '<json>'` launch-arg seam (backed by `InMemoryEventStore`) is the
+  standard way to drive deterministic iOS UI tests for write flows (complete /
+  delete) without a real `EKEventStore` or a TCC prompt. Use it for new iOS UI
+  tests; reuse the existing `--ui-testing` seam on watchOS.
+- Bug fixes must add (or fix) a test that reproduces the bug before the fix, so
+  the fix is proven to hold.
+- If a feature genuinely can't be UI-tested (e.g. dictation/speech, which is
+  handled by unit tests only), say so explicitly in the PR rather than silently
+  skipping it.
+
 ## Dead Code Detection (Periphery)
 
 - Periphery 3.8.0 scans the compiler index store for unused declarations.
@@ -140,3 +159,5 @@ Xcode auto-discovers `.swift` files placed in `SingleThread/`,
   build + test + lint pipeline).
 - New test suites must be added to `Makefile`'s `test` target and
   `scripts/test.sh` if they need explicit `-only-testing` filters.
+- Confirm the feature ships with both unit and UI test coverage (see
+  [Testing Requirements](#testing-requirements)) before marking work "done".
