@@ -4,7 +4,7 @@ import PackageDescription
 let package = Package(
     name: "SingleThreadCore",
     platforms: [
-        .iOS("26.5"),
+        .iOS("18.7"),
         .watchOS("26.5"),
         .macOS("26.5")
     ],
