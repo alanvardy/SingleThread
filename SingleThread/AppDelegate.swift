@@ -43,6 +43,7 @@
         }
 
         func applicationDidBecomeActive(_: UIApplication) {
+            print("SimVerify: app active")
             Self.applyAppearance(AppearanceMode.load())
         }
 
