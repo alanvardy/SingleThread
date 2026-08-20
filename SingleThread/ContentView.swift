@@ -25,17 +25,28 @@ struct ContentView: View {
         skippedIDs: Set<String>,
         authorizationStatus: EKAuthorizationStatus,
         excludedProjectTitles: Set<String> = [],
+        hasHidden: Bool = false,
         speechTranscriber: (any SpeechTranscribing)? = nil) {
         store = ReminderStore(
             loadsReminders: loadsReminders,
             reminders: reminders,
             skippedIDs: skippedIDs,
             authorizationStatus: authorizationStatus,
-            excludedProjectTitles: excludedProjectTitles)
+            excludedProjectTitles: excludedProjectTitles,
+            hasHidden: hasHidden)
         self.speechTranscriber = speechTranscriber ?? ReminderDictation()
     }
 
     // MARK: Internal
+
+    /// Copy + icon describing why the empty `reminderList` state is showing,
+    /// keyed off whether the view is hiding incomplete reminders outside the
+    /// current date window.
+    struct EmptyStateCopy {
+        let title: String
+        let systemImage: String
+        let description: String
+    }
 
     var body: some View {
         ZStack {
@@ -104,6 +115,19 @@ struct ContentView: View {
                     showDate: $showDate)
             #endif
         }
+    }
+
+    static func emptyStateCopy(hasHidden: Bool) -> EmptyStateCopy {
+        if hasHidden {
+            return EmptyStateCopy(
+                title: "Nothing due",
+                systemImage: "calendar",
+                description: "Only today's and overdue reminders show here — pull to refresh.")
+        }
+        return EmptyStateCopy(
+            title: "No Reminders",
+            systemImage: "checklist",
+            description: "You don't have any reminders yet.")
     }
 
     // MARK: Private
@@ -250,12 +274,13 @@ struct ContentView: View {
                     await store.reload(clearSkipped: true)
                 }
             } else if store.reminders.isEmpty {
+                let emptyCopy = Self.emptyStateCopy(hasHidden: store.hasHidden)
                 ZStack(alignment: .bottom) {
                     ScrollView {
                         ContentUnavailableView(
-                            "No Reminders",
-                            systemImage: "checklist",
-                            description: Text("You don't have any reminders yet."))
+                            emptyCopy.title,
+                            systemImage: emptyCopy.systemImage,
+                            description: Text(emptyCopy.description))
                             .frame(minHeight: viewHeight, alignment: .center)
                     }
                     .scrollBounceBehavior(.always)
@@ -469,6 +494,15 @@ private let mockReminderInProject: EKReminder = {
 
 #Preview("Empty") {
     ContentView(loadsReminders: false)
+}
+
+#Preview("Nothing Due") {
+    ContentView(
+        loadsReminders: false,
+        reminders: [],
+        skippedIDs: [],
+        authorizationStatus: .fullAccess,
+        hasHidden: true)
 }
 
 #Preview("With Reminder") {

@@ -266,9 +266,18 @@ default `false`) and add a second hidden preview:
 
 ### Verification
 #### Automated
-- [ ] `make build` compiles ContentView, ReminderStore, and the SwiftUI `ContentUnavailableView` usage.
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes with new body-string assertions (below).
-- [ ] Existing `contentViewBodyContainsRefreshableModifier` still passes (both variants still contain `refreshable`).
+- [x] `make build` compiles ContentView, ReminderStore, and the SwiftUI `ContentUnavailableView` usage.
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes with new `contentViewEmptyStatesShowDistinctCopy` copy assertions (below).
+- [x] Existing `contentViewBodyContainsRefreshableModifier` still passes (both variants still contain `refreshable`).
+
+> **Adaptation note:** `String(describing: view.body)` proved unreliable for asserting
+> rendered text — in an isolated run it includes `Text`/label content, but in the
+> full `SingleThreadTests` bundle the same expression returns a text-free structural
+> type dump (so `.contains("No Reminders")` fails). To keep a deterministic,
+> non-flaky view-level test, the iOS empty-state copy/icon was lifted into a small
+> `ContentView.EmptyStateCopy` struct returned by a new `ContentView.emptyStateCopy(hasHidden:)`
+> helper (the `reminderList` empty branch now renders from it). The unit test asserts on
+> that helper instead of on body-string reflection.
 
 Add to `SingleThreadTests/SingleThreadTests.swift`, next to the existing
 `ContentView` tests:
@@ -276,18 +285,18 @@ Add to `SingleThreadTests/SingleThreadTests.swift`, next to the existing
 ```swift
     @Test
     func contentViewEmptyStatesShowDistinctCopy() {
-        let noReminders = ContentView(loadsReminders: false)
-        #expect(String(describing: noReminders.body).contains("No Reminders"))
-        #expect(String(describing: noReminders.body).contains("You don't have any reminders yet"))
+        let emptyCopy = ContentView.emptyStateCopy(hasHidden: false)
+        #expect(emptyCopy.title == "No Reminders")
+        #expect(emptyCopy.systemImage == "checklist")
+        #expect(emptyCopy.description == "You don't have any reminders yet.")
 
-        let nothingDue = ContentView(loadsReminders: false, hasHidden: true)
-        let desc = String(describing: nothingDue.body)
-        #expect(desc.contains("Nothing due"))
-        #expect(desc.contains("Only today's and overdue reminders show here"))
+        let nothingDueCopy = ContentView.emptyStateCopy(hasHidden: true)
+        #expect(nothingDueCopy.title == "Nothing due")
+        #expect(nothingDueCopy.systemImage == "calendar")
+        #expect(nothingDueCopy.description == "Only today's and overdue reminders show here — pull to refresh.")
+        #expect(emptyCopy.title != nothingDueCopy.title)
     }
 ```
-
-(`ContentView`'s `hasHidden:` param is exposed through the pre-populated init.)
 
 #### Manual
 - [ ] Run `#Preview("Empty")` on the Quartz simulator: "No Reminders" + `checklist` icon + "You don't have any reminders yet." Confirm pull-to-refresh still calls `store.reload()` and mic `bottomBar` still overlays.

@@ -21,6 +21,20 @@ struct SingleThreadTests {
         let description = String(describing: bodyValue)
         #expect(description.contains("List") || description.contains("refreshable"))
     }
+
+    @Test
+    func contentViewEmptyStatesShowDistinctCopy() {
+        let emptyCopy = ContentView.emptyStateCopy(hasHidden: false)
+        #expect(emptyCopy.title == "No Reminders")
+        #expect(emptyCopy.systemImage == "checklist")
+        #expect(emptyCopy.description == "You don't have any reminders yet.")
+
+        let nothingDueCopy = ContentView.emptyStateCopy(hasHidden: true)
+        #expect(nothingDueCopy.title == "Nothing due")
+        #expect(nothingDueCopy.systemImage == "calendar")
+        #expect(nothingDueCopy.description == "Only today's and overdue reminders show here — pull to refresh.")
+        #expect(emptyCopy.title != nothingDueCopy.title)
+    }
 }
 
 struct ReminderDateFilterTests {
