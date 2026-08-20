@@ -25,8 +25,8 @@ struct TextSizeTests {
     }
 
     @Test
-    func extraLargeMapsToXLargeDynamicTypeSize() {
-        #expect(TextSize.extraLarge.dynamicTypeSize == .xLarge)
+    func extraLargeMapsToXXXLargeDynamicTypeSize() {
+        #expect(TextSize.extraLarge.dynamicTypeSize == .xxxLarge)
     }
 
     @Test
