@@ -366,9 +366,9 @@ Preview `#Preview` macros stay as-is. No new `self.store` wiring required here �
 ### Verification
 
 #### Automated
-- [ ] Build succeeds (catches any `removeReminder` Swift6 binding issue from Phase 1 early): `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build`
-- [ ] iOS accessibility audit passes: `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` — includes `testAccessibilityAudit()` covering hit regions, element descriptions, and traits.
-- [ ] `make lint` clean.
+- [x] Build succeeds (catches any `removeReminder` Swift6 binding issue from Phase 1 early): `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build`
+- [x] iOS accessibility audit passes: `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` — includes `testAccessibilityAudit()` covering hit regions, element descriptions, and traits.
+- [x] `make lint` clean.
 
 #### Manual
 - [ ] iOS: the context menu shows a red "Delete" row; tapping it removes the card (the reminder disappears after `reload()`).
