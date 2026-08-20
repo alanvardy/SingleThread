@@ -1,6 +1,8 @@
+import Foundation
 import SingleThreadCore
 import SwiftUI
 #if os(iOS)
+    import EventKit
     import UIKit
     import WatchConnectivity
 #endif
@@ -118,6 +120,27 @@ struct SingleThreadApp: App {
             }
             return (store, true)
         }
+        #if os(iOS)
+            // Mirrors the watch `--ui-testing` seam: a deterministic single-reminder
+            // store so the reminder card presents without requesting EventKit access.
+            // Also seeds the action-buttons toggle ON so the Complete/Skip cluster
+            // renders for the interaction + accessibility-audit UI tests. The trade-off
+            // (a persistent `.standard` value on the test simulator) is isolated to the
+            // XCTest seam on a test-only destination.
+            if arguments.contains("--ui-testing") {
+                UserDefaults.standard.set(true, forKey: "enableActionButtons")
+                let eventStore = EKEventStore()
+                let reminder = EKReminder(eventStore: eventStore)
+                reminder.title = "Buy groceries"
+                reminder.priority = 5
+                reminder.notes = "Don't forget the milk"
+                return (ReminderStore(
+                    loadsReminders: false,
+                    reminders: [reminder],
+                    skippedIDs: [],
+                    authorizationStatus: .fullAccess), false)
+            }
+        #endif
         let loads = !arguments.contains("--ui-testing")
             && !arguments.contains("--no-reminders")
         return (ReminderStore(loadsReminders: loads), false)

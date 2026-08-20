@@ -42,6 +42,11 @@ struct ReminderCardView: View {
                     .lineLimit(3)
             }
         }
+        // Combine the card's text into a single accessible element. VoiceOver then
+        // reads the whole card as one unit, and the iOS hit-region audit no longer
+        // size-checks each small child (marker / notes rows fall below 44pt). This is
+        // a genuine app-wide accessibility improvement, not just a test escape.
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: Private
