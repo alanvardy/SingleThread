@@ -445,11 +445,23 @@ toggling, device-follow), the `--no-reminders` seam (`SingleThreadApp.swift:16` 
 
 ### Verification
 #### Automated
-- [ ] `make simverify` on `iPhone 17` returns green (all three appearance tests + boot
+- [x] `make simverify` on `iPhone 17` returns green (all three appearance tests + boot
       gate + screenshot)
-- [ ] `SIM=platform=iOS Simulator,name=iPad (A16)` `make simverify` also returns green
+- [x] `SIM=platform=iOS Simulator,name=iPad (A16)` `make simverify` also returns green
       (the second CI matrix device)
-- [ ] `make format`/`make lint` still pass (no Swift files changed in this phase)
+- [x] `make format`/`make lint` still pass (no Swift files changed in this phase)
+
+> Phase 4 adaptation (iPad matrix parity): `-only-testing:SingleThreadUITestsAppearanceLaunchTests`
+> is rejected by `test-without-building` (class-name filter does not resolve in this
+> project); `simverify.sh` uses bundle-level `-only-testing:SingleThreadUITests`.
+> The two runtime UI tests (Phase 3) failed on iPad (A16) — cold-launch passed —
+> because the Appearance Picker row's accessibility *identifier* is the
+> currently-selected mode's SF Symbol (`.dark`→"moon.fill", `.system`→
+> "circle.lefthalf.filled"), so the hardcoded `moon.fill` only matched the
+> persisted value on iPhone 17. Fixed by matching the row's stable **label**
+> "Appearance" via `NSPredicate(format: "label == %@", "Appearance")`
+> (`SingleThreadUITestsAppearanceLaunchTests.swift`), honoring the plan-required
+> iPad matrix parity. The Settings gear (`buttons["Settings"]`) is unaffected.
 
 #### Manual
 - [ ] Fresh shell run of `make simverify` reproduces the documented steps in the doc;
