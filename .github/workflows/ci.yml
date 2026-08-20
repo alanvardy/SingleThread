@@ -116,7 +116,7 @@ jobs:
             -showBuildTimingSummary
 
       - name: UI tests
-        timeout-minutes: 20
+        timeout-minutes: 45
         run: |
           xcodebuild -scheme SingleThread \
             -destination "$SIM" \
@@ -275,7 +275,7 @@ jobs:
             -showBuildTimingSummary
 
       - name: Watch UI tests
-        timeout-minutes: 20
+        timeout-minutes: 45
         run: |
           xcodebuild -scheme SingleThreadWatch \
             -destination "platform=watchOS Simulator,id=${{ env.WATCH_UDID }}" \
