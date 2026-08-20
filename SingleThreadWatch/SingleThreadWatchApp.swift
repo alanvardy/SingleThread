@@ -37,6 +37,7 @@ struct SingleThreadWatchApp: App {
             }
             store.onExcludedProjectsChanged = { titles in service.pushExcludedProjectTitles(titles) }
             store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
+            store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
         }
     }
 

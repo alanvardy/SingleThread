@@ -55,6 +55,11 @@ import os
         /// delete the `nonisolated(unsafe)` annotation.
         public nonisolated(unsafe) var onCompleteReminderReceived: ((String) -> Void)?
 
+        /// Hook invoked on the iPhone when the watch asks to delete a reminder.
+        /// Passes the deleted reminder's identifier. Same write-once-before-activate /
+        /// `nonisolated(unsafe)` rationale as `onCompleteReminderReceived`.
+        public nonisolated(unsafe) var onDeleteReminderReceived: ((String) -> Void)?
+
         /// Hook invoked on the watch when the iPhone's "show undated reminders"
         /// preference arrives in a combined application context. Passes the new value.
         /// Same write-once-before-activate / `nonisolated(unsafe)` rationale as
@@ -142,6 +147,16 @@ import os
                 }
         }
 
+        /// Ask the iPhone to delete a reminder (watch-side action).
+        public func requestDeleteReminder(_ identifier: String) {
+            session.sendMessage(
+                [PayloadKey.deleteReminderIdentifier: identifier],
+                replyHandler: nil) { error in
+                    let description = error.localizedDescription
+                    Self.logger.error("Failed to send delete request: \(description, privacy: .public)")
+                }
+        }
+
         // MARK: WCSessionDelegate
 
         public func session(
@@ -178,9 +193,14 @@ import os
         }
 
         public func session(_: WCSession, didReceiveMessage message: [String: Any]) {
-            guard let identifier = message[PayloadKey.completeReminderIdentifier] as? String else { return }
-            let handler = onCompleteReminderReceived
-            handler?(identifier)
+            if let identifier = message[PayloadKey.completeReminderIdentifier] as? String {
+                let handler = onCompleteReminderReceived
+                handler?(identifier)
+            }
+            if let identifier = message[PayloadKey.deleteReminderIdentifier] as? String {
+                let handler = onDeleteReminderReceived
+                handler?(identifier)
+            }
         }
 
         public func session(
@@ -207,6 +227,7 @@ import os
             static let skippedReminderIdentifiers = "skippedReminderIdentifiers"
             static let excludedProjectTitles = "excludedProjectTitles"
             static let completeReminderIdentifier = "completeReminderIdentifier"
+            static let deleteReminderIdentifier = "deleteReminderIdentifier"
             static let showUndatedReminders = "showUndatedReminders"
             static let sortOption = "sortOption"
             static let showDate = "showDate"

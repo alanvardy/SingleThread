@@ -308,8 +308,8 @@ store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifie
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes — `SkippedReminderSyncServiceTests` new cases green (requestDelete sends correct key; receive handler fires; missing key no-ops).
-- [ ] `make lint` clean.
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes — `SkippedReminderSyncServiceTests` new cases green (requestDelete sends correct key; receive handler fires; missing key no-ops).
+- [x] `make lint` clean.
 
 #### Manual
 - [ ] Relay a watch-app Delete to a target "iPhone" session wakes the receive handler (`onDeleteReminderReceived`).
