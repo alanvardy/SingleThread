@@ -9,7 +9,7 @@ import WidgetKit
 struct NextThingEntry: TimelineEntry {
     enum State {
         case noAccess
-        case empty
+        case empty(Bool)   // hasHidden — true when reminders exist but are out-of-window
         case allDone
         case reminder(ReminderDisplay)
     }
@@ -60,7 +60,10 @@ struct NextThingProvider: TimelineProvider {
             store.setSortOption(SortOptionStore().load())
             await store.reload()
             if store.reminders.isEmpty {
-                return NextThingEntry(date: date, state: .empty, showsDate: showsDate)
+                return NextThingEntry(
+                    date: date,
+                    state: .empty(store.hasHidden),
+                    showsDate: showsDate)
             }
             guard let current = store.visibleReminders.first else {
                 return NextThingEntry(date: date, state: .allDone, showsDate: showsDate)
@@ -105,11 +108,11 @@ struct NextThingWidgetView: View {
                 title: "Reminders Access",
                 systemImage: "lock.shield",
                 message: "Open SingleThread to enable access.")
-        case .empty:
+        case let .empty(hasHidden):
             messageView(
                 title: "No Reminders",
                 systemImage: "checklist",
-                message: nil)
+                message: hasHidden ? "Nothing due right now" : "No reminders yet")
         case .allDone:
             messageView(
                 title: "All Done",
