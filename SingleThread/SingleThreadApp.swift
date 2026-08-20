@@ -14,31 +14,7 @@ struct SingleThreadApp: App {
 
     init() {
         let arguments = ProcessInfo.processInfo.arguments
-
-        // Deterministic UI-test store: seed an in-memory EventKit store from a
-        // `--seed` launch argument so tests can drive complete/delete/add flows
-        // without a real EventKit store, and reset persisted UserDefaults so no
-        // state leaks between launches.
-        let store: ReminderStore
-        let usesInMemory: Bool
-        if let seed = UITestingSeed.fromLaunchArguments(arguments) {
-            UITestingSeed.resetPersistedState()
-            let inMemoryStore = InMemoryEventStore(
-                reminders: seed.reminders,
-                calendars: seed.calendars)
-            store = ReminderStore(
-                eventStore: inMemoryStore,
-                loadsReminders: true)
-            if !seed.excludedProjectTitles.isEmpty {
-                store.setExcludedProjectTitles(seed.excludedProjectTitles)
-            }
-            usesInMemory = true
-        } else {
-            let loads = !arguments.contains("--ui-testing")
-                && !arguments.contains("--no-reminders")
-            store = ReminderStore(loadsReminders: loads)
-            usesInMemory = false
-        }
+        let (store, usesInMemory) = Self.makeStore(arguments: arguments)
         self.store = store
         usesInMemoryStore = usesInMemory
         store.sortOption = SortOptionStore().load()
@@ -119,4 +95,31 @@ struct SingleThreadApp: App {
 
     private let store: ReminderStore
     private let usesInMemoryStore: Bool
+
+    /// Builds the app's ``ReminderStore`` from launch arguments.
+    ///
+    /// When a `--seed '<json>'` argument is present (UI tests), backs the store
+    /// with an in-memory ``InMemoryEventStore`` seeded with reminders/calendars
+    /// so complete/delete/add flows run deterministically without EventKit, and
+    /// resets persisted UserDefaults so no state leaks between test launches.
+    /// Otherwise falls back to the production EventKit-backed store (suppressing
+    /// load for `--ui-testing`/`--no-reminders`).
+    private static func makeStore(arguments: [String]) -> (store: ReminderStore, usesInMemory: Bool) {
+        if let seed = UITestingSeed.fromLaunchArguments(arguments) {
+            UITestingSeed.resetPersistedState()
+            let inMemoryStore = InMemoryEventStore(
+                reminders: seed.reminders,
+                calendars: seed.calendars)
+            let store = ReminderStore(
+                eventStore: inMemoryStore,
+                loadsReminders: true)
+            if !seed.excludedProjectTitles.isEmpty {
+                store.setExcludedProjectTitles(seed.excludedProjectTitles)
+            }
+            return (store, true)
+        }
+        let loads = !arguments.contains("--ui-testing")
+            && !arguments.contains("--no-reminders")
+        return (ReminderStore(loadsReminders: loads), false)
+    }
 }

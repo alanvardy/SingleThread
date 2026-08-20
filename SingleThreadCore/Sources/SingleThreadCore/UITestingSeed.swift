@@ -8,7 +8,7 @@ import Foundation
 /// ```json
 /// {
 ///   "reminders": [
-///     {"title":"Buy groceries","priority":5,"notes":"milk","hasDueDateToday":true},
+///     {"title":"Buy groceries","priority":5,"notes":"milk"},
 ///     {"title":"Call mom","priority":1}
 ///   ],
 ///   "calendars": ["Groceries"],
@@ -16,13 +16,15 @@ import Foundation
 /// }
 /// ```
 public struct UITestingSeed {
+    // MARK: Public
+
     public let reminders: [EKReminder]
     public let calendars: [EKCalendar]
     public let excludedProjectTitles: Set<String>
 
     /// Reads an optional `--seed '<json>'` launch argument and decodes it.
     /// Returns `nil` when the argument is absent or malformed.
-    public static func fromLaunchArguments(_ arguments: [String]) -> UITestingSeed? {
+    public static func fromLaunchArguments(_ arguments: [String]) -> Self? {
         guard let index = arguments.firstIndex(of: "--seed"),
               index + 1 < arguments.count,
               let data = arguments[index + 1].data(using: .utf8),
@@ -37,13 +39,15 @@ public struct UITestingSeed {
     /// seeded UI test starts from a clean slate (no leaked skips, exclusions,
     /// sort, or show-date state from a previous test run).
     public static func resetPersistedState() {
-        for key in Self.persistedKeys {
+        for key in persistedKeys {
             AppGroup.defaults.removeObject(forKey: key)
         }
-        for key in Self.persistedKeys {
+        for key in persistedKeys {
             UserDefaults.standard.removeObject(forKey: key)
         }
     }
+
+    // MARK: Private
 
     private static let persistedKeys = [
         "skippedReminderIdentifiers",
@@ -54,23 +58,14 @@ public struct UITestingSeed {
         "showMicrophoneButton",
         "allowsLandscape",
         "textSize",
-        "appearanceMode",
+        "appearanceMode"
     ]
 }
 
 // MARK: - Codable payload
 
 private struct SeedPayload: Codable {
-    struct ReminderSeed: Codable {
-        var title: String
-        var notes: String?
-        var priority: Int?
-        var hasDueDateToday: Bool?
-    }
-
-    var reminders: [ReminderSeed]
-    var calendars: [String] = []
-    var excludedProjects: [String] = []
+    // MARK: Lifecycle
 
     init(from decoder: Decoder) throws {
         // Defaults do not make the synthesized `decode` optional, so absent
@@ -81,6 +76,18 @@ private struct SeedPayload: Codable {
         calendars = try container.decodeIfPresent([String].self, forKey: .calendars) ?? []
         excludedProjects = try container.decodeIfPresent([String].self, forKey: .excludedProjects) ?? []
     }
+
+    // MARK: Internal
+
+    struct ReminderSeed: Codable {
+        var title: String
+        var notes: String?
+        var priority: Int?
+    }
+
+    var reminders: [ReminderSeed]
+    var calendars: [String] = []
+    var excludedProjects: [String] = []
 
     func materialize() -> UITestingSeed {
         let eventStore = EKEventStore()
@@ -96,11 +103,6 @@ private struct SeedPayload: Codable {
             reminder.notes = seed.notes
             if let priority = seed.priority {
                 reminder.priority = priority
-            }
-            if seed.hasDueDateToday == true {
-                reminder.dueDateComponents = Calendar.current.dateComponents(
-                    [.year, .month, .day],
-                    from: Date())
             }
             reminder.calendar = defaultCalendar
             return reminder
