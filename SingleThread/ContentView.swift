@@ -429,9 +429,10 @@ struct ContentView: View {
             } label: {
                 Label("Complete", systemImage: "checkmark.circle.fill")
                     .labelStyle(.iconOnly)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
             }
             .tint(.green)
-            .frame(width: 44, height: 44)
             .accessibilityLabel("Complete reminder")
             .accessibilityAddTraits(.isButton)
         }
@@ -442,9 +443,10 @@ struct ContentView: View {
             } label: {
                 Label("Skip", systemImage: "circle.slash")
                     .labelStyle(.iconOnly)
+                    .frame(width: 44, height: 44)
+                    .contentShape(Circle())
             }
             .tint(.orange)
-            .frame(width: 44, height: 44)
             .accessibilityLabel("Skip reminder")
             .accessibilityAddTraits(.isButton)
         }
