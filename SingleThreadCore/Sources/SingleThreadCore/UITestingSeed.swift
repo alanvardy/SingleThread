@@ -1,0 +1,103 @@
+import EventKit
+import Foundation
+
+/// Parses a `--seed '<json>'` launch argument into an in-memory store
+/// configuration driven by UI tests.
+///
+/// JSON schema (whitespace-insensitive):
+/// ```json
+/// {
+///   "reminders": [
+///     {"title":"Buy groceries","priority":5,"notes":"milk","hasDueDateToday":true},
+///     {"title":"Call mom","priority":1}
+///   ],
+///   "calendars": ["Groceries"],
+///   "excludedProjects": ["Work"]
+/// }
+/// ```
+public struct UITestingSeed {
+    public let reminders: [EKReminder]
+    public let calendars: [EKCalendar]
+    public let excludedProjectTitles: Set<String>
+
+    /// Reads an optional `--seed '<json>'` launch argument and decodes it.
+    /// Returns `nil` when the argument is absent or malformed.
+    public static func fromLaunchArguments(_ arguments: [String]) -> UITestingSeed? {
+        guard let index = arguments.firstIndex(of: "--seed"),
+              index + 1 < arguments.count,
+              let data = arguments[index + 1].data(using: .utf8),
+              let payload = try? JSONDecoder().decode(SeedPayload.self, from: data)
+        else {
+            return nil
+        }
+        return payload.materialize()
+    }
+
+    /// Clears the persisted UserDefaults keys the app reads on launch so each
+    /// seeded UI test starts from a clean slate (no leaked skips, exclusions,
+    /// sort, or show-date state from a previous test run).
+    public static func resetPersistedState() {
+        for key in Self.persistedKeys {
+            AppGroup.defaults.removeObject(forKey: key)
+        }
+        for key in Self.persistedKeys {
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+    }
+
+    private static let persistedKeys = [
+        "skippedReminderIdentifiers",
+        "excludedProjectTitles",
+        "showDate",
+        "showUndatedReminders",
+        "sortOption",
+        "showMicrophoneButton",
+        "allowsLandscape",
+        "textSize",
+        "appearanceMode",
+    ]
+}
+
+// MARK: - Codable payload
+
+private struct SeedPayload: Codable {
+    struct ReminderSeed: Codable {
+        var title: String
+        var notes: String?
+        var priority: Int?
+        var hasDueDateToday: Bool?
+    }
+
+    var reminders: [ReminderSeed]
+    var calendars: [String] = []
+    var excludedProjects: [String] = []
+
+    func materialize() -> UITestingSeed {
+        let eventStore = EKEventStore()
+        let createdCalendars = calendars.map { title in
+            let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
+            calendar.title = title
+            return calendar
+        }
+        let defaultCalendar = createdCalendars.first
+        let createdReminders = reminders.map { seed in
+            let reminder = EKReminder(eventStore: eventStore)
+            reminder.title = seed.title
+            reminder.notes = seed.notes
+            if let priority = seed.priority {
+                reminder.priority = priority
+            }
+            if seed.hasDueDateToday == true {
+                reminder.dueDateComponents = Calendar.current.dateComponents(
+                    [.year, .month, .day],
+                    from: Date())
+            }
+            reminder.calendar = defaultCalendar
+            return reminder
+        }
+        return UITestingSeed(
+            reminders: createdReminders,
+            calendars: createdCalendars,
+            excludedProjectTitles: Set(excludedProjects))
+    }
+}
