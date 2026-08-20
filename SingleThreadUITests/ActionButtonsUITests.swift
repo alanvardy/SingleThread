@@ -48,9 +48,13 @@ final class ActionButtonsUITests: XCTestCase {
             "Skip button should exist before auditing")
 
         // Audit the two new buttons' accessibility: dynamic type, hit regions,
-        // element descriptions, and traits.
-        try app.performAccessibilityAudit(
-            for: [.dynamicType, .hitRegion, .sufficientElementDescription, .trait]
-        )
+        // element descriptions, and traits. macOS offers a different audit set.
+        #if os(iOS)
+            try app.performAccessibilityAudit(
+                for: [.dynamicType, .hitRegion, .sufficientElementDescription, .trait]
+            )
+        #else
+            try app.performAccessibilityAudit()
+        #endif
     }
 }
