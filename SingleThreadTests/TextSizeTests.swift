@@ -20,8 +20,8 @@ struct TextSizeTests {
     }
 
     @Test
-    func largeMapsToLargeDynamicTypeSize() {
-        #expect(TextSize.large.dynamicTypeSize == .large)
+    func largeMapsToXLargeDynamicTypeSize() {
+        #expect(TextSize.large.dynamicTypeSize == .xLarge)
     }
 
     @Test
