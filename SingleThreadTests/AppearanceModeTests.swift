@@ -1,9 +1,19 @@
 @testable import SingleThread
-import SwiftUI
 import Testing
+
+#if os(iOS)
+    import UIKit
+#endif
+#if os(macOS)
+    import AppKit
+#endif
 
 @MainActor
 struct AppearanceModeTests {
+    // MARK: Internal
+
+    // MARK: windowOverrideStyle (iOS)
+
     #if os(iOS)
         @Test
         func systemMapsToUnspecifiedWindowStyle() {
@@ -21,37 +31,45 @@ struct AppearanceModeTests {
         }
     #endif
 
+    // MARK: appKitAppearance (macOS)
+
+    #if os(macOS)
+        @Test
+        func systemClearsAppKitAppearance() {
+            #expect(AppearanceMode.system.appKitAppearance == nil)
+        }
+
+        @Test
+        func lightMapsToAqua() {
+            #expect(AppearanceMode.light.appKitAppearance?.name == .aqua)
+        }
+
+        @Test
+        func darkMapsToDarkAqua() {
+            #expect(AppearanceMode.dark.appKitAppearance?.name == .darkAqua)
+        }
+    #endif
+
+    // MARK: load(from:)
+
     @Test
     func loadReadsPersistedValue() {
-        UserDefaults.standard.set("dark", forKey: "appearanceMode")
-        #expect(AppearanceMode.load() == .dark)
+        let defaults = Self.freshUserDefaults()
+        defaults.set("dark", forKey: "appearanceMode")
+        #expect(AppearanceMode.load(from: defaults) == .dark)
     }
 
     @Test
     func loadFallsBackToSystemWhenKeyMissing() {
-        UserDefaults.standard.removeObject(forKey: "appearanceMode")
-        #expect(AppearanceMode.load() == .system)
+        let defaults = Self.freshUserDefaults()
+        #expect(AppearanceMode.load(from: defaults) == .system)
     }
 
     @Test
     func loadFallsBackToSystemOnUnknownString() {
-        UserDefaults.standard.set("sepia", forKey: "appearanceMode")
-        #expect(AppearanceMode.load() == .system)
-    }
-
-    @Test
-    func systemMapsToNilColorScheme() {
-        #expect(AppearanceMode.system.colorScheme == nil)
-    }
-
-    @Test
-    func lightMapsToLightColorScheme() {
-        #expect(AppearanceMode.light.colorScheme == .light)
-    }
-
-    @Test
-    func darkMapsToDarkColorScheme() {
-        #expect(AppearanceMode.dark.colorScheme == .dark)
+        let defaults = Self.freshUserDefaults()
+        defaults.set("sepia", forKey: "appearanceMode")
+        #expect(AppearanceMode.load(from: defaults) == .system)
     }
 
     @Test
@@ -64,5 +82,14 @@ struct AppearanceModeTests {
         #expect(AppearanceMode.system.title == "System")
         #expect(AppearanceMode.light.title == "Light")
         #expect(AppearanceMode.dark.title == "Dark")
+    }
+
+    // MARK: Private
+
+    /// Returns a throwaway `UserDefaults` instance so tests don't race on the
+    /// shared `standard` suite (Swift Testing runs a suite's tests in
+    /// parallel). Each test gets its own suite instead.
+    private static func freshUserDefaults() -> UserDefaults {
+        UserDefaults(suiteName: "AppearanceModeTests-\(UUID().uuidString)")!
     }
 }

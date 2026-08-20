@@ -19,7 +19,7 @@ mac-build:
 	xcodebuild -scheme SingleThread -destination '$(MAC_SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build
 
 mac-test:
-	xcodebuild -scheme SingleThread -destination '$(MAC_SIM)' -derivedDataPath '$(DERIVED_DATA)' test -only-testing:SingleThreadTests
+	xcodebuild -scheme SingleThread -destination '$(MAC_SIM)' -derivedDataPath '$(DERIVED_DATA)' CODE_SIGNING_ALLOWED=NO test -only-testing:SingleThreadTests
 
 coverage:
 	rm -rf '$(COVERAGE_RESULT)'

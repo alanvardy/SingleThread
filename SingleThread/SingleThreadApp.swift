@@ -75,6 +75,10 @@ struct SingleThreadApp: App {
 
         private var syncService: SkippedReminderSyncService?
     #endif
+    #if os(macOS)
+        @NSApplicationDelegateAdaptor(MacAppDelegate.self)
+        private var macAppDelegate
+    #endif
 
     @AppStorage("showDate", store: AppGroup.defaults)
     private var showDate = true

@@ -72,14 +72,13 @@ struct ContentView: View {
         .onChange(of: sortOption) { _, newValue in
             store.setSortOption(newValue)
         }
-        #if os(iOS)
         .onChange(of: appearanceMode) { _, newValue in
-            AppDelegate.applyAppearance(newValue)
+            #if os(iOS)
+                AppDelegate.applyAppearance(newValue)
+            #elseif os(macOS)
+                MacAppDelegate.applyAppearance(newValue)
+            #endif
         }
-        #endif
-        #if os(macOS)
-        .preferredColorScheme(appearanceMode.colorScheme)
-        #endif
         .modifier(TextSizeModifier(textSize: textSize))
         .sheet(isPresented: $isShowingSettings) {
             #if os(iOS)
