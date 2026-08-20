@@ -207,15 +207,15 @@ override), so this does not affect its correctness.
 
 ### Verification
 #### Automated
-- [ ] `make format` + `make lint` pass on the new UI test file (SwiftLint exits as
+- [x] `make format` + `make lint` pass on the new UI test file (SwiftLint exits as
       error; see `.swiftlint.yml` opt-in `static_over_final_class` suppress above)
-- [ ] `make test` — existing unit suite (incl. the existing `AppearanceModeTests`
+- [x] `make test` — existing unit suite (incl. the existing `AppearanceModeTests`
       mapping cases) stays green
-- [ ] `make ui-test` — UI suite passes, including the new `testColdLaunchAppearance`
-- [ ] Confirm the new/edited XCTest case is discovered by Xcode auto-group
-      (`objectVersion = 77` sync — new files need no pbxproj edit); if the build does
-      NOT pick it up, add `SingleThreadUITestsAppearanceLaunchTests.swift` to the
-      SingleThreadUITests target group manually and re-run
+- [x] `make ui-test` — UI suite passes, including the new `testColdLaunchAppearance`
+- [x] Confirm the new/edited XCTest case is discovered by Xcode auto-group
+      (`objectVersion = 77` sync — new files need no pbxproj edit); the build did
+      pick it up (only-testing selects by bundle, not class, in this project — the
+      plan's class-only filter does not resolve; adapting to `-only-testing:SingleThreadUITests`)
 
 #### Manual
 - [ ] Run the new test file above; open the XCTest result viewer (or `xcrun xccov`/
