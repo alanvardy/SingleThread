@@ -1,6 +1,9 @@
 # Task
 
-For each setting in the iOS app's settings menu, add an information icon that,
-when tapped, shows a popup describing what that setting does. For example, for
-"Allow Landscape", the popup explains that turning it on lets the app be rotated
-to landscape mode. The goal is a tap-revealed description per setting row.
+Add an information affordance to every row in the app's settings screen
+(`SettingsView`): for each preference (appearance, text size, sort by, the
+toggle options, excluded projects), show an info control the user can tap to
+reveal a short pop-up description of what that setting does. For example, the
+"Allow Landscape" setting's description would explain that enabling it lets the
+app rotate into landscape orientation. The descriptions must be accurate to the
+behavior each setting currently implements.

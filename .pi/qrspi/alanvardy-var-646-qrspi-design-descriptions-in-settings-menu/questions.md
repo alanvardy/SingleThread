@@ -2,53 +2,54 @@
 
 ## Context
 
-The iOS app renders its settings menu in `SingleThread/SettingsView.swift` as a
-set of preference rows — `Picker` rows for Appearance, Text Size, and Sort By,
-and `Toggle` rows for several boolean preferences plus an action-button flag —
-alongside a pushed `ExcludedProjectsView` submenu. Each row is composed from a
-`Label(text, systemImage:)` and backed by bindings that live in
-`ContentView.swift`. User-facing strings and icons for the picker options come
-from computed properties on SwiftUI enums (`appearanceMode`, `TextSize`, and
-the `SortOption` presentation extension), while the app target also renders
-descriptive strings in other places (notably an error-description property and
-view constructors that take a description argument). This research maps how
-these setting rows are composed, how their labels and any secondary copy are
-modeled, what informational/description affordances already exist across the
-SwiftUI code and SDK, and how the settings screen is previewed, unit-tested,
-and accessibility/UI-tested.
+Focus on the `SingleThread` iOS/macOS app target's settings surface
+(`SingleThread/SettingsView.swift`) and the SwiftUI (Swift 6) primitives it
+composes. Trace how each settings row is currently rendered as SwiftUI content
+inside a `Form` / `NavigationStack` / `Section`, the SDK's available
+transient-popup and anchoring primitives, where every settings row's label
+strings live today, and the platform-conditional code paths, tests, and
+accessibility constraints that govern the screen.
 
 ## Questions
 
-1. How is the settings menu in `SettingsView.swift` composed row by row? Trace
-   the `Form` structure: how the three `Picker` rows and each `Toggle` row are
-   laid out, what `Label(systemImage:)` calls style them, how `ExcludedProjectsView`
-   and its `footer { Text(...) }` block are structured, and how the iOS vs
-   macOS builds differ in which rows exist.
+1. How are the settings rows currently declared in `SettingsView`? Map every
+   row construct (each `Picker`, `Toggle`, `Label`, `NavigationLink`, and the
+   `ExcludedProjectsView` submenu) to the SwiftUI primitives and initializer
+   overloads they use, noting which use `Label(title, systemImage:)` and how
+   platform guards (`#if os(iOS)`) split the iOS vs. otherwise initializers.
 
-2. What user-facing text is defined on the enums and presentation extensions
-   that back the settings rows? Report the `title`, `systemImage`, and any
-   `subtitle`/description-like computed properties on `AppearanceMode`,
-   `TextSize`, and the `SortOption` presentation extension — where each is
-   declared, how cases map to strings, and whether any case currently carries
-   secondary descriptive copy.
+2. What does the SwiftUI SDK offer for attaching a supplementary, trailing
+   element to a row and for invoking a transient, user-dismissable pop-up tied
+   to a control? Enumerate the `SwiftUI` components and API (e.g. `Popover`,
+   `Alert`, `Sheet`, `ActionSheet`, `Menu`, `Button`, `Field`, and any
+   `info`/help affordance), their initializer overloads, anchoring behavior, and
+   platform availability (iOS/macOS/tvOS/watchOS).
 
-3. What informational/description affordances already exist in the SwiftUI
-   codebase and its presentation APIs? Search for any tooltip, popover,
-   presentation/auxiliary surface, dialog/sheet, help/footer text, or
-   per-string secondary-description pattern (e.g. `DictationError.errorDescription`,
-   `ContentUnavailableView`'s description argument, the `excluded` footer).
-   Note which SwiftUI primitives are actually in use and any APIs available to
-   the iOS target that could present supplementary text over a row.
+3. Where does each settings row's label string currently live, and what is the
+   codebase's convention for user-facing copy and localization? Locate title
+   strings on `AppearanceMode`, `TextSize`, `SortOption`, on `Label`/`Toggle`
+   literals, and in the `ExcludedProjectsView` footer, and note any existing
+   localization wrappers.
 
-4. How is the settings screen previewed, unit-tested, and UI/accessibility
-   tested? Report which `#Preview` declarations build `SettingsView`, what
-   `SettingsViewTests.swift` and `MicrophoneToggleTests.swift` assert about the
-   settings body (`String(describing:)`), how headless XCTest locates settings
-   rows and the Appearance picker (labels/identifiers), and which accessibility
-   traits (`for: [.dynamicType, .hitRegion, ...]`) are audited on settings
-   controls.
+4. What does each existing settings preference actually do at its consumption
+   site? Trace `allowsLandscape` → `AppDelegate.applyLock` /
+   `supportedInterfaceOrientationsFor`, `enableActionButtons`,
+   `showMicrophoneButton`, `showUndatedReminders` → `ReminderStore`,
+   `showDate` → `WidgetCenter.reloadAllTimelines`, `appearanceMode` →
+   `applyAppearance`, `textSize` → `TextSizeModifier`, `sortOption` →
+   `setSortOption`, and `excludedProjects` → the reminder filter, so accurate
+   per-setting explanations only describe implemented behavior.
 
-5. How is the settings sheet opened, populated, and closed in `ContentView.swift`?
-   Trace the `@AppStorage` bindings passed into `SettingsView` via `.sheet`,
-   the computed `excludedProjectsBinding` reading `store.excludedProjectTitles`,
-   and how `dismiss()` is wired to the toolbar "Done" action.
+5. How is the settings window tested, previewed, and constrained by
+   accessibility rules? Trace `SettingsViewTests` (`String(describing:
+   view.body)`, `.contains` assertions, iOS/macOS splits), the SwiftUI
+   `#Preview` blocks, the SwiftLint accessibility rules
+   (`accessibilityLabel_ForImage`, `accessibilityTrait_ForButton`) and the
+   `XCUIApplication.performAccessibilityAudit()` row-based UI test, noting what
+   new interactive affordances would be verified.
+
+6. On which targets and platforms is `SettingsView` presented, and how does its
+   sheet/`Content` presentation and `#if os`-guarded composition differ from
+   other app surfaces? Trace `ContentView`'s `.sheet(isPresented:…)`,
+   `isShowingSettings`, and the same file's platform-conditional branches to
+   see what must hold across iPhone, iPad, and macOS.
