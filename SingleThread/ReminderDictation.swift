@@ -163,7 +163,7 @@ final class ReminderDictation: SpeechTranscribing {
                 Task { @MainActor in
                     guard !gate.hasResumed else { return }
                     if let error {
-                        gate.hasResumed = true
+                        guard gate.tryResume() else { return }
                         continuation.resume(throwing: error)
                         return
                     }
@@ -173,9 +173,11 @@ final class ReminderDictation: SpeechTranscribing {
                     self.partialText = combined
                     onPartialResult(combined)
                     if isFinal {
-                        resumeOnMainActor(gate) {
-                            continuation.resume(returning: combined)
-                        }
+                        // Already on the main actor; resume inline. Claim the
+                        // gate only here so the 5s timeout / error branch and
+                        // this final resume stay mutually exclusive.
+                        guard gate.tryResume() else { return }
+                        continuation.resume(returning: combined)
                     }
                 }
             }
@@ -184,8 +186,7 @@ final class ReminderDictation: SpeechTranscribing {
             Task { @MainActor [weak self] in
                 try? await Task.sleep(nanoseconds: 5_000_000_000)
                 guard let self, isRecording else { return }
-                guard !gate.hasResumed else { return }
-                gate.hasResumed = true
+                guard gate.tryResume() else { return }
                 if transcriptionAccumulator.isEmpty {
                     continuation.resume(throwing: DictationError.noSpeechDetected)
                 } else {
