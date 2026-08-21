@@ -24,8 +24,11 @@ protocol SpeechTranscribing: AnyObject {
 final class ReminderDictation: SpeechTranscribing {
     // MARK: Lifecycle
 
-    init(locale: Locale = .current) {
+    init(
+        locale: Locale = .current,
+        authorizationSource: any AuthorizationRequiring = SpeechAuthorizationRequiring()) {
         self.locale = locale
+        self.authorizationSource = authorizationSource
         authorizationStatus = SFSpeechRecognizer.authorizationStatus()
     }
 
@@ -36,9 +39,18 @@ final class ReminderDictation: SpeechTranscribing {
     /// Requests speech recognition authorization and updates `authorizationStatus`.
     /// Returns the resulting status.
     func requestAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
+        final class ResumptionGate: @unchecked Sendable {
+            var hasResumed = false
+        }
+        let gate = ResumptionGate()
+
         let status = await withCheckedContinuation { continuation in
-            SFSpeechRecognizer.requestAuthorization { status in
-                continuation.resume(returning: status)
+            authorizationSource.requestAuthorization { @Sendable receivedStatus in
+                Task { @MainActor in
+                    guard !gate.hasResumed else { return }
+                    gate.hasResumed = true
+                    continuation.resume(returning: receivedStatus)
+                }
             }
         }
         authorizationStatus = status
@@ -78,6 +90,7 @@ final class ReminderDictation: SpeechTranscribing {
     // MARK: Private
 
     @ObservationIgnored private let locale: Locale
+    @ObservationIgnored private let authorizationSource: any AuthorizationRequiring
     @ObservationIgnored private lazy var speechRecognizer: SFSpeechRecognizer? = SFSpeechRecognizer(locale: locale)
     @ObservationIgnored private lazy var audioEngine = AVAudioEngine()
     private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?

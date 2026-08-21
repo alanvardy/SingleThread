@@ -64,6 +64,30 @@ private final class FakeSpeechTranscriber: SpeechTranscribing {
     }
 }
 
+// MARK: - Off-main authorization seam
+
+@MainActor
+private final class DetachedAuthorizationRequiring: AuthorizationRequiring {
+    // MARK: Lifecycle
+
+    init(status: SFSpeechRecognizerAuthorizationStatus = .authorized) {
+        self.status = status
+    }
+
+    // MARK: Internal
+
+    func requestAuthorization(
+        completion: @escaping @Sendable (SFSpeechRecognizerAuthorizationStatus) -> Void) {
+        // Dispatch the completion from an off-main queue, reproducing the real
+        // framework delivery that tripped the MainActor assert.
+        Task.detached { completion(self.status) }
+    }
+
+    // MARK: Private
+
+    private let status: SFSpeechRecognizerAuthorizationStatus
+}
+
 // MARK: - ReminderDictation (Fake) Tests
 
 @MainActor
@@ -82,6 +106,15 @@ struct ReminderDictationTests {
     func fakeAuthorizationIsPreset() {
         let fake = FakeSpeechTranscriber(authorizationStatus: .denied)
         #expect(fake.authorizationStatus == .denied)
+    }
+
+    @Test
+    func requestAuthorizationResumesOnMainActorFromOffMainQueue() async {
+        let requester = DetachedAuthorizationRequiring(status: .authorized)
+        let dictation = ReminderDictation(authorizationSource: requester)
+        let status = await dictation.requestAuthorization()
+        #expect(status == .authorized)
+        #expect(dictation.authorizationStatus == .authorized)
     }
 
     // MARK: - Transcription
