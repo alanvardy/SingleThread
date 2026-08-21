@@ -341,9 +341,9 @@ Place it in the `// MARK: - View` section. No other watch UX test is affected (t
 ### Verification
 
 #### Automated
-- [ ] `make watch-ui-test` passes (runs `-only-testing:SingleThreadWatchUITests` against `WATCH_TEST_SIM`).
-- [ ] Existing watch UI tests (`testCardShowsReminderTitleAndNotes`, `.testLaunch`, accessibility audit) still pass — the default seam path is unchanged.
-- [ ] `./scripts/test.sh` full CI is green (including accessibility audit in `SingleThreadUITests`).
+- [x] `make watch-ui-test` passes (runs `-only-testing:SingleThreadWatchUITests` against `WATCH_TEST_SIM`).
+- [x] Existing watch UI tests (`testCardShowsReminderTitleAndNotes`, `.testLaunch`, accessibility audit) still pass — the default seam path is unchanged.
+- [x] `./scripts/test.sh` full CI is green (including accessibility audit in `SingleThreadUITests`).
 
 #### Manual
 - [ ] Launch the watch app with `--ui-testing --ui-testing-excluded "Work"` and confirm "Buy groceries" does not render and the "All Done" state appears; launch a second time without the arg to confirm "Buy groceries" still renders (guards the seam's default path).

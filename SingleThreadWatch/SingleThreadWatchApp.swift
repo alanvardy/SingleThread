@@ -10,7 +10,7 @@ struct SingleThreadWatchApp: App {
     init() {
         let isUITesting = ProcessInfo.processInfo.arguments.contains("--ui-testing")
         let store: ReminderStore = if isUITesting {
-            Self.uiTestingStore()
+            Self.uiTestingStore(arguments: ProcessInfo.processInfo.arguments)
         } else {
             ReminderStore(loadsReminders: true)
         }
@@ -65,12 +65,29 @@ struct SingleThreadWatchApp: App {
 
     /// Builds a deterministic store for `--ui-testing` launches so a real reminder
     /// card presents without requesting EventKit access.
-    private static func uiTestingStore() -> ReminderStore {
+    private static func uiTestingStore(arguments: [String]) -> ReminderStore {
         let eventStore = EKEventStore()
         let reminder = EKReminder(eventStore: eventStore)
         reminder.title = "Buy groceries"
         reminder.priority = 5
         reminder.notes = "Don't forget the milk"
+        // `--ui-testing-excluded "<project>"` gives the sample reminder a calendar of
+        // that title and pre-populates the store's exclusion set, so an XCTest can
+        // assert a project's current card is suppressed (the store's live exclusion
+        // set drives the rendered result).
+        if let index = arguments.firstIndex(of: "--ui-testing-excluded"),
+           index + 1 < arguments.count {
+            let project = arguments[index + 1]
+            let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
+            calendar.title = project
+            reminder.calendar = calendar
+            return ReminderStore(
+                loadsReminders: false,
+                reminders: [reminder],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess,
+                excludedProjectTitles: [project])
+        }
         return ReminderStore(
             loadsReminders: false,
             reminders: [reminder],
