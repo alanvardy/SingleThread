@@ -37,19 +37,19 @@
 			remoteGlobalIDString = 51AA3F220000000000000003;
 			remoteInfo = SingleThreadWatch;
 		};
-		51AA3F69000000000000000A /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 51AA3ECE302D5C4500960DFC /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 51AA3F220000000000000003;
-			remoteInfo = SingleThreadWatch;
-		};
 		51AA3F4A0000000000000000 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 51AA3ECE302D5C4500960DFC /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = 51AA3F420000000000000000;
 			remoteInfo = SingleThreadWidget;
+		};
+		51AA3F69000000000000000A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 51AA3ECE302D5C4500960DFC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 51AA3F220000000000000003;
+			remoteInfo = SingleThreadWatch;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -83,8 +83,8 @@
 		51AA3EE5302D5C4500960DFC /* SingleThreadTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SingleThreadTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51AA3EEF302D5C4500960DFC /* SingleThreadUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SingleThreadUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51AA3F200000000000000001 /* SingleThreadWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SingleThreadWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		51AA3F610000000000000002 /* SingleThreadWatchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SingleThreadWatchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51AA3F410000000000000000 /* SingleThreadWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SingleThreadWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		51AA3F610000000000000002 /* SingleThreadWatchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SingleThreadWatchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -118,17 +118,17 @@
 			path = SingleThreadWatch;
 			sourceTree = "<group>";
 		};
-		51AA3F620000000000000003 /* SingleThreadWatchUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = SingleThreadWatchUITests;
-			sourceTree = "<group>";
-		};
 		51AA3F400000000000000000 /* SingleThreadWidget */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				51AA3F4E0000000000000000 /* Exceptions for "SingleThreadWidget" folder in "SingleThreadWidget" target */,
 			);
 			path = SingleThreadWidget;
+			sourceTree = "<group>";
+		};
+		51AA3F620000000000000003 /* SingleThreadWatchUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SingleThreadWatchUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -165,18 +165,18 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		51AA3F670000000000000008 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		51AA3F440000000000000000 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 				518BF498302FCC80004C5968 /* SingleThreadCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		51AA3F670000000000000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -309,29 +309,6 @@
 			productReference = 51AA3F200000000000000001 /* SingleThreadWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
-		51AA3F600000000000000001 /* SingleThreadWatchUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 51AA3F630000000000000004 /* Build configuration list for PBXNativeTarget "SingleThreadWatchUITests" */;
-			buildPhases = (
-				51AA3F660000000000000007 /* Sources */,
-				51AA3F670000000000000008 /* Frameworks */,
-				51AA3F680000000000000009 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				51AA3F6A000000000000000B /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				51AA3F620000000000000003 /* SingleThreadWatchUITests */,
-			);
-			name = SingleThreadWatchUITests;
-			packageProductDependencies = (
-			);
-			productName = SingleThreadWatchUITests;
-			productReference = 51AA3F610000000000000002 /* SingleThreadWatchUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 		51AA3F420000000000000000 /* SingleThreadWidget */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 51AA3F4D0000000000000000 /* Build configuration list for PBXNativeTarget "SingleThreadWidget" */;
@@ -354,6 +331,29 @@
 			productName = SingleThreadWidget;
 			productReference = 51AA3F410000000000000000 /* SingleThreadWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
+		};
+		51AA3F600000000000000001 /* SingleThreadWatchUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51AA3F630000000000000004 /* Build configuration list for PBXNativeTarget "SingleThreadWatchUITests" */;
+			buildPhases = (
+				51AA3F660000000000000007 /* Sources */,
+				51AA3F670000000000000008 /* Frameworks */,
+				51AA3F680000000000000009 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				51AA3F6A000000000000000B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				51AA3F620000000000000003 /* SingleThreadWatchUITests */,
+			);
+			name = SingleThreadWatchUITests;
+			packageProductDependencies = (
+			);
+			productName = SingleThreadWatchUITests;
+			productReference = 51AA3F610000000000000002 /* SingleThreadWatchUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 
@@ -378,10 +378,10 @@
 					51AA3F220000000000000003 = {
 						CreatedOnToolsVersion = 26.6;
 					};
-					51AA3F600000000000000001 = {
+					51AA3F420000000000000000 = {
 						CreatedOnToolsVersion = 26.6;
 					};
-					51AA3F420000000000000000 = {
+					51AA3F600000000000000001 = {
 						CreatedOnToolsVersion = 26.6;
 					};
 				};
@@ -442,14 +442,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		51AA3F680000000000000009 /* Resources */ = {
+		51AA3F450000000000000000 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		51AA3F450000000000000000 /* Resources */ = {
+		51AA3F680000000000000009 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -487,14 +487,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		51AA3F660000000000000007 /* Sources */ = {
+		51AA3F430000000000000000 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		51AA3F430000000000000000 /* Sources */ = {
+		51AA3F660000000000000007 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -990,7 +990,6 @@
 			};
 			name = Debug;
 		};
-
 		51AA3F650000000000000006 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1013,8 +1012,7 @@
 			};
 			name = Release;
 		};
-
-		/* End XCBuildConfiguration section */
+/* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
 		51AA3ED1302D5C4500960DFC /* Build configuration list for PBXProject "SingleThread" */ = {
@@ -1080,7 +1078,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		/* End XCConfigurationList section */
+/* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
 		51AA3F100000000000000001 /* XCLocalSwiftPackageReference "SingleThreadCore" */ = {
