@@ -227,9 +227,9 @@ service.pushExcludedProjectTitles(titles) }` (`SingleThreadWatchApp.swift:43`).
 ### Verification
 
 #### Automated
-- [ ] `make build` builds iOS scheme (iPhone 17) with the new closure.
-- [ ] `make watch-build` builds watch scheme.
-- [ ] `./scripts/test.sh` full CI passes (format, lint, build, watch build, periphery, unit + UI + watch UI tests, macOS build/test).
+- [x] `make build` builds iOS scheme (iPhone 17) with the new closure.
+- [x] `make watch-build` builds watch scheme.
+- [x] `./scripts/test.sh` full CI passes (format, lint, build, watch build, periphery, unit + UI + watch UI tests, macOS build/test).
 
 #### Manual
 - [ ] On a real iPhone 17 + Apple Watch simulator pair: toggle a project exclusion **on the phone** and confirm the **watch's** card disappears immediately — no relaunch, no shows-undated key, no pull-to-refresh.

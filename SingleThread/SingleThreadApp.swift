@@ -41,6 +41,10 @@ struct SingleThreadApp: App {
                 service.onDeleteReminderReceived = { [weak store] identifier in
                     Task { await store?.deleteReminder(identifier: identifier) }
                 }
+                // Receive-side: a watch exclusion toggle arrives and re-filters the local list.
+                service.onExcludedProjectTitlesReceived = { [weak store] titles in
+                    store?.refreshExcludedProjectTitles(Set(titles))
+                }
                 service.activate()
                 syncService = service
                 store.onSkipSetChanged = { ids in
