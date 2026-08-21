@@ -2,6 +2,16 @@ import XCTest
 
 final class ActionButtonsUITests: XCTestCase {
 
+    // `class` is required to override XCTestCase's class property; `static` cannot
+    // override it.
+    // Run once (not once per target app configuration): both methods render the
+    // same `--ui-testing` UI; the per-config multiplier only adds redundant cold
+    // launches on CI. The audit categories/CI-carve-out are otherwise untouched.
+    // swiftlint:disable:next static_over_final_class
+    override class var runsForEachTargetApplicationUIConfiguration: Bool {
+        false
+    }
+
     override func setUpWithError() throws {
         continueAfterFailure = false
     }
