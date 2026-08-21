@@ -36,6 +36,11 @@ struct SingleThreadWatchApp: App {
             service.onSortOptionReceived = { [weak store] option in
                 store?.setSortOption(option)
             }
+            // A phone-side exclusion toggle arrives and re-filters this watch's live list.
+            // Same write-once-before-activate invariant as onShowUndatedRemindersReceived.
+            service.onExcludedProjectTitlesReceived = { [weak store] titles in
+                store?.refreshExcludedProjectTitles(Set(titles))
+            }
             service.activate()
             store.onSkipSetChanged = { ids in
                 service.push(ids, showUndatedReminders: store.showsUndatedReminders)
