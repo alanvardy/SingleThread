@@ -115,18 +115,21 @@ struct SettingsView: View {
                             .tag(mode)
                     }
                 }
+                .help(Text("Choose System, Light, or Dark styling for the app."))
                 Picker("Text Size", selection: $textSize) {
                     ForEach(TextSize.allCases, id: \.self) { size in
                         Label(size.title, systemImage: size.systemImage)
                             .tag(size)
                     }
                 }
+                .help(Text("Scales the size of your reminder text."))
                 Picker("Sort By", selection: $sortOption) {
                     ForEach(SortOption.allCases, id: \.self) { option in
                         Label(option.title, systemImage: option.systemImage)
                             .tag(option)
                     }
                 }
+                .help(Text("Chooses the order visible reminders are sorted in."))
                 #if os(iOS)
                     Toggle(isOn: $allowsLandscape) {
                         Label("Allow Landscape", systemImage: "rectangle.landscape.rotate")

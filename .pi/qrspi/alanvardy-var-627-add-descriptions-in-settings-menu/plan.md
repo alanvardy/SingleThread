@@ -122,8 +122,8 @@ Same documented fallback as Phase 1 if a `contains` fails for `.help`.
 ### Verification
 
 #### Automated
-- [ ] `make test` passes
-- [ ] `make lint` passes
+- [x] `make test` passes
+- [x] `make lint` passes
 
 #### Manual
 - [ ] In both previews (`#Preview("Default")` and `#Preview("Dark + Extra Large")`), confirm the three picker rows still render with working info affordances revealing the correct descriptions.
