@@ -39,16 +39,11 @@ final class ReminderDictation: SpeechTranscribing {
     /// Requests speech recognition authorization and updates `authorizationStatus`.
     /// Returns the resulting status.
     func requestAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
-        final class ResumptionGate: @unchecked Sendable {
-            var hasResumed = false
-        }
         let gate = ResumptionGate()
 
         let status = await withCheckedContinuation { continuation in
             authorizationSource.requestAuthorization { @Sendable receivedStatus in
-                Task { @MainActor in
-                    guard !gate.hasResumed else { return }
-                    gate.hasResumed = true
+                resumeOnMainActor(gate) {
                     continuation.resume(returning: receivedStatus)
                 }
             }
@@ -154,9 +149,6 @@ final class ReminderDictation: SpeechTranscribing {
             throw DictationError.recognizerUnavailable
         }
 
-        final class ResumptionGate: @unchecked Sendable {
-            var hasResumed = false
-        }
         let gate = ResumptionGate()
         transcriptionAccumulator = TranscriptionAccumulator()
 
@@ -181,8 +173,9 @@ final class ReminderDictation: SpeechTranscribing {
                     self.partialText = combined
                     onPartialResult(combined)
                     if isFinal {
-                        gate.hasResumed = true
-                        continuation.resume(returning: combined)
+                        resumeOnMainActor(gate) {
+                            continuation.resume(returning: combined)
+                        }
                     }
                 }
             }
