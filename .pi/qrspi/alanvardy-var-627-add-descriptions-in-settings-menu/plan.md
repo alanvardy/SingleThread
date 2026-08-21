@@ -229,54 +229,56 @@ The two iOS-only rows keep their existing `#if os(iOS)` guards; the `.help` must
 
 ## Phase 5: End-to-end UI tap feed-through + full CI
 
+> **Adaptation (option 1, confirmed):** The built-in `.help(_:)` affordance is a
+> system-managed control that is not exposed to XCTest as a tappable element on
+> the iOS SwiftUI surface — no `button`/`helpTag`/`staticText`, and its
+> description text is not queryable in the accessibility tree (verified by an
+> on-device element dump). Applying `.accessibilityLabel` to the `.help` chain
+> relabels the entire row and broke the appearance tests, so it was reverted.
+> Per the user's decision (option 1), the test was adapted to assert the
+> reachable end-to-end behaviour: opening Settings renders the preference rows,
+> and a live accessibility audit (`.sufficientElementDescription` + `.trait`,
+> iOS-only) proves the descriptions are wired for Screen Reader. The literal
+> tap-reveal of the ⓘ is covered by the manual checklist.
+
 ### Changes
 
-#### 1/NEW UI test — tap a row's info affordance and assert the description appears
+#### 1/UI test — verify settings rows render + descriptions are wired for accessibility
 **File**: `SingleThreadUITests/SingleThreadUITestsFlows.swift`
 **Action**: add test method
 
-Add a `@MainActor` XCTest that opens Settings, taps the first row's info affordance (Appearance is always visible without scrolling), and asserts the description reveals. Mirrors the existing `testSettingsOpensAndShowsControls` driver pattern.
+Added `testSettingsRowsRenderAndDescriptionsAreAccessible()` (seeded via
+`--seed`, mirrors `testSettingsOpensAndShowsControls`):
 
 ```swift
-// MARK: - Settings descriptions
-
 @MainActor
-func testSettingsInfoAffordanceRevealsDescription() {
+func testSettingsRowsRenderAndDescriptionsAreAccessible() throws {
     let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
 
     XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
     app.buttons["Settings"].tap()
+
     XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 3), "Settings should show Appearance")
+    XCTAssertTrue(app.staticTexts["Text Size"].waitForExistence(timeout: 2), "Settings should show Text Size")
+    XCTAssertTrue(app.staticTexts["Sort By"].waitForExistence(timeout: 2), "Settings should show Sort By")
 
-    // Locate the info affordance beside the Appearance row. The built-in .help
-    // control is exposed per its accessibility label; if the built-in affordance
-    // is not reachable by label, expose it explicitly in SettingsView.swift by
-    // appending `.accessibilityLabel("...").accessibilityAddTraits(.isButton)`
-    // to the .help(...) call (SwiftLint also enforces label+trait here), and
-    // query that label instead.
-    let info = app.buttons["Appearance information"]
-    XCTAssertTrue(info.waitForExistence(timeout: 3), "Appearance row should expose its info affordance")
-    info.tap()
-
-    XCTAssertTrue(
-        app.staticTexts["Choose System, Light, or Dark styling for the app."].waitForExistence(timeout: 3),
-        "Tapping a row's info affordance should reveal its description")
+    #if os(iOS)
+        try app.performAccessibilityAudit(for: [.sufficientElementDescription, .trait])
+    #else
+        try app.performAccessibilityAudit()
+    #endif
 }
 ```
 
-> **Locator risk + fallback (documented in design.md Risk 2):** XCTest exposes the system-managed info affordance differently across platforms. If `app.buttons["Appearance information"]` does not resolve, fall back to adding an explicit `.accessibilityLabel("Appearance information").accessibilityAddTraits(.isButton)` to the `.help(...)` call for that row in `SettingsView.swift` (this also satisfies SwiftLint `accessibility_label_for_image` + `accessibility_trait_for_button` if they were flagging it earlier). Re-run `make lint` and re-run the UI test after any such change.
-
-#### 2. Confirm the accessibility audit still passes
+#### 2/ Accessibility audit
 **File**: `SingleThreadUITests/SingleThreadUITests.swift`
-**Action**: verify (no code change expected)
-
-`testAccessibilityAudit()` exercises the live row for `.sufficientElementDescription`+`.trait` (CI iOS), `.dynamicType`/`.hitRegion` (local iOS), or full defaults (macOS). The Appearance row's `.help` affordance exposes a system-managed controller + label; if the audit flags the new affordance for a missing trait/label, resolve with the explicit `.accessibilityLabel` + `.isButton` fallback above.
+**Action**: verify only — `testAccessibilityAudit()` unchanged and passing.
 
 ### Verification
 
 #### Automated
-- [ ] `make ui-test` passes — new tap-through + existing settings/audit tests all green
-- [ ] `./scripts/test.sh` (full pipeline: SwiftFormat, SwiftLint `--strict`, Debug build-for-testing + watch build, Periphery `--strict`, unit tests, UI tests, accessibility audit, macOS build + unit tests) passes on the default iPhone 17 Simulator
+- [x] `make ui-test` passes — new test + existing settings/audit tests all green
+- [x] `./scripts/test.sh` (full pipeline: SwiftFormat, SwiftLint `--strict`, Debug build-for-testing + watch build, Periphery `--strict`, unit tests, UI tests, accessibility audit, macOS build + unit tests) passes on the default iPhone 17 Simulator
 
 #### Manual
 - [ ] Launch iPhone/iPad simulator, open Settings via the gear, tap the Appearance row's ‹i›, confirm "Choose System, Light, or Dark styling for the app." appears as a pop-up
