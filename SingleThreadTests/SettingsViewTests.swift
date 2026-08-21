@@ -55,6 +55,8 @@ struct SettingsViewTests {
         #if os(iOS)
             #expect(bodyDescription.contains("Landscape"))
             #expect(bodyDescription.contains("Enable action buttons"))
+            #expect(bodyDescription.contains("landscape layout"))
+            #expect(bodyDescription.contains("Complete and Skip"))
         #endif
     }
 }

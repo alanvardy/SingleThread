@@ -137,6 +137,7 @@ struct SettingsView: View {
                     .onChange(of: allowsLandscape) { _, newValue in
                         AppDelegate.applyLock(allowsLandscape: newValue)
                     }
+                    .help(Text("Allows rotating the phone into a landscape layout."))
                 #endif
                 Toggle(isOn: $showMicrophoneButton) {
                     Label("Show Microphone", systemImage: "microphone")
@@ -146,6 +147,7 @@ struct SettingsView: View {
                     Toggle(isOn: $enableActionButtons) {
                         Label("Enable action buttons", systemImage: "hand.tap")
                     }
+                    .help(Text("Replaces the microphone with Complete and Skip buttons when a reminder is showing."))
                 #endif
                 Toggle(isOn: $showUndatedReminders) {
                     Label("Show Undated", systemImage: "calendar.badge.minus")

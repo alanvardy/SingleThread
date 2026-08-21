@@ -218,8 +218,8 @@ The two iOS-only rows keep their existing `#if os(iOS)` guards; the `.help` must
 ### Verification
 
 #### Automated
-- [ ] `make test` passes on the iOS target (the new `#if os(iOS)` assertions compile and pass)
-- [ ] `make lint` passes
+- [x] `make test` passes on the iOS target (the new `#if os(iOS)` assertions compile and pass)
+- [x] `make lint` passes
 
 #### Manual
 - [ ] Launch the iOS simulator (iPhone 17), open Settings, confirm both ‹i› affordances appear on Allow Landscape and Enable action buttons and reveal their descriptions
