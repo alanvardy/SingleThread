@@ -368,9 +368,18 @@ public final class ReminderStore {
     /// `fetchReminders(matching:)` performs its work off the main thread; this
     /// keeps the initial EventKit setup from blocking UI updates.
     private func fetchReminders(matching predicate: NSPredicate) async -> [EKReminder] {
-        await withCheckedContinuation { (continuation: CheckedContinuation<[EKReminder], Never>) in
-            eventStore.fetchReminders(matching: predicate) { reminders in
-                continuation.resume(returning: reminders ?? [])
+        final class ResumptionGate: @unchecked Sendable {
+            var hasResumed = false
+        }
+        let gate = ResumptionGate()
+        return await withCheckedContinuation { (continuation: CheckedContinuation<[EKReminder], Never>) in
+            eventStore.fetchReminders(matching: predicate) { @Sendable reminders in
+                let value = reminders ?? []
+                Task { @MainActor in
+                    guard !gate.hasResumed else { return }
+                    gate.hasResumed = true
+                    continuation.resume(returning: value)
+                }
             }
         }
     }

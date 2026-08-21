@@ -341,6 +341,15 @@ struct ReminderStoreTests {
     // MARK: - start / reload guards
 
     @Test
+    func reloadResumesOnMainActorWhenFetchCompletesOffMain() async {
+        let reminder = makeReminder(title: "A")
+        let fake = InMemoryEventStore(reminders: [reminder], deliverCompletionOffMain: true)
+        let store = ReminderStore(eventStore: fake, loadsReminders: true)
+        await store.reload()
+        #expect(store.reminders.map(\.title) == ["A"])
+    }
+
+    @Test
     func showsUndatedRemindersDefaultsToFalse() {
         let store = ReminderStore(loadsReminders: false)
         #expect(store.showsUndatedReminders == false)
