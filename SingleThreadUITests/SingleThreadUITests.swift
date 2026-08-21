@@ -9,6 +9,16 @@ import XCTest
 
 final class SingleThreadUITests: XCTestCase {
 
+    // `class` is required to override XCTestCase's class property; `static` cannot
+    // override it.
+    // Run once (not once per target app configuration): the audit launches one
+    // deterministic app state; multiplying it by the configuration count adds
+    // redundant cold launches on CI for no coverage.
+    // swiftlint:disable:next static_over_final_class
+    override class var runsForEachTargetApplicationUIConfiguration: Bool {
+        false
+    }
+
     override func setUpWithError() throws {
         continueAfterFailure = false
     }
