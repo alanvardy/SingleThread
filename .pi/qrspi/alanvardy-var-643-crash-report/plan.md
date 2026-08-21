@@ -283,13 +283,13 @@ func reloadResumesOnMainActorWhenFetchCompletesOffMain() async {
 ### Verification
 
 #### Automated
-- [ ] Write the test **before** the fix; run `make test` and observe RED (the
+- [x] Write the test **before** the fix; run `make test` and observe RED (the
       inline `continuation.resume` trips the MainActor/`dispatch_assert` trap when
       the off-main completion arrives).
-- [ ] Apply the hop; run `make test` and confirm GREEN.
-- [ ] `make test` keeps existing `ReminderStoreTests.visibleReminders…` /
+- [x] Apply the hop; run `make test` and confirm GREEN.
+- [x] `make test` keeps existing `ReminderStoreTests.visibleReminders…` /
       `hasHidden…` green (no `loadsReminders` behavior change).
-- [ ] `make lint` clean.
+- [x] `make lint` clean.
 
 #### Manual
 - [ ] On-sim ./ plain `ReminderStore` reload (`start()` → `reload()`) completes

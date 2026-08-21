@@ -13,9 +13,13 @@ import Foundation
 public final class InMemoryEventStore: EventKitStoring {
     // MARK: Lifecycle
 
-    public init(reminders: [EKReminder] = [], calendars: [EKCalendar] = []) {
+    public init(
+        reminders: [EKReminder] = [],
+        calendars: [EKCalendar] = [],
+        deliverCompletionOffMain: Bool = false) {
         allReminders = reminders
         self.calendars = calendars
+        self.deliverCompletionOffMain = deliverCompletionOffMain
     }
 
     // MARK: Public
@@ -49,7 +53,17 @@ public final class InMemoryEventStore: EventKitStoring {
     public func fetchReminders(
         matching _: NSPredicate,
         completion: @escaping ([EKReminder]?) -> Void) -> Any {
-        completion(allReminders.filter { !$0.isCompleted })
+        let result = allReminders.filter { !$0.isCompleted }
+        if deliverCompletionOffMain {
+            nonisolated(unsafe) let delivery: () async -> Void = {
+                completion(result)
+            }
+            Task.detached {
+                await delivery()
+            }
+        } else {
+            completion(result)
+        }
         return ()
     }
 
@@ -84,4 +98,5 @@ public final class InMemoryEventStore: EventKitStoring {
     // MARK: Private
 
     private let calendars: [EKCalendar]
+    private let deliverCompletionOffMain: Bool
 }
