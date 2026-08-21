@@ -138,6 +138,7 @@ struct SettingsView: View {
                 Toggle(isOn: $showMicrophoneButton) {
                     Label("Show Microphone", systemImage: "microphone")
                 }
+                .help(Text("Controls whether the dictation microphone appears in the bottom bar."))
                 #if os(iOS)
                     Toggle(isOn: $enableActionButtons) {
                         Label("Enable action buttons", systemImage: "hand.tap")
@@ -146,6 +147,7 @@ struct SettingsView: View {
                 Toggle(isOn: $showUndatedReminders) {
                     Label("Show Undated", systemImage: "calendar.badge.minus")
                 }
+                .help(Text("Shows reminders with no due date in the list."))
                 Toggle(isOn: $showDate) {
                     Label("Show Date", systemImage: "calendar")
                 }
@@ -154,6 +156,7 @@ struct SettingsView: View {
                     WidgetCenter.shared.reloadAllTimelines()
                 }
                 #endif
+                .help(Text("Shows each reminder's due date on its card."))
                 Section {
                     NavigationLink {
                         ExcludedProjectsView(
