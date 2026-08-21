@@ -1,5 +1,12 @@
 # SingleThread iOS App — Agent Conventions
 
+## Shell Environment
+
+- The command tool runs **fish** (`/opt/homebrew/bin/fish`), not bash. Use
+  fish-native `for … end` loops, never `for … do / done`.
+- **Never use bash heredocs** (`<<'EOF'`) — write files with the `write` tool
+  and pass them via `--body-file`/paths instead.
+
 ## Build & Test
 
 - **Simulator**: `iPhone 17` is the default locally. `iPad (A16)` is also
@@ -80,6 +87,19 @@ SingleThread/                  # git root
 ├── .periphery.yml
 └── .mise.toml
 ```
+
+## QRSPI Workflow
+
+- Complex tasks go through the QRSPI workflow: decompose → research → design
+  → plan → implementation. Artifacts live in `.pi/qrspi/<branch>/`
+  (`task.md`, `questions.md`, `research.md`, `design.md`, `plan.md`).
+- A **design phase runs on a separate child subtask** of the main ticket
+  (`linear issue create --parent <MAIN-ID>`), on its **own branch** (Linear's
+  `branchName`), with artifacts under `.pi/qrspi/<design-branch>/`, forked
+  from `origin/main`, and a **draft PR titled with "design"**.
+- All research for the current task lives under `.pi/qrspi/<branch>/` — the
+  root-level `research.md` is stale scratch from an earlier task. See the
+  `.pi/skills/qrspi/SKILL.md` skill for the full convention.
 
 ## Adding New Files
 
