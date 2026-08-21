@@ -55,6 +55,16 @@ public final class InMemoryEventStore: EventKitStoring {
         completion: @escaping ([EKReminder]?) -> Void) -> Any {
         let result = allReminders.filter { !$0.isCompleted }
         if deliverCompletionOffMain {
+            // Test-only: deliver the completion from an off-main queue so
+            // ReminderStoreTests can reproduce the framework's real off-main
+            // delivery. SAFETY INVARIANT: `completion` is not `@Sendable`, so
+            // `nonisolated(unsafe)` is the only way to hand it into a detached
+            // task; this is sound because the completion only receives a freshly
+            // built `result` array and never re-reads/mutates store state, and
+            // the values are hoisted back to the main actor in the caller's hop.
+            // REMOVAL PLAN: once `EventKitStoring.fetchReminders` takes a
+            // `@Sendable` completion (or the real store is driven off-main in an
+            // integration test), drop this branch and the init flag.
             nonisolated(unsafe) let delivery: () async -> Void = {
                 completion(result)
             }
