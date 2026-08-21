@@ -19,23 +19,19 @@ Each phase writes a file into a `.pi/qrspi/<branch>/` directory
 (`task.md`, `questions.md`, `research.md`, `design.md`, `plan.md`,
 `structure.md`).
 
-## Key rule: design phase runs on a SEPARATE child subtask
+## Key rule: no subtasks, no child PRs — everything on the main ticket's branch
 
-When the main ticket needs a design phase, it does **not** run on the main
-ticket's branch. Instead:
+The full QRSPI cycle (decompose → research → design → plan → implementation)
+runs on the **main ticket's branch**, in a single Linear ticket. Do **not**
+create subtasks or separate child branches/PRs for the design phase.
 
-1. **Create a child subtask** under the main ticket:
-   `linear issue create --no-interactive --parent <MAIN-ID> --team VAR -p 4 -t "QRSPI Design: <slug>" -d "..."`
-2. The design subtask has its **own branch**, named by submitting Linear's
-   authoritative `branchName` field:
-   `linear issue view "<ID>" --json` → `.branchName`.
-3. **Artifacts live in a directory named after the DESIGN branch**, not the
-   main ticket's branch:
-   `.pi/qrspi/<design-branch>/task.md`, `…/questions.md`, …
-4. The design branch forks from `origin/main` (skip the main ticket's WIP
-   commits, e.g. DELETEME).
-5. Open a **draft PR** targeting `main` with **"design" in the title**:
-   `gh pr create -B main -H <design-branch> --title "design: …" --draft`
+1. Work is done on the main ticket's own branch (Linear's authoritative
+   `branchName`: `linear issue view "<ID>" --json` → `.branchName`).
+2. **Artifacts live in** `.pi/qrspi/<main-ticket-branch>/` — the directory is
+   named after the main ticket's branch, never a design/child branch.
+3. There is **one PR** for the whole task (the feature PR). The QRSPI artifacts
+   are committed to that same branch and included in that PR.
+4. No `--parent` subtickets and no separate "design" draft PRs.
 
 ## Decompose phase specifics
 
@@ -71,10 +67,10 @@ task: describe what exists, never propose fixes or solutions.
 
 ## Artifact layout
 
-The full progression for a single task's design phase:
+The full progression for a single task:
 
 ```
-.pi/qrspi/<design-branch>/
+.pi/qrspi/<main-ticket-branch>/
 ├── task.md
 ├── questions.md
 ├── research.md

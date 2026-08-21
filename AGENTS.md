@@ -93,10 +93,10 @@ SingleThread/                  # git root
 - Complex tasks go through the QRSPI workflow: decompose → research → design
   → plan → implementation. Artifacts live in `.pi/qrspi/<branch>/`
   (`task.md`, `questions.md`, `research.md`, `design.md`, `plan.md`).
-- A **design phase runs on a separate child subtask** of the main ticket
-  (`linear issue create --parent <MAIN-ID>`), on its **own branch** (Linear's
-  `branchName`), with artifacts under `.pi/qrspi/<design-branch>/`, forked
-  from `origin/main`, and a **draft PR titled with "design"**.
+- **No subtasks, no child branches, no child PRs.** The full cycle runs on the
+  **main ticket's own branch** (Linear's `branchName`), in a single Linear
+  ticket, with artifacts under `.pi/qrspi/<main-ticket-branch>/` and one PR
+  for the whole task.
 - All research for the current task lives under `.pi/qrspi/<branch>/` — the
   root-level `research.md` is stale scratch from an earlier task. See the
   `.pi/skills/qrspi/SKILL.md` skill for the full convention.
