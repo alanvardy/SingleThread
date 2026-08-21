@@ -167,6 +167,7 @@ struct SettingsView: View {
                             availableProjects: availableProjects)
                     } label: {
                         Label("Excluded Projects", systemImage: "eye.slash")
+                            .help(Text("Hides the listed projects from the reminder list."))
                     }
                 }
             }

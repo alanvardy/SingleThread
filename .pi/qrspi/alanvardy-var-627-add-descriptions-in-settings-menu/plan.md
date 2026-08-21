@@ -164,8 +164,8 @@ Section {
 ### Verification
 
 #### Automated
-- [ ] `make test` passes
-- [ ] `make lint` passes
+- [x] `make test` passes
+- [x] `make lint` passes
 
 #### Manual
 - [ ] Open Settings, tap the ‹i› beside Excluded Projects, confirm the description pops up

@@ -51,6 +51,7 @@ struct SettingsViewTests {
         #expect(bodyDescription.contains("System, Light, or Dark"))
         #expect(bodyDescription.contains("reminder text"))
         #expect(bodyDescription.contains("sorted in"))
+        #expect(bodyDescription.contains("Hides the listed projects"))
         #if os(iOS)
             #expect(bodyDescription.contains("Landscape"))
             #expect(bodyDescription.contains("Enable action buttons"))
