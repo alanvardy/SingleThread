@@ -45,6 +45,30 @@ ticket's branch. Instead:
   never leaks the goal).
 - Present questions to the user for approval before finalizing.
 
+## Research phase specifics (2_research)
+
+Research answers the neutral fact-seeking questions in `questions.md` with
+facts, `file:line` references, and observed patterns. It is a documentation
+task: describe what exists, never propose fixes or solutions.
+
+- **Answer small questions directly.** When a question resolves to a few small
+  files (1–3 reads each, in one codebase area), read the source and cite
+  `file:line` inline. Don't spawn a per-question subagent for a tractable
+  codebase — reading is faster and more reliable than a fan-out.
+- **Fan out only when warranted.** Spawn one subagent per question only when
+  the questions span materially different codebase areas or need large
+  traversal. For a change confined to one component, prefer targeted reads.
+- **Dispatch fallback.** If a named agent type (`codebase-analyzer`,
+  `codebase-pattern-finder`, …) is unavailable, skip the fan-out entirely and
+  go straight to targeted `read`/`grep`. Do not burn turns discovering that a
+  requested archetype doesn't exist.
+- **Consume fan-out output.** If you do spawn agents, read their persisted
+  results and synthesize from them — do not abandon the fan-out and re-derive
+  the whole research from scratch.
+- **Verify before finishing.** Before marking `2_research` done, grep the
+  draft `research.md` for `file:` tokens and confirm each `file:line` resolves
+  to real source.
+
 ## Artifact layout
 
 The full progression for a single task's design phase:

@@ -319,7 +319,7 @@ combined job. Exactly three iOS UI jobs remain (`...launch-appearance`, `...flow
 - [x] The exact class-list strings appear **only** in the top-level `env:` (single source of truth).
 - [x] Union/disjoint check from source alone: the five class-path identifiers in A, B, C are
       pairwise disjoint and their union == the current 5-class whole selection.
-- [ ] `./scripts/test.sh` (full) still passes locally: unit suite intact (~284, iOS + macOS),
+- [x] `./scripts/test.sh` (full) still passes locally: unit suite intact (~284, iOS + macOS),
       UI suite green, watch UI suite green with `runsForEach…=true` untouched.
 - [ ] PR shows 6 iOS UI jobs (A/B/C on both iPhone 17 and iPad A16) plus the
       existing `unit-tests`, `mac-tests`, `lint`, `watch-ui-tests` jobs all green concurrently.
