@@ -1,4 +1,5 @@
 #if os(iOS) || os(watchOS)
+    import EventKit
     import SingleThreadCore
     import Testing
     import WatchConnectivity
@@ -350,6 +351,38 @@
             #expect(excludeStore.load() == ["A"])
         }
 
+        @Test
+        func receivedExclusionRefreshFiltersVisibleReminders() {
+            let fake = FakeSession()
+            let store = ReminderStore(
+                loadsReminders: false,
+                reminders: [
+                    inProjectReminder(title: "A", project: "Work"),
+                    inProjectReminder(title: "B", project: "Personal")
+                ],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-excl-comp-skip-\(UUID().uuidString)"),
+                excludeStore: ExcludedProjectStore(
+                    defaults: .standard,
+                    key: "test-excl-comp-excl-\(UUID().uuidString)"))
+            // Wire the service's receive hook into the shared store, mirroring the app-layer wiring.
+            service.onExcludedProjectTitlesReceived = { titles in
+                store.refreshExcludedProjectTitles(Set(titles))
+            }
+
+            #expect(Set(store.visibleReminders.map(\.title)) == ["A", "B"]) // both visible before
+
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: ["excludedProjectTitles": ["Work"]])
+
+            #expect(Set(store.visibleReminders.map(\.title)) == ["B"]) // "A" (Work) filtered
+            #expect(Set(store.excludedProjectTitles) == ["Work"])
+        }
+
         // MARK: - Show-date sync
 
         @Test
@@ -437,5 +470,17 @@
         private func makeTestSortStore() -> SortOptionStore {
             SortOptionStore(defaults: .standard, key: "test-sort-store-\(UUID().uuidString)")
         }
+    }
+
+    /// Builds a reminder that lives in a calendar titled `project`, so exclusion
+    /// filtering (which matches `calendar.title`) can be exercised.
+    private func inProjectReminder(title: String, project: String) -> EKReminder {
+        let eventStore = EKEventStore()
+        let reminder = EKReminder(eventStore: eventStore)
+        reminder.title = title
+        let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
+        calendar.title = project
+        reminder.calendar = calendar
+        return reminder
     }
 #endif
