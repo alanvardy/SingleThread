@@ -21,6 +21,23 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
             "Seeded reminder card should show its notes")
     }
 
+    @MainActor
+    func testExcludedProjectDoesNotRenderReminder() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-excluded", "Work"]
+        app.launch()
+
+        // The seeded reminder lives in the excluded "Work" project, so its card must
+        // not render — "Buy groceries" stays concealed. With nothing visible, the
+        // watch shows the All Done state (visibleReminders empty but reminders non-empty).
+        XCTAssertFalse(
+            app.staticTexts["Buy groceries"].waitForExistence(timeout: 3),
+            "Excluded project should suppress the reminder card")
+        XCTAssertTrue(
+            app.staticTexts["All Done"].waitForExistence(timeout: 5),
+            "With the only reminder excluded, the All Done state should show")
+    }
+
     // MARK: - Complete
 
     @MainActor
