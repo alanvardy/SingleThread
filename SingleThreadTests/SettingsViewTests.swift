@@ -52,6 +52,8 @@ struct SettingsViewTests {
         #expect(bodyDescription.contains("reminder text"))
         #expect(bodyDescription.contains("sorted in"))
         #expect(bodyDescription.contains("Hides the listed projects"))
+        // Every row carries a tappable ⓘ description button.
+        #expect(bodyDescription.contains("DescriptionInfoButton"))
         #if os(iOS)
             #expect(bodyDescription.contains("Landscape"))
             #expect(bodyDescription.contains("Enable action buttons"))

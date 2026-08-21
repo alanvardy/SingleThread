@@ -109,67 +109,100 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             Form {
-                Picker("Appearance", selection: $appearanceMode) {
-                    ForEach(AppearanceMode.allCases, id: \.self) { mode in
-                        Label(mode.title, systemImage: mode.systemImage)
-                            .tag(mode)
+                HStack(spacing: 6) {
+                    Picker(selection: $appearanceMode) {
+                        ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                            Label(mode.title, systemImage: mode.systemImage)
+                                .tag(mode)
+                        }
+                    } label: {
+                        Text("Appearance")
                     }
+                    DescriptionInfoButton(
+                        settingName: "Appearance",
+                        description: Text("Choose System, Light, or Dark styling for the app."))
                 }
-                .help(Text("Choose System, Light, or Dark styling for the app."))
-                Picker("Text Size", selection: $textSize) {
-                    ForEach(TextSize.allCases, id: \.self) { size in
-                        Label(size.title, systemImage: size.systemImage)
-                            .tag(size)
+                HStack(spacing: 6) {
+                    Picker(selection: $textSize) {
+                        ForEach(TextSize.allCases, id: \.self) { size in
+                            Label(size.title, systemImage: size.systemImage)
+                                .tag(size)
+                        }
+                    } label: {
+                        Text("Text Size")
                     }
+                    DescriptionInfoButton(
+                        settingName: "Text Size",
+                        description: Text("Scales the size of your reminder text."))
                 }
-                .help(Text("Scales the size of your reminder text."))
-                Picker("Sort By", selection: $sortOption) {
-                    ForEach(SortOption.allCases, id: \.self) { option in
-                        Label(option.title, systemImage: option.systemImage)
-                            .tag(option)
+                HStack(spacing: 6) {
+                    Picker(selection: $sortOption) {
+                        ForEach(SortOption.allCases, id: \.self) { option in
+                            Label(option.title, systemImage: option.systemImage)
+                                .tag(option)
+                        }
+                    } label: {
+                        Text("Sort By")
                     }
+                    DescriptionInfoButton(
+                        settingName: "Sort By",
+                        description: Text("Chooses the order visible reminders are sorted in."))
                 }
-                .help(Text("Chooses the order visible reminders are sorted in."))
                 #if os(iOS)
                     Toggle(isOn: $allowsLandscape) {
-                        Label("Allow Landscape", systemImage: "rectangle.landscape.rotate")
+                        labeledToggleRow(
+                            "Allow Landscape",
+                            systemImage: "rectangle.landscape.rotate",
+                            description: Text("Allows rotating the phone into a landscape layout."))
                     }
                     .onChange(of: allowsLandscape) { _, newValue in
                         AppDelegate.applyLock(allowsLandscape: newValue)
                     }
-                    .help(Text("Allows rotating the phone into a landscape layout."))
                 #endif
                 Toggle(isOn: $showMicrophoneButton) {
-                    Label("Show Microphone", systemImage: "microphone")
+                    labeledToggleRow(
+                        "Show Microphone",
+                        systemImage: "microphone",
+                        description: Text("Controls whether the dictation microphone appears in the bottom bar."))
                 }
-                .help(Text("Controls whether the dictation microphone appears in the bottom bar."))
                 #if os(iOS)
                     Toggle(isOn: $enableActionButtons) {
-                        Label("Enable action buttons", systemImage: "hand.tap")
+                        labeledToggleRow(
+                            "Enable action buttons",
+                            systemImage: "hand.tap",
+                            description: Text(
+                                "Replaces the microphone with Complete and Skip buttons when a reminder is showing."))
                     }
-                    .help(Text("Replaces the microphone with Complete and Skip buttons when a reminder is showing."))
                 #endif
                 Toggle(isOn: $showUndatedReminders) {
-                    Label("Show Undated", systemImage: "calendar.badge.minus")
+                    labeledToggleRow(
+                        "Show Undated",
+                        systemImage: "calendar.badge.minus",
+                        description: Text("Shows reminders with no due date in the list."))
                 }
-                .help(Text("Shows reminders with no due date in the list."))
                 Toggle(isOn: $showDate) {
-                    Label("Show Date", systemImage: "calendar")
+                    labeledToggleRow(
+                        "Show Date",
+                        systemImage: "calendar",
+                        description: Text("Shows each reminder's due date on its card."))
                 }
                 #if os(iOS) || os(macOS)
                 .onChange(of: showDate) { _, _ in
                     WidgetCenter.shared.reloadAllTimelines()
                 }
                 #endif
-                .help(Text("Shows each reminder's due date on its card."))
                 Section {
-                    NavigationLink {
-                        ExcludedProjectsView(
-                            excludedProjects: $excludedProjects,
-                            availableProjects: availableProjects)
-                    } label: {
-                        Label("Excluded Projects", systemImage: "eye.slash")
-                            .help(Text("Hides the listed projects from the reminder list."))
+                    HStack(spacing: 6) {
+                        NavigationLink {
+                            ExcludedProjectsView(
+                                excludedProjects: $excludedProjects,
+                                availableProjects: availableProjects)
+                        } label: {
+                            Label("Excluded Projects", systemImage: "eye.slash")
+                        }
+                        DescriptionInfoButton(
+                            settingName: "Excluded Projects",
+                            description: Text("Hides the listed projects from the reminder list."))
                     }
                 }
             }
@@ -201,6 +234,14 @@ struct SettingsView: View {
     private var dismiss
 
     private let availableProjects: [String]
+
+    /// Toggle label with its icon plus a trailing ⓘ description button.
+    private func labeledToggleRow(_ title: String, systemImage: String, description: Text) -> some View {
+        HStack(spacing: 6) {
+            Label(title, systemImage: systemImage)
+            DescriptionInfoButton(settingName: title, description: description)
+        }
+    }
 }
 
 // MARK: - Previews

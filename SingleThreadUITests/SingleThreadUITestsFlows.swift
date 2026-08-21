@@ -141,17 +141,10 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
     // MARK: - Settings descriptions
 
-    /// The built-in `.help(_:)` info affordance is a system-managed control that
-    /// is NOT exposed to XCTest as a tappable element (no button/helpTag/label
-    /// for its ″ⓘ″ or its description text), so a literal "tap-then-read" UI
-    /// assertion isn't automatable on the iOS SwiftUI surface. Instead this test
-    /// proves the reachable end-to-end behaviour that IS automatable: opening
-    /// Settings renders every preference row, and each row's description is wired
-    /// into the live accessibility tree (Screen Reader can read it) — verified by
-    /// an accessibility audit run while the Settings sheet is on screen. The exact
-    /// description literals are asserted by the unit suite
-    /// (`SettingsViewTests.settingsViewContainsAllPreferenceRows`); the literal
-    /// tap-reveal is covered by the manual checklist.
+    /// Every settings row carries a tappable ⓘ (`DescriptionInfoButton`) that
+    /// reveals the row's description in a popover. This test drives the full
+    /// tap-to-reveal flow end-to-end: open Settings, tap the Appearance row's
+    /// info button, and assert the description text is on screen.
     @MainActor
     func testSettingsRowsRenderAndDescriptionsAreAccessible() throws {
         let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
@@ -165,11 +158,31 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(app.staticTexts["Text Size"].waitForExistence(timeout: 2), "Settings should show Text Size")
         XCTAssertTrue(app.staticTexts["Sort By"].waitForExistence(timeout: 2), "Settings should show Sort By")
 
-        // Prove the rows' `View.help(_:)` descriptions are wired into the live
-        // accessibility tree so Screen Reader can reveal them. Audit the cheap,
-        // non-rendering categories (element descriptions + traits) — the same
-        // set used by the CI path of `testAccessibilityAudit`. The audit types
+        // Tap the Appearance row's ⓘ button and assert the description reveals.
+        let appearanceInfoButton = app.buttons["About Appearance"]
+        XCTAssertTrue(appearanceInfoButton.waitForExistence(timeout: 2), "Appearance row should show an info button")
+        appearanceInfoButton.tap()
+        XCTAssertTrue(
+            app.staticTexts["Choose System, Light, or Dark styling for the app."].waitForExistence(timeout: 2),
+            "Tapping the info button should reveal the description popover")
+
+        // Dismiss the popover, then prove a Toggle row's ⓘ button is also
+        // tappable (it sits inside the toggle's label).
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
+        let microphoneInfoButton = app.buttons["About Show Microphone"]
+        XCTAssertTrue(
+            microphoneInfoButton.waitForExistence(timeout: 2),
+            "Show Microphone row should show an info button")
+        microphoneInfoButton.tap()
+        XCTAssertTrue(
+            app.staticTexts[
+                "Controls whether the dictation microphone appears in the bottom bar."
+            ].waitForExistence(timeout: 2),
+            "Tapping the toggle row's info button should reveal its description popover")
+
+        // Dismiss the popover, then audit the Settings surface. The audit types
         // are iOS-only, so on macOS run the platform defaults.
+        app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1)).tap()
         #if os(iOS)
             try app.performAccessibilityAudit(for: [.sufficientElementDescription, .trait])
         #else
