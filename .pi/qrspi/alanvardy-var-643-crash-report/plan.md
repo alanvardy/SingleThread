@@ -398,14 +398,14 @@ gating in `MicrophoneToggleTests`).
 ### Verification
 
 #### Automated
-- [ ] `make format` then `make lint` (SwiftFormat/SwiftLint --strict) clean.
-- [ ] `./scripts/test.sh` full pipeline green (format, lint, build, Periphery,
+- [x] `make format` then `make lint` (SwiftFormat/SwiftLint --strict) clean.
+- [x] `./scripts/test.sh` full pipeline green (format, lint, build, Periphery,
       unit + UI + accessory + a11y).
-- [ ] Periphery (`periphery scan --strict`) reports no unused declared symbols
+- [x] Periphery (`periphery scan --strict`) reports no unused declared symbols
       (the promoted `ResumptionGate`/`resumeOnMainActor` are used by all three sites).
-- [ ] `ReminderDictationTests.requestAuthorizationResumesOnMainActorFromOffMainQueue`
+- [x] `ReminderDictationTests.requestAuthorizationResumesOnMainActorFromOffMainQueue`
       and `ReminderStoreTests…OffMain…` still green post-dedicated.
-- [ ] `MicrophoneToggleTests` and all `FakeSpeechTranscriber`-driven dictation
+- [x] `MicrophoneToggleTests` and all `FakeSpeechTranscriber`-driven dictation
       tests still green (hop timing preserved).
 
 #### Manual
