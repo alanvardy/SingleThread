@@ -71,6 +71,12 @@ import os
         /// `onCompleteReminderReceived`.
         public nonisolated(unsafe) var onSortOptionReceived: ((SortOption) -> Void)?
 
+        /// Hook invoked on the counterpart watch/phone when excluded-project titles
+        /// arrive in an application context. Passes the received title array. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onShowUndatedRemindersReceived`.
+        public nonisolated(unsafe) var onExcludedProjectTitlesReceived: (([String]) -> Void)?
+
         public func activate() {
             if let wcSession = session as? WCSession {
                 wcSession.delegate = self
@@ -175,6 +181,8 @@ import os
             }
             if let receivedTitles = applicationContext[PayloadKey.excludedProjectTitles] as? [String] {
                 excludeStore.save(receivedTitles)
+                let handler = onExcludedProjectTitlesReceived
+                handler?(receivedTitles)
             }
             if let received = applicationContext[PayloadKey.showUndatedReminders] as? Bool {
                 onShowUndatedRemindersReceived?(received)

@@ -317,6 +317,15 @@ public final class ReminderStore {
         onRemindersChanged?()
     }
 
+    /// Refreshes the live excluded-project set from titles received over
+    /// WatchConnectivity. Does NOT fire `onExcludedProjectsChanged`, so
+    /// the receive path never echoes a push back to the sender (that hook is only
+    /// for local `setExcludedProjectTitles` changes).
+    public func refreshExcludedProjectTitles(_ titles: Set<String>) {
+        excludedProjectTitles = titles
+        onRemindersChanged?()
+    }
+
     // MARK: Internal
 
     /// Requests full access to reminders, updating `authorizationStatus` and

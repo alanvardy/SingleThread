@@ -140,6 +140,27 @@ struct ReminderStoreTests {
         #expect(remindersChanged)
     }
 
+    // MARK: - refreshExcludedProjectTitles
+
+    @Test
+    func refreshExcludedProjectTitlesUpdatesSetAndFiresRemindersChangedOnly() {
+        let store = ReminderStore(
+            loadsReminders: false,
+            reminders: [],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        var remindersChanged = false
+        var excludedChanged = false
+        store.onRemindersChanged = { remindersChanged = true }
+        store.onExcludedProjectsChanged = { _ in excludedChanged = true }
+
+        store.refreshExcludedProjectTitles(["Work"])
+
+        #expect(store.excludedProjectTitles == ["Work"])
+        #expect(remindersChanged)
+        #expect(!excludedChanged)
+    }
+
     // MARK: - setSortOption
 
     @Test
