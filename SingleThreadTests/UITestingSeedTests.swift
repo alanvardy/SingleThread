@@ -58,4 +58,11 @@ struct UITestingSeedTests {
         #expect(store.authorizationStatus == .fullAccess)
         #expect(store.visibleReminders.map(\.title) == ["Buy groceries"])
     }
+
+    @Test
+    func resetPersistedStateClearsBackgroundEnabled() {
+        UserDefaults.standard.set(false, forKey: "backgroundEnabled")
+        UITestingSeed.resetPersistedState()
+        #expect(UserDefaults.standard.object(forKey: "backgroundEnabled") == nil)
+    }
 }

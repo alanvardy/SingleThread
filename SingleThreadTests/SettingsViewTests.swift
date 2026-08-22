@@ -16,6 +16,7 @@ struct SettingsViewTests {
                 allowsLandscape: .constant(true),
                 enableActionButtons: .constant(true),
                 showMicrophoneButton: .constant(true),
+                backgroundEnabled: .constant(true),
                 showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
                 availableProjects: ["Work", "Personal"],
@@ -26,6 +27,7 @@ struct SettingsViewTests {
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
                 showMicrophoneButton: .constant(true),
+                backgroundEnabled: .constant(true),
                 showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
                 availableProjects: ["Work", "Personal"],
@@ -41,6 +43,7 @@ struct SettingsViewTests {
         #expect(bodyDescription.contains("Text Size"))
         #expect(bodyDescription.contains("Sort By"))
         #expect(bodyDescription.contains("Microphone"))
+        #expect(bodyDescription.contains("Background"))
         #expect(bodyDescription.contains("Show Undated"))
         #expect(bodyDescription.contains("Show Date"))
         #expect(bodyDescription.contains("Excluded Projects"))

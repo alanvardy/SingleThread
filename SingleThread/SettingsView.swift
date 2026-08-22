@@ -67,6 +67,7 @@ struct SettingsView: View {
             allowsLandscape: Binding<Bool>,
             enableActionButtons: Binding<Bool>,
             showMicrophoneButton: Binding<Bool>,
+            backgroundEnabled: Binding<Bool>,
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
             availableProjects: [String],
@@ -77,6 +78,7 @@ struct SettingsView: View {
             _allowsLandscape = allowsLandscape
             _enableActionButtons = enableActionButtons
             _showMicrophoneButton = showMicrophoneButton
+            _backgroundEnabled = backgroundEnabled
             _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
             self.availableProjects = availableProjects
@@ -88,6 +90,7 @@ struct SettingsView: View {
             appearanceMode: Binding<AppearanceMode>,
             textSize: Binding<TextSize>,
             showMicrophoneButton: Binding<Bool>,
+            backgroundEnabled: Binding<Bool>,
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
             availableProjects: [String],
@@ -96,6 +99,7 @@ struct SettingsView: View {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _showMicrophoneButton = showMicrophoneButton
+            _backgroundEnabled = backgroundEnabled
             _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
             self.availableProjects = availableProjects
@@ -137,6 +141,9 @@ struct SettingsView: View {
                 #endif
                 Toggle(isOn: $showMicrophoneButton) {
                     Label("Show Microphone", systemImage: "microphone")
+                }
+                Toggle(isOn: $backgroundEnabled) {
+                    Label("Background", systemImage: "photo")
                 }
                 #if os(iOS)
                     Toggle(isOn: $enableActionButtons) {
@@ -185,6 +192,7 @@ struct SettingsView: View {
         @Binding private var enableActionButtons: Bool
     #endif
     @Binding private var showMicrophoneButton: Bool
+    @Binding private var backgroundEnabled: Bool
     @Binding private var showUndatedReminders: Bool
     @Binding private var excludedProjects: Set<String>
     @Binding private var showDate: Bool
@@ -204,6 +212,7 @@ struct SettingsView: View {
             allowsLandscape: .constant(true),
             enableActionButtons: .constant(false),
             showMicrophoneButton: .constant(true),
+            backgroundEnabled: .constant(true),
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],
@@ -218,6 +227,7 @@ struct SettingsView: View {
             allowsLandscape: .constant(false),
             enableActionButtons: .constant(false),
             showMicrophoneButton: .constant(false),
+            backgroundEnabled: .constant(true),
             showUndatedReminders: .constant(true),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],
@@ -230,6 +240,7 @@ struct SettingsView: View {
             appearanceMode: .constant(.system),
             textSize: .constant(.system),
             showMicrophoneButton: .constant(true),
+            backgroundEnabled: .constant(true),
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],

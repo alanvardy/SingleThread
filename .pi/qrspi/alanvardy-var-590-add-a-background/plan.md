@@ -407,9 +407,9 @@ implementation.)
 ### Verification
 
 #### Automated
-- [ ] `-only-testing:SingleThreadTests` passes including updated `SettingsViewTests` and new `UITestingSeedTests` case
-- [ ] `-only-testing:SingleThreadUITests` passes including `testBackgroundToggleHidesAndPersistsAcrossRelaunch`
-- [ ] Accessibility audit still green (new Toggle inherits standard hit region/dynamic type)
+- [x] `-only-testing:SingleThreadTests` passes including updated `SettingsViewTests` and new `UITestingSeedTests` case
+- [x] `-only-testing:SingleThreadUITests` passes including `testBackgroundToggleHidesAndPersistsAcrossRelaunch`
+- [x] Accessibility audit still green (new Toggle inherits standard hit region/dynamic type)
 
 #### Manual
 - [ ] Toggle off → photo disappears instantly, plain background returns; toggle on → photo restored with no network refetch (airplane-mode-safe)

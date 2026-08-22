@@ -162,9 +162,11 @@ final class BackgroundImageStore {
     /// touches or pollutes the a11y tree.
     struct BackgroundPhotoLayer: View {
         let imageData: Data?
+        /// Toggled from Settings; `false` hides the photo without touching disk.
+        var isEnabled = true
 
         var body: some View {
-            if let image = imageData.flatMap(UIImage.init(data:)) {
+            if isEnabled, let image = imageData.flatMap(UIImage.init(data:)) {
                 // The overlay wrapper pins the layer to its parent's size so
                 // `scaledToFill` can never expand the surrounding layout.
                 Color.clear

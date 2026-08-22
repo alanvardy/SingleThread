@@ -138,4 +138,52 @@ final class SingleThreadUITestsFlows: XCTestCase {
             app.staticTexts["Show Date"].waitForExistence(timeout: 3),
             "Settings should show Show Date (after scrolling)")
     }
+
+    // MARK: - Background toggle
+
+    @MainActor
+    func testBackgroundToggleHidesAndPersistsAcrossRelaunch() {
+        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+        app.buttons["Settings"].tap()
+
+        let toggle = app.switches["Background"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
+        XCTAssertEqual(toggle.value as? String, "1", "Background should default to on")
+        XCTAssertTrue(flipToggle(toggle), "Tapping should hide the background")
+
+        app.buttons["Done"].tap()
+        app.terminate()
+
+        // A relaunch with `--seed` would call `resetPersistedState()` and wipe
+        // the very key under test, so persistence is verified via a second
+        // `--ui-testing` launch, which does not reset `.standard` defaults.
+        let relaunched = XCUIApplication()
+        relaunched.launchArguments = ["--ui-testing"]
+        relaunched.launch()
+        relaunched.buttons["Settings"].tap()
+        let persistedToggle = relaunched.switches["Background"]
+        XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
+        XCTAssertEqual(
+            persistedToggle.value as? String, "0",
+            "Background-off should persist across relaunch")
+    }
+
+    /// SwiftUI Form rows expose a nested switch control; tapping the outer row
+    /// element is swallowed, so tap the inner control until it flips.
+    @MainActor
+    private func flipToggle(_ toggle: XCUIElement, target: String = "0") -> Bool {
+        let inner = toggle.switches.firstMatch
+        guard inner.waitForExistence(timeout: 2) else { return false }
+        for _ in 0..<3 {
+            if toggle.value as? String == target { return true }
+            inner.tap()
+            let deadline = Date().addingTimeInterval(1)
+            while Date() < deadline {
+                if toggle.value as? String == target { return true }
+                usleep(100_000)
+            }
+        }
+        return toggle.value as? String == target
+    }
 }
