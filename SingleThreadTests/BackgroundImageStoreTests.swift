@@ -123,6 +123,44 @@ struct BackgroundImageStoreTests {
         #expect(orphanStore.photographer == nil)
     }
 
+    /// Pairing invariant: the photographer surfaced to the attribution footer
+    /// always comes from the same sidecar write as the displayed photo bytes.
+    @Test
+    func photographerMatchesStoredPhotoAfterFetch() async throws {
+        let fake = FakeBackgroundFetcher()
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        let (store, _) = makeStore(client: fake)
+
+        await store.refreshIfNeeded(maxAge: 3600)
+
+        let metadataData = try Data(contentsOf: store.metadataURL)
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        struct SidecarMetadata: Codable { let photographer: String; let fetchedAt: Date }
+        let sidecar = try decoder.decode(SidecarMetadata.self, from: metadataData)
+        #expect(sidecar.photographer == store.photographer)
+    }
+
+    @Test
+    func photographerClearedWithoutValidSidecar() async throws {
+        let fake = FakeBackgroundFetcher()
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        let (store, _) = makeStore(client: fake)
+        await store.refreshIfNeeded(maxAge: 3600)
+        #expect(store.photographer != nil)
+
+        // Corrupt the sidecar, then fail the next fetch: state must fall back
+        // to "no photo" so the footer renders empty rather than a stale credit.
+        try Data("corrupt".utf8).write(to: store.metadataURL, options: .atomic)
+        struct StubError: Error {}
+        fake.stubbedData[Self.imageURL] = .failure(StubError())
+        await store.refreshIfNeeded(maxAge: 3600)
+
+        #expect(store.photographer == nil)
+    }
+
     // MARK: Private
 
     private final class FakeBackgroundFetcher: BackgroundImageFetching, @unchecked Sendable {
