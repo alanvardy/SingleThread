@@ -75,7 +75,7 @@ struct ContentView: View {
         ZStack {
             Color.systemBackground.ignoresSafeArea()
             #if os(iOS)
-                BackgroundPhotoLayer(imageData: backgroundImage.imageData)
+                BackgroundPhotoLayer(imageData: backgroundImage.imageData, isEnabled: backgroundEnabled)
             #endif
             if store.loadsReminders {
                 authGatedContent
@@ -126,6 +126,7 @@ struct ContentView: View {
                     allowsLandscape: $allowsLandscape,
                     enableActionButtons: $enableActionButtons,
                     showMicrophoneButton: $showMicrophoneButton,
+                    backgroundEnabled: $backgroundEnabled,
                     showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
                     availableProjects: store.availableProjects,
@@ -136,6 +137,7 @@ struct ContentView: View {
                     appearanceMode: $appearanceMode,
                     textSize: $textSize,
                     showMicrophoneButton: $showMicrophoneButton,
+                    backgroundEnabled: $backgroundEnabled,
                     showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
                     availableProjects: store.availableProjects,
@@ -211,6 +213,9 @@ struct ContentView: View {
 
     @AppStorage("showMicrophoneButton")
     private var showMicrophoneButton = true
+
+    @AppStorage("backgroundEnabled", store: .standard)
+    private var backgroundEnabled = true
 
     #if os(iOS)
         @AppStorage("enableActionButtons")
