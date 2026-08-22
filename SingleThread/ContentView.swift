@@ -8,14 +8,22 @@ struct ContentView: View {
 
     /// Accepts a pre-configured store (used by the app entry point, which wires
     /// WatchConnectivity hooks onto the store before handing it to the view).
-    init(store: ReminderStore, speechTranscriber: (any SpeechTranscribing)? = nil) {
+    init(
+        store: ReminderStore,
+        speechTranscriber: (any SpeechTranscribing)? = nil,
+        backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
         self.store = store
         self.speechTranscriber = speechTranscriber ?? ReminderDictation()
+        self.backgroundImage = backgroundImage
     }
 
-    init(loadsReminders: Bool = true, speechTranscriber: (any SpeechTranscribing)? = nil) {
+    init(
+        loadsReminders: Bool = true,
+        speechTranscriber: (any SpeechTranscribing)? = nil,
+        backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
         store = ReminderStore(loadsReminders: loadsReminders)
         self.speechTranscriber = speechTranscriber ?? ReminderDictation()
+        self.backgroundImage = backgroundImage
     }
 
     /// Pre-populates state for canvas previews.
@@ -26,7 +34,8 @@ struct ContentView: View {
         authorizationStatus: EKAuthorizationStatus,
         excludedProjectTitles: Set<String> = [],
         hasHidden: Bool = false,
-        speechTranscriber: (any SpeechTranscribing)? = nil) {
+        speechTranscriber: (any SpeechTranscribing)? = nil,
+        backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
         store = ReminderStore(
             loadsReminders: loadsReminders,
             reminders: reminders,
@@ -35,6 +44,7 @@ struct ContentView: View {
             excludedProjectTitles: excludedProjectTitles,
             hasHidden: hasHidden)
         self.speechTranscriber = speechTranscriber ?? ReminderDictation()
+        self.backgroundImage = backgroundImage
     }
 
     // MARK: Internal
@@ -47,6 +57,9 @@ struct ContentView: View {
         let systemImage: String
         let description: String
     }
+
+    /// Created before view init, so a plain `let` gives StateObject-like lifetime.
+    var backgroundImage: BackgroundImageStore
 
     #if os(iOS)
         /// Whether the Complete/Skip cluster replaces the plain mic in the bottom
@@ -61,6 +74,9 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             Color.systemBackground.ignoresSafeArea()
+            #if os(iOS)
+                BackgroundPhotoLayer(imageData: backgroundImage.imageData)
+            #endif
             if store.loadsReminders {
                 authGatedContent
             } else {
@@ -85,6 +101,7 @@ struct ContentView: View {
         .task {
             store.showsUndatedReminders = showUndatedReminders
             await store.start()
+            await backgroundImage.refreshIfNeeded(maxAge: 3600)
         }
         .onChange(of: showUndatedReminders) { _, newValue in
             store.showsUndatedReminders = newValue
