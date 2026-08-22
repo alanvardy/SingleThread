@@ -68,6 +68,7 @@ struct SettingsView: View {
             enableActionButtons: Binding<Bool>,
             showMicrophoneButton: Binding<Bool>,
             backgroundEnabled: Binding<Bool>,
+            backgroundPhotographer: String?,
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
             availableProjects: [String],
@@ -79,6 +80,7 @@ struct SettingsView: View {
             _enableActionButtons = enableActionButtons
             _showMicrophoneButton = showMicrophoneButton
             _backgroundEnabled = backgroundEnabled
+            self.backgroundPhotographer = backgroundPhotographer
             _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
             self.availableProjects = availableProjects
@@ -91,6 +93,7 @@ struct SettingsView: View {
             textSize: Binding<TextSize>,
             showMicrophoneButton: Binding<Bool>,
             backgroundEnabled: Binding<Bool>,
+            backgroundPhotographer: String?,
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
             availableProjects: [String],
@@ -100,6 +103,7 @@ struct SettingsView: View {
             _textSize = textSize
             _showMicrophoneButton = showMicrophoneButton
             _backgroundEnabled = backgroundEnabled
+            self.backgroundPhotographer = backgroundPhotographer
             _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
             self.availableProjects = availableProjects
@@ -170,6 +174,11 @@ struct SettingsView: View {
                         Label("Excluded Projects", systemImage: "eye.slash")
                     }
                 }
+                Section {} footer: {
+                    if let backgroundPhotographer {
+                        Text("Photo by \(backgroundPhotographer) on Unsplash")
+                    }
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -199,6 +208,8 @@ struct SettingsView: View {
     @Environment(\.dismiss)
     private var dismiss
 
+    private let backgroundPhotographer: String?
+
     private let availableProjects: [String]
 }
 
@@ -213,6 +224,7 @@ struct SettingsView: View {
             enableActionButtons: .constant(false),
             showMicrophoneButton: .constant(true),
             backgroundEnabled: .constant(true),
+            backgroundPhotographer: "NEOM",
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],
@@ -228,6 +240,7 @@ struct SettingsView: View {
             enableActionButtons: .constant(false),
             showMicrophoneButton: .constant(false),
             backgroundEnabled: .constant(true),
+            backgroundPhotographer: nil,
             showUndatedReminders: .constant(true),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],
@@ -241,6 +254,7 @@ struct SettingsView: View {
             textSize: .constant(.system),
             showMicrophoneButton: .constant(true),
             backgroundEnabled: .constant(true),
+            backgroundPhotographer: "NEOM",
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],

@@ -481,8 +481,8 @@ assertion gains `#expect(bodyDescription.contains("Unsplash"))`.
 ### Verification
 
 #### Automated
-- [ ] Full gate `./scripts/test.sh` green (format, lint, build, Periphery, unit tests, UI tests + accessibility audit on iPhone 17 and iPad (A16))
-- [ ] New store pairing/cleared-metadata cases pass in `BackgroundImageStoreTests`
+- [x] Full gate `./scripts/test.sh` green (format, lint, build, Periphery, unit tests, UI tests + accessibility audit on iPhone 17 and iPad (A16))
+- [x] New store pairing/cleared-metadata cases pass in `BackgroundImageStoreTests`
 
 #### Manual
 - [ ] After fetch succeeds: Settings footer reads "Photo by {photographer} on Unsplash" and matches the photographer of the visible photo
