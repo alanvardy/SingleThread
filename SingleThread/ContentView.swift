@@ -81,7 +81,10 @@ struct ContentView: View {
         ZStack {
             Color.systemBackground.ignoresSafeArea()
             #if os(iOS)
-                BackgroundPhotoLayer(imageData: backgroundImage.imageData, isEnabled: backgroundEnabled)
+                BackgroundPhotoLayer(
+                    imageData: backgroundImage.imageData,
+                    isEnabled: backgroundEnabled,
+                    opacity: BackgroundFade.opacity(for: backgroundFadePercent))
             #endif
             if store.loadsReminders {
                 authGatedContent
@@ -133,6 +136,7 @@ struct ContentView: View {
                     enableActionButtons: $enableActionButtons,
                     showMicrophoneButton: $showMicrophoneButton,
                     backgroundEnabled: $backgroundEnabled,
+                    backgroundFadePercent: $backgroundFadePercent,
                     backgroundPhotographer: backgroundImage.photographer,
                     showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
@@ -145,6 +149,7 @@ struct ContentView: View {
                     textSize: $textSize,
                     showMicrophoneButton: $showMicrophoneButton,
                     backgroundEnabled: $backgroundEnabled,
+                    backgroundFadePercent: $backgroundFadePercent,
                     backgroundPhotographer: backgroundImage.photographer,
                     showUndatedReminders: $showUndatedReminders,
                     excludedProjects: excludedProjectsBinding,
@@ -180,34 +185,6 @@ struct ContentView: View {
 
     // MARK: - Creation Feedback
 
-    private enum CreationFeedback {
-        case success
-        case failure
-
-        // MARK: Internal
-
-        var systemImage: String {
-            switch self {
-            case .success: "checkmark"
-            case .failure: "xmark"
-            }
-        }
-
-        var backgroundColor: Color {
-            switch self {
-            case .success: .green
-            case .failure: .red
-            }
-        }
-
-        var accessibilityLabel: String {
-            switch self {
-            case .success: "Task created"
-            case .failure: "Task creation failed"
-            }
-        }
-    }
-
     @AppStorage("appearanceMode")
     private var appearanceMode = AppearanceMode.system
 
@@ -224,6 +201,9 @@ struct ContentView: View {
 
     @AppStorage("backgroundEnabled", store: .standard)
     private var backgroundEnabled = true
+
+    @AppStorage("backgroundFadePercent", store: .standard)
+    private var backgroundFadePercent = BackgroundFade.defaultValue
 
     #if os(iOS)
         @AppStorage("enableActionButtons")

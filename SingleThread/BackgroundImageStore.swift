@@ -164,6 +164,8 @@ final class BackgroundImageStore {
         let imageData: Data?
         /// Toggled from Settings; `false` hides the photo without touching disk.
         var isEnabled = true
+        /// Fade level as a SwiftUI opacity fraction, chosen in Settings.
+        var opacity = BackgroundFade.opacity(for: BackgroundFade.defaultValue)
 
         var body: some View {
             if isEnabled, let image = imageData.flatMap(UIImage.init(data:)) {
@@ -176,7 +178,7 @@ final class BackgroundImageStore {
                             .scaledToFill()
                     }
                     .ignoresSafeArea()
-                    .opacity(0.5)
+                    .opacity(opacity)
                     .allowsHitTesting(false)
                     .accessibilityHidden(true)
             }

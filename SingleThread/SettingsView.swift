@@ -68,6 +68,7 @@ struct SettingsView: View {
             enableActionButtons: Binding<Bool>,
             showMicrophoneButton: Binding<Bool>,
             backgroundEnabled: Binding<Bool>,
+            backgroundFadePercent: Binding<Int>,
             backgroundPhotographer: String?,
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
@@ -80,6 +81,7 @@ struct SettingsView: View {
             _enableActionButtons = enableActionButtons
             _showMicrophoneButton = showMicrophoneButton
             _backgroundEnabled = backgroundEnabled
+            _backgroundFadePercent = backgroundFadePercent
             self.backgroundPhotographer = backgroundPhotographer
             _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
@@ -93,6 +95,7 @@ struct SettingsView: View {
             textSize: Binding<TextSize>,
             showMicrophoneButton: Binding<Bool>,
             backgroundEnabled: Binding<Bool>,
+            backgroundFadePercent: Binding<Int>,
             backgroundPhotographer: String?,
             showUndatedReminders: Binding<Bool>,
             excludedProjects: Binding<Set<String>>,
@@ -103,6 +106,7 @@ struct SettingsView: View {
             _textSize = textSize
             _showMicrophoneButton = showMicrophoneButton
             _backgroundEnabled = backgroundEnabled
+            _backgroundFadePercent = backgroundFadePercent
             self.backgroundPhotographer = backgroundPhotographer
             _showUndatedReminders = showUndatedReminders
             _excludedProjects = excludedProjects
@@ -148,6 +152,11 @@ struct SettingsView: View {
                 }
                 Toggle(isOn: $backgroundEnabled) {
                     Label("Background", systemImage: "photo")
+                }
+                Picker("Background Fade", selection: $backgroundFadePercent) {
+                    ForEach(BackgroundFade.allValues, id: \.self) { percent in
+                        Text("\(percent)%").tag(percent)
+                    }
                 }
                 #if os(iOS)
                     Toggle(isOn: $enableActionButtons) {
@@ -202,6 +211,7 @@ struct SettingsView: View {
     #endif
     @Binding private var showMicrophoneButton: Bool
     @Binding private var backgroundEnabled: Bool
+    @Binding private var backgroundFadePercent: Int
     @Binding private var showUndatedReminders: Bool
     @Binding private var excludedProjects: Set<String>
     @Binding private var showDate: Bool
@@ -224,6 +234,7 @@ struct SettingsView: View {
             enableActionButtons: .constant(false),
             showMicrophoneButton: .constant(true),
             backgroundEnabled: .constant(true),
+            backgroundFadePercent: .constant(50),
             backgroundPhotographer: "NEOM",
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),
@@ -240,6 +251,7 @@ struct SettingsView: View {
             enableActionButtons: .constant(false),
             showMicrophoneButton: .constant(false),
             backgroundEnabled: .constant(true),
+            backgroundFadePercent: .constant(50),
             backgroundPhotographer: nil,
             showUndatedReminders: .constant(true),
             excludedProjects: .constant([]),
@@ -254,6 +266,7 @@ struct SettingsView: View {
             textSize: .constant(.system),
             showMicrophoneButton: .constant(true),
             backgroundEnabled: .constant(true),
+            backgroundFadePercent: .constant(50),
             backgroundPhotographer: "NEOM",
             showUndatedReminders: .constant(false),
             excludedProjects: .constant([]),

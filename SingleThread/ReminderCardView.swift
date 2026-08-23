@@ -52,14 +52,14 @@ struct ReminderCardView: View {
         // small high-contrast plate: white in light mode, black in dark mode.
         // The padding pair grows the view to fit the plate, then restores the
         // original outer geometry so list metrics are unchanged.
-        .padding(showsOverPhoto ? 8 : 0)
+        .padding(showsOverPhoto ? 12 : 0)
         .background {
             if showsOverPhoto {
                 RoundedRectangle(cornerRadius: 10)
                     .fill(colorScheme == .dark ? Color.black : Color.white)
             }
         }
-        .padding(showsOverPhoto ? -8 : 0)
+        .padding(showsOverPhoto ? -12 : 0)
     }
 
     // MARK: Private
