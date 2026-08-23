@@ -408,10 +408,30 @@
                 session: fake,
                 skipStore: SkippedReminderStore(defaults: .standard, key: "test-sync-showdate-missing-ids"),
                 showDateStore: showDateStore)
+            var fired = false
+            service.onShowDateReceived = { _ in fired = true }
             service.session(
                 WCSession.default,
                 didReceiveApplicationContext: ["skippedReminderIdentifiers": ["A"]])
             #expect(showDateStore.isEnabled) // unchanged
+            #expect(!fired) // absent key is a no-op for the handler too
+        }
+
+        @Test
+        func receiveContextFiresOnShowDateHandlerAndPersists() {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let showDateStore = ShowDatePreference(defaults: .standard, key: "test-date-hook-\(suffix)")
+            showDateStore.set(true)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-date-hook-ids-\(suffix)"),
+                showDateStore: showDateStore)
+            var received: [Bool] = []
+            service.onShowDateReceived = { received.append($0) }
+            service.session(WCSession.default, didReceiveApplicationContext: ["showDate": false])
+            #expect(received == [false])
+            #expect(!showDateStore.isEnabled)
         }
 
         @Test

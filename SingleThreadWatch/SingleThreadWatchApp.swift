@@ -7,6 +7,8 @@ import WatchConnectivity
 struct SingleThreadWatchApp: App {
     // MARK: Lifecycle
 
+    private let showDateState = ShowDateState()
+
     init() {
         let isUITesting = ProcessInfo.processInfo.arguments.contains("--ui-testing")
         let store: ReminderStore = if isUITesting {
@@ -31,6 +33,9 @@ struct SingleThreadWatchApp: App {
                     await store?.reload()
                 }
             }
+            service.onShowDateReceived = { [weak showDateState] value in
+                showDateState?.apply(value)
+            }
             // Set before activate() — same write-once-before-activate invariant as
             // onCompleteReminderReceived.
             service.onSortOptionReceived = { [weak store] option in
@@ -53,7 +58,7 @@ struct SingleThreadWatchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            WatchReminderView(store: store)
+            WatchReminderView(store: store, showDateState: showDateState)
         }
     }
 
