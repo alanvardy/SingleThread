@@ -12,7 +12,7 @@ COVERAGE_UI_RESULT := build/Coverage.UI.xcresult
 COVERAGE_ALL_RESULT := build/Coverage.All.xcresult
 export SIM
 
-.PHONY: build watch-build test ui-test simverify mac-build mac-test coverage coverage-ui coverage-all check clean lint format periphery watch-ui-test
+.PHONY: build watch-build test ui-test simverify mac-build mac-test coverage coverage-ui coverage-all check clean lint format periphery watch-ui-test watch-test
 
 build:
 	xcodebuild -scheme SingleThread -destination '$(SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build-for-testing
@@ -80,6 +80,14 @@ watch-ui-test:
 	  -derivedDataPath '$(DERIVED_DATA)' \
 	  test \
 	  -only-testing:SingleThreadWatchUITests
+
+watch-test:
+	xcodebuild -scheme SingleThreadWatch \
+	  -destination '$(WATCH_TEST_SIM)' \
+	  -configuration Debug \
+	  -derivedDataPath '$(DERIVED_DATA)' \
+	  test \
+	  -only-testing:SingleThreadWatchTests
 
 check:
 	./scripts/test.sh

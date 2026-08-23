@@ -40,6 +40,17 @@
                ReferencedContainer = "container:SingleThread.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "51F0F49900000000000000A3"
+               BuildableName = "SingleThreadWatchTests.xctest"
+               BlueprintName = "SingleThreadWatchTests"
+               ReferencedContainer = "container:SingleThread.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
