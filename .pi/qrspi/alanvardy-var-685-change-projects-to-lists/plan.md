@@ -336,7 +336,7 @@ func pushExcludedListTitlesUpdatesApplicationContext() throws {
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SkippedReminderSyncServiceTests` passes, with the updated test asserting both keys present
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SkippedReminderSyncServiceTests` passes, with the updated test asserting both keys present
 
 #### Manual
 - [ ] Pair phone + watch simulators, change an exclusion on the phone, confirm skips still render filtered on the watch after context re-delivery
