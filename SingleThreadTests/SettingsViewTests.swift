@@ -55,7 +55,7 @@ struct SettingsViewTests {
         #expect(bodyDescription.contains("Show undated reminders"))
         #expect(bodyDescription.contains("Show date"))
         #expect(bodyDescription.contains("Show list"))
-        #expect(bodyDescription.contains("Excluded Projects"))
+        #expect(bodyDescription.contains("Excluded Lists"))
         #expect(bodyDescription.contains("Done"))
         #if os(iOS)
             #expect(bodyDescription.contains("Allow landscape"))
