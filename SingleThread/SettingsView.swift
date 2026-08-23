@@ -57,6 +57,18 @@ struct ExcludedProjectsView: View {
 
 /// Modal settings screen presented from the gear button. Owns no state —
 /// every preference is bound back to `ContentView`'s `@AppStorage` values.
+///
+/// Eleven settings, two persistence tiers, one sync scope.
+///
+/// Synced to Apple Watch via `SkippedReminderSyncService` (VAR-648): sort
+/// option, show-undated, show date, excluded projects, plus the skip set.
+///
+/// Intentionally **not** synced — these seven are phone-only cosmetics with no
+/// watch UI counterpart (design decision: syncing them adds payload surface
+/// for no user-visible effect):
+/// `appearanceMode`, `textSize`, `allowsLandscape` (iOS-only),
+/// `showMicrophoneButton`, `backgroundEnabled`, `backgroundFadePercent`,
+/// `enableActionButtons` (iOS-only).
 struct SettingsView: View {
     // MARK: Lifecycle
 

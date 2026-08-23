@@ -7,16 +7,23 @@ import SwiftUI
 /// sync pipeline's explicit `onShowDateReceived` callback.
 @Observable
 final class ShowDateState {
-    private let preference = ShowDatePreference(defaults: .standard)
-    private(set) var isEnabled: Bool
+    // MARK: Lifecycle
 
     init() {
         isEnabled = preference.isEnabled
     }
+
+    // MARK: Internal
+
+    private(set) var isEnabled: Bool
 
     /// Persists a received value and publishes it to observing views.
     func apply(_ value: Bool) {
         preference.set(value)
         isEnabled = value
     }
+
+    // MARK: Private
+
+    private let preference = ShowDatePreference(defaults: .standard)
 }

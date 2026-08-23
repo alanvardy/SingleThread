@@ -149,46 +149,6 @@ import os
             apply(context: applicationContext)
         }
 
-        /// Single receive path: decode → persist → notify for each present key;
-        /// absent keys are no-ops. Handlers are snapshotted before invocation because
-        /// they are written once from the main actor before `activate()`.
-        private func apply(context: [String: Any]) {
-            // Latest-wins: `updateApplicationContext` transmits the sender's full
-            // set, so the received values are authoritative. Replacing (rather
-            // than unioning) local values makes a "clear" update ([]) propagate.
-            // ReminderStore.reload() prunes stale skip IDs on the next fetch.
-            // The keys are independent — the skip IDs + show-undated + sort +
-            // show-date travel in one combined context, while excluded-project
-            // titles use a separate one — so any key may be present without the
-            // others.
-            if let receivedIDs = context[PayloadKey.skippedReminderIdentifiers] as? [String] {
-                skipStore.save(receivedIDs)
-                let handler = onSkippedIdentifiersReceived
-                handler?(receivedIDs)
-            }
-            if let receivedTitles = context[PayloadKey.excludedProjectTitles] as? [String] {
-                excludeStore.save(receivedTitles)
-                let handler = onExcludedProjectTitlesReceived
-                handler?(receivedTitles)
-            }
-            if let received = context[PayloadKey.showUndatedReminders] as? Bool {
-                showUndatedStore.save(received)
-                let handler = onShowUndatedRemindersReceived
-                handler?(received)
-            }
-            if let rawValue = context[PayloadKey.sortOption] as? String,
-               let option = SortOption(rawValue: rawValue) {
-                sortStore.save(option)
-                let handler = onSortOptionReceived
-                handler?(option)
-            }
-            if let showDate = context[PayloadKey.showDate] as? Bool {
-                showDateStore.set(showDate)
-                let handler = onShowDateReceived
-                handler?(showDate)
-            }
-        }
-
         public func session(_: WCSession, didReceiveMessage message: [String: Any]) {
             if let identifier = message[PayloadKey.completeReminderIdentifier] as? String {
                 let handler = onCompleteReminderReceived
@@ -239,5 +199,45 @@ import os
         private let showUndatedStore: ShowUndatedRemindersPreference
         private let showDateStore: ShowDatePreference
         private let sendsShowDate: Bool
+
+        /// Single receive path: decode → persist → notify for each present key;
+        /// absent keys are no-ops. Handlers are snapshotted before invocation because
+        /// they are written once from the main actor before `activate()`.
+        private func apply(context: [String: Any]) {
+            // Latest-wins: `updateApplicationContext` transmits the sender's full
+            // set, so the received values are authoritative. Replacing (rather
+            // than unioning) local values makes a "clear" update ([]) propagate.
+            // ReminderStore.reload() prunes stale skip IDs on the next fetch.
+            // The keys are independent — the skip IDs + show-undated + sort +
+            // show-date travel in one combined context, while excluded-project
+            // titles use a separate one — so any key may be present without the
+            // others.
+            if let receivedIDs = context[PayloadKey.skippedReminderIdentifiers] as? [String] {
+                skipStore.save(receivedIDs)
+                let handler = onSkippedIdentifiersReceived
+                handler?(receivedIDs)
+            }
+            if let receivedTitles = context[PayloadKey.excludedProjectTitles] as? [String] {
+                excludeStore.save(receivedTitles)
+                let handler = onExcludedProjectTitlesReceived
+                handler?(receivedTitles)
+            }
+            if let received = context[PayloadKey.showUndatedReminders] as? Bool {
+                showUndatedStore.save(received)
+                let handler = onShowUndatedRemindersReceived
+                handler?(received)
+            }
+            if let rawValue = context[PayloadKey.sortOption] as? String,
+               let option = SortOption(rawValue: rawValue) {
+                sortStore.save(option)
+                let handler = onSortOptionReceived
+                handler?(option)
+            }
+            if let showDate = context[PayloadKey.showDate] as? Bool {
+                showDateStore.set(showDate)
+                let handler = onShowDateReceived
+                handler?(showDate)
+            }
+        }
     }
 #endif

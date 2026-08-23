@@ -7,12 +7,11 @@ import WatchConnectivity
 struct SingleThreadWatchApp: App {
     // MARK: Lifecycle
 
-    private let showDateState = ShowDateState()
-
     init() {
-        let isUITesting = ProcessInfo.processInfo.arguments.contains("--ui-testing")
+        let arguments = ProcessInfo.processInfo.arguments
+        let isUITesting = arguments.contains("--ui-testing")
         let store: ReminderStore = if isUITesting {
-            Self.uiTestingStore(arguments: ProcessInfo.processInfo.arguments)
+            Self.uiTestingStore(arguments: arguments)
         } else {
             ReminderStore(loadsReminders: true)
         }
@@ -61,6 +60,20 @@ struct SingleThreadWatchApp: App {
             store.onExcludedProjectsChanged = { _ in service.pushAll() }
             store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
             store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
+
+            // UI-test seam: delivers a real applicationContext through the WCSession
+            // delegate entry point several seconds after launch, proving settings
+            // apply live (no relaunch) end-to-end in SingleThreadWatchUITests.
+            // Long enough that the seeded card has rendered first.
+            if let index = arguments.firstIndex(of: "--ui-testing-live-excluded"),
+               index + 1 < arguments.count {
+                let project = arguments[index + 1]
+                DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                    service.session(
+                        WCSession.default,
+                        didReceiveApplicationContext: ["excludedProjectTitles": [project]])
+                }
+            }
         }
     }
 
@@ -73,6 +86,8 @@ struct SingleThreadWatchApp: App {
     }
 
     // MARK: Private
+
+    private let showDateState = ShowDateState()
 
     private let store: ReminderStore
 
@@ -88,8 +103,13 @@ struct SingleThreadWatchApp: App {
         // that title and pre-populates the store's exclusion set, so an XCTest can
         // assert a project's current card is suppressed (the store's live exclusion
         // set drives the rendered result).
-        if let index = arguments.firstIndex(of: "--ui-testing-excluded"),
-           index + 1 < arguments.count {
+        // `--ui-testing-live-excluded "<project>"` gives the sample reminder a
+        // calendar of that title but leaves the exclusion set empty, so the card
+        // renders first and disappears only when the UI-test seam delivers the
+        // exclusion context (live-propagation proof).
+        for flag in ["--ui-testing-excluded", "--ui-testing-live-excluded"] {
+            guard let index = arguments.firstIndex(of: flag),
+                  index + 1 < arguments.count else { continue }
             let project = arguments[index + 1]
             let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
             calendar.title = project
@@ -99,7 +119,7 @@ struct SingleThreadWatchApp: App {
                 reminders: [reminder],
                 skippedIDs: [],
                 authorizationStatus: .fullAccess,
-                excludedProjectTitles: [project])
+                excludedProjectTitles: flag == "--ui-testing-excluded" ? [project] : [])
         }
         return ReminderStore(
             loadsReminders: false,
