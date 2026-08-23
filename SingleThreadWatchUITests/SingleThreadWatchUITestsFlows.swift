@@ -38,6 +38,24 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
             "With the only reminder excluded, the All Done state should show")
     }
 
+    // MARK: - Live propagation
+
+    @MainActor
+    func testLiveExclusionHidesReminderWithoutRelaunch() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-live-excluded", "Work"]
+        app.launch()
+
+        // Before the delayed context arrives the card is visible…
+        XCTAssertTrue(
+            app.staticTexts["Buy groceries"].waitForExistence(timeout: 5),
+            "Seeded card should render before the exclusion context arrives")
+        // …then the live receive path filters it without an app relaunch.
+        XCTAssertTrue(
+            app.staticTexts["All Done"].waitForExistence(timeout: 10),
+            "Receiving an exclusion context should hide the card live")
+    }
+
     // MARK: - Complete
 
     @MainActor
