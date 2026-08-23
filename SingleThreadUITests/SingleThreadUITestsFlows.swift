@@ -169,6 +169,37 @@ final class SingleThreadUITestsFlows: XCTestCase {
             "Background-off should persist across relaunch")
     }
 
+    // MARK: - Show list toggle
+
+    /// Uses `--ui-testing` (not `--seed`) for both launches: seeding calls
+    /// `resetPersistedState()` and would wipe the key under test.
+    @MainActor
+    func testShowListTogglePersistsAcrossRelaunch() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+        app.buttons["Settings"].tap()
+
+        let toggle = app.switches["Show list"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
+        XCTAssertEqual(toggle.value as? String, "0", "Show list should default to off")
+        app.swipeUp()  // reveal lower rows if needed before flipping
+        XCTAssertTrue(flipToggle(toggle, target: "1"), "Tapping should enable Show list")
+
+        app.buttons["Done"].tap()
+        app.terminate()
+
+        let relaunched = XCUIApplication()
+        relaunched.launchArguments = ["--ui-testing"]
+        relaunched.launch()
+        relaunched.buttons["Settings"].tap()
+        let persistedToggle = relaunched.switches["Show list"]
+        XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
+        XCTAssertEqual(
+            persistedToggle.value as? String, "1",
+            "Show-list-on should persist across relaunch")
+    }
+
     /// SwiftUI Form rows expose a nested switch control; tapping the outer row
     /// element is swallowed, so tap the inner control until it flips.
     @MainActor

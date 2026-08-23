@@ -332,8 +332,8 @@ func testShowListTogglePersistsAcrossRelaunch() {
 ### Verification
 
 #### Automated
-- [ ] `make test` passes (includes `ShowListPreferenceTests`, updated `SettingsViewTests`)
-- [ ] Targeted UI test: `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/SingleThreadUITestsFlows/testShowListTogglePersistsAcrossRelaunch` passes
+- [x] `make test` passes (includes `ShowListPreferenceTests`, updated `SettingsViewTests`)
+- [x] Targeted UI test: `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/SingleThreadUITestsFlows/testShowListTogglePersistsAcrossRelaunch` passes
 
 #### Manual
 - [ ] Settings → toggle "Show list" off (default): the list-name row disappears from the
