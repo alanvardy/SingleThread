@@ -459,9 +459,9 @@ isn't, queries match full strings).
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` — full CI-equivalent gate passes (format, lint, build, Periphery,
+- [x] `./scripts/test.sh` — full CI-equivalent gate passes (format, lint, build, Periphery,
       unit tests, UI tests incl. accessibility audit)
-- [ ] `grep -rn "Show Undated\|Enable action buttons\|Allow Landscape\|Show Microphone\"" SingleThread*/ SingleThreadTests/ SingleThreadUITests/` returns no matches
+- [x] `grep -rn "Show Undated\|Enable action buttons\|Allow Landscape\|Show Microphone\"" SingleThread*/ SingleThreadTests/ SingleThreadUITests/` returns no matches
 
 #### Manual
 - [ ] Settings rows read sentence-cased on iPhone; macOS branch (same bindings, ungated

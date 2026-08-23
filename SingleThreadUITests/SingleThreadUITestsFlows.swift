@@ -132,11 +132,11 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 3), "Settings should show Appearance")
         XCTAssertTrue(app.staticTexts["Text Size"].waitForExistence(timeout: 2), "Settings should show Text Size")
         XCTAssertTrue(app.staticTexts["Sort By"].waitForExistence(timeout: 2), "Settings should show Sort By")
-        // "Show Date" sits lower in the Form; scroll the sheet to reveal it.
+        // "Show date" sits lower in the Form; scroll the sheet to reveal it.
         app.swipeUp()
         XCTAssertTrue(
-            app.staticTexts["Show Date"].waitForExistence(timeout: 3),
-            "Settings should show Show Date (after scrolling)")
+            app.staticTexts["Show date"].waitForExistence(timeout: 3),
+            "Settings should show Show date (after scrolling)")
     }
 
     // MARK: - Background toggle

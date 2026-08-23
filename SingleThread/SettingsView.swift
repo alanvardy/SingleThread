@@ -157,14 +157,14 @@ struct SettingsView: View {
                 }
                 #if os(iOS)
                     Toggle(isOn: $allowsLandscape) {
-                        Label("Allow Landscape", systemImage: "rectangle.landscape.rotate")
+                        Label("Allow landscape", systemImage: "rectangle.landscape.rotate")
                     }
                     .onChange(of: allowsLandscape) { _, newValue in
                         AppDelegate.applyLock(allowsLandscape: newValue)
                     }
                 #endif
                 Toggle(isOn: $showMicrophoneButton) {
-                    Label("Show Microphone", systemImage: "microphone")
+                    Label("Show microphone", systemImage: "microphone")
                 }
                 Toggle(isOn: $backgroundEnabled) {
                     Label("Background", systemImage: "photo")
@@ -176,14 +176,14 @@ struct SettingsView: View {
                 }
                 #if os(iOS)
                     Toggle(isOn: $enableActionButtons) {
-                        Label("Enable action buttons", systemImage: "hand.tap")
+                        Label("Show action buttons", systemImage: "hand.tap")
                     }
                 #endif
                 Toggle(isOn: $showUndatedReminders) {
-                    Label("Show Undated", systemImage: "calendar.badge.minus")
+                    Label("Show undated reminders", systemImage: "calendar.badge.minus")
                 }
                 Toggle(isOn: $showDate) {
-                    Label("Show Date", systemImage: "calendar")
+                    Label("Show date", systemImage: "calendar")
                 }
                 #if os(iOS) || os(macOS)
                 .onChange(of: showDate) { _, _ in
