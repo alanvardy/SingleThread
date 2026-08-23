@@ -42,10 +42,8 @@ struct SingleThreadWatchApp: App {
                 store?.refreshExcludedProjectTitles(Set(titles))
             }
             service.activate()
-            store.onSkipSetChanged = { ids in
-                service.push(ids, showUndatedReminders: store.showsUndatedReminders)
-            }
-            store.onExcludedProjectsChanged = { titles in service.pushExcludedProjectTitles(titles) }
+            store.onSkipSetChanged = { _ in service.pushAll() }
+            store.onExcludedProjectsChanged = { _ in service.pushAll() }
             store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
             store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
         }

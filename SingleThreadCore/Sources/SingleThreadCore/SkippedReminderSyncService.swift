@@ -28,12 +28,14 @@ import os
             skipStore: SkippedReminderStore,
             excludeStore: ExcludedProjectStore = ExcludedProjectStore(),
             sortStore: SortOptionStore = SortOptionStore(),
+            showUndatedStore: ShowUndatedRemindersPreference = ShowUndatedRemindersPreference(),
             showDateStore: ShowDatePreference = ShowDatePreference(),
             sendsShowDate: Bool = true) {
             self.session = session
             self.skipStore = skipStore
             self.excludeStore = excludeStore
             self.sortStore = sortStore
+            self.showUndatedStore = showUndatedStore
             self.showDateStore = showDateStore
             self.sendsShowDate = sendsShowDate
             super.init()
@@ -84,13 +86,16 @@ import os
             session.activate()
         }
 
-        /// Push the full skip array plus the "show undated reminders" flag to the
-        /// counterpart as one latest-wins application context.
-        public func push(_ skipIDs: [String], showUndatedReminders: Bool) {
+        /// Pushes a complete snapshot of every synced setting as one latest-wins
+        /// application context. Sending a single context shape removes the risk that
+        /// interleaved partial shapes overwrite each other's omitted keys across an
+        /// interrupted connection.
+        public func pushAll() {
             do {
                 var context: [String: Any] = [
-                    PayloadKey.skippedReminderIdentifiers: skipIDs,
-                    PayloadKey.showUndatedReminders: showUndatedReminders,
+                    PayloadKey.skippedReminderIdentifiers: skipStore.load(),
+                    PayloadKey.excludedProjectTitles: excludeStore.load(),
+                    PayloadKey.showUndatedReminders: showUndatedStore.load(),
                     PayloadKey.sortOption: sortStore.load().rawValue
                 ]
                 if sendsShowDate {
@@ -100,46 +105,6 @@ import os
             } catch {
                 let description = error.localizedDescription
                 Self.logger.error("Failed to push sync context: \(description, privacy: .public)")
-            }
-        }
-
-        /// Push the full excluded-project title array to the counterpart.
-        public func pushExcludedProjectTitles(_ titles: [String]) {
-            do {
-                try session.updateApplicationContext([PayloadKey.excludedProjectTitles: titles])
-            } catch {
-                let description = error.localizedDescription
-                Self.logger.error("Failed to push excluded project titles: \(description, privacy: .public)")
-            }
-        }
-
-        /// Persist a new sort option and push it alongside the current skip list
-        /// so the latest sort value survives a skip-only push on the counterpart.
-        public func pushSortOption(_ option: SortOption) {
-            sortStore.save(option)
-            do {
-                try session.updateApplicationContext([
-                    PayloadKey.skippedReminderIdentifiers: skipStore.load(),
-                    PayloadKey.sortOption: option.rawValue
-                ])
-            } catch {
-                let description = error.localizedDescription
-                Self.logger.error("Failed to push sort option: \(description, privacy: .public)")
-            }
-        }
-
-        /// Push the current skip set **and** the show-date preference in one
-        /// context. `updateApplicationContext` replaces the whole context, so
-        /// both keys must travel together or one clobbers the other.
-        public func pushShowDate(_ enabled: Bool) {
-            do {
-                try session.updateApplicationContext([
-                    PayloadKey.skippedReminderIdentifiers: skipStore.load(),
-                    PayloadKey.showDate: enabled
-                ])
-            } catch {
-                let description = error.localizedDescription
-                Self.logger.error("Failed to push show-date preference: \(description, privacy: .public)")
             }
         }
 
@@ -247,6 +212,7 @@ import os
         private let skipStore: SkippedReminderStore
         private let excludeStore: ExcludedProjectStore
         private let sortStore: SortOptionStore
+        private let showUndatedStore: ShowUndatedRemindersPreference
         private let showDateStore: ShowDatePreference
         private let sendsShowDate: Bool
     }

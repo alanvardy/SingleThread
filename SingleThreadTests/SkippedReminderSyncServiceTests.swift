@@ -49,11 +49,12 @@
         // MARK: - Skip-set push
 
         @Test
-        func pushUpdatesApplicationContext() throws {
+        func pushAllSendsSkipIDs() throws {
             let fake = FakeSession()
             let store = SkippedReminderStore(defaults: .standard, key: "test-sync-push")
             let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
-            service.push(["A", "B", "C"], showUndatedReminders: false)
+            store.save(["A", "B", "C"])
+            service.pushAll()
             let context = try #require(fake.lastContext)
             let ids = try #require(context["skippedReminderIdentifiers"] as? [String])
             #expect(Set(ids) == ["A", "B", "C"])
@@ -66,19 +67,41 @@
             let store = SkippedReminderStore(defaults: .standard, key: "test-sync-push-error")
             let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             // Should not crash/throw — error is logged internally
-            service.push(["A"], showUndatedReminders: false)
+            service.pushAll()
             #expect(Bool(true)) // reached without crashing
         }
 
+        // MARK: - Full-context push
+
         @Test
-        func pushCarriesCombinedContext() throws {
+        func pushAllSendsFullFiveKeyShape() throws {
             let fake = FakeSession()
-            let store = SkippedReminderStore(defaults: .standard, key: "test-sync-combined")
-            let service = SkippedReminderSyncService(session: fake, skipStore: store)
-            service.push(["A"], showUndatedReminders: true)
+            let suffix = UUID().uuidString
+            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-all-skip-\(suffix)")
+            skipStore.save(["X"])
+            let excludeStore = ExcludedProjectStore(defaults: .standard, key: "test-all-excl-\(suffix)")
+            excludeStore.save(["Work"])
+            let showUndatedStore = ShowUndatedRemindersPreference(defaults: .standard, key: "test-all-und-\(suffix)")
+            showUndatedStore.save(true)
+            let sortStore = SortOptionStore(defaults: .standard, key: "test-all-sort-\(suffix)")
+            sortStore.save(.dueDate)
+            let showDateStore = ShowDatePreference(defaults: .standard, key: "test-all-date-\(suffix)")
+            showDateStore.set(false)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: skipStore,
+                excludeStore: excludeStore,
+                sortStore: sortStore,
+                showUndatedStore: showUndatedStore,
+                showDateStore: showDateStore,
+                sendsShowDate: true)
+            service.pushAll()
             let context = try #require(fake.lastContext)
-            let flag = try #require(context["showUndatedReminders"] as? Bool)
-            #expect(flag)
+            #expect(Set(context["skippedReminderIdentifiers"] as? [String] ?? []) == ["X"])
+            #expect(context["excludedProjectTitles"] as? [String] == ["Work"])
+            #expect((context["showUndatedReminders"] as? Bool) == true)
+            #expect(context["sortOption"] as? String == "dueDate")
+            #expect((context["showDate"] as? Bool) == false)
         }
 
         // MARK: - Skip-set receive
@@ -170,34 +193,6 @@
             let service = SkippedReminderSyncService(session: fake, skipStore: store, sortStore: makeTestSortStore())
             service.session(WCSession.default, didReceiveApplicationContext: ["wrongKey": 42])
             #expect(store.load() == ["A"]) // unchanged
-        }
-
-        // MARK: - Sort push
-
-        @Test
-        func pushSkipIDsIncludesSortOption() throws {
-            let fake = FakeSession()
-            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-push-skip-\(UUID().uuidString)")
-            let sortStore = SortOptionStore(defaults: .standard, key: "test-push-sort-\(UUID().uuidString)")
-            sortStore.save(.dueDate)
-            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, sortStore: sortStore)
-            service.push(["A"], showUndatedReminders: false)
-            let context = try #require(fake.lastContext)
-            #expect(context["sortOption"] as? String == "dueDate")
-            #expect(Set(context["skippedReminderIdentifiers"] as? [String] ?? []) == ["A"])
-        }
-
-        @Test
-        func pushSortOptionIncludesSkipIDs() throws {
-            let fake = FakeSession()
-            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-push-sort-skip-\(UUID().uuidString)")
-            skipStore.save(["X"])
-            let sortStore = SortOptionStore(defaults: .standard, key: "test-push-sort-sort-\(UUID().uuidString)")
-            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, sortStore: sortStore)
-            service.pushSortOption(.title)
-            let context = try #require(fake.lastContext)
-            #expect(context["sortOption"] as? String == "title")
-            #expect(Set(context["skippedReminderIdentifiers"] as? [String] ?? []) == ["X"])
         }
 
         // MARK: - Sort receive
@@ -307,13 +302,14 @@
         // MARK: - Excluded-project push/receive
 
         @Test
-        func pushExcludedProjectTitlesUpdatesApplicationContext() throws {
+        func pushAllCarriesExcludedProjectTitles() throws {
             let fake = FakeSession()
             let skipStore = SkippedReminderStore(defaults: .standard, key: "test-excl-push-skip-\(UUID().uuidString)")
             let excludeStore = ExcludedProjectStore(defaults: .standard, key: "test-excl-push-\(UUID().uuidString)")
+            excludeStore.save(["Work", "Home"])
             let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, excludeStore: excludeStore)
 
-            service.pushExcludedProjectTitles(["Work", "Home"])
+            service.pushAll()
 
             let context = try #require(fake.lastContext)
             let titles = try #require(context["excludedProjectTitles"] as? [String])
@@ -386,38 +382,6 @@
         // MARK: - Show-date sync
 
         @Test
-        func pushIncludesShowDate() throws {
-            let fake = FakeSession()
-            let showDateStore = ShowDatePreference(defaults: .standard, key: "test-sync-showdate-push")
-            showDateStore.set(false)
-            let service = SkippedReminderSyncService(
-                session: fake,
-                skipStore: SkippedReminderStore(defaults: .standard, key: "test-sync-showdate-ids"),
-                showDateStore: showDateStore,
-                sendsShowDate: true)
-            service.push(["A"], showUndatedReminders: false)
-            let context = try #require(fake.lastContext)
-            #expect((context["showDate"] as? Bool) == false)
-            #expect(context["skippedReminderIdentifiers"] as? [String] == ["A"])
-        }
-
-        @Test
-        func pushShowDateSendsBothKeys() throws {
-            let fake = FakeSession()
-            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-sync-showdate-both")
-            skipStore.save(["X", "Y"])
-            let service = SkippedReminderSyncService(
-                session: fake,
-                skipStore: skipStore,
-                showDateStore: ShowDatePreference(defaults: .standard, key: "test-sync-showdate-both-pref"),
-                sendsShowDate: true)
-            service.pushShowDate(false)
-            let context = try #require(fake.lastContext)
-            #expect((context["showDate"] as? Bool) == false)
-            #expect(context["skippedReminderIdentifiers"] as? [String] == ["X", "Y"])
-        }
-
-        @Test
         func receiveContextWritesShowDate() {
             let fake = FakeSession()
             let showDateStore = ShowDatePreference(defaults: .standard, key: "test-sync-showdate-receive")
@@ -458,10 +422,14 @@
                 skipStore: SkippedReminderStore(defaults: .standard, key: "test-sync-showdate-false"),
                 showDateStore: ShowDatePreference(defaults: .standard, key: "test-sync-showdate-false-pref"),
                 sendsShowDate: false)
-            service.push(["A"], showUndatedReminders: false)
+            service.pushAll()
             let context = try #require(fake.lastContext)
             #expect(context["showDate"] == nil)
-            #expect(context["skippedReminderIdentifiers"] as? [String] == ["A"])
+            // The other four keys must still travel when show-date is omitted.
+            #expect(context["skippedReminderIdentifiers"] != nil)
+            #expect(context["excludedProjectTitles"] != nil)
+            #expect(context["showUndatedReminders"] != nil)
+            #expect(context["sortOption"] != nil)
         }
 
         // MARK: Private

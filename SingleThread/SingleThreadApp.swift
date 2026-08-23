@@ -47,20 +47,21 @@ struct SingleThreadApp: App {
                 }
                 service.activate()
                 syncService = service
-                store.onSkipSetChanged = { ids in
-                    service.push(ids, showUndatedReminders: store.showsUndatedReminders)
-                }
-                store.onShowUndatedRemindersChanged = { newValue in
-                    service.push(skipStore.load(), showUndatedReminders: newValue)
-                }
-                store.onExcludedProjectsChanged = { titles in service.pushExcludedProjectTitles(titles) }
+                store.onSkipSetChanged = { _ in service.pushAll() }
+                store.onShowUndatedRemindersChanged = { _ in service.pushAll() }
+                store.onExcludedProjectsChanged = { _ in service.pushAll() }
                 store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
                 // Send-side (defensive/consistent): a phone-side delete relays to the
                 // watch. The iPhone's `deleteReminder` never fires `onDeleteReminder`
                 // (only the watchOS branch does), so this is inert on iOS but kept for
                 // symmetry with the completion path.
                 store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
-                store.onSortOptionChanged = { option in service.pushSortOption(option) }
+                // The old sort push persisted the option itself; that responsibility
+                // moves here so the pushed snapshot always matches what was just saved.
+                store.onSortOptionChanged = { option in
+                    SortOptionStore().save(option)
+                    service.pushAll()
+                }
             }
         #endif
         #if os(iOS) || os(macOS)
@@ -76,8 +77,10 @@ struct SingleThreadApp: App {
         WindowGroup {
             ContentView(store: store)
             #if os(iOS)
-                .onChange(of: showDate) { _, newValue in
-                    syncService?.pushShowDate(newValue)
+                .onChange(of: showDate) { _, _ in
+                    // @AppStorage has already written the App Group suite;
+                    // pushAll() snapshots it via ShowDatePreference().
+                    syncService?.pushAll()
                 }
             #endif
         }
