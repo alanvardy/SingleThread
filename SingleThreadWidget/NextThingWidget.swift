@@ -17,6 +17,7 @@ struct NextThingEntry: TimelineEntry {
     let date: Date
     let state: State
     let showsDate: Bool
+    let showsList: Bool
 }
 
 // MARK: - Provider
@@ -28,7 +29,8 @@ struct NextThingProvider: TimelineProvider {
         NextThingEntry(
             date: Date(),
             state: .reminder(ReminderDisplay(title: "Next thing")),
-            showsDate: true)
+            showsDate: true,
+            showsList: true)
     }
 
     func getSnapshot(in _: Context, completion: @escaping @Sendable (NextThingEntry) -> Void) {
@@ -36,7 +38,8 @@ struct NextThingProvider: TimelineProvider {
             NextThingEntry(
                 date: Date(),
                 state: .reminder(ReminderDisplay(title: "Buy groceries")),
-                showsDate: true))
+                showsDate: true,
+                showsList: true))
     }
 
     func getTimeline(in _: Context, completion: @escaping @Sendable (Timeline<NextThingEntry>) -> Void) {
@@ -53,6 +56,7 @@ struct NextThingProvider: TimelineProvider {
     private static func makeEntry() async -> NextThingEntry {
         let date = Date()
         let showsDate = ShowDatePreference().isEnabled
+        let showsList = ShowListPreference().isEnabled
         switch EKEventStore.authorizationStatus(for: .reminder) {
         case .fullAccess:
             let store = ReminderStore(loadsReminders: true)
@@ -63,17 +67,27 @@ struct NextThingProvider: TimelineProvider {
                 return NextThingEntry(
                     date: date,
                     state: .empty(store.hasHidden),
-                    showsDate: showsDate)
+                    showsDate: showsDate,
+                    showsList: showsList)
             }
             guard let current = store.visibleReminders.first else {
-                return NextThingEntry(date: date, state: .allDone, showsDate: showsDate)
+                return NextThingEntry(
+                    date: date,
+                    state: .allDone,
+                    showsDate: showsDate,
+                    showsList: showsList)
             }
             return NextThingEntry(
                 date: date,
                 state: .reminder(ReminderDisplay(reminder: current)),
-                showsDate: showsDate)
+                showsDate: showsDate,
+                showsList: showsList)
         default:
-            return NextThingEntry(date: date, state: .noAccess, showsDate: showsDate)
+            return NextThingEntry(
+                date: date,
+                state: .noAccess,
+                showsDate: showsDate,
+                showsList: showsList)
         }
     }
 }
@@ -181,6 +195,11 @@ struct NextThingWidgetView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            if entry.showsList, let listName = display.listName, !listName.isEmpty {
+                Text(listName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
             if let notes = display.notes {
                 Text(notes)
                     .font(.caption2)
@@ -204,18 +223,20 @@ struct NextThingWidgetView: View {
             title: "Buy groceries",
             notes: "Don't forget the milk",
             dueDate: Date(),
-            priorityMarker: "!!")),
-        showsDate: true)
+            priorityMarker: "!!",
+            listName: "Groceries")),
+        showsDate: true,
+        showsList: true)
 }
 
 #Preview("No Access", as: .systemMedium) {
     NextThingWidget()
 } timeline: {
-    NextThingEntry(date: Date(), state: .noAccess, showsDate: true)
+    NextThingEntry(date: Date(), state: .noAccess, showsDate: true, showsList: true)
 }
 
 #Preview("All Done", as: .systemSmall) {
     NextThingWidget()
 } timeline: {
-    NextThingEntry(date: Date(), state: .allDone, showsDate: true)
+    NextThingEntry(date: Date(), state: .allDone, showsDate: true, showsList: true)
 }

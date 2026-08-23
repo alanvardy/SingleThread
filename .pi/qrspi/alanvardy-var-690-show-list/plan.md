@@ -391,8 +391,8 @@ No refresh wiring added: the provider re-reads `AppGroup.defaults` at timeline b
 ### Verification
 
 #### Automated
-- [ ] `make build` — widget extension compiles with zero warnings
-- [ ] `make test` passes
+- [x] `make build` — widget extension compiles with zero warnings
+- [x] `make test` passes
 
 #### Manual
 - [ ] Xcode canvas previews of `NextThingWidget`: "Reminder" preview shows "Groceries"
