@@ -274,7 +274,7 @@ Update the accompanying comment mentioning `--ui-testing-excluded "<project>"`.
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes end-to-end, including `SingleThreadWatchUITests/SingleThreadWatchUITestsFlows/testExcludedListDoesNotRenderReminder` exercising the renamed launch arg
+- [x] `./scripts/test.sh` passes end-to-end, including `SingleThreadWatchUITests/SingleThreadWatchUITestsFlows/testExcludedListDoesNotRenderReminder` exercising the renamed launch arg
 
 #### Manual
 - [ ] Run the iOS app, open Settings — row reads "Excluded Lists"; pushed screen's navigation title matches; footer reads "Excluded lists are hidden from the reminder list."

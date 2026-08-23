@@ -100,15 +100,15 @@ struct SingleThreadWatchApp: App {
         reminder.title = "Buy groceries"
         reminder.priority = 5
         reminder.notes = "Don't forget the milk"
-        // `--ui-testing-excluded "<list>"` gives the sample reminder a calendar of
-        // that title and pre-populates the store's exclusion set, so an XCTest can
-        // assert a list's current card is suppressed (the store's live exclusion
+        // `--ui-testing-excluded-list "<list>"` gives the sample reminder a calendar
+        // of that title and pre-populates the store's exclusion set, so an XCTest
+        // can assert a list's current card is suppressed (the store's live exclusion
         // set drives the rendered result).
         // `--ui-testing-live-excluded "<list>"` gives the sample reminder a
         // calendar of that title but leaves the exclusion set empty, so the card
         // renders first and disappears only when the UI-test seam delivers the
         // exclusion context (live-propagation proof).
-        for flag in ["--ui-testing-excluded", "--ui-testing-live-excluded"] {
+        for flag in ["--ui-testing-excluded-list", "--ui-testing-live-excluded"] {
             guard let index = arguments.firstIndex(of: flag),
                   index + 1 < arguments.count else { continue }
             let list = arguments[index + 1]
@@ -120,7 +120,7 @@ struct SingleThreadWatchApp: App {
                 reminders: [reminder],
                 skippedIDs: [],
                 authorizationStatus: .fullAccess,
-                excludedListTitles: flag == "--ui-testing-excluded" ? [list] : [])
+                excludedListTitles: flag == "--ui-testing-excluded-list" ? [list] : [])
         }
         return ReminderStore(
             loadsReminders: false,

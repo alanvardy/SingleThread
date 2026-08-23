@@ -27,7 +27,7 @@ struct UITestingSeedTests {
     func parsesCalendarsAndExcludedLists() {
         let args = [
             "--seed",
-            #"{"reminders":[{"title":"A"}],"calendars":["Groceries","Work"],"excludedProjects":["Work"]}"#
+            #"{"reminders":[{"title":"A"}],"calendars":["Groceries","Work"],"excludedLists":["Work"]}"#
         ]
         let seed = UITestingSeed.fromLaunchArguments(args)
 

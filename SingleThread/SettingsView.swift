@@ -28,10 +28,10 @@ struct ExcludedListsView: View {
                     }
                 }
             } footer: {
-                Text("Excluded projects are hidden from the reminder list.")
+                Text("Excluded lists are hidden from the reminder list.")
             }
         }
-        .navigationTitle("Excluded Projects")
+        .navigationTitle("Excluded Lists")
     }
 
     // MARK: Private
@@ -199,7 +199,7 @@ struct SettingsView: View {
                             excludedLists: $excludedLists,
                             availableLists: availableLists)
                     } label: {
-                        Label("Excluded Projects", systemImage: "eye.slash")
+                        Label("Excluded Lists", systemImage: "eye.slash")
                     }
                 }
                 Section {} footer: {

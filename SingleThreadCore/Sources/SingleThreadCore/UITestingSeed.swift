@@ -12,7 +12,7 @@ import Foundation
 ///     {"title":"Call mom","priority":1}
 ///   ],
 ///   "calendars": ["Groceries"],
-///   "excludedProjects": ["Work"]
+///   "excludedLists": ["Work"]
 /// }
 /// ```
 public struct UITestingSeed {
@@ -71,7 +71,7 @@ private struct SeedPayload: Codable {
 
     init(from decoder: Decoder) throws {
         // Defaults do not make the synthesized `decode` optional, so absent
-        // `calendars`/`excludedProjects` keys would throw keyNotFound. Use
+        // `calendars`/`excludedLists` keys would throw keyNotFound. Use
         // decodeIfPresent so a seed omitting them still parses.
         let container = try decoder.container(keyedBy: CodingKeys.self)
         reminders = try container.decode([ReminderSeed].self, forKey: .reminders)
@@ -121,6 +121,6 @@ private struct SeedPayload: Codable {
     /// otherwise silently change the decoded JSON key.
     private enum CodingKeys: String, CodingKey {
         case reminders, calendars
-        case excludedLists = "excludedProjects"
+        case excludedLists
     }
 }
