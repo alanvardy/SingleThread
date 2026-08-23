@@ -74,6 +74,13 @@ import os
         /// `onCompleteReminderReceived`.
         public nonisolated(unsafe) var onShowDateReceived: ((Bool) -> Void)?
 
+        /// Hook fired on the counterpart when the skipped-reminder identifier array
+        /// arrives in an application context. Passes the received IDs. Fired **after**
+        /// the skip store is persisted, so a watch-side handler can simply reload.
+        /// Same write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onCompleteReminderReceived`.
+        public nonisolated(unsafe) var onSkippedIdentifiersReceived: (([String]) -> Void)?
+
         /// Hook fired on the counterpart when a new sort option is received.
         /// Shares the same write-once-before-activate invariant as
         /// `onCompleteReminderReceived`.
@@ -156,6 +163,8 @@ import os
             // others.
             if let receivedIDs = context[PayloadKey.skippedReminderIdentifiers] as? [String] {
                 skipStore.save(receivedIDs)
+                let handler = onSkippedIdentifiersReceived
+                handler?(receivedIDs)
             }
             if let receivedTitles = context[PayloadKey.excludedProjectTitles] as? [String] {
                 excludeStore.save(receivedTitles)
@@ -163,6 +172,7 @@ import os
                 handler?(receivedTitles)
             }
             if let received = context[PayloadKey.showUndatedReminders] as? Bool {
+                showUndatedStore.save(received)
                 let handler = onShowUndatedRemindersReceived
                 handler?(received)
             }

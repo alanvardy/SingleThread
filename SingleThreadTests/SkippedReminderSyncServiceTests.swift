@@ -126,6 +126,53 @@
         }
 
         @Test
+        func receiveContextPersistsShowUndatedAndFiresHook() {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let showUndatedStore = ShowUndatedRemindersPreference(
+                defaults: .standard, key: "test-und-persist-\(suffix)")
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-und-persist-ids-\(suffix)"),
+                showUndatedStore: showUndatedStore)
+            var received: [Bool] = []
+            service.onShowUndatedRemindersReceived = { received.append($0) }
+            service.session(WCSession.default, didReceiveApplicationContext: ["showUndatedReminders": true])
+            #expect(showUndatedStore.load()) // persisted (was hook-only before this phase)
+            #expect(received == [true]) // still notified
+        }
+
+        @Test
+        func showUndatedPersistsAcrossSimulatedRelaunch() {
+            // Receive → throw the service away → a fresh store instance reads the value
+            // back, proving the value survives process relaunch.
+            let key = "test-und-relaunch-\(UUID().uuidString)"
+            let fake = FakeSession()
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
+                showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard, key: key))
+            service.session(WCSession.default, didReceiveApplicationContext: ["showUndatedReminders": true])
+            let freshStore = ShowUndatedRemindersPreference(defaults: .standard, key: key)
+            #expect(freshStore.load())
+        }
+
+        @Test
+        func receiveContextFiresSkippedIdentifiersHandlerAfterPersisting() {
+            let fake = FakeSession()
+            let key = "test-skips-hook-\(UUID().uuidString)"
+            let skipStore = SkippedReminderStore(defaults: .standard, key: key)
+            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore)
+            var received: [[String]] = []
+            service.onSkippedIdentifiersReceived = { received.append($0) }
+            service.session(WCSession.default, didReceiveApplicationContext: [
+                "skippedReminderIdentifiers": ["B", "C"]
+            ])
+            #expect(Set(skipStore.load()) == ["B", "C"]) // persisted first
+            #expect(received == [["B", "C"]])
+        }
+
+        @Test
         func receiveContextFalsePropagates() {
             let fake = FakeSession()
             let store = SkippedReminderStore(defaults: .standard, key: "test-sync-toggle-false")
