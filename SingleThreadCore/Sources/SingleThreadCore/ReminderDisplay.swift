@@ -13,6 +13,7 @@ public struct ReminderDisplay: Equatable, Sendable {
         notes = ReminderNotesFormatter.format(reminder.notes)
         dueDate = reminder.dueDateComponents?.date
         priorityMarker = ReminderPriority.marker(for: reminder.priority)
+        listName = reminder.calendar?.title
     }
 
     /// Direct constructor for previews, placeholder entries, and tests.
@@ -20,11 +21,13 @@ public struct ReminderDisplay: Equatable, Sendable {
         title: String,
         notes: String? = nil,
         dueDate: Date? = nil,
-        priorityMarker: String = "") {
+        priorityMarker: String = "",
+        listName: String? = nil) {
         self.title = title
         self.notes = notes
         self.dueDate = dueDate
         self.priorityMarker = priorityMarker
+        self.listName = listName
     }
 
     // MARK: Public
@@ -33,4 +36,5 @@ public struct ReminderDisplay: Equatable, Sendable {
     public let notes: String?
     public let dueDate: Date?
     public let priorityMarker: String
+    public let listName: String?
 }

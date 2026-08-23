@@ -1,9 +1,8 @@
-import EventKit
 import SingleThreadCore
 import SwiftUI
 
 /// The reminder card content: priority marker + title, the optional due-date
-/// row, and notes.
+/// and list-name rows, and notes.
 ///
 /// Lives outside `List` so the due-date gate stays observable in
 /// string-snapshot tests — `List` type-erases `if` conditionals to a stable
@@ -11,9 +10,14 @@ import SwiftUI
 struct ReminderCardView: View {
     // MARK: Lifecycle
 
-    init(reminder: EKReminder, showDate: Bool, showsOverPhoto: Bool = false) {
-        self.reminder = reminder
+    init(
+        display: ReminderDisplay,
+        showDate: Bool,
+        showList: Bool = false,
+        showsOverPhoto: Bool = false) {
+        self.display = display
         self.showDate = showDate
+        self.showList = showList
         self.showsOverPhoto = showsOverPhoto
     }
 
@@ -22,21 +26,26 @@ struct ReminderCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                if let level = ReminderPriority.level(for: reminder.priority) {
-                    Text(ReminderPriority.marker(for: reminder.priority))
+                if let level = ReminderPriority.level(forMarker: display.priorityMarker) {
+                    Text(display.priorityMarker)
                         .font(.title)
                         .foregroundStyle(priorityColor(level))
                         .accessibilityLabel("\(level.displayName) priority")
                 }
-                Text(reminder.title)
+                Text(display.title)
                     .font(.title)
             }
-            if showDate, let due = reminder.dueDateComponents?.date {
+            if showDate, let due = display.dueDate {
                 Text(due, style: .date)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            if let noteText = ReminderNotesFormatter.format(reminder.notes) {
+            if showList, let listName = display.listName, !listName.isEmpty {
+                Text(listName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            if let noteText = display.notes {
                 Text(noteText)
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -67,8 +76,9 @@ struct ReminderCardView: View {
     @Environment(\.colorScheme)
     private var colorScheme
 
-    private let reminder: EKReminder
+    private let display: ReminderDisplay
     private let showDate: Bool
+    private let showList: Bool
 
     /// True when the reminder renders over a visible background photo.
     private let showsOverPhoto: Bool

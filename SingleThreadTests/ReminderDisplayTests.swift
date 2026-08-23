@@ -61,17 +61,35 @@ struct ReminderDisplayTests {
     }
 
     @Test
+    func mapsListNameFromCalendarTitle() {
+        let store = EKEventStore()
+        let reminder = EKReminder(eventStore: store)
+        reminder.title = "Buy milk"
+        let calendar = EKCalendar(for: .reminder, eventStore: store)
+        calendar.title = "Groceries"
+        reminder.calendar = calendar
+        #expect(ReminderDisplay(reminder: reminder).listName == "Groceries")
+    }
+
+    @Test
+    func mapsNilListNameWhenCalendarMissing() {
+        #expect(ReminderDisplay(reminder: makeReminder(title: "Buy milk")).listName == nil)
+    }
+
+    @Test
     func directConstructorStoresFields() {
         let due = Date()
         let display = ReminderDisplay(
             title: "Next thing",
             notes: "Notes",
             dueDate: due,
-            priorityMarker: "!")
+            priorityMarker: "!",
+            listName: "Errands")
         #expect(display.title == "Next thing")
         #expect(display.notes == "Notes")
         #expect(display.dueDate == due)
         #expect(display.priorityMarker == "!")
+        #expect(display.listName == "Errands")
     }
 }
 
