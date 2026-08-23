@@ -11,20 +11,20 @@ struct BackgroundFadeTests {
     }
 
     @Test
-    func allValuesAscendInTenPercentSteps() {
-        #expect(BackgroundFade.allValues == [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100])
+    func allValuesAscendInTenPercentStepsUpToNinety() {
+        #expect(BackgroundFade.allValues == [0, 10, 20, 30, 40, 50, 60, 70, 80, 90])
     }
 
     @Test
-    func opacityConvertsPercentToFraction() {
-        #expect(BackgroundFade.opacity(for: 0) == 0)
-        #expect(BackgroundFade.opacity(for: 50) == 0.5)
-        #expect(BackgroundFade.opacity(for: 100) == 1)
+    func opacityInvertsFadePercent() {
+        #expect(BackgroundFade.opacity(for: 0) == 1)
+        #expect(abs(BackgroundFade.opacity(for: 50) - 0.5) < 0.000_1)
+        #expect(abs(BackgroundFade.opacity(for: 90) - 0.1) < 0.000_1)
     }
 
     @Test
     func opacityClampsOutOfRangePersistedValues() {
-        #expect(BackgroundFade.opacity(for: -30) == 0)
-        #expect(BackgroundFade.opacity(for: 130) == 1)
+        #expect(BackgroundFade.opacity(for: -30) == 1)
+        #expect(abs(BackgroundFade.opacity(for: 130) - 0.1) < 0.000_1)
     }
 }
