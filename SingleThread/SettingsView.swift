@@ -86,7 +86,8 @@ struct SettingsView: View {
             excludedProjects: Binding<Set<String>>,
             availableProjects: [String],
             sortOption: Binding<SortOption>,
-            showDate: Binding<Bool>) {
+            showDate: Binding<Bool>,
+            showList: Binding<Bool>) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _allowsLandscape = allowsLandscape
@@ -100,6 +101,7 @@ struct SettingsView: View {
             self.availableProjects = availableProjects
             _sortOption = sortOption
             _showDate = showDate
+            _showList = showList
         }
     #else
         init(
@@ -113,7 +115,8 @@ struct SettingsView: View {
             excludedProjects: Binding<Set<String>>,
             availableProjects: [String],
             sortOption: Binding<SortOption>,
-            showDate: Binding<Bool>) {
+            showDate: Binding<Bool>,
+            showList: Binding<Bool>) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _showMicrophoneButton = showMicrophoneButton
@@ -125,6 +128,7 @@ struct SettingsView: View {
             self.availableProjects = availableProjects
             _sortOption = sortOption
             _showDate = showDate
+            _showList = showList
         }
     #endif
 
@@ -186,6 +190,9 @@ struct SettingsView: View {
                     WidgetCenter.shared.reloadAllTimelines()
                 }
                 #endif
+                Toggle(isOn: $showList) {
+                    Label("Show list", systemImage: "list.bullet")
+                }
                 Section {
                     NavigationLink {
                         ExcludedProjectsView(
@@ -227,6 +234,7 @@ struct SettingsView: View {
     @Binding private var showUndatedReminders: Bool
     @Binding private var excludedProjects: Set<String>
     @Binding private var showDate: Bool
+    @Binding private var showList: Bool
     @Environment(\.dismiss)
     private var dismiss
 
@@ -252,7 +260,8 @@ struct SettingsView: View {
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],
             sortOption: .constant(.priority),
-            showDate: .constant(true))
+            showDate: .constant(true),
+            showList: .constant(false))
     }
 
     #Preview("Dark + Extra Large") {
@@ -269,7 +278,8 @@ struct SettingsView: View {
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],
             sortOption: .constant(.dueDate),
-            showDate: .constant(false))
+            showDate: .constant(false),
+            showList: .constant(true))
     }
 #else
     #Preview("Default") {
@@ -284,6 +294,7 @@ struct SettingsView: View {
             excludedProjects: .constant([]),
             availableProjects: ["Work", "Personal"],
             sortOption: .constant(.priority),
-            showDate: .constant(true))
+            showDate: .constant(true),
+            showList: .constant(false))
     }
 #endif

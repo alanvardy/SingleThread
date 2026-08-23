@@ -53,6 +53,7 @@ public struct UITestingSeed {
         "skippedReminderIdentifiers",
         "excludedProjectTitles",
         "showDate",
+        "showList",
         "showUndatedReminders",
         "sortOption",
         "showMicrophoneButton",

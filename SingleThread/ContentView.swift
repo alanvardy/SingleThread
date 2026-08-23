@@ -142,7 +142,8 @@ struct ContentView: View {
                     excludedProjects: excludedProjectsBinding,
                     availableProjects: store.availableProjects,
                     sortOption: $sortOption,
-                    showDate: $showDate)
+                    showDate: $showDate,
+                    showList: $showList)
             #else
                 SettingsView(
                     appearanceMode: $appearanceMode,
@@ -155,7 +156,8 @@ struct ContentView: View {
                     excludedProjects: excludedProjectsBinding,
                     availableProjects: store.availableProjects,
                     sortOption: $sortOption,
-                    showDate: $showDate)
+                    showDate: $showDate,
+                    showList: $showList)
             #endif
         }
     }
@@ -218,6 +220,10 @@ struct ContentView: View {
 
     @AppStorage("showDate", store: AppGroup.defaults)
     private var showDate = true
+
+    @AppStorage("showList", store: AppGroup.defaults)
+    private var showList = false
+
     @State private var isDictating = false
     @State private var dictationText = ""
     @State private var dictationError: String?
@@ -342,7 +348,7 @@ struct ContentView: View {
                             ReminderCardView(
                                 display: ReminderDisplay(reminder: reminder),
                                 showDate: showDate,
-                                showList: true,
+                                showList: showList,
                                 showsOverPhoto: backgroundDisplayed)
                                 .listRowBackground(backgroundDisplayed ? Color.clear : nil)
                                 .padding(.horizontal, 40)
