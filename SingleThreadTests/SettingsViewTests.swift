@@ -48,18 +48,18 @@ struct SettingsViewTests {
         #expect(bodyDescription.contains("Appearance"))
         #expect(bodyDescription.contains("Text Size"))
         #expect(bodyDescription.contains("Sort By"))
-        #expect(bodyDescription.contains("Microphone"))
+        #expect(bodyDescription.contains("Show microphone"))
         #expect(bodyDescription.contains("Background"))
         #expect(bodyDescription.contains("Background Fade"))
         #expect(bodyDescription.contains("Unsplash"))
-        #expect(bodyDescription.contains("Show Undated"))
-        #expect(bodyDescription.contains("Show Date"))
+        #expect(bodyDescription.contains("Show undated reminders"))
+        #expect(bodyDescription.contains("Show date"))
         #expect(bodyDescription.contains("Show list"))
         #expect(bodyDescription.contains("Excluded Projects"))
         #expect(bodyDescription.contains("Done"))
         #if os(iOS)
-            #expect(bodyDescription.contains("Landscape"))
-            #expect(bodyDescription.contains("Enable action buttons"))
+            #expect(bodyDescription.contains("Allow landscape"))
+            #expect(bodyDescription.contains("Show action buttons"))
         #endif
     }
 }
