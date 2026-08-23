@@ -20,11 +20,15 @@ struct SingleThreadWatchApp: App {
         // Restore the last-received sort (persisted to .standard on receive) so the
         // watch shows the correct order even before the next context push arrives.
         store.sortOption = SortOptionStore().load()
+        // Restore the last-received show-undated preference the same way. Direct
+        // assignment fires the didSet hook, which is unwired on the watch — no echo.
+        store.showsUndatedReminders = ShowUndatedRemindersPreference(defaults: .standard).load()
 
         if WCSession.isSupported() {
             let service = SkippedReminderSyncService(
                 session: WCSession.default,
                 skipStore: SkippedReminderStore(),
+                showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard),
                 showDateStore: ShowDatePreference(defaults: .standard),
                 sendsShowDate: false)
             service.onShowUndatedRemindersReceived = { [weak store] value in
@@ -32,6 +36,12 @@ struct SingleThreadWatchApp: App {
                     store?.showsUndatedReminders = value
                     await store?.reload()
                 }
+            }
+            // A phone-side skip lands and applies to this watch's live list without a
+            // relaunch — reload() re-reads the just-persisted skip store and prunes IDs
+            // whose reminders no longer exist.
+            service.onSkippedIdentifiersReceived = { [weak store] _ in
+                Task { await store?.reload() }
             }
             service.onShowDateReceived = { [weak showDateState] value in
                 showDateState?.apply(value)
