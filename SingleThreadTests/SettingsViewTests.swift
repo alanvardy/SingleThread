@@ -17,6 +17,7 @@ struct SettingsViewTests {
                 enableActionButtons: .constant(true),
                 showMicrophoneButton: .constant(true),
                 backgroundEnabled: .constant(true),
+                backgroundFadePercent: .constant(50),
                 backgroundPhotographer: "NEOM",
                 showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
@@ -29,6 +30,7 @@ struct SettingsViewTests {
                 textSize: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 backgroundEnabled: .constant(true),
+                backgroundFadePercent: .constant(50),
                 backgroundPhotographer: "NEOM",
                 showUndatedReminders: .constant(false),
                 excludedProjects: .constant([]),
@@ -46,6 +48,7 @@ struct SettingsViewTests {
         #expect(bodyDescription.contains("Sort By"))
         #expect(bodyDescription.contains("Microphone"))
         #expect(bodyDescription.contains("Background"))
+        #expect(bodyDescription.contains("Background Fade"))
         #expect(bodyDescription.contains("Unsplash"))
         #expect(bodyDescription.contains("Show Undated"))
         #expect(bodyDescription.contains("Show Date"))
