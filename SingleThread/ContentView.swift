@@ -71,6 +71,12 @@ struct ContentView: View {
         }
     #endif
 
+    /// See-through reminder-card gate: true while a background photo is actually
+    /// on screen. Row chrome clears and the card text sits on its own plate.
+    var backgroundDisplayed: Bool {
+        backgroundEnabled && backgroundImage.imageData != nil
+    }
+
     var body: some View {
         ZStack {
             Color.systemBackground.ignoresSafeArea()
@@ -353,7 +359,11 @@ struct ContentView: View {
                 ZStack(alignment: .bottom) {
                     List {
                         if let reminder = store.visibleReminders.first {
-                            ReminderCardView(reminder: reminder, showDate: showDate)
+                            ReminderCardView(
+                                reminder: reminder,
+                                showDate: showDate,
+                                showsOverPhoto: backgroundDisplayed)
+                                .listRowBackground(backgroundDisplayed ? Color.clear : nil)
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 12)
                                 .frame(minHeight: viewHeight, alignment: .center)

@@ -11,9 +11,10 @@ import SwiftUI
 struct ReminderCardView: View {
     // MARK: Lifecycle
 
-    init(reminder: EKReminder, showDate: Bool) {
+    init(reminder: EKReminder, showDate: Bool, showsOverPhoto: Bool = false) {
         self.reminder = reminder
         self.showDate = showDate
+        self.showsOverPhoto = showsOverPhoto
     }
 
     // MARK: Internal
@@ -47,12 +48,30 @@ struct ReminderCardView: View {
         // size-checks each small child (marker / notes rows fall below 44pt). This is
         // a genuine app-wide accessibility improvement, not just a test escape.
         .accessibilityElement(children: .combine)
+        // Over a photo the row chrome is transparent, so the text needs its own
+        // small high-contrast plate: white in light mode, black in dark mode.
+        // The padding pair grows the view to fit the plate, then restores the
+        // original outer geometry so list metrics are unchanged.
+        .padding(showsOverPhoto ? 8 : 0)
+        .background {
+            if showsOverPhoto {
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(colorScheme == .dark ? Color.black : Color.white)
+            }
+        }
+        .padding(showsOverPhoto ? -8 : 0)
     }
 
     // MARK: Private
 
+    @Environment(\.colorScheme)
+    private var colorScheme
+
     private let reminder: EKReminder
     private let showDate: Bool
+
+    /// True when the reminder renders over a visible background photo.
+    private let showsOverPhoto: Bool
 
     private func priorityColor(_ level: ReminderPriority.Level) -> Color {
         switch level {
