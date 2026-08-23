@@ -6,8 +6,9 @@ struct WatchReminderView: View {
     // MARK: Lifecycle
 
     /// Accepts a pre-configured store (production or preview).
-    init(store: ReminderStore) {
+    init(store: ReminderStore, showDateState: ShowDateState = ShowDateState()) {
         self.store = store
+        self.showDateState = showDateState
     }
 
     /// Pre-populates state for canvas previews.
@@ -16,13 +17,15 @@ struct WatchReminderView: View {
         reminders: [EKReminder],
         skippedIDs: Set<String>,
         authorizationStatus: EKAuthorizationStatus,
-        hasHidden: Bool = false) {
+        hasHidden: Bool = false,
+        showDateState: ShowDateState = ShowDateState()) {
         store = ReminderStore(
             loadsReminders: loadsReminders,
             reminders: reminders,
             skippedIDs: skippedIDs,
             authorizationStatus: authorizationStatus,
             hasHidden: hasHidden)
+        self.showDateState = showDateState
     }
 
     // MARK: Internal
@@ -53,10 +56,9 @@ struct WatchReminderView: View {
     @State private var isRefreshing = false
     @State private var isShowingRefreshConfirmation = false
 
-    @AppStorage("showDate")
-    private var showDate = true
-
     private let store: ReminderStore
+
+    private let showDateState: ShowDateState
 
     private var allSkipped: Bool {
         store.visibleReminders.isEmpty && !store.reminders.isEmpty
@@ -170,7 +172,7 @@ struct WatchReminderView: View {
                 Text(reminder.title)
                     .font(.headline)
             }
-            if showDate, let due = reminder.dueDateComponents?.date {
+            if showDateState.isEnabled, let due = reminder.dueDateComponents?.date {
                 Text(due, style: .date)
                     .font(.caption)
                     .foregroundStyle(.secondary)

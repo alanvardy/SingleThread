@@ -68,6 +68,12 @@ import os
         /// `onCompleteReminderReceived`.
         public nonisolated(unsafe) var onShowUndatedRemindersReceived: ((Bool) -> Void)?
 
+        /// Hook fired on the counterpart when the "show due date" preference arrives
+        /// in an application context. Passes the received value. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onCompleteReminderReceived`.
+        public nonisolated(unsafe) var onShowDateReceived: ((Bool) -> Void)?
+
         /// Hook fired on the counterpart when a new sort option is received.
         /// Shares the same write-once-before-activate invariant as
         /// `onCompleteReminderReceived`.
@@ -133,6 +139,13 @@ import os
         public func session(
             _: WCSession,
             didReceiveApplicationContext applicationContext: [String: Any]) {
+            apply(context: applicationContext)
+        }
+
+        /// Single receive path: decode → persist → notify for each present key;
+        /// absent keys are no-ops. Handlers are snapshotted before invocation because
+        /// they are written once from the main actor before `activate()`.
+        private func apply(context: [String: Any]) {
             // Latest-wins: `updateApplicationContext` transmits the sender's full
             // set, so the received values are authoritative. Replacing (rather
             // than unioning) local values makes a "clear" update ([]) propagate.
@@ -141,27 +154,28 @@ import os
             // show-date travel in one combined context, while excluded-project
             // titles use a separate one — so any key may be present without the
             // others.
-            if let receivedIDs = applicationContext[PayloadKey.skippedReminderIdentifiers] as? [String] {
+            if let receivedIDs = context[PayloadKey.skippedReminderIdentifiers] as? [String] {
                 skipStore.save(receivedIDs)
             }
-            if let receivedTitles = applicationContext[PayloadKey.excludedProjectTitles] as? [String] {
+            if let receivedTitles = context[PayloadKey.excludedProjectTitles] as? [String] {
                 excludeStore.save(receivedTitles)
                 let handler = onExcludedProjectTitlesReceived
                 handler?(receivedTitles)
             }
-            if let received = applicationContext[PayloadKey.showUndatedReminders] as? Bool {
-                onShowUndatedRemindersReceived?(received)
+            if let received = context[PayloadKey.showUndatedReminders] as? Bool {
+                let handler = onShowUndatedRemindersReceived
+                handler?(received)
             }
-            if let rawValue = applicationContext[PayloadKey.sortOption] as? String,
+            if let rawValue = context[PayloadKey.sortOption] as? String,
                let option = SortOption(rawValue: rawValue) {
                 sortStore.save(option)
                 let handler = onSortOptionReceived
                 handler?(option)
             }
-            // Absent key → no-op, so a push that omits show-date never clobbers
-            // the receiver's preference.
-            if let showDate = applicationContext[PayloadKey.showDate] as? Bool {
+            if let showDate = context[PayloadKey.showDate] as? Bool {
                 showDateStore.set(showDate)
+                let handler = onShowDateReceived
+                handler?(showDate)
             }
         }
 
