@@ -340,8 +340,9 @@ struct ContentView: View {
                     List {
                         if let reminder = store.visibleReminders.first {
                             ReminderCardView(
-                                reminder: reminder,
+                                display: ReminderDisplay(reminder: reminder),
                                 showDate: showDate,
+                                showList: true,
                                 showsOverPhoto: backgroundDisplayed)
                                 .listRowBackground(backgroundDisplayed ? Color.clear : nil)
                                 .padding(.horizontal, 40)

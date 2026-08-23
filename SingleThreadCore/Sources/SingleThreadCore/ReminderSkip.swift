@@ -56,6 +56,16 @@ public nonisolated enum ReminderPriority {
         }
     }
 
+    /// Resolves a priority marker (`!!!`, `!!`, `!`) back to its display level.
+    public static func level(forMarker marker: String) -> Level? {
+        switch marker {
+        case "!!!": .high
+        case "!!": .medium
+        case "!": .low
+        default: nil
+        }
+    }
+
     /// Returns the exclamation-marker prefix: `!!!` high, `!!` medium, `!` low,
     /// or empty when there is no priority.
     public static func marker(for priority: Int) -> String {
