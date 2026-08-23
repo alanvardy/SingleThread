@@ -346,6 +346,9 @@ struct ContentView: View {
                                 .listRowBackground(backgroundDisplayed ? Color.clear : nil)
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 12)
+                                // Center the card's plate in the row; text inside
+                                // stays leading-aligned via the card's VStack.
+                                .frame(maxWidth: .infinity, alignment: .center)
                                 .frame(minHeight: viewHeight, alignment: .center)
                                 .listRowSeparator(.hidden)
                             #if os(iOS)
