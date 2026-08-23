@@ -79,7 +79,7 @@
             let suffix = UUID().uuidString
             let skipStore = SkippedReminderStore(defaults: .standard, key: "test-all-skip-\(suffix)")
             skipStore.save(["X"])
-            let excludeStore = ExcludedProjectStore(defaults: .standard, key: "test-all-excl-\(suffix)")
+            let excludeStore = ExcludedListStore(defaults: .standard, key: "test-all-excl-\(suffix)")
             excludeStore.save(["Work"])
             let showUndatedStore = ShowUndatedRemindersPreference(defaults: .standard, key: "test-all-und-\(suffix)")
             showUndatedStore.save(true)
@@ -346,13 +346,13 @@
             #expect(!received)
         }
 
-        // MARK: - Excluded-project push/receive
+        // MARK: - Excluded-list push/receive
 
         @Test
-        func pushAllCarriesExcludedProjectTitles() throws {
+        func pushAllCarriesExcludedListTitles() throws {
             let fake = FakeSession()
             let skipStore = SkippedReminderStore(defaults: .standard, key: "test-excl-push-skip-\(UUID().uuidString)")
-            let excludeStore = ExcludedProjectStore(defaults: .standard, key: "test-excl-push-\(UUID().uuidString)")
+            let excludeStore = ExcludedListStore(defaults: .standard, key: "test-excl-push-\(UUID().uuidString)")
             excludeStore.save(["Work", "Home"])
             let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, excludeStore: excludeStore)
 
@@ -363,11 +363,16 @@
             #expect(Set(titles) == ["Work", "Home"])
         }
 
+            let context = try #require(fake.lastContext)
+            let titles = try #require(context["excludedProjectTitles"] as? [String])
+            #expect(Set(titles) == ["Work", "Home"])
+        }
+
         @Test
         func receiveContextReplacesLocalExcludedTitles() {
             let fake = FakeSession()
             let skipStore = SkippedReminderStore(defaults: .standard, key: "test-excl-recv-skip-\(UUID().uuidString)")
-            let excludeStore = ExcludedProjectStore(defaults: .standard, key: "test-excl-recv-\(UUID().uuidString)")
+            let excludeStore = ExcludedListStore(defaults: .standard, key: "test-excl-recv-\(UUID().uuidString)")
             excludeStore.save(["A"])
             let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, excludeStore: excludeStore)
 
@@ -382,7 +387,7 @@
         func receiveContextMissingExcludedTitleKeyIsNoOp() {
             let fake = FakeSession()
             let skipStore = SkippedReminderStore(defaults: .standard, key: "test-excl-noop-skip-\(UUID().uuidString)")
-            let excludeStore = ExcludedProjectStore(defaults: .standard, key: "test-excl-noop-\(UUID().uuidString)")
+            let excludeStore = ExcludedListStore(defaults: .standard, key: "test-excl-noop-\(UUID().uuidString)")
             excludeStore.save(["A"])
             let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, excludeStore: excludeStore)
 
@@ -400,20 +405,20 @@
             let store = ReminderStore(
                 loadsReminders: false,
                 reminders: [
-                    inProjectReminder(title: "A", project: "Work"),
-                    inProjectReminder(title: "B", project: "Personal")
+                    inListReminder(title: "A", list: "Work"),
+                    inListReminder(title: "B", list: "Personal")
                 ],
                 skippedIDs: [],
                 authorizationStatus: .fullAccess)
             let service = SkippedReminderSyncService(
                 session: fake,
                 skipStore: SkippedReminderStore(defaults: .standard, key: "test-excl-comp-skip-\(UUID().uuidString)"),
-                excludeStore: ExcludedProjectStore(
+                excludeStore: ExcludedListStore(
                     defaults: .standard,
                     key: "test-excl-comp-excl-\(UUID().uuidString)"))
             // Wire the service's receive hook into the shared store, mirroring the app-layer wiring.
-            service.onExcludedProjectTitlesReceived = { titles in
-                store.refreshExcludedProjectTitles(Set(titles))
+            service.onExcludedListTitlesReceived = { titles in
+                store.refreshExcludedListTitles(Set(titles))
             }
 
             #expect(Set(store.visibleReminders.map(\.title)) == ["A", "B"]) // both visible before
@@ -423,7 +428,7 @@
                 didReceiveApplicationContext: ["excludedProjectTitles": ["Work"]])
 
             #expect(Set(store.visibleReminders.map(\.title)) == ["B"]) // "A" (Work) filtered
-            #expect(Set(store.excludedProjectTitles) == ["Work"])
+            #expect(Set(store.excludedListTitles) == ["Work"])
         }
 
         // MARK: - Show-date sync
@@ -507,14 +512,14 @@
         }
     }
 
-    /// Builds a reminder that lives in a calendar titled `project`, so exclusion
+    /// Builds a reminder that lives in a calendar titled `list`, so exclusion
     /// filtering (which matches `calendar.title`) can be exercised.
-    private func inProjectReminder(title: String, project: String) -> EKReminder {
+    private func inListReminder(title: String, list: String) -> EKReminder {
         let eventStore = EKEventStore()
         let reminder = EKReminder(eventStore: eventStore)
         reminder.title = title
         let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
-        calendar.title = project
+        calendar.title = list
         reminder.calendar = calendar
         return reminder
     }

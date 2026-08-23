@@ -32,7 +32,7 @@ struct ContentView: View {
         reminders: [EKReminder],
         skippedIDs: Set<String>,
         authorizationStatus: EKAuthorizationStatus,
-        excludedProjectTitles: Set<String> = [],
+        excludedListTitles: Set<String> = [],
         hasHidden: Bool = false,
         speechTranscriber: (any SpeechTranscribing)? = nil,
         backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
@@ -41,7 +41,7 @@ struct ContentView: View {
             reminders: reminders,
             skippedIDs: skippedIDs,
             authorizationStatus: authorizationStatus,
-            excludedProjectTitles: excludedProjectTitles,
+            excludedListTitles: excludedListTitles,
             hasHidden: hasHidden)
         self.speechTranscriber = speechTranscriber ?? ReminderDictation()
         self.backgroundImage = backgroundImage
@@ -139,8 +139,8 @@ struct ContentView: View {
                     backgroundFadePercent: $backgroundFadePercent,
                     backgroundPhotographer: backgroundImage.photographer,
                     showUndatedReminders: $showUndatedReminders,
-                    excludedProjects: excludedProjectsBinding,
-                    availableProjects: store.availableProjects,
+                    excludedLists: excludedListsBinding,
+                    availableLists: store.availableLists,
                     sortOption: $sortOption,
                     showDate: $showDate,
                     showList: $showList)
@@ -153,8 +153,8 @@ struct ContentView: View {
                     backgroundFadePercent: $backgroundFadePercent,
                     backgroundPhotographer: backgroundImage.photographer,
                     showUndatedReminders: $showUndatedReminders,
-                    excludedProjects: excludedProjectsBinding,
-                    availableProjects: store.availableProjects,
+                    excludedLists: excludedListsBinding,
+                    availableLists: store.availableLists,
                     sortOption: $sortOption,
                     showDate: $showDate,
                     showList: $showList)
@@ -236,10 +236,10 @@ struct ContentView: View {
     private let store: ReminderStore
     private let speechTranscriber: any SpeechTranscribing
 
-    private var excludedProjectsBinding: Binding<Set<String>> {
+    private var excludedListsBinding: Binding<Set<String>> {
         Binding(
-            get: { store.excludedProjectTitles },
-            set: { store.setExcludedProjectTitles($0) })
+            get: { store.excludedListTitles },
+            set: { store.setExcludedListTitles($0) })
     }
 
     private var allSkipped: Bool {
@@ -576,7 +576,7 @@ private let mockReminder: EKReminder = {
     return reminder
 }()
 
-private let mockReminderInProject: EKReminder = {
+private let mockReminderInList: EKReminder = {
     let eventStore = EKEventStore()
     let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
     calendar.title = "Groceries"
@@ -620,10 +620,10 @@ private let mockReminderInProject: EKReminder = {
 #Preview("All Excluded") {
     ContentView(
         loadsReminders: false,
-        reminders: [mockReminderInProject],
+        reminders: [mockReminderInList],
         skippedIDs: [],
         authorizationStatus: .fullAccess,
-        excludedProjectTitles: ["Groceries"])
+        excludedListTitles: ["Groceries"])
 }
 
 #Preview("No Access") {

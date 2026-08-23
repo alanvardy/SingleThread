@@ -20,7 +20,7 @@ public struct UITestingSeed {
 
     public let reminders: [EKReminder]
     public let calendars: [EKCalendar]
-    public let excludedProjectTitles: Set<String>
+    public let excludedListTitles: Set<String>
 
     /// Reads an optional `--seed '<json>'` launch argument and decodes it.
     /// Returns `nil` when the argument is absent or malformed.
@@ -76,7 +76,7 @@ private struct SeedPayload: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         reminders = try container.decode([ReminderSeed].self, forKey: .reminders)
         calendars = try container.decodeIfPresent([String].self, forKey: .calendars) ?? []
-        excludedProjects = try container.decodeIfPresent([String].self, forKey: .excludedProjects) ?? []
+        excludedLists = try container.decodeIfPresent([String].self, forKey: .excludedLists) ?? []
     }
 
     // MARK: Internal
@@ -89,7 +89,7 @@ private struct SeedPayload: Codable {
 
     var reminders: [ReminderSeed]
     var calendars: [String] = []
-    var excludedProjects: [String] = []
+    var excludedLists: [String] = []
 
     func materialize() -> UITestingSeed {
         let eventStore = EKEventStore()
@@ -112,6 +112,15 @@ private struct SeedPayload: Codable {
         return UITestingSeed(
             reminders: createdReminders,
             calendars: createdCalendars,
-            excludedProjectTitles: Set(excludedProjects))
+            excludedListTitles: Set(excludedLists))
+    }
+
+    // MARK: Private
+
+    /// Explicit keys pin the wire format: renaming the property alone would
+    /// otherwise silently change the decoded JSON key.
+    private enum CodingKeys: String, CodingKey {
+        case reminders, calendars
+        case excludedLists = "excludedProjects"
     }
 }

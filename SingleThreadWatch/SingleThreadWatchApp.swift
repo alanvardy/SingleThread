@@ -52,12 +52,13 @@ struct SingleThreadWatchApp: App {
             }
             // A phone-side exclusion toggle arrives and re-filters this watch's live list.
             // Same write-once-before-activate invariant as onShowUndatedRemindersReceived.
-            service.onExcludedProjectTitlesReceived = { [weak store] titles in
-                store?.refreshExcludedProjectTitles(Set(titles))
+            service.onExcludedListTitlesReceived = { [weak store] titles in
+                store?.refreshExcludedListTitles(Set(titles))
             }
             service.activate()
             store.onSkipSetChanged = { _ in service.pushAll() }
-            store.onExcludedProjectsChanged = { _ in service.pushAll() }
+            // Exclusions sync phone→watch only: nothing on watch edits exclusions, so no
+            // push hook is wired here. The receive path above applies incoming exclusions.
             store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
             store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
 
@@ -67,11 +68,11 @@ struct SingleThreadWatchApp: App {
             // Long enough that the seeded card has rendered first.
             if let index = arguments.firstIndex(of: "--ui-testing-live-excluded"),
                index + 1 < arguments.count {
-                let project = arguments[index + 1]
+                let list = arguments[index + 1]
                 DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                     service.session(
                         WCSession.default,
-                        didReceiveApplicationContext: ["excludedProjectTitles": [project]])
+                        didReceiveApplicationContext: ["excludedListTitles": [list]])
                 }
             }
         }
@@ -99,27 +100,27 @@ struct SingleThreadWatchApp: App {
         reminder.title = "Buy groceries"
         reminder.priority = 5
         reminder.notes = "Don't forget the milk"
-        // `--ui-testing-excluded "<project>"` gives the sample reminder a calendar of
+        // `--ui-testing-excluded "<list>"` gives the sample reminder a calendar of
         // that title and pre-populates the store's exclusion set, so an XCTest can
-        // assert a project's current card is suppressed (the store's live exclusion
+        // assert a list's current card is suppressed (the store's live exclusion
         // set drives the rendered result).
-        // `--ui-testing-live-excluded "<project>"` gives the sample reminder a
+        // `--ui-testing-live-excluded "<list>"` gives the sample reminder a
         // calendar of that title but leaves the exclusion set empty, so the card
         // renders first and disappears only when the UI-test seam delivers the
         // exclusion context (live-propagation proof).
         for flag in ["--ui-testing-excluded", "--ui-testing-live-excluded"] {
             guard let index = arguments.firstIndex(of: flag),
                   index + 1 < arguments.count else { continue }
-            let project = arguments[index + 1]
+            let list = arguments[index + 1]
             let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
-            calendar.title = project
+            calendar.title = list
             reminder.calendar = calendar
             return ReminderStore(
                 loadsReminders: false,
                 reminders: [reminder],
                 skippedIDs: [],
                 authorizationStatus: .fullAccess,
-                excludedProjectTitles: flag == "--ui-testing-excluded" ? [project] : [])
+                excludedListTitles: flag == "--ui-testing-excluded" ? [list] : [])
         }
         return ReminderStore(
             loadsReminders: false,

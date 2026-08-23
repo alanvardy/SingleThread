@@ -20,8 +20,8 @@ struct SettingsViewTests {
                 backgroundFadePercent: .constant(50),
                 backgroundPhotographer: "NEOM",
                 showUndatedReminders: .constant(false),
-                excludedProjects: .constant([]),
-                availableProjects: ["Work", "Personal"],
+                excludedLists: .constant([]),
+                availableLists: ["Work", "Personal"],
                 sortOption: .constant(.priority),
                 showDate: .constant(true),
                 showList: .constant(true))
@@ -34,8 +34,8 @@ struct SettingsViewTests {
                 backgroundFadePercent: .constant(50),
                 backgroundPhotographer: "NEOM",
                 showUndatedReminders: .constant(false),
-                excludedProjects: .constant([]),
-                availableProjects: ["Work", "Personal"],
+                excludedLists: .constant([]),
+                availableLists: ["Work", "Personal"],
                 sortOption: .constant(.priority),
                 showDate: .constant(true),
                 showList: .constant(true))

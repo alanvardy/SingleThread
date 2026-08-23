@@ -22,7 +22,7 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
     }
 
     @MainActor
-    func testExcludedProjectDoesNotRenderReminder() {
+    func testExcludedListDoesNotRenderReminder() {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing", "--ui-testing-excluded", "Work"]
         app.launch()

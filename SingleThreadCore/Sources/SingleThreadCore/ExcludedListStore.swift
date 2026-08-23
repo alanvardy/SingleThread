@@ -1,7 +1,7 @@
 import Foundation
 
-/// Persists the excluded-project titles in UserDefaults.
-public struct ExcludedProjectStore {
+/// Persists the excluded-list titles in UserDefaults.
+public struct ExcludedListStore {
     // MARK: Lifecycle
 
     public init(defaults: UserDefaults = AppGroup.defaults, key: String = "excludedProjectTitles") {

@@ -414,9 +414,9 @@ struct ReminderStoreLifecycleTests {
 
 @MainActor
 @Suite(.serialized)
-struct ReminderStoreAvailableProjectsTests {
+struct ReminderStoreAvailableListsTests {
     @Test
-    func availableProjectsSortedAndDeduplicatedAfterReload() async {
+    func availableListsSortedAndDeduplicatedAfterReload() async {
         let fake = FakeEventStore()
         fake.returnedCalendars = [
             makeCalendar(title: "Work"),
@@ -429,18 +429,18 @@ struct ReminderStoreAvailableProjectsTests {
 
         await store.reload()
 
-        #expect(store.availableProjects == ["Personal", "Work", "work"])
+        #expect(store.availableLists == ["Personal", "Work", "work"])
         #expect(fake.calendarFetchCallCount == 1)
     }
 
     @Test
-    func availableProjectsEmptyWhenNoCalendars() async {
+    func availableListsEmptyWhenNoCalendars() async {
         let fake = FakeEventStore()
         let store = testStore(eventStore: fake)
 
         await store.reload()
 
-        #expect(store.availableProjects.isEmpty)
+        #expect(store.availableLists.isEmpty)
         #expect(fake.calendarFetchCallCount == 1)
     }
 }
