@@ -13,7 +13,7 @@ public final class ReminderStore {
     public init(
         eventStore: any EventKitStoring = EKEventStore(),
         skipStore: SkippedReminderStore = SkippedReminderStore(),
-        excludeStore: ExcludedProjectStore = ExcludedProjectStore(),
+        excludeStore: ExcludedListStore = ExcludedListStore(),
         loadsReminders: Bool = true) {
         self.eventStore = eventStore
         self.skipStore = skipStore
@@ -27,17 +27,17 @@ public final class ReminderStore {
         reminders: [EKReminder],
         skippedIDs: Set<String>,
         authorizationStatus: EKAuthorizationStatus,
-        excludedProjectTitles: Set<String> = [],
+        excludedListTitles: Set<String> = [],
         hasHidden: Bool = false) {
         self.loadsReminders = loadsReminders
         self.reminders = reminders
         self.skippedIDs = skippedIDs
-        self.excludedProjectTitles = excludedProjectTitles
+        self.excludedListTitles = excludedListTitles
         self.authorizationStatus = authorizationStatus
         self.hasHidden = hasHidden
         eventStore = EKEventStore()
         skipStore = SkippedReminderStore()
-        excludeStore = ExcludedProjectStore()
+        excludeStore = ExcludedListStore()
     }
 
     // MARK: Public
@@ -46,14 +46,14 @@ public final class ReminderStore {
 
     public private(set) var reminders: [EKReminder] = []
     public private(set) var skippedIDs: Set<String> = []
-    public private(set) var excludedProjectTitles: Set<String> = []
+    public private(set) var excludedListTitles: Set<String> = []
     /// `true` when incomplete reminders exist outside the current date window
     /// (or are undated while `showsUndatedReminders` is off). Set by `reload()`;
     /// seeded by the preview/test init. Lets surfaces explain an empty state
     /// that is actually "nothing due right now".
     public private(set) var hasHidden = false
     /// All reminder-list titles (sorted, deduplicated) the settings UI presents.
-    public private(set) var availableProjects: [String] = []
+    public private(set) var availableLists: [String] = []
     public private(set) var authorizationStatus: EKAuthorizationStatus = .notDetermined
     public let loadsReminders: Bool
 
@@ -69,10 +69,10 @@ public final class ReminderStore {
     /// Wired by each app layer to push skip-set changes via WatchConnectivity (Phase 4).
     public var onSkipSetChanged: (([String]) -> Void)?
 
-    /// Hook invoked after any excluded-project mutation — passes the full excluded
+    /// Hook invoked after any excluded-list mutation — passes the full excluded
     /// title array. Wired by each app layer to push exclusion changes via
     /// WatchConnectivity.
-    public var onExcludedProjectsChanged: (([String]) -> Void)?
+    public var onExcludedListsChanged: (([String]) -> Void)?
 
     /// Hook invoked when the user completes a reminder on watchOS, where EventKit
     /// writes are unavailable. Passes the completed reminder's identifier. Wired by
@@ -107,7 +107,7 @@ public final class ReminderStore {
     public var visibleReminders: [EKReminder] {
         reminders
             .filter { !skippedIDs.contains($0.calendarItemIdentifier) }
-            .filter { !excludedProjectTitles.contains($0.calendar?.title ?? "") }
+            .filter { !excludedListTitles.contains($0.calendar?.title ?? "") }
             .sorted { ReminderSort.areInIncreasingOrder($0, $1, using: sortOption) }
     }
 
@@ -284,7 +284,7 @@ public final class ReminderStore {
             hasHidden = Self.hasHiddenFor(shown: shown, allIncomplete: allIncomplete)
         }
         reminders = shown
-        availableProjects = Set(
+        availableLists = Set(
             eventStore.calendars(for: .reminder)
                 .map(\.title)
                 .filter { !$0.isEmpty })
@@ -298,7 +298,7 @@ public final class ReminderStore {
                 fetched: shown.map(\.calendarItemIdentifier),
                 skipped: skipStore.load())
             skippedIDs = Set(resolved)
-            excludedProjectTitles = Set(excludeStore.load())
+            excludedListTitles = Set(excludeStore.load())
             // Persist the pruned list so stale IDs (a deleted-while-skipped
             // reminder, for example) drop cleanly from UserDefaults too, keeping
             // the on-disk skip store consistent with in-memory `skippedIDs`.
@@ -307,22 +307,22 @@ public final class ReminderStore {
         onRemindersChanged?()
     }
 
-    /// Replaces the excluded-project title set, persisting immediately and firing
-    /// both `onExcludedProjectsChanged` and `onRemindersChanged`.
-    public func setExcludedProjectTitles(_ titles: Set<String>) {
-        excludedProjectTitles = titles
+    /// Replaces the excluded-list title set, persisting immediately and firing
+    /// both `onExcludedListsChanged` and `onRemindersChanged`.
+    public func setExcludedListTitles(_ titles: Set<String>) {
+        excludedListTitles = titles
         let array = Array(titles)
         excludeStore.save(array)
-        onExcludedProjectsChanged?(array)
+        onExcludedListsChanged?(array)
         onRemindersChanged?()
     }
 
-    /// Refreshes the live excluded-project set from titles received over
-    /// WatchConnectivity. Does NOT fire `onExcludedProjectsChanged`, so
+    /// Refreshes the live excluded-list set from titles received over
+    /// WatchConnectivity. Does NOT fire `onExcludedListsChanged`, so
     /// the receive path never echoes a push back to the sender (that hook is only
-    /// for local `setExcludedProjectTitles` changes).
-    public func refreshExcludedProjectTitles(_ titles: Set<String>) {
-        excludedProjectTitles = titles
+    /// for local `setExcludedListTitles` changes).
+    public func refreshExcludedListTitles(_ titles: Set<String>) {
+        excludedListTitles = titles
         onRemindersChanged?()
     }
 
@@ -354,7 +354,7 @@ public final class ReminderStore {
 
     private let eventStore: any EventKitStoring
     private let skipStore: SkippedReminderStore
-    private let excludeStore: ExcludedProjectStore
+    private let excludeStore: ExcludedListStore
 
     /// Computes the skip list that results from skipping `identifier`, pruning
     /// stale IDs against the currently-fetched reminders.

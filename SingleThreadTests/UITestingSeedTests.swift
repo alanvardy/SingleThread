@@ -24,7 +24,7 @@ struct UITestingSeedTests {
     }
 
     @Test
-    func parsesCalendarsAndExcludedProjects() {
+    func parsesCalendarsAndExcludedLists() {
         let args = [
             "--seed",
             #"{"reminders":[{"title":"A"}],"calendars":["Groceries","Work"],"excludedProjects":["Work"]}"#
@@ -32,7 +32,7 @@ struct UITestingSeedTests {
         let seed = UITestingSeed.fromLaunchArguments(args)
 
         #expect(seed?.calendars.map(\.title) == ["Groceries", "Work"])
-        #expect(seed?.excludedProjectTitles == ["Work"])
+        #expect(seed?.excludedListTitles == ["Work"])
     }
 
     @Test

@@ -72,7 +72,7 @@ struct ReminderStoreTests {
     }
 
     @Test
-    func visibleRemindersFiltersOutExcludedProjectTitles() {
+    func visibleRemindersFiltersOutExcludedListTitles() {
         let excluded = makeReminder(title: "A", calendarTitle: "Work")
         let kept = makeReminder(title: "B", calendarTitle: "Personal")
         let store = ReminderStore(
@@ -80,7 +80,7 @@ struct ReminderStoreTests {
             reminders: [excluded, kept],
             skippedIDs: [],
             authorizationStatus: .fullAccess,
-            excludedProjectTitles: ["Work"])
+            excludedListTitles: ["Work"])
         #expect(store.visibleReminders.map(\.title) == ["B"])
     }
 
@@ -92,58 +92,58 @@ struct ReminderStoreTests {
             reminders: [noCalendar],
             skippedIDs: [],
             authorizationStatus: .fullAccess,
-            excludedProjectTitles: ["Work"])
+            excludedListTitles: ["Work"])
         #expect(store.visibleReminders.count == 1)
     }
 
     @Test
-    func visibleRemindersEmptyWhenAllProjectsExcluded() {
-        let inProject = makeReminder(title: "A", calendarTitle: "Work")
+    func visibleRemindersEmptyWhenAllListsExcluded() {
+        let inList = makeReminder(title: "A", calendarTitle: "Work")
         let store = ReminderStore(
             loadsReminders: false,
-            reminders: [inProject],
+            reminders: [inList],
             skippedIDs: [],
             authorizationStatus: .fullAccess,
-            excludedProjectTitles: ["Work"])
+            excludedListTitles: ["Work"])
         #expect(store.visibleReminders.isEmpty)
     }
 
-    // MARK: - availableProjects
+    // MARK: - availableLists
 
     @Test
-    func availableProjectsDefaultsToEmpty() {
+    func availableListsDefaultsToEmpty() {
         let store = ReminderStore(
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        #expect(store.availableProjects.isEmpty)
+        #expect(store.availableLists.isEmpty)
     }
 
-    // MARK: - setExcludedProjectTitles
+    // MARK: - setExcludedListTitles
 
     @Test
-    func setExcludedProjectTitlesPersistsAndFiresHooks() {
+    func setExcludedListTitlesPersistsAndFiresHooks() {
         let key = "test-excluded-\(UUID().uuidString)"
-        let excludeStore = ExcludedProjectStore(defaults: .standard, key: key)
+        let excludeStore = ExcludedListStore(defaults: .standard, key: key)
         let store = ReminderStore(excludeStore: excludeStore, loadsReminders: false)
         var changedTitles: [String]?
         var remindersChanged = false
-        store.onExcludedProjectsChanged = { changedTitles = $0 }
+        store.onExcludedListsChanged = { changedTitles = $0 }
         store.onRemindersChanged = { remindersChanged = true }
 
-        store.setExcludedProjectTitles(["Work", "Personal"])
+        store.setExcludedListTitles(["Work", "Personal"])
 
-        #expect(store.excludedProjectTitles == ["Work", "Personal"])
+        #expect(store.excludedListTitles == ["Work", "Personal"])
         #expect(Set(excludeStore.load()) == ["Work", "Personal"])
         #expect(Set(changedTitles ?? []) == ["Work", "Personal"])
         #expect(remindersChanged)
     }
 
-    // MARK: - refreshExcludedProjectTitles
+    // MARK: - refreshExcludedListTitles
 
     @Test
-    func refreshExcludedProjectTitlesUpdatesSetAndFiresRemindersChangedOnly() {
+    func refreshExcludedListTitlesUpdatesSetAndFiresRemindersChangedOnly() {
         let store = ReminderStore(
             loadsReminders: false,
             reminders: [],
@@ -152,11 +152,11 @@ struct ReminderStoreTests {
         var remindersChanged = false
         var excludedChanged = false
         store.onRemindersChanged = { remindersChanged = true }
-        store.onExcludedProjectsChanged = { _ in excludedChanged = true }
+        store.onExcludedListsChanged = { _ in excludedChanged = true }
 
-        store.refreshExcludedProjectTitles(["Work"])
+        store.refreshExcludedListTitles(["Work"])
 
-        #expect(store.excludedProjectTitles == ["Work"])
+        #expect(store.excludedListTitles == ["Work"])
         #expect(remindersChanged)
         #expect(!excludedChanged)
     }

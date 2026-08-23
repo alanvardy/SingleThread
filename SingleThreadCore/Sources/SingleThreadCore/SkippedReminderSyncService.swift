@@ -26,7 +26,7 @@ import os
         public init(
             session: any SkipSyncSession,
             skipStore: SkippedReminderStore,
-            excludeStore: ExcludedProjectStore = ExcludedProjectStore(),
+            excludeStore: ExcludedListStore = ExcludedListStore(),
             sortStore: SortOptionStore = SortOptionStore(),
             showUndatedStore: ShowUndatedRemindersPreference = ShowUndatedRemindersPreference(),
             showDateStore: ShowDatePreference = ShowDatePreference(),
@@ -86,11 +86,11 @@ import os
         /// `onCompleteReminderReceived`.
         public nonisolated(unsafe) var onSortOptionReceived: ((SortOption) -> Void)?
 
-        /// Hook invoked on the counterpart watch/phone when excluded-project titles
+        /// Hook invoked on the counterpart watch/phone when excluded-list titles
         /// arrive in an application context. Passes the received title array. Same
         /// write-once-before-activate / `nonisolated(unsafe)` rationale as
         /// `onShowUndatedRemindersReceived`.
-        public nonisolated(unsafe) var onExcludedProjectTitlesReceived: (([String]) -> Void)?
+        public nonisolated(unsafe) var onExcludedListTitlesReceived: (([String]) -> Void)?
 
         public func activate() {
             if let wcSession = session as? WCSession {
@@ -107,7 +107,7 @@ import os
             do {
                 var context: [String: Any] = [
                     PayloadKey.skippedReminderIdentifiers: skipStore.load(),
-                    PayloadKey.excludedProjectTitles: excludeStore.load(),
+                    PayloadKey.excludedListTitles: excludeStore.load(),
                     PayloadKey.showUndatedReminders: showUndatedStore.load(),
                     PayloadKey.sortOption: sortStore.load().rawValue
                 ]
@@ -182,7 +182,7 @@ import os
         /// receiver so the two sides of the wire protocol cannot drift.
         private enum PayloadKey {
             static let skippedReminderIdentifiers = "skippedReminderIdentifiers"
-            static let excludedProjectTitles = "excludedProjectTitles"
+            static let excludedListTitles = "excludedProjectTitles"
             static let completeReminderIdentifier = "completeReminderIdentifier"
             static let deleteReminderIdentifier = "deleteReminderIdentifier"
             static let showUndatedReminders = "showUndatedReminders"
@@ -194,7 +194,7 @@ import os
 
         private let session: any SkipSyncSession
         private let skipStore: SkippedReminderStore
-        private let excludeStore: ExcludedProjectStore
+        private let excludeStore: ExcludedListStore
         private let sortStore: SortOptionStore
         private let showUndatedStore: ShowUndatedRemindersPreference
         private let showDateStore: ShowDatePreference
@@ -209,7 +209,7 @@ import os
             // than unioning) local values makes a "clear" update ([]) propagate.
             // ReminderStore.reload() prunes stale skip IDs on the next fetch.
             // The keys are independent — the skip IDs + show-undated + sort +
-            // show-date travel in one combined context, while excluded-project
+            // show-date travel in one combined context, while excluded-list
             // titles use a separate one — so any key may be present without the
             // others.
             if let receivedIDs = context[PayloadKey.skippedReminderIdentifiers] as? [String] {
@@ -217,9 +217,9 @@ import os
                 let handler = onSkippedIdentifiersReceived
                 handler?(receivedIDs)
             }
-            if let receivedTitles = context[PayloadKey.excludedProjectTitles] as? [String] {
+            if let receivedTitles = context[PayloadKey.excludedListTitles] as? [String] {
                 excludeStore.save(receivedTitles)
-                let handler = onExcludedProjectTitlesReceived
+                let handler = onExcludedListTitlesReceived
                 handler?(receivedTitles)
             }
             if let received = context[PayloadKey.showUndatedReminders] as? Bool {

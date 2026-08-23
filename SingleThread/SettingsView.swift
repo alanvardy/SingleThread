@@ -4,17 +4,17 @@ import SwiftUI
     import WidgetKit
 #endif
 
-// MARK: - ExcludedProjectsView
+// MARK: - ExcludedListsView
 
-/// Submenu listing the projects the user has chosen to exclude. Pushed from
+/// Submenu listing the lists the user has chosen to exclude. Pushed from
 /// the settings screen so the main settings view stays focused on its core
 /// preferences.
-struct ExcludedProjectsView: View {
+struct ExcludedListsView: View {
     // MARK: Lifecycle
 
-    init(excludedProjects: Binding<Set<String>>, availableProjects: [String]) {
-        _excludedProjects = excludedProjects
-        self.availableProjects = availableProjects
+    init(excludedLists: Binding<Set<String>>, availableLists: [String]) {
+        _excludedLists = excludedLists
+        self.availableLists = availableLists
     }
 
     // MARK: Internal
@@ -22,9 +22,9 @@ struct ExcludedProjectsView: View {
     var body: some View {
         Form {
             Section {
-                ForEach(availableProjects, id: \.self) { project in
-                    Toggle(isOn: excludedBinding(for: project)) {
-                        Text(project)
+                ForEach(availableLists, id: \.self) { list in
+                    Toggle(isOn: excludedBinding(for: list)) {
+                        Text(list)
                     }
                 }
             } footer: {
@@ -36,18 +36,18 @@ struct ExcludedProjectsView: View {
 
     // MARK: Private
 
-    @Binding private var excludedProjects: Set<String>
+    @Binding private var excludedLists: Set<String>
 
-    private let availableProjects: [String]
+    private let availableLists: [String]
 
-    private func excludedBinding(for project: String) -> Binding<Bool> {
+    private func excludedBinding(for list: String) -> Binding<Bool> {
         Binding(
-            get: { excludedProjects.contains(project) },
+            get: { excludedLists.contains(list) },
             set: { isExcluded in
                 if isExcluded {
-                    excludedProjects.insert(project)
+                    excludedLists.insert(list)
                 } else {
-                    excludedProjects.remove(project)
+                    excludedLists.remove(list)
                 }
             })
     }
@@ -83,8 +83,8 @@ struct SettingsView: View {
             backgroundFadePercent: Binding<Int>,
             backgroundPhotographer: String?,
             showUndatedReminders: Binding<Bool>,
-            excludedProjects: Binding<Set<String>>,
-            availableProjects: [String],
+            excludedLists: Binding<Set<String>>,
+            availableLists: [String],
             sortOption: Binding<SortOption>,
             showDate: Binding<Bool>,
             showList: Binding<Bool>) {
@@ -97,8 +97,8 @@ struct SettingsView: View {
             _backgroundFadePercent = backgroundFadePercent
             self.backgroundPhotographer = backgroundPhotographer
             _showUndatedReminders = showUndatedReminders
-            _excludedProjects = excludedProjects
-            self.availableProjects = availableProjects
+            _excludedLists = excludedLists
+            self.availableLists = availableLists
             _sortOption = sortOption
             _showDate = showDate
             _showList = showList
@@ -112,8 +112,8 @@ struct SettingsView: View {
             backgroundFadePercent: Binding<Int>,
             backgroundPhotographer: String?,
             showUndatedReminders: Binding<Bool>,
-            excludedProjects: Binding<Set<String>>,
-            availableProjects: [String],
+            excludedLists: Binding<Set<String>>,
+            availableLists: [String],
             sortOption: Binding<SortOption>,
             showDate: Binding<Bool>,
             showList: Binding<Bool>) {
@@ -124,8 +124,8 @@ struct SettingsView: View {
             _backgroundFadePercent = backgroundFadePercent
             self.backgroundPhotographer = backgroundPhotographer
             _showUndatedReminders = showUndatedReminders
-            _excludedProjects = excludedProjects
-            self.availableProjects = availableProjects
+            _excludedLists = excludedLists
+            self.availableLists = availableLists
             _sortOption = sortOption
             _showDate = showDate
             _showList = showList
@@ -195,9 +195,9 @@ struct SettingsView: View {
                 }
                 Section {
                     NavigationLink {
-                        ExcludedProjectsView(
-                            excludedProjects: $excludedProjects,
-                            availableProjects: availableProjects)
+                        ExcludedListsView(
+                            excludedLists: $excludedLists,
+                            availableLists: availableLists)
                     } label: {
                         Label("Excluded Projects", systemImage: "eye.slash")
                     }
@@ -232,7 +232,7 @@ struct SettingsView: View {
     @Binding private var backgroundEnabled: Bool
     @Binding private var backgroundFadePercent: Int
     @Binding private var showUndatedReminders: Bool
-    @Binding private var excludedProjects: Set<String>
+    @Binding private var excludedLists: Set<String>
     @Binding private var showDate: Bool
     @Binding private var showList: Bool
     @Environment(\.dismiss)
@@ -240,7 +240,7 @@ struct SettingsView: View {
 
     private let backgroundPhotographer: String?
 
-    private let availableProjects: [String]
+    private let availableLists: [String]
 }
 
 // MARK: - Previews
@@ -257,8 +257,8 @@ struct SettingsView: View {
             backgroundFadePercent: .constant(50),
             backgroundPhotographer: "NEOM",
             showUndatedReminders: .constant(false),
-            excludedProjects: .constant([]),
-            availableProjects: ["Work", "Personal"],
+            excludedLists: .constant([]),
+            availableLists: ["Work", "Personal"],
             sortOption: .constant(.priority),
             showDate: .constant(true),
             showList: .constant(false))
@@ -275,8 +275,8 @@ struct SettingsView: View {
             backgroundFadePercent: .constant(50),
             backgroundPhotographer: nil,
             showUndatedReminders: .constant(true),
-            excludedProjects: .constant([]),
-            availableProjects: ["Work", "Personal"],
+            excludedLists: .constant([]),
+            availableLists: ["Work", "Personal"],
             sortOption: .constant(.dueDate),
             showDate: .constant(false),
             showList: .constant(true))
@@ -291,8 +291,8 @@ struct SettingsView: View {
             backgroundFadePercent: .constant(50),
             backgroundPhotographer: "NEOM",
             showUndatedReminders: .constant(false),
-            excludedProjects: .constant([]),
-            availableProjects: ["Work", "Personal"],
+            excludedLists: .constant([]),
+            availableLists: ["Work", "Personal"],
             sortOption: .constant(.priority),
             showDate: .constant(true),
             showList: .constant(false))

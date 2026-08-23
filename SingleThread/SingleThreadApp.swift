@@ -42,14 +42,14 @@ struct SingleThreadApp: App {
                     Task { await store?.deleteReminder(identifier: identifier) }
                 }
                 // Receive-side: a watch exclusion toggle arrives and re-filters the local list.
-                service.onExcludedProjectTitlesReceived = { [weak store] titles in
-                    store?.refreshExcludedProjectTitles(Set(titles))
+                service.onExcludedListTitlesReceived = { [weak store] titles in
+                    store?.refreshExcludedListTitles(Set(titles))
                 }
                 service.activate()
                 syncService = service
                 store.onSkipSetChanged = { _ in service.pushAll() }
                 store.onShowUndatedRemindersChanged = { _ in service.pushAll() }
-                store.onExcludedProjectsChanged = { _ in service.pushAll() }
+                store.onExcludedListsChanged = { _ in service.pushAll() }
                 store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
                 // Send-side (defensive/consistent): a phone-side delete relays to the
                 // watch. The iPhone's `deleteReminder` never fires `onDeleteReminder`
@@ -122,8 +122,8 @@ struct SingleThreadApp: App {
             let store = ReminderStore(
                 eventStore: inMemoryStore,
                 loadsReminders: true)
-            if !seed.excludedProjectTitles.isEmpty {
-                store.setExcludedProjectTitles(seed.excludedProjectTitles)
+            if !seed.excludedListTitles.isEmpty {
+                store.setExcludedListTitles(seed.excludedListTitles)
             }
             return (store, true)
         }
