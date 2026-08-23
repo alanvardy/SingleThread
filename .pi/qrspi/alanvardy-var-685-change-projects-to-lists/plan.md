@@ -366,9 +366,9 @@ Replace with a documenting comment:
 
 ### Verification
 #### Automated
-- [ ] Build succeeds: `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build`
-- [ ] `make periphery` clean — proves nothing else referenced the removed closure assignment
-- [ ] Final full gate before PR: `./scripts/test.sh` green (unit + UI on iPhone 17 / iPad A16, lint, Periphery)
+- [x] Build succeeds: `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build`
+- [x] `make periphery` clean — proves nothing else referenced the removed closure assignment
+- [x] Final full gate before PR: `./scripts/test.sh` green (unit + UI on iPhone 17 / iPad A16, lint, Periphery)
 
 #### Manual
 - [ ] None required beyond the automated coverage (watch UI test still exercises the receive path)
