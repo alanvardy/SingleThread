@@ -366,6 +366,8 @@
             let context = try #require(fake.lastContext)
             let titles = try #require(context["excludedListTitles"] as? [String])
             #expect(Set(titles) == ["Work", "Home"])
+            // Re-carries the skip set so the whole-context replacement doesn't drop it.
+            #expect(context["skippedReminderIdentifiers"] != nil)
         }
 
         @Test
