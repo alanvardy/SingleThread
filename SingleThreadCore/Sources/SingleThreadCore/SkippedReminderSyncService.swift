@@ -182,7 +182,7 @@ import os
         /// receiver so the two sides of the wire protocol cannot drift.
         private enum PayloadKey {
             static let skippedReminderIdentifiers = "skippedReminderIdentifiers"
-            static let excludedListTitles = "excludedProjectTitles"
+            static let excludedListTitles = "excludedListTitles"
             static let completeReminderIdentifier = "completeReminderIdentifier"
             static let deleteReminderIdentifier = "deleteReminderIdentifier"
             static let showUndatedReminders = "showUndatedReminders"

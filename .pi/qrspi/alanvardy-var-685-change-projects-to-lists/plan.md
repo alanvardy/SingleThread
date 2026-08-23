@@ -210,8 +210,8 @@ Must move in lockstep or seeded UI-test relaunches leak state.
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SkippedReminderSyncServiceTests` passes — the string-pinning tests prove all four copies moved together
-- [ ] Unit portion of `./scripts/test.sh` green
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SkippedReminderSyncServiceTests` passes — the string-pinning tests prove all four copies moved together
+- [x] Unit portion of `./scripts/test.sh` green
 
 #### Manual
 - [ ] Launch app in Simulator, toggle an exclusion in Settings, force-quit and relaunch — exclusion persists (plist round-trip under new key)

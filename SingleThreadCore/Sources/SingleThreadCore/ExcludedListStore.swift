@@ -4,7 +4,7 @@ import Foundation
 public struct ExcludedListStore {
     // MARK: Lifecycle
 
-    public init(defaults: UserDefaults = AppGroup.defaults, key: String = "excludedProjectTitles") {
+    public init(defaults: UserDefaults = AppGroup.defaults, key: String = "excludedListTitles") {
         self.defaults = defaults
         self.key = key
     }

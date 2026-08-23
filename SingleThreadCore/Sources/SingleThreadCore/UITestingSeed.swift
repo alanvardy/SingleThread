@@ -51,7 +51,7 @@ public struct UITestingSeed {
 
     private static let persistedKeys = [
         "skippedReminderIdentifiers",
-        "excludedProjectTitles",
+        "excludedListTitles",
         "showDate",
         "showList",
         "showUndatedReminders",

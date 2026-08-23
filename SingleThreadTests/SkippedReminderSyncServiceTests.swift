@@ -364,7 +364,7 @@
         }
 
             let context = try #require(fake.lastContext)
-            let titles = try #require(context["excludedProjectTitles"] as? [String])
+            let titles = try #require(context["excludedListTitles"] as? [String])
             #expect(Set(titles) == ["Work", "Home"])
         }
 
@@ -378,7 +378,7 @@
 
             service.session(
                 WCSession.default,
-                didReceiveApplicationContext: ["excludedProjectTitles": ["B", "C"]])
+                didReceiveApplicationContext: ["excludedListTitles": ["B", "C"]])
 
             #expect(Set(excludeStore.load()) == ["B", "C"])
         }
@@ -425,7 +425,7 @@
 
             service.session(
                 WCSession.default,
-                didReceiveApplicationContext: ["excludedProjectTitles": ["Work"]])
+                didReceiveApplicationContext: ["excludedListTitles": ["Work"]])
 
             #expect(Set(store.visibleReminders.map(\.title)) == ["B"]) // "A" (Work) filtered
             #expect(Set(store.excludedListTitles) == ["Work"])
