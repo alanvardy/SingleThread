@@ -13,17 +13,17 @@ MAC_SIM="platform=macOS"
 SCHEME="SingleThread"
 WATCH_SCHEME="SingleThreadWatch"
 DERIVED_DATA="DerivedData"
-# Delete XCTest simulator runtimes older than this many minutes. Keeps space in
+# Delete XCTest simulator runtimes older than this many hours. Keeps space in
 # check without ever touching runtimes from an in-flight parallel test run.
-# Override with RUNTIME_AGE_MINUTES=... on the command line.
-RUNTIME_AGE_MINUTES="${RUNTIME_AGE_MINUTES:-5}"
+# Override with RUNTIME_AGE_HOURS=... on the command line.
+RUNTIME_AGE_HOURS="${RUNTIME_AGE_HOURS:-1}"
 RUNTIMES_DIR="$HOME/Library/Developer/XCTestDevices"
 
 cd "$(dirname "$0")/.."
 
 # Clean up abandoned XCTests runtimes. Each UI test run leaves a fresh
 # ~3 GB runtime in ~/Library/Developer/XCTestDevices that Xcode never prunes.
-# This deletes only entries older than RUNTIME_AGE_MINUTES, so it cannot
+# This deletes only entries older than RUNTIME_AGE_HOURS, so it cannot
 # interfere with parallel tests that are actively writing to a runtime.
 cleanup_xctest_runtimes() {
     if [[ ! -d "$RUNTIMES_DIR" ]]; then
@@ -34,9 +34,9 @@ cleanup_xctest_runtimes() {
     local now cutoff_sec
     local removed=0
     now=$(date +%s)
-    cutoff_sec=$((RUNTIME_AGE_MINUTES * 60))
+    cutoff_sec=$((RUNTIME_AGE_HOURS * 3600))
 
-    echo "==> Pruning XCTest runtimes older than ${RUNTIME_AGE_MINUTES}m…"
+    echo "==> Pruning XCTest runtimes older than ${RUNTIME_AGE_HOURS}h…"
     for entry in "$RUNTIMES_DIR"/*; do
         # Skip non-directories and symlinks.
         [[ -d "$entry" ]] || continue
@@ -73,7 +73,7 @@ case "$MODE" in
 esac
 
 # Reclaim space before any test/build runs. Safe under parallel execution:
-# only entries older than RUNTIME_AGE_MINUTES are removed, and APFS keeps open
+# only entries older than RUNTIME_AGE_HOURS are removed, and APFS keeps open
 # handles alive anyway, so an in-flight UI test is never disturbed.
 cleanup_xctest_runtimes
 
