@@ -98,7 +98,7 @@
             service.pushAll()
             let context = try #require(fake.lastContext)
             #expect(Set(context["skippedReminderIdentifiers"] as? [String] ?? []) == ["X"])
-            #expect(context["excludedProjectTitles"] as? [String] == ["Work"])
+            #expect(context["excludedListTitles"] as? [String] == ["Work"])
             #expect((context["showUndatedReminders"] as? Bool) == true)
             #expect(context["sortOption"] as? String == "dueDate")
             #expect((context["showDate"] as? Bool) == false)
@@ -359,15 +359,8 @@
             service.pushAll()
 
             let context = try #require(fake.lastContext)
-            let titles = try #require(context["excludedProjectTitles"] as? [String])
-            #expect(Set(titles) == ["Work", "Home"])
-        }
-
-            let context = try #require(fake.lastContext)
             let titles = try #require(context["excludedListTitles"] as? [String])
             #expect(Set(titles) == ["Work", "Home"])
-            // Re-carries the skip set so the whole-context replacement doesn't drop it.
-            #expect(context["skippedReminderIdentifiers"] != nil)
         }
 
         @Test
@@ -501,7 +494,7 @@
             #expect(context["showDate"] == nil)
             // The other four keys must still travel when show-date is omitted.
             #expect(context["skippedReminderIdentifiers"] != nil)
-            #expect(context["excludedProjectTitles"] != nil)
+            #expect(context["excludedListTitles"] != nil)
             #expect(context["showUndatedReminders"] != nil)
             #expect(context["sortOption"] != nil)
         }
