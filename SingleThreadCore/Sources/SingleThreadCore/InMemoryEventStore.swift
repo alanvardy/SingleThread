@@ -16,10 +16,12 @@ public final class InMemoryEventStore: EventKitStoring {
     public init(
         reminders: [EKReminder] = [],
         calendars: [EKCalendar] = [],
-        deliverCompletionOffMain: Bool = false) {
+        deliverCompletionOffMain: Bool = false,
+        defaultCalendar: EKCalendar? = nil) {
         allReminders = reminders
         self.calendars = calendars
         self.deliverCompletionOffMain = deliverCompletionOffMain
+        self.defaultCalendar = defaultCalendar
     }
 
     // MARK: Public
@@ -100,7 +102,7 @@ public final class InMemoryEventStore: EventKitStoring {
             if let recurrenceRule {
                 reminder.addRecurrenceRule(recurrenceRule)
             }
-            reminder.calendar = calendars.first
+            reminder.calendar = defaultCalendar ?? calendars.first
             return reminder
         }
     #endif
@@ -108,5 +110,6 @@ public final class InMemoryEventStore: EventKitStoring {
     // MARK: Private
 
     private let calendars: [EKCalendar]
+    private let defaultCalendar: EKCalendar?
     private let deliverCompletionOffMain: Bool
 }
