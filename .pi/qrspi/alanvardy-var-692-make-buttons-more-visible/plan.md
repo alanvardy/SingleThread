@@ -241,10 +241,10 @@ No Xcode project changes needed — `objectVersion = 77` auto-discovers the new 
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` succeeds
-- [ ] `make format && make lint` passes
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/ActionButtonsUITests` passes — both `testActionButtonsRenderAndSkipAdvancesCard` and `testActionButtonsAccessibilityAudit` pass
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/SingleThreadUITests/testAccessibilityAudit` passes
+- [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` succeeds
+- [x] `make format && make lint` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/ActionButtonsUITests` passes — both `testActionButtonsRenderAndSkipAdvancesCard` and `testActionButtonsAccessibilityAudit` pass
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/SingleThreadUITests/testAccessibilityAudit` passes
 
 #### Manual
 - [ ] Enable action buttons in Settings → General
