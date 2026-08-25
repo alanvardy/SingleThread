@@ -316,9 +316,9 @@ No Xcode project changes needed — `objectVersion = 77` auto-discovers the new 
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` succeeds
-- [ ] `make format && make lint` passes
-- [ ] `./scripts/test.sh` fully passes (format, lint, build, periphery, unit tests, UI tests)
+- [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` succeeds
+- [x] `make format && make lint` passes
+- [x] `./scripts/test.sh` fully passes (format, lint, build, periphery, unit tests, UI tests)
 
 #### Manual
 - [ ] Dictate a reminder → recording indicator shows red fill + white glyph + scheme-adaptive stroke
