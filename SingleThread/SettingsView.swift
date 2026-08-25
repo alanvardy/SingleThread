@@ -83,6 +83,7 @@ struct SettingsView: View {
             backgroundEnabled: Binding<Bool>,
             backgroundFadePercent: Binding<Int>,
             backgroundPhotographer: String?,
+            backgroundPhotographerURL: URL?,
             showUndatedReminders: Binding<Bool>,
             excludedLists: Binding<Set<String>>,
             availableLists: [String],
@@ -99,6 +100,7 @@ struct SettingsView: View {
             _backgroundEnabled = backgroundEnabled
             _backgroundFadePercent = backgroundFadePercent
             self.backgroundPhotographer = backgroundPhotographer
+            self.backgroundPhotographerURL = backgroundPhotographerURL
             _showUndatedReminders = showUndatedReminders
             _excludedLists = excludedLists
             self.availableLists = availableLists
@@ -116,6 +118,7 @@ struct SettingsView: View {
             backgroundEnabled: Binding<Bool>,
             backgroundFadePercent: Binding<Int>,
             backgroundPhotographer: String?,
+            backgroundPhotographerURL: URL?,
             showUndatedReminders: Binding<Bool>,
             excludedLists: Binding<Set<String>>,
             availableLists: [String],
@@ -130,6 +133,7 @@ struct SettingsView: View {
             _backgroundEnabled = backgroundEnabled
             _backgroundFadePercent = backgroundFadePercent
             self.backgroundPhotographer = backgroundPhotographer
+            self.backgroundPhotographerURL = backgroundPhotographerURL
             _showUndatedReminders = showUndatedReminders
             _excludedLists = excludedLists
             self.availableLists = availableLists
@@ -229,7 +233,13 @@ struct SettingsView: View {
                 }
                 Section {} footer: {
                     if let backgroundPhotographer {
-                        Text("Photo by \(backgroundPhotographer) on Unsplash")
+                        if let backgroundPhotographerURL {
+                            Link(
+                                "Photo by \(backgroundPhotographer) on Unsplash",
+                                destination: backgroundPhotographerURL)
+                        } else {
+                            Text("Photo by \(backgroundPhotographer) on Unsplash")
+                        }
                     }
                 }
             }
@@ -266,6 +276,7 @@ struct SettingsView: View {
     private var dismiss
 
     private let backgroundPhotographer: String?
+    private let backgroundPhotographerURL: URL?
 
     private let availableLists: [String]
 }
@@ -283,6 +294,7 @@ struct SettingsView: View {
             backgroundEnabled: .constant(true),
             backgroundFadePercent: .constant(50),
             backgroundPhotographer: "NEOM",
+            backgroundPhotographerURL: URL(string: "https://unsplash.com/@neom"),
             showUndatedReminders: .constant(false),
             excludedLists: .constant([]),
             availableLists: ["Work", "Personal"],
@@ -303,6 +315,7 @@ struct SettingsView: View {
             backgroundEnabled: .constant(true),
             backgroundFadePercent: .constant(50),
             backgroundPhotographer: nil,
+            backgroundPhotographerURL: nil,
             showUndatedReminders: .constant(true),
             excludedLists: .constant([]),
             availableLists: ["Work", "Personal"],
@@ -321,6 +334,7 @@ struct SettingsView: View {
             backgroundEnabled: .constant(true),
             backgroundFadePercent: .constant(50),
             backgroundPhotographer: "NEOM",
+            backgroundPhotographerURL: URL(string: "https://unsplash.com/@neom"),
             showUndatedReminders: .constant(false),
             excludedLists: .constant([]),
             availableLists: ["Work", "Personal"],

@@ -20,6 +20,7 @@ struct BackgroundImageStoreTests {
 
         #expect(store.imageData == Self.jpegData)
         #expect(store.photographer == "NEOM")
+        #expect(store.photographerURL?.absoluteString == "https://unsplash.com/@neom")
         let savedImage = try Data(contentsOf: store.imageURL)
         #expect(savedImage == Self.jpegData)
         let savedMetadata = try Data(contentsOf: store.metadataURL)
@@ -56,6 +57,7 @@ struct BackgroundImageStoreTests {
 
         #expect(store.imageData == Self.jpegData)
         #expect(store.photographer == "NEOM")
+        #expect(store.photographerURL?.absoluteString == "https://unsplash.com/@neom")
     }
 
     @Test
@@ -107,6 +109,7 @@ struct BackgroundImageStoreTests {
         // here the fetch succeeds so state reflects the fresh payload.
         #expect(store.imageData == Self.jpegData)
         #expect(store.photographer == "NEOM")
+        #expect(store.photographerURL?.absoluteString == "https://unsplash.com/@neom")
 
         // And with the fetch failing, no image surfaces from an orphaned jpg.
         struct StubError: Error {}
@@ -123,10 +126,10 @@ struct BackgroundImageStoreTests {
         #expect(orphanStore.photographer == nil)
     }
 
-    /// Pairing invariant: the photographer surfaced to the attribution footer
-    /// always comes from the same sidecar write as the displayed photo bytes.
+    /// Pairing invariant: the photographer and URL surfaced to the attribution footer
+    /// always come from the same sidecar write as the displayed photo bytes.
     @Test
-    func photographerMatchesStoredPhotoAfterFetch() async throws {
+    func photographerURLMatchesStoredPhotoAfterFetch() async throws {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
         fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
@@ -137,9 +140,14 @@ struct BackgroundImageStoreTests {
         let metadataData = try Data(contentsOf: store.metadataURL)
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
-        struct SidecarMetadata: Codable { let photographer: String; let fetchedAt: Date }
+        struct SidecarMetadata: Codable {
+            let photographer: String
+            let photographerURL: String?
+            let fetchedAt: Date
+        }
         let sidecar = try decoder.decode(SidecarMetadata.self, from: metadataData)
         #expect(sidecar.photographer == store.photographer)
+        #expect(sidecar.photographerURL == store.photographerURL?.absoluteString)
     }
 
     @Test
@@ -198,10 +206,11 @@ struct BackgroundImageStoreTests {
         return (BackgroundImageStore(client: client, directory: directory), directory)
     }
 
-    /// Builds a realistic `GET /unsplash` JSON payload pointing at the image URL.
+    /// Builds a realistic `GET /unsplash` JSON payload pointing at the image URL
+    /// and including the photographer_url attribution link.
     private func payloadJSON() -> Data {
         let json = "{\"url\":\"\(Self.imageURL.absoluteString)\",\"photographer\":\"NEOM\"," +
-            "\"created_at\":\"2026-01-01\"}"
+            "\"photographer_url\":\"https://unsplash.com/@neom\",\"created_at\":\"2026-01-01\"}"
         return Data(json.utf8)
     }
 }

@@ -31,13 +31,21 @@ extension URLSession: BackgroundImageFetching {
 /// the displayed photo and the attribution credit, so they can never disagree.
 private struct BackgroundMetadata: Codable {
     let photographer: String
+    let photographerURL: String?
     let fetchedAt: Date
 }
 
 /// Shape of the `GET https://vardy.cc/unsplash` JSON payload (`created_at` ignored).
 private struct UnsplashPayload: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case url
+        case photographer
+        case photographerURL = "photographer_url"
+    }
+
     let url: URL
     let photographer: String
+    let photographerURL: URL?
 }
 
 /// Fetches, persists, and serves the background photograph.
@@ -61,6 +69,8 @@ final class BackgroundImageStore {
     private(set) var imageData: Data?
     /// Photographer of the currently-displayed photo, or nil.
     private(set) var photographer: String?
+    /// Unsplash attribution URL for the currently-displayed photo, or nil.
+    private(set) var photographerURL: URL?
 
     var imageURL: URL {
         directory.appendingPathComponent("background.jpg")
@@ -85,10 +95,13 @@ final class BackgroundImageStore {
             let data = try await client.fetchData(from: payload.url)
             guard isDecodableImage(data) else { throw URLError(.cannotDecodeContentData) }
             let metadata = BackgroundMetadata(
-                photographer: payload.photographer, fetchedAt: Date())
+                photographer: payload.photographer,
+                photographerURL: payload.photographerURL?.absoluteString,
+                fetchedAt: Date())
             try persist(imageData: data, metadata: metadata) // disk before state
             imageData = data
             photographer = payload.photographer
+            photographerURL = payload.photographerURL
         } catch {
             Self.logger.error("Background refresh failed: \(error.localizedDescription)")
         }
@@ -118,10 +131,12 @@ final class BackgroundImageStore {
         else {
             imageData = nil
             photographer = nil
+            photographerURL = nil
             return
         }
         imageData = data
         photographer = metadata.photographer
+        photographerURL = metadata.photographerURL.flatMap(URL.init)
     }
 
     private func isFresh(maxAge: TimeInterval) -> Bool {

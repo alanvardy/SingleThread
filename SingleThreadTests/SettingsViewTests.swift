@@ -7,44 +7,11 @@ import Testing
 
 @MainActor
 struct SettingsViewTests {
+    // MARK: Internal
+
     @Test
     func settingsViewContainsAllPreferenceRows() {
-        #if os(iOS)
-            let view = SettingsView(
-                appearanceMode: .constant(.system),
-                textSize: .constant(.system),
-                allowsLandscape: .constant(true),
-                enableActionButtons: .constant(true),
-                showMicrophoneButton: .constant(true),
-                backgroundEnabled: .constant(true),
-                backgroundFadePercent: .constant(50),
-                backgroundPhotographer: "NEOM",
-                showUndatedReminders: .constant(false),
-                excludedLists: .constant([]),
-                availableLists: ["Work", "Personal"],
-                sortOption: .constant(.priority),
-                showDate: .constant(true),
-                showList: .constant(true),
-                showRecurrence: .constant(true),
-                showAlarms: .constant(true))
-        #else
-            let view = SettingsView(
-                appearanceMode: .constant(.system),
-                textSize: .constant(.system),
-                showMicrophoneButton: .constant(true),
-                backgroundEnabled: .constant(true),
-                backgroundFadePercent: .constant(50),
-                backgroundPhotographer: "NEOM",
-                showUndatedReminders: .constant(false),
-                excludedLists: .constant([]),
-                availableLists: ["Work", "Personal"],
-                sortOption: .constant(.priority),
-                showDate: .constant(true),
-                showList: .constant(true),
-                showRecurrence: .constant(true),
-                showAlarms: .constant(true))
-        #endif
-
+        let view = settingsView()
         let bodyDescription = String(describing: view.body)
 
         // `Form` content (unlike `.sheet` content) is reflected in the
@@ -64,4 +31,50 @@ struct SettingsViewTests {
             #expect(bodyDescription.contains(label))
         }
     }
+
+    // MARK: Private
+
+    private static let sampleURL = URL(string: "https://unsplash.com/@neom")
+
+    #if os(iOS)
+        private func settingsView() -> SettingsView {
+            SettingsView(
+                appearanceMode: .constant(.system),
+                textSize: .constant(.system),
+                allowsLandscape: .constant(true),
+                enableActionButtons: .constant(true),
+                showMicrophoneButton: .constant(true),
+                backgroundEnabled: .constant(true),
+                backgroundFadePercent: .constant(50),
+                backgroundPhotographer: "NEOM",
+                backgroundPhotographerURL: Self.sampleURL,
+                showUndatedReminders: .constant(false),
+                excludedLists: .constant([]),
+                availableLists: ["Work", "Personal"],
+                sortOption: .constant(.priority),
+                showDate: .constant(true),
+                showList: .constant(true),
+                showRecurrence: .constant(true),
+                showAlarms: .constant(true))
+        }
+    #else
+        private func settingsView() -> SettingsView {
+            SettingsView(
+                appearanceMode: .constant(.system),
+                textSize: .constant(.system),
+                showMicrophoneButton: .constant(true),
+                backgroundEnabled: .constant(true),
+                backgroundFadePercent: .constant(50),
+                backgroundPhotographer: "NEOM",
+                backgroundPhotographerURL: Self.sampleURL,
+                showUndatedReminders: .constant(false),
+                excludedLists: .constant([]),
+                availableLists: ["Work", "Personal"],
+                sortOption: .constant(.priority),
+                showDate: .constant(true),
+                showList: .constant(true),
+                showRecurrence: .constant(true),
+                showAlarms: .constant(true))
+        }
+    #endif
 }
