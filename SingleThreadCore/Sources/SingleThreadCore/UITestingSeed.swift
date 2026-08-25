@@ -54,6 +54,8 @@ public struct UITestingSeed {
         "excludedListTitles",
         "showDate",
         "showList",
+        "showRecurrence",
+        "showAlarms",
         "showUndatedReminders",
         "sortOption",
         "showMicrophoneButton",

@@ -14,10 +14,14 @@ struct ReminderCardView: View {
         display: ReminderDisplay,
         showDate: Bool,
         showList: Bool = false,
+        showRecurrence: Bool = true,
+        showAlarms: Bool = true,
         showsOverPhoto: Bool = false) {
         self.display = display
         self.showDate = showDate
         self.showList = showList
+        self.showRecurrence = showRecurrence
+        self.showAlarms = showAlarms
         self.showsOverPhoto = showsOverPhoto
     }
 
@@ -42,6 +46,21 @@ struct ReminderCardView: View {
             }
             if showList, let listName = display.listName, !listName.isEmpty {
                 Text(listName)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            if showRecurrence, display.hasRecurrence {
+                HStack(spacing: 4) {
+                    Image(systemName: "repeat")
+                        .accessibilityLabel(display.recurrenceSummary ?? "Repeats")
+                    Text(display.recurrenceSummary ?? "Repeats")
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+            if showAlarms, display.hasAlarms {
+                Image(systemName: "bell")
+                    .accessibilityLabel("Has alarm")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -79,6 +98,12 @@ struct ReminderCardView: View {
     private let display: ReminderDisplay
     private let showDate: Bool
     private let showList: Bool
+
+    /// True when the recurrence indicator row is shown.
+    private let showRecurrence: Bool
+
+    /// True when the alarm indicator row is shown.
+    private let showAlarms: Bool
 
     /// True when the reminder renders over a visible background photo.
     private let showsOverPhoto: Bool

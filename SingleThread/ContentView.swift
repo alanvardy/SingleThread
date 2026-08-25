@@ -144,7 +144,8 @@ struct ContentView: View {
                     availableLists: store.availableLists,
                     sortOption: $sortOption,
                     showDate: $showDate,
-                    showList: $showList)
+                    showList: $showList,
+                    showRecurrence: $showRecurrence, showAlarms: $showAlarms)
             #else
                 SettingsView(
                     appearanceMode: $appearanceMode,
@@ -158,7 +159,8 @@ struct ContentView: View {
                     availableLists: store.availableLists,
                     sortOption: $sortOption,
                     showDate: $showDate,
-                    showList: $showList)
+                    showList: $showList,
+                    showRecurrence: $showRecurrence, showAlarms: $showAlarms)
             #endif
         }
     }
@@ -224,6 +226,11 @@ struct ContentView: View {
 
     @AppStorage("showList", store: AppGroup.defaults)
     private var showList = false
+
+    @AppStorage("showRecurrence", store: AppGroup.defaults)
+    private var showRecurrence = true
+    @AppStorage("showAlarms", store: AppGroup.defaults)
+    private var showAlarms = true
 
     @State private var isDictating = false
     @State private var dictationText = ""
@@ -350,6 +357,7 @@ struct ContentView: View {
                                 display: ReminderDisplay(reminder: reminder),
                                 showDate: showDate,
                                 showList: showList,
+                                showRecurrence: showRecurrence, showAlarms: showAlarms,
                                 showsOverPhoto: backgroundDisplayed)
                                 .listRowBackground(backgroundDisplayed ? Color.clear : nil)
                                 .padding(.horizontal, 40)
