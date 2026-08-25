@@ -58,10 +58,11 @@ struct ExcludedListsView: View {
 /// Modal settings screen presented from the gear button. Owns no state —
 /// every preference is bound back to `ContentView`'s `@AppStorage` values.
 ///
-/// Eleven settings, two persistence tiers, one sync scope.
+/// Thirteen settings, two persistence tiers, one sync scope.
 ///
 /// Synced to Apple Watch via `SkippedReminderSyncService` (VAR-648): sort
-/// option, show-undated, show date, excluded projects, plus the skip set.
+/// option, show-undated, show date, show list, show recurrence, show alarms,
+/// excluded projects, plus the skip set.
 ///
 /// Intentionally **not** synced — these seven are phone-only cosmetics with no
 /// watch UI counterpart (design decision: syncing them adds payload surface
@@ -204,9 +205,19 @@ struct SettingsView: View {
                 Toggle(isOn: $showRecurrence) {
                     Label("Recurrence indicator", systemImage: "repeat")
                 }
+                #if os(iOS) || os(macOS)
+                .onChange(of: showRecurrence) { _, _ in
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
+                #endif
                 Toggle(isOn: $showAlarms) {
                     Label("Reminder alerts", systemImage: "bell")
                 }
+                #if os(iOS) || os(macOS)
+                .onChange(of: showAlarms) { _, _ in
+                    WidgetCenter.shared.reloadAllTimelines()
+                }
+                #endif
                 Section {
                     NavigationLink {
                         ExcludedListsView(

@@ -39,25 +39,29 @@ struct ReminderCardView: View {
                 Text(display.title)
                     .font(.title)
             }
-            if showDate, let due = display.dueDate {
-                Text(due, style: .date)
+            HStack {
+                if showDate, let due = display.dueDate {
+                    Text(due, style: .date)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                if showRecurrence, display.hasRecurrence {
+                    HStack(spacing: 4) {
+                        Image(systemName: "repeat")
+                            .accessibilityHidden(true)
+                        Text(display.recurrenceSummary ?? "Repeats")
+                    }
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                }
             }
+
             if showList, let listName = display.listName, !listName.isEmpty {
                 Text(listName)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            if showRecurrence, display.hasRecurrence {
-                HStack(spacing: 4) {
-                    Image(systemName: "repeat")
-                        .accessibilityLabel(display.recurrenceSummary ?? "Repeats")
-                    Text(display.recurrenceSummary ?? "Repeats")
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            }
+
             if showAlarms, display.hasAlarms {
                 Image(systemName: "bell")
                     .accessibilityLabel("Has alarm")

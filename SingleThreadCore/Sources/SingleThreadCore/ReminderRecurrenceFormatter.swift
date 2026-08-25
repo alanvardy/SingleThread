@@ -4,9 +4,9 @@ import Foundation
 /// Produces short human-readable recurrence summaries (e.g. "Daily",
 /// "Every 2 weeks") from an `EKRecurrenceRule` array.
 ///
-/// Only the **first** rule's frequency + interval is formatted. Complex
-/// rules (end dates, set positions, day-of-week lists) return `nil`.
-/// Empty/nil input also returns `nil`.
+/// Only the **first** rule's frequency + interval is formatted. Rules that
+/// have no recognizable frequency return `nil`. Empty/nil input also returns
+/// `nil`.
 public nonisolated enum ReminderRecurrenceFormatter {
     public static func format(_ rules: [EKRecurrenceRule]?) -> String? {
         guard let first = rules?.first else { return nil }
