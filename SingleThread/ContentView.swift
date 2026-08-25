@@ -492,10 +492,7 @@ struct ContentView: View {
         } label: {
             Image(systemName: "mic.fill")
                 .font(.title2)
-                .foregroundStyle(.white)
-                .frame(width: 56, height: 56)
-                .background(.blue, in: Circle())
-                .shadow(radius: 4)
+                .controlPlate()
         }
         .accessibilityLabel("Dictate reminder")
         .accessibilityAddTraits(.isButton)
