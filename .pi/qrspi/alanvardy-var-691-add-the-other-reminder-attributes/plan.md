@@ -771,7 +771,7 @@ if entry.showsAlarms, display.hasAlarms {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild build -scheme SingleThreadWidget -destination 'platform=iOS Simulator,name=iPhone 17'` compiles
+- [x] `xcodebuild build -scheme SingleThreadWidget -destination 'platform=iOS Simulator,name=iPhone 17'` compiles
 
 #### Manual
 - [ ] Build and run the widget on iPhone 17 simulator: confirm recurrence and alarm indicators appear when applicable

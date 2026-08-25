@@ -18,6 +18,8 @@ struct NextThingEntry: TimelineEntry {
     let state: State
     let showsDate: Bool
     let showsList: Bool
+    let showsRecurrence: Bool
+    let showsAlarms: Bool
 }
 
 // MARK: - Provider
@@ -30,7 +32,9 @@ struct NextThingProvider: TimelineProvider {
             date: Date(),
             state: .reminder(ReminderDisplay(title: "Next thing")),
             showsDate: true,
-            showsList: true)
+            showsList: true,
+            showsRecurrence: true,
+            showsAlarms: true)
     }
 
     func getSnapshot(in _: Context, completion: @escaping @Sendable (NextThingEntry) -> Void) {
@@ -39,7 +43,9 @@ struct NextThingProvider: TimelineProvider {
                 date: Date(),
                 state: .reminder(ReminderDisplay(title: "Buy groceries")),
                 showsDate: true,
-                showsList: true))
+                showsList: true,
+                showsRecurrence: true,
+                showsAlarms: true))
     }
 
     func getTimeline(in _: Context, completion: @escaping @Sendable (Timeline<NextThingEntry>) -> Void) {
@@ -57,6 +63,8 @@ struct NextThingProvider: TimelineProvider {
         let date = Date()
         let showsDate = ShowDatePreference().isEnabled
         let showsList = ShowListPreference().isEnabled
+        let showsRecurrence = ShowRecurrencePreference().isEnabled
+        let showsAlarms = ShowAlarmsPreference().isEnabled
         switch EKEventStore.authorizationStatus(for: .reminder) {
         case .fullAccess:
             let store = ReminderStore(loadsReminders: true)
@@ -68,26 +76,34 @@ struct NextThingProvider: TimelineProvider {
                     date: date,
                     state: .empty(store.hasHidden),
                     showsDate: showsDate,
-                    showsList: showsList)
+                    showsList: showsList,
+                    showsRecurrence: showsRecurrence,
+                    showsAlarms: showsAlarms)
             }
             guard let current = store.visibleReminders.first else {
                 return NextThingEntry(
                     date: date,
                     state: .allDone,
                     showsDate: showsDate,
-                    showsList: showsList)
+                    showsList: showsList,
+                    showsRecurrence: showsRecurrence,
+                    showsAlarms: showsAlarms)
             }
             return NextThingEntry(
                 date: date,
                 state: .reminder(ReminderDisplay(reminder: current)),
                 showsDate: showsDate,
-                showsList: showsList)
+                showsList: showsList,
+                showsRecurrence: showsRecurrence,
+                showsAlarms: showsAlarms)
         default:
             return NextThingEntry(
                 date: date,
                 state: .noAccess,
                 showsDate: showsDate,
-                showsList: showsList)
+                showsList: showsList,
+                showsRecurrence: showsRecurrence,
+                showsAlarms: showsAlarms)
         }
     }
 }
@@ -200,6 +216,14 @@ struct NextThingWidgetView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+            if entry.showsRecurrence, display.hasRecurrence {
+                Label(display.recurrenceSummary ?? "Repeats", systemImage: "repeat")
+                    .font(.caption2)
+            }
+            if entry.showsAlarms, display.hasAlarms {
+                Label("Alert", systemImage: "bell")
+                    .font(.caption2)
+            }
             if let notes = display.notes {
                 Text(notes)
                     .font(.caption2)
@@ -226,17 +250,31 @@ struct NextThingWidgetView: View {
             priorityMarker: "!!",
             listName: "Groceries")),
         showsDate: true,
-        showsList: true)
+        showsList: true,
+        showsRecurrence: true,
+        showsAlarms: true)
 }
 
 #Preview("No Access", as: .systemMedium) {
     NextThingWidget()
 } timeline: {
-    NextThingEntry(date: Date(), state: .noAccess, showsDate: true, showsList: true)
+    NextThingEntry(
+        date: Date(),
+        state: .noAccess,
+        showsDate: true,
+        showsList: true,
+        showsRecurrence: true,
+        showsAlarms: true)
 }
 
 #Preview("All Done", as: .systemSmall) {
     NextThingWidget()
 } timeline: {
-    NextThingEntry(date: Date(), state: .allDone, showsDate: true, showsList: true)
+    NextThingEntry(
+        date: Date(),
+        state: .allDone,
+        showsDate: true,
+        showsList: true,
+        showsRecurrence: true,
+        showsAlarms: true)
 }
