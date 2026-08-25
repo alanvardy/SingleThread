@@ -441,7 +441,7 @@ struct ReminderStoreTests {
     struct MakeReminderTests {
         @Test
         func makeReminderSetsTitle() {
-            let reminder = (EKEventStore() as any EventKitStoring).makeReminder(
+            let reminder = InMemoryEventStore().makeReminder(
                 title: "Buy milk",
                 notes: nil,
                 dueDate: nil,
@@ -451,7 +451,7 @@ struct ReminderStoreTests {
 
         @Test
         func makeReminderSetsNotes() {
-            let reminder = (EKEventStore() as any EventKitStoring).makeReminder(
+            let reminder = InMemoryEventStore().makeReminder(
                 title: "Buy milk",
                 notes: "Two percent",
                 dueDate: nil,
@@ -462,7 +462,7 @@ struct ReminderStoreTests {
         @Test
         func makeReminderSetsDueDate() {
             let dueDate = DateComponents(year: 2025, month: 1, day: 2)
-            let reminder = (EKEventStore() as any EventKitStoring).makeReminder(
+            let reminder = InMemoryEventStore().makeReminder(
                 title: "Buy milk",
                 notes: nil,
                 dueDate: dueDate,
@@ -474,7 +474,7 @@ struct ReminderStoreTests {
 
         @Test
         func makeReminderLeavesUnsetFieldsNil() {
-            let reminder = (EKEventStore() as any EventKitStoring).makeReminder(
+            let reminder = InMemoryEventStore().makeReminder(
                 title: "Buy milk",
                 notes: nil,
                 dueDate: nil,
@@ -487,7 +487,7 @@ struct ReminderStoreTests {
         @Test
         func makeReminderSetsRecurrenceRule() {
             let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
-            let reminder = (EKEventStore() as any EventKitStoring).makeReminder(
+            let reminder = InMemoryEventStore().makeReminder(
                 title: "Buy milk",
                 notes: nil,
                 dueDate: nil,
@@ -497,6 +497,20 @@ struct ReminderStoreTests {
             #expect(reminder.recurrenceRules?.first?.interval == 1)
         }
 
+        @Test
+        func makeReminderUsesDefaultCalendar() {
+            let calendar = EKCalendar(for: .reminder, eventStore: EKEventStore())
+            calendar.title = "Custom"
+            let store = InMemoryEventStore(calendars: [], defaultCalendar: calendar)
+            let reminder = store.makeReminder(
+                title: "Test",
+                notes: nil,
+                dueDate: nil,
+                recurrenceRule: nil)
+            #expect(reminder.calendar == calendar)
+        }
+
+        /// Tests real EventKit calendar behavior — intentionally uses EKEventStore.
         @Test
         func makeReminderSetsDefaultCalendar() {
             let eventStore = EKEventStore()
