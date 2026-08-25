@@ -87,7 +87,9 @@ struct SettingsView: View {
             availableLists: [String],
             sortOption: Binding<SortOption>,
             showDate: Binding<Bool>,
-            showList: Binding<Bool>) {
+            showList: Binding<Bool>,
+            showRecurrence: Binding<Bool>,
+            showAlarms: Binding<Bool>) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _allowsLandscape = allowsLandscape
@@ -102,6 +104,8 @@ struct SettingsView: View {
             _sortOption = sortOption
             _showDate = showDate
             _showList = showList
+            _showRecurrence = showRecurrence
+            _showAlarms = showAlarms
         }
     #else
         init(
@@ -116,7 +120,9 @@ struct SettingsView: View {
             availableLists: [String],
             sortOption: Binding<SortOption>,
             showDate: Binding<Bool>,
-            showList: Binding<Bool>) {
+            showList: Binding<Bool>,
+            showRecurrence: Binding<Bool>,
+            showAlarms: Binding<Bool>) {
             _appearanceMode = appearanceMode
             _textSize = textSize
             _showMicrophoneButton = showMicrophoneButton
@@ -129,6 +135,8 @@ struct SettingsView: View {
             _sortOption = sortOption
             _showDate = showDate
             _showList = showList
+            _showRecurrence = showRecurrence
+            _showAlarms = showAlarms
         }
     #endif
 
@@ -193,6 +201,12 @@ struct SettingsView: View {
                 Toggle(isOn: $showList) {
                     Label("Show list", systemImage: "list.bullet")
                 }
+                Toggle(isOn: $showRecurrence) {
+                    Label("Recurrence indicator", systemImage: "repeat")
+                }
+                Toggle(isOn: $showAlarms) {
+                    Label("Reminder alerts", systemImage: "bell")
+                }
                 Section {
                     NavigationLink {
                         ExcludedListsView(
@@ -235,6 +249,8 @@ struct SettingsView: View {
     @Binding private var excludedLists: Set<String>
     @Binding private var showDate: Bool
     @Binding private var showList: Bool
+    @Binding private var showRecurrence: Bool
+    @Binding private var showAlarms: Bool
     @Environment(\.dismiss)
     private var dismiss
 
@@ -261,7 +277,9 @@ struct SettingsView: View {
             availableLists: ["Work", "Personal"],
             sortOption: .constant(.priority),
             showDate: .constant(true),
-            showList: .constant(false))
+            showList: .constant(false),
+            showRecurrence: .constant(true),
+            showAlarms: .constant(true))
     }
 
     #Preview("Dark + Extra Large") {
@@ -279,7 +297,9 @@ struct SettingsView: View {
             availableLists: ["Work", "Personal"],
             sortOption: .constant(.dueDate),
             showDate: .constant(false),
-            showList: .constant(true))
+            showList: .constant(true),
+            showRecurrence: .constant(true),
+            showAlarms: .constant(true))
     }
 #else
     #Preview("Default") {
@@ -295,6 +315,8 @@ struct SettingsView: View {
             availableLists: ["Work", "Personal"],
             sortOption: .constant(.priority),
             showDate: .constant(true),
-            showList: .constant(false))
+            showList: .constant(false),
+            showRecurrence: .constant(true),
+            showAlarms: .constant(true))
     }
 #endif

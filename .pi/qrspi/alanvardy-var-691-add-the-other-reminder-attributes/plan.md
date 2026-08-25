@@ -714,8 +714,8 @@ If the file exists, verify it still passes with the new `persistedKeys` entries.
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` — all new tests pass, existing tests pass
-- [ ] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17'` compiles
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` — all new tests pass, existing tests pass
+- [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17'` compiles
 
 #### Manual
 - [ ] Launch app on iPhone 17 simulator: open Settings, confirm "Recurrence indicator" and "Reminder alerts" toggles appear under "Show" section, default to ON

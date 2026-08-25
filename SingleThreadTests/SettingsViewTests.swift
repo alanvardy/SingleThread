@@ -24,7 +24,9 @@ struct SettingsViewTests {
                 availableLists: ["Work", "Personal"],
                 sortOption: .constant(.priority),
                 showDate: .constant(true),
-                showList: .constant(true))
+                showList: .constant(true),
+                showRecurrence: .constant(true),
+                showAlarms: .constant(true))
         #else
             let view = SettingsView(
                 appearanceMode: .constant(.system),
@@ -38,28 +40,28 @@ struct SettingsViewTests {
                 availableLists: ["Work", "Personal"],
                 sortOption: .constant(.priority),
                 showDate: .constant(true),
-                showList: .constant(true))
+                showList: .constant(true),
+                showRecurrence: .constant(true),
+                showAlarms: .constant(true))
         #endif
 
         let bodyDescription = String(describing: view.body)
 
         // `Form` content (unlike `.sheet` content) is reflected in the
         // body description, so the row labels below are assertable.
-        #expect(bodyDescription.contains("Appearance"))
-        #expect(bodyDescription.contains("Text Size"))
-        #expect(bodyDescription.contains("Sort By"))
-        #expect(bodyDescription.contains("Show microphone"))
-        #expect(bodyDescription.contains("Background"))
-        #expect(bodyDescription.contains("Background Fade"))
-        #expect(bodyDescription.contains("Unsplash"))
-        #expect(bodyDescription.contains("Show undated reminders"))
-        #expect(bodyDescription.contains("Show date"))
-        #expect(bodyDescription.contains("Show list"))
-        #expect(bodyDescription.contains("Excluded Lists"))
-        #expect(bodyDescription.contains("Done"))
+        let commonLabels = [
+            "Appearance", "Text Size", "Sort By", "Show microphone", "Background",
+            "Background Fade", "Unsplash", "Show undated reminders", "Show date",
+            "Show list", "Recurrence indicator", "Reminder alerts", "Excluded Lists",
+            "Done"
+        ]
         #if os(iOS)
-            #expect(bodyDescription.contains("Allow landscape"))
-            #expect(bodyDescription.contains("Show action buttons"))
+            let expectedLabels = commonLabels + ["Allow landscape", "Show action buttons"]
+        #else
+            let expectedLabels = commonLabels
         #endif
+        for label in expectedLabels {
+            #expect(bodyDescription.contains(label))
+        }
     }
 }
