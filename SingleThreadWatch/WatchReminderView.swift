@@ -20,6 +20,7 @@ struct WatchReminderView: View {
         hasHidden: Bool = false,
         showDateState: ShowDateState = ShowDateState()) {
         store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: loadsReminders,
             reminders: reminders,
             skippedIDs: skippedIDs,

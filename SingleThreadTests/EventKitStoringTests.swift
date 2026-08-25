@@ -447,12 +447,14 @@ struct ReminderStoreAvailableListsTests {
 
 // MARK: - Fixtures
 
+/// Construction only — never saved through EventKit.
 private func makeReminder(title: String) -> EKReminder {
     let reminder = EKReminder(eventStore: EKEventStore())
     reminder.title = title
     return reminder
 }
 
+/// Construction only — never saved through EventKit.
 private func makeCalendar(title: String) -> EKCalendar {
     let calendar = EKCalendar(for: .reminder, eventStore: EKEventStore())
     calendar.title = title

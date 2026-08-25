@@ -323,6 +323,7 @@ struct ReminderSortTests {
 
     // MARK: Private
 
+    /// Construction only — never saved through EventKit.
     private func makeReminder(
         title: String,
         priority: Int = 0,

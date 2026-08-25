@@ -95,8 +95,8 @@ struct SingleThreadWatchApp: App {
     /// Builds a deterministic store for `--ui-testing` launches so a real reminder
     /// card presents without requesting EventKit access.
     private static func uiTestingStore(arguments: [String]) -> ReminderStore {
-        let eventStore = EKEventStore()
-        let reminder = EKReminder(eventStore: eventStore)
+        let scratchStore = EKEventStore()
+        let reminder = EKReminder(eventStore: scratchStore)
         reminder.title = "Buy groceries"
         reminder.priority = 5
         reminder.notes = "Don't forget the milk"
@@ -112,17 +112,21 @@ struct SingleThreadWatchApp: App {
             guard let index = arguments.firstIndex(of: flag),
                   index + 1 < arguments.count else { continue }
             let list = arguments[index + 1]
-            let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
+            let calendar = EKCalendar(for: .reminder, eventStore: scratchStore)
             calendar.title = list
             reminder.calendar = calendar
+            let inMemoryStore = InMemoryEventStore(reminders: [reminder])
             return ReminderStore(
+                eventStore: inMemoryStore,
                 loadsReminders: false,
                 reminders: [reminder],
                 skippedIDs: [],
                 authorizationStatus: .fullAccess,
                 excludedListTitles: flag == "--ui-testing-excluded-list" ? [list] : [])
         }
+        let inMemoryStore = InMemoryEventStore(reminders: [reminder])
         return ReminderStore(
+            eventStore: inMemoryStore,
             loadsReminders: false,
             reminders: [reminder],
             skippedIDs: [],

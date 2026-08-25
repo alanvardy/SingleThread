@@ -77,6 +77,7 @@ import Testing
             defer { UserDefaults.standard.removeObject(forKey: key) }
 
             let store = ReminderStore(
+                eventStore: InMemoryEventStore(),
                 loadsReminders: false,
                 reminders: [],
                 skippedIDs: [],
@@ -92,10 +93,12 @@ import Testing
             UserDefaults.standard.set(true, forKey: key)
             defer { UserDefaults.standard.removeObject(forKey: key) }
 
+            // Construction only — never saved through EventKit.
             let eventStore = EKEventStore()
             let reminder = EKReminder(eventStore: eventStore)
             reminder.title = "Buy groceries"
             let store = ReminderStore(
+                eventStore: InMemoryEventStore(),
                 loadsReminders: false,
                 reminders: [reminder],
                 skippedIDs: [reminder.calendarItemIdentifier],
@@ -109,12 +112,14 @@ import Testing
         // MARK: Helpers
 
         /// A prepopulated store with one visible reminder; never touches EventKit.
+        /// Construction only — never saved through EventKit.
         private func storeWithReminder() -> ReminderStore {
             let eventStore = EKEventStore()
             let reminder = EKReminder(eventStore: eventStore)
             reminder.title = "Buy groceries"
             reminder.priority = 5
             return ReminderStore(
+                eventStore: InMemoryEventStore(),
                 loadsReminders: false,
                 reminders: [reminder],
                 skippedIDs: [],

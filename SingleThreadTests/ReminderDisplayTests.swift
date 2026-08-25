@@ -62,6 +62,7 @@ struct ReminderDisplayTests {
 
     @Test
     func mapsListNameFromCalendarTitle() {
+        // Construction only — never saved through EventKit.
         let store = EKEventStore()
         let reminder = EKReminder(eventStore: store)
         reminder.title = "Buy milk"
@@ -93,6 +94,7 @@ struct ReminderDisplayTests {
     }
 }
 
+/// Construction only — never saved through EventKit.
 private func makeReminder(title: String) -> EKReminder {
     let reminder = EKReminder(eventStore: EKEventStore())
     reminder.title = title

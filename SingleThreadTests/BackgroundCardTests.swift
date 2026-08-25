@@ -158,11 +158,13 @@ import Testing
             return store
         }
 
+        /// Construction only — never saved through EventKit.
         private func storeWithReminder() -> ReminderStore {
             let eventStore = EKEventStore()
             let reminder = EKReminder(eventStore: eventStore)
             reminder.title = "Buy groceries"
             return ReminderStore(
+                eventStore: InMemoryEventStore(),
                 loadsReminders: false,
                 reminders: [reminder],
                 skippedIDs: [],

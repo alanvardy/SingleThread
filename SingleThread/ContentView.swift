@@ -37,6 +37,7 @@ struct ContentView: View {
         speechTranscriber: (any SpeechTranscribing)? = nil,
         backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
         store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: loadsReminders,
             reminders: reminders,
             skippedIDs: skippedIDs,

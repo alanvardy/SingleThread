@@ -9,35 +9,27 @@ public final class ReminderStore {
 
     // MARK: - Init
 
-    /// Production init: uses real EventKit + UserDefaults.
+    /// Single init. Production callers accept all defaults; tests inject
+    /// an in-memory event store and pre-seeded state.
     public init(
         eventStore: any EventKitStoring = EKEventStore(),
         skipStore: SkippedReminderStore = SkippedReminderStore(),
         excludeStore: ExcludedListStore = ExcludedListStore(),
-        loadsReminders: Bool = true) {
+        loadsReminders: Bool = true,
+        reminders: [EKReminder] = [],
+        skippedIDs: Set<String> = [],
+        authorizationStatus: EKAuthorizationStatus = .notDetermined,
+        excludedListTitles: Set<String> = [],
+        hasHidden: Bool = false) {
         self.eventStore = eventStore
         self.skipStore = skipStore
         self.excludeStore = excludeStore
         self.loadsReminders = loadsReminders
-    }
-
-    /// Preview/test init: pre-populate all state, never touches EventKit.
-    public init(
-        loadsReminders: Bool,
-        reminders: [EKReminder],
-        skippedIDs: Set<String>,
-        authorizationStatus: EKAuthorizationStatus,
-        excludedListTitles: Set<String> = [],
-        hasHidden: Bool = false) {
-        self.loadsReminders = loadsReminders
         self.reminders = reminders
         self.skippedIDs = skippedIDs
-        self.excludedListTitles = excludedListTitles
         self.authorizationStatus = authorizationStatus
+        self.excludedListTitles = excludedListTitles
         self.hasHidden = hasHidden
-        eventStore = EKEventStore()
-        skipStore = SkippedReminderStore()
-        excludeStore = ExcludedListStore()
     }
 
     // MARK: Public
