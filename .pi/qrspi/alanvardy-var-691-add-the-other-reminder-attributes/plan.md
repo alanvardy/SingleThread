@@ -325,8 +325,8 @@ func mapsHasAlarmsFalse() {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes — all `ReminderDisplayTests` and `ReminderRecurrenceFormatterTests` green
-- [ ] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17'` compiles
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes — all `ReminderDisplayTests` and `ReminderRecurrenceFormatterTests` green
+- [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17'` compiles
 
 #### Manual
 - [ ] None — this is pure model layer with no UI changes

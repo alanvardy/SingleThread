@@ -14,6 +14,29 @@ public struct ReminderDisplay: Equatable, Sendable {
         dueDate = reminder.dueDateComponents?.date
         priorityMarker = ReminderPriority.marker(for: reminder.priority)
         listName = reminder.calendar?.title
+        hasRecurrence = reminder.hasRecurrenceRules
+        recurrenceSummary = ReminderRecurrenceFormatter.format(reminder.recurrenceRules)
+        hasAlarms = reminder.hasAlarms
+    }
+
+    /// Full constructor for tests and previews that need the new fields.
+    public init(
+        title: String,
+        notes: String? = nil,
+        dueDate: Date? = nil,
+        priorityMarker: String = "",
+        listName: String? = nil,
+        hasRecurrence: Bool = false,
+        recurrenceSummary: String? = nil,
+        hasAlarms: Bool = false) {
+        self.title = title
+        self.notes = notes
+        self.dueDate = dueDate
+        self.priorityMarker = priorityMarker
+        self.listName = listName
+        self.hasRecurrence = hasRecurrence
+        self.recurrenceSummary = recurrenceSummary
+        self.hasAlarms = hasAlarms
     }
 
     /// Direct constructor for previews, placeholder entries, and tests.
@@ -23,11 +46,15 @@ public struct ReminderDisplay: Equatable, Sendable {
         dueDate: Date? = nil,
         priorityMarker: String = "",
         listName: String? = nil) {
-        self.title = title
-        self.notes = notes
-        self.dueDate = dueDate
-        self.priorityMarker = priorityMarker
-        self.listName = listName
+        self.init(
+            title: title,
+            notes: notes,
+            dueDate: dueDate,
+            priorityMarker: priorityMarker,
+            listName: listName,
+            hasRecurrence: false,
+            recurrenceSummary: nil,
+            hasAlarms: false)
     }
 
     // MARK: Public
@@ -37,4 +64,7 @@ public struct ReminderDisplay: Equatable, Sendable {
     public let dueDate: Date?
     public let priorityMarker: String
     public let listName: String?
+    public let hasRecurrence: Bool
+    public let recurrenceSummary: String?
+    public let hasAlarms: Bool
 }
