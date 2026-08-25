@@ -17,6 +17,8 @@ public final class InMemoryEventStore: EventKitStoring {
         reminders: [EKReminder] = [],
         calendars: [EKCalendar] = [],
         deliverCompletionOffMain: Bool = false,
+        // Calendar assigned by ``makeReminder(title:notes:dueDate:recurrenceRule:)``.
+        // Falls back to `calendars.first` when nil.
         defaultCalendar: EKCalendar? = nil) {
         allReminders = reminders
         self.calendars = calendars
@@ -110,6 +112,8 @@ public final class InMemoryEventStore: EventKitStoring {
     // MARK: Private
 
     private let calendars: [EKCalendar]
+    /// Only consumed by `makeReminder` (gated behind `#if !os(watchOS)`);
+    /// stored but never read on watchOS.
     private let defaultCalendar: EKCalendar?
     private let deliverCompletionOffMain: Bool
 }
