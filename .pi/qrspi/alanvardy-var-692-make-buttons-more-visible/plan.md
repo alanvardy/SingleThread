@@ -152,7 +152,7 @@ No Xcode project changes needed — `objectVersion = 77` auto-discovers the new 
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` succeeds
+- [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` succeeds
 
 #### Manual
 - [ ] Run app. Gear in top-right has the same scheme-adaptive plate + stroke as the mic (black plate/white glyph in dark mode; off-white plate/dark glyph in light mode)
