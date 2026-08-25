@@ -162,6 +162,7 @@ struct WatchSyncPipelineTests {
     func excludedTitlesRefreshFiltersVisibleReminders() {
         let fake = WatchFakeSession()
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [
                 inListReminder(title: "A", list: "Work"),
@@ -193,6 +194,7 @@ struct WatchSyncPipelineTests {
 
 /// Builds a reminder that lives in a calendar titled `list`, so exclusion
 /// filtering (which matches `calendar.title`) can be exercised.
+// Construction only — never saved through EventKit.
 private func inListReminder(title: String, list: String) -> EKReminder {
     let eventStore = EKEventStore()
     let reminder = EKReminder(eventStore: eventStore)

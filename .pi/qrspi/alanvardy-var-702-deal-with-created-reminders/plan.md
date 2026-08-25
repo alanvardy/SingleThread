@@ -293,6 +293,8 @@ if arguments.contains("--ui-testing") {
 }
 ```
 
+> Correction: because `loadsReminders: false` never loads from the in-memory store, `ReminderStore` must still be seeded with `reminders: [reminder], skippedIDs: [], authorizationStatus: .fullAccess` (mirroring step 11) so the `--ui-testing` UI tests render the reminder card. The real `EKEventStore` is used only for fixture construction.
+
 The default path at line 153 (`return (ReminderStore(loadsReminders: loads), false)`) stays unchanged — it uses the production init with defaults.
 
 #### 11. Update `SingleThreadWatchApp.swift` (2 call sites)
@@ -447,11 +449,13 @@ Comment format:
 
 ### Verification
 
+> `addReminderReturnsFalseWithoutAccess` removed — redundant with `addReminderSaveErrorReturnsFalse`; real-store save-failure coverage retained there.
+
 #### Automated
-- [ ] `./scripts/test.sh` passes on iPhone 17 simulator
-- [ ] `grep -c 'public init(' SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift` → `1`
-- [ ] `rg 'EKEventStore\(\)' SingleThreadTests/ --no-heading` — every match is either fixture construction (`EKReminder(eventStore:)`, `EKCalendar(for:eventStore:)`) or `makeReminderSetsDefaultCalendar`
-- [ ] `rg 'ReminderStore\(loadsReminders:\s*false' --no-heading | grep -v 'eventStore:'` returns empty (no remaning pre-populate-init call sites without eventStore injection)
+- [x] `./scripts/test.sh` passes on iPhone 17 simulator
+- [x] `grep -c 'public init(' SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift` → `1`
+- [x] `rg 'EKEventStore\(\)' SingleThreadTests/ --no-heading` — every match is either fixture construction (`EKReminder(eventStore:)`, `EKCalendar(for:eventStore:)`) or `makeReminderSetsDefaultCalendar`
+- [x] `rg 'ReminderStore\(loadsReminders:\s*false' --no-heading | grep -v 'eventStore:'` returns empty (no remaning pre-populate-init call sites without eventStore injection)
 
 #### Manual
 - [ ] Run `./scripts/test.sh` with host holding `.fullAccess` to Reminders; confirm Reminders app has zero "Test reminder" / "Buy milk" / "Buy groceries" entries afterward

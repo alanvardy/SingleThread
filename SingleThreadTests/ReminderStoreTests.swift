@@ -12,6 +12,7 @@ struct ReminderStoreTests {
         let rem = makeReminder(title: "A")
         let other = makeReminder(title: "B")
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem, other],
             skippedIDs: [rem.calendarItemIdentifier],
@@ -25,6 +26,7 @@ struct ReminderStoreTests {
     func visibleRemindersEmptyWhenAllSkipped() {
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [rem.calendarItemIdentifier],
@@ -35,6 +37,7 @@ struct ReminderStoreTests {
     @Test
     func visibleRemindersEmptyWhenNoReminders() {
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
@@ -47,6 +50,7 @@ struct ReminderStoreTests {
         let low = makeReminder(title: "low", priority: 9)
         let high = makeReminder(title: "high", priority: 1)
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [low, high],
             skippedIDs: [],
@@ -63,6 +67,7 @@ struct ReminderStoreTests {
             priority: 5,
             dateComponents: DateComponents(year: 2024, month: 1, day: 1))
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [undated, dated],
             skippedIDs: [],
@@ -76,6 +81,7 @@ struct ReminderStoreTests {
         let excluded = makeReminder(title: "A", calendarTitle: "Work")
         let kept = makeReminder(title: "B", calendarTitle: "Personal")
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [excluded, kept],
             skippedIDs: [],
@@ -88,6 +94,7 @@ struct ReminderStoreTests {
     func visibleRemindersKeepsNilCalendarReminders() {
         let noCalendar = makeReminder(title: "A") // calendar == nil
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [noCalendar],
             skippedIDs: [],
@@ -100,6 +107,7 @@ struct ReminderStoreTests {
     func visibleRemindersEmptyWhenAllListsExcluded() {
         let inList = makeReminder(title: "A", calendarTitle: "Work")
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [inList],
             skippedIDs: [],
@@ -113,6 +121,7 @@ struct ReminderStoreTests {
     @Test
     func availableListsDefaultsToEmpty() {
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
@@ -126,7 +135,7 @@ struct ReminderStoreTests {
     func setExcludedListTitlesPersistsAndFiresHooks() {
         let key = "test-excluded-\(UUID().uuidString)"
         let excludeStore = ExcludedListStore(defaults: .standard, key: key)
-        let store = ReminderStore(excludeStore: excludeStore, loadsReminders: false)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), excludeStore: excludeStore, loadsReminders: false)
         var changedTitles: [String]?
         var remindersChanged = false
         store.onExcludedListsChanged = { changedTitles = $0 }
@@ -145,6 +154,7 @@ struct ReminderStoreTests {
     @Test
     func refreshExcludedListTitlesUpdatesSetAndFiresRemindersChangedOnly() {
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
@@ -174,6 +184,7 @@ struct ReminderStoreTests {
             priority: 9,
             dateComponents: DateComponents(year: 2024, month: 1, day: 2))
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [lowSooner, highLater],
             skippedIDs: [],
@@ -187,6 +198,7 @@ struct ReminderStoreTests {
     func setSortOptionFiresBothHooks() {
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [],
@@ -203,6 +215,7 @@ struct ReminderStoreTests {
     @Test
     func setSortOptionIsIdempotent() {
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
@@ -219,7 +232,7 @@ struct ReminderStoreTests {
 
     @Test
     func addReminderDoesNotCrashWithoutAccess() async {
-        let store = ReminderStore(loadsReminders: false)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
         // Without EventKit authorization the save fails and is logged internally;
         // the important assertion is that this completes without crashing.
         await store.addReminder(
@@ -228,21 +241,10 @@ struct ReminderStoreTests {
             dueDate: DateComponents(year: 2025, month: 1, day: 2))
     }
 
-    // macOS only: without access, `eventStore.save` may still succeed when the
-    // host has Reminders access (and the unsigned test build isn't sandboxed),
-    // so the no-access path can't be exercised deterministically there.
-    #if !os(macOS)
-        @Test
-        func addReminderReturnsFalseWithoutAccess() async {
-            let store = ReminderStore(loadsReminders: false)
-            let saved = await store.addReminder(title: "Test", notes: nil, dueDate: nil)
-            #expect(!saved)
-        }
-    #endif
-
     @Test
     func addReminderKeepsExistingRemindersUntouched() async {
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [makeReminder(title: "Existing")],
             skippedIDs: [],
@@ -254,7 +256,7 @@ struct ReminderStoreTests {
 
     @Test
     func addReminderWithRecurrenceRuleDoesNotCrash() async {
-        let store = ReminderStore(loadsReminders: false)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
         let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
         await store.addReminder(
             title: "Weekly review",
@@ -270,6 +272,7 @@ struct ReminderStoreTests {
     @Test
     func skipCurrentReminderDoesNothingWhenNoVisibleReminders() {
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
@@ -282,6 +285,7 @@ struct ReminderStoreTests {
     func skipCurrentReminderUpdatesSkippedIDs() async {
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [],
@@ -297,6 +301,7 @@ struct ReminderStoreTests {
     func skipCurrentReminderFiresRemindersChangedHook() async {
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [],
@@ -313,6 +318,7 @@ struct ReminderStoreTests {
     @Test
     func completeCurrentReminderDoesNothingWhenNoReminders() async {
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
@@ -325,6 +331,7 @@ struct ReminderStoreTests {
     func completeCurrentReminderDoesNothingWhenAllSkipped() async {
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [rem.calendarItemIdentifier],
@@ -337,6 +344,7 @@ struct ReminderStoreTests {
     func completeCurrentReminderDoesNotCrashWithVisibleReminder() async {
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [],
@@ -351,6 +359,7 @@ struct ReminderStoreTests {
     @Test
     func completeReminderDoesNothingWhenIdentifierNotFound() async {
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
@@ -372,27 +381,27 @@ struct ReminderStoreTests {
 
     @Test
     func showsUndatedRemindersDefaultsToFalse() {
-        let store = ReminderStore(loadsReminders: false)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
         #expect(store.showsUndatedReminders == false)
     }
 
     @Test
     func startDoesNothingWhenLoadsRemindersFalse() async {
-        let store = ReminderStore(loadsReminders: false)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
         await store.start()
         #expect(store.authorizationStatus == .notDetermined)
     }
 
     @Test
     func reloadDoesNothingWhenLoadsRemindersFalse() async {
-        let store = ReminderStore(loadsReminders: false)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
         await store.reload()
         #expect(store.reminders.isEmpty)
     }
 
     @Test
     func reloadClearSkippedDoesNothingWhenLoadsRemindersFalse() async {
-        let store = ReminderStore(loadsReminders: false)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
         await store.reload(clearSkipped: true)
         #expect(store.reminders.isEmpty)
     }
@@ -402,6 +411,7 @@ struct ReminderStoreTests {
     @Test
     func hasHiddenDefaultsToFalse() {
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
@@ -412,6 +422,7 @@ struct ReminderStoreTests {
     @Test
     func hasHiddenSeedsFromInit() {
         let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
@@ -526,6 +537,7 @@ struct ReminderStoreTests {
 
 // MARK: - Fixtures
 
+/// Construction only — never saved through EventKit.
 private func makeReminder(title: String, priority: Int = 0, dateComponents: DateComponents? = nil) -> EKReminder {
     let reminder = EKReminder(eventStore: EKEventStore())
     reminder.title = title
@@ -534,6 +546,7 @@ private func makeReminder(title: String, priority: Int = 0, dateComponents: Date
     return reminder
 }
 
+/// Construction only — never saved through EventKit.
 private func makeReminder(title: String, calendarTitle: String) -> EKReminder {
     let reminder = EKReminder(eventStore: EKEventStore())
     reminder.title = title

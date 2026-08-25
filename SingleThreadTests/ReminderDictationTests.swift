@@ -173,7 +173,7 @@ struct ReminderDictationTests {
     @Test
     func contentViewCanInitWithReminderStoreAndFakeTranscriber() {
         let fake = FakeSpeechTranscriber()
-        let store = ReminderStore(loadsReminders: false)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
         let view = ContentView(store: store, speechTranscriber: fake)
         #expect(String(describing: view.body).isEmpty == false)
     }

@@ -120,7 +120,8 @@ struct SingleThreadApp: App {
             UITestingSeed.resetPersistedState()
             let inMemoryStore = InMemoryEventStore(
                 reminders: seed.reminders,
-                calendars: seed.calendars)
+                calendars: seed.calendars,
+                defaultCalendar: seed.calendars.first)
             let store = ReminderStore(
                 eventStore: inMemoryStore,
                 loadsReminders: true)
@@ -138,12 +139,16 @@ struct SingleThreadApp: App {
             // XCTest seam on a test-only destination.
             if arguments.contains("--ui-testing") {
                 UserDefaults.standard.set(true, forKey: "enableActionButtons")
-                let eventStore = EKEventStore()
-                let reminder = EKReminder(eventStore: eventStore)
+                let scratchStore = EKEventStore()
+                let reminder = EKReminder(eventStore: scratchStore)
                 reminder.title = "Buy groceries"
                 reminder.priority = 5
                 reminder.notes = "Don't forget the milk"
+                let inMemoryStore = InMemoryEventStore(
+                    reminders: [reminder],
+                    calendars: [])
                 return (ReminderStore(
+                    eventStore: inMemoryStore,
                     loadsReminders: false,
                     reminders: [reminder],
                     skippedIDs: [],
