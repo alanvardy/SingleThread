@@ -471,10 +471,10 @@ No file modifications. Audit-only phase rechecking the comments and grep gates f
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes cleanly on iPhone 17 simulator
-- [ ] `rg 'EKEventStore\(\)' SingleThreadTests/ --no-heading` — output manually reviewed: every match is either fixture construction (`EKReminder(eventStore:)`, `EKCalendar(for:eventStore:)`) or the intentionally real `makeReminderSetsDefaultCalendar` test
-- [ ] `rg 'ReminderStore\(loadsReminders:\s*false' --no-heading | grep -v 'eventStore:'` — empty output (zero remaining pre-populate init patterns without injection)
-- [ ] `rg '// Construction only — never saved through EventKit' --no-heading` — matches ≥ 10 fixture helpers across the test files listed in Phase 2 step 15
+- [x] `./scripts/test.sh` passes cleanly on iPhone 17 simulator
+- [x] `rg 'EKEventStore\(\)' SingleThreadTests/ --no-heading` — output manually reviewed: every match is either fixture construction (`EKReminder(eventStore:)`, `EKCalendar(for:eventStore:)`) or the intentionally real `makeReminderSetsDefaultCalendar` test
+- [x] `rg 'ReminderStore\(loadsReminders:\s*false' --no-heading | grep -v 'eventStore:'` — empty output (zero remaining pre-populate init patterns without injection)
+- [x] `rg '// Construction only — never saved through EventKit' --no-heading` — matches ≥ 10 fixture helpers across the test files listed in Phase 2 step 15
 
 #### Manual
 - [ ] Run `./scripts/test.sh` with host holding `.fullAccess` to Reminders; confirm Reminders app shows zero test-created entries
