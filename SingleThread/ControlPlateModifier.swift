@@ -1,11 +1,11 @@
 import SwiftUI
 
 struct ControlPlateModifier: ViewModifier {
-    @Environment(\.colorScheme) private var colorScheme
+    // MARK: Internal
 
-    var fill: Color? = nil
-    var glyph: Color? = nil
-    var stroke: Color? = nil
+    var fill: Color?
+    var glyph: Color?
+    var stroke: Color?
 
     func body(content: Content) -> some View {
         let resolvedFill = fill ?? (colorScheme == .dark ? .black : Color(white: 0.92))
@@ -22,14 +22,18 @@ struct ControlPlateModifier: ViewModifier {
             }
             .shadow(radius: 4)
     }
+
+    // MARK: Private
+
+    @Environment(\.colorScheme)
+    private var colorScheme
 }
 
 extension View {
     func controlPlate(
         fill: Color? = nil,
         glyph: Color? = nil,
-        stroke: Color? = nil
-    ) -> some View {
+        stroke: Color? = nil) -> some View {
         modifier(ControlPlateModifier(fill: fill, glyph: glyph, stroke: stroke))
     }
 }
