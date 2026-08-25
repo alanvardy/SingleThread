@@ -78,7 +78,43 @@ struct ReminderDisplayTests {
     }
 
     @Test
-    func directConstructorStoresFields() {
+    func mapsHasRecurrenceTrue() {
+        let reminder = makeReminder(title: "Milk")
+        reminder.addRecurrenceRule(EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil))
+        #expect(ReminderDisplay(reminder: reminder).hasRecurrence)
+    }
+
+    @Test
+    func mapsHasRecurrenceFalse() {
+        #expect(!ReminderDisplay(reminder: makeReminder(title: "Milk")).hasRecurrence)
+    }
+
+    @Test
+    func mapsRecurrenceSummary() {
+        let reminder = makeReminder(title: "Milk")
+        reminder.addRecurrenceRule(EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil))
+        #expect(ReminderDisplay(reminder: reminder).recurrenceSummary == "Daily")
+    }
+
+    @Test
+    func nilRecurrenceSummaryWhenNoRules() {
+        #expect(ReminderDisplay(reminder: makeReminder(title: "Milk")).recurrenceSummary == nil)
+    }
+
+    @Test
+    func mapsHasAlarmsTrue() {
+        let reminder = makeReminder(title: "Milk")
+        reminder.addAlarm(EKAlarm(absoluteDate: Date()))
+        #expect(ReminderDisplay(reminder: reminder).hasAlarms)
+    }
+
+    @Test
+    func mapsHasAlarmsFalse() {
+        #expect(!ReminderDisplay(reminder: makeReminder(title: "Milk")).hasAlarms)
+    }
+
+    @Test
+    func directConstructorCreatesFields() {
         let due = Date()
         let display = ReminderDisplay(
             title: "Next thing",
