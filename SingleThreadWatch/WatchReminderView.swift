@@ -6,9 +6,15 @@ struct WatchReminderView: View {
     // MARK: Lifecycle
 
     /// Accepts a pre-configured store (production or preview).
-    init(store: ReminderStore, showDateState: ShowDateState = ShowDateState()) {
+    init(
+        store: ReminderStore,
+        showDateState: ShowDateState = ShowDateState(),
+        showRecurrenceState: ShowRecurrenceState = ShowRecurrenceState(),
+        showAlarmsState: ShowAlarmsState = ShowAlarmsState()) {
         self.store = store
         self.showDateState = showDateState
+        self.showRecurrenceState = showRecurrenceState
+        self.showAlarmsState = showAlarmsState
     }
 
     /// Pre-populates state for canvas previews.
@@ -18,7 +24,9 @@ struct WatchReminderView: View {
         skippedIDs: Set<String>,
         authorizationStatus: EKAuthorizationStatus,
         hasHidden: Bool = false,
-        showDateState: ShowDateState = ShowDateState()) {
+        showDateState: ShowDateState = ShowDateState(),
+        showRecurrenceState: ShowRecurrenceState = ShowRecurrenceState(),
+        showAlarmsState: ShowAlarmsState = ShowAlarmsState()) {
         store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: loadsReminders,
@@ -27,6 +35,8 @@ struct WatchReminderView: View {
             authorizationStatus: authorizationStatus,
             hasHidden: hasHidden)
         self.showDateState = showDateState
+        self.showRecurrenceState = showRecurrenceState
+        self.showAlarmsState = showAlarmsState
     }
 
     // MARK: Internal
@@ -60,6 +70,10 @@ struct WatchReminderView: View {
     private let store: ReminderStore
 
     private let showDateState: ShowDateState
+
+    private let showRecurrenceState: ShowRecurrenceState
+
+    private let showAlarmsState: ShowAlarmsState
 
     private var allSkipped: Bool {
         store.visibleReminders.isEmpty && !store.reminders.isEmpty
@@ -181,6 +195,16 @@ struct WatchReminderView: View {
             }
             if let listName = display.listName {
                 Text(listName)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            if showRecurrenceState.isEnabled, display.hasRecurrence {
+                Label(display.recurrenceSummary ?? "Repeats", systemImage: "repeat")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            if showAlarmsState.isEnabled, display.hasAlarms {
+                Label("Alert", systemImage: "bell")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }

@@ -29,6 +29,8 @@ struct SingleThreadWatchApp: App {
                 skipStore: SkippedReminderStore(),
                 showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard),
                 showDateStore: ShowDatePreference(defaults: .standard),
+                showRecurrenceStore: ShowRecurrencePreference(defaults: .standard),
+                showAlarmsStore: ShowAlarmsPreference(defaults: .standard),
                 sendsShowDate: false)
             service.onShowUndatedRemindersReceived = { [weak store] value in
                 Task {
@@ -42,14 +44,10 @@ struct SingleThreadWatchApp: App {
             service.onSkippedIdentifiersReceived = { [weak store] _ in
                 Task { await store?.reload() }
             }
-            service.onShowDateReceived = { [weak showDateState] value in
-                showDateState?.apply(value)
-            }
-            // Set before activate() — same write-once-before-activate invariant as
-            // onCompleteReminderReceived.
-            service.onSortOptionReceived = { [weak store] option in
-                store?.setSortOption(option)
-            }
+            service.onShowDateReceived = { [weak showDateState] value in showDateState?.apply(value) }
+            service.onShowRecurrenceReceived = { [weak showRecurrenceState] value in showRecurrenceState?.apply(value) }
+            service.onShowAlarmsReceived = { [weak showAlarmsState] value in showAlarmsState?.apply(value) }
+            service.onSortOptionReceived = { [weak store] option in store?.setSortOption(option) }
             // A phone-side exclusion toggle arrives and re-filters this watch's live list.
             // Same write-once-before-activate invariant as onShowUndatedRemindersReceived.
             service.onExcludedListTitlesReceived = { [weak store] titles in
@@ -82,13 +80,21 @@ struct SingleThreadWatchApp: App {
 
     var body: some Scene {
         WindowGroup {
-            WatchReminderView(store: store, showDateState: showDateState)
+            WatchReminderView(
+                store: store,
+                showDateState: showDateState,
+                showRecurrenceState: showRecurrenceState,
+                showAlarmsState: showAlarmsState)
         }
     }
 
     // MARK: Private
 
     private let showDateState = ShowDateState()
+
+    private let showRecurrenceState = ShowRecurrenceState()
+
+    private let showAlarmsState = ShowAlarmsState()
 
     private let store: ReminderStore
 

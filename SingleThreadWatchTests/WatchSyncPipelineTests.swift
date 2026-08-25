@@ -49,6 +49,8 @@ struct WatchSyncPipelineTests {
         service.pushAll()
         let context = try #require(fake.lastContext)
         #expect(context["showDate"] == nil)
+        #expect(context["showRecurrence"] != nil)
+        #expect(context["showAlarms"] != nil)
         #expect(context["skippedReminderIdentifiers"] != nil)
         #expect(context["excludedListTitles"] != nil)
         #expect(context["showUndatedReminders"] != nil)
@@ -189,6 +191,96 @@ struct WatchSyncPipelineTests {
 
         #expect(Set(store.visibleReminders.map(\.title)) == ["B"]) // "A" (Work) filtered
         #expect(Set(store.excludedListTitles) == ["Work"])
+    }
+
+    @Test
+    func receiveAppliesShowRecurrenceAndShowAlarms() {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let showRecurrenceStore = ShowRecurrencePreference(defaults: .standard, key: "wtest-rec-\(suffix)")
+        let showAlarmsStore = ShowAlarmsPreference(defaults: .standard, key: "wtest-alarm-\(suffix)")
+        showRecurrenceStore.set(false)
+        showAlarmsStore.set(false)
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-ids-\(suffix)"),
+            showRecurrenceStore: showRecurrenceStore,
+            showAlarmsStore: showAlarmsStore)
+
+        var recurrenceValues: [Bool] = []
+        var alarmValues: [Bool] = []
+        service.onShowRecurrenceReceived = { recurrenceValues.append($0) }
+        service.onShowAlarmsReceived = { alarmValues.append($0) }
+
+        service.session(
+            WCSession.default,
+            didReceiveApplicationContext: [
+                "showRecurrence": true,
+                "showAlarms": true
+            ])
+
+        #expect(showRecurrenceStore.isEnabled)
+        #expect(showAlarmsStore.isEnabled)
+        #expect(recurrenceValues == [true])
+        #expect(alarmValues == [true])
+    }
+
+    @Test
+    func receiveAbsentRecurrenceAndAlarmsKeysAreNoOps() {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let showRecurrenceStore = ShowRecurrencePreference(defaults: .standard, key: "wtest-absent-rec-\(suffix)")
+        let showAlarmsStore = ShowAlarmsPreference(defaults: .standard, key: "wtest-absent-alarm-\(suffix)")
+        showRecurrenceStore.set(false)
+        showAlarmsStore.set(false)
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-absent-ids-\(suffix)"),
+            showRecurrenceStore: showRecurrenceStore,
+            showAlarmsStore: showAlarmsStore)
+
+        var fired = false
+        service.onShowRecurrenceReceived = { _ in fired = true }
+        service.onShowAlarmsReceived = { _ in fired = true }
+
+        // Push only skip IDs — recurrence and alarms keys absent
+        service.session(
+            WCSession.default,
+            didReceiveApplicationContext: ["skippedReminderIdentifiers": ["X"]])
+
+        #expect(!showRecurrenceStore.isEnabled) // unchanged
+        #expect(!showAlarmsStore.isEnabled) // unchanged
+        #expect(!fired)
+    }
+
+    @Test
+    func showRecurrenceSurvivesRelaunch() {
+        let key = "wtest-relaunch-rec-\(UUID().uuidString)"
+        let fake = WatchFakeSession()
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
+            showRecurrenceStore: ShowRecurrencePreference(defaults: .standard, key: key))
+        service.session(
+            WCSession.default,
+            didReceiveApplicationContext: ["showRecurrence": false])
+        let freshStore = ShowRecurrencePreference(defaults: .standard, key: key)
+        #expect(!freshStore.isEnabled)
+    }
+
+    @Test
+    func showAlarmsSurvivesRelaunch() {
+        let key = "wtest-relaunch-alarm-\(UUID().uuidString)"
+        let fake = WatchFakeSession()
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
+            showAlarmsStore: ShowAlarmsPreference(defaults: .standard, key: key))
+        service.session(
+            WCSession.default,
+            didReceiveApplicationContext: ["showAlarms": false])
+        let freshStore = ShowAlarmsPreference(defaults: .standard, key: key)
+        #expect(!freshStore.isEnabled)
     }
 }
 

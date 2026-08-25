@@ -30,6 +30,8 @@ import os
             sortStore: SortOptionStore = SortOptionStore(),
             showUndatedStore: ShowUndatedRemindersPreference = ShowUndatedRemindersPreference(),
             showDateStore: ShowDatePreference = ShowDatePreference(),
+            showRecurrenceStore: ShowRecurrencePreference = ShowRecurrencePreference(),
+            showAlarmsStore: ShowAlarmsPreference = ShowAlarmsPreference(),
             sendsShowDate: Bool = true) {
             self.session = session
             self.skipStore = skipStore
@@ -37,6 +39,8 @@ import os
             self.sortStore = sortStore
             self.showUndatedStore = showUndatedStore
             self.showDateStore = showDateStore
+            self.showRecurrenceStore = showRecurrenceStore
+            self.showAlarmsStore = showAlarmsStore
             self.sendsShowDate = sendsShowDate
             super.init()
         }
@@ -73,6 +77,18 @@ import os
         /// write-once-before-activate / `nonisolated(unsafe)` rationale as
         /// `onCompleteReminderReceived`.
         public nonisolated(unsafe) var onShowDateReceived: ((Bool) -> Void)?
+
+        /// Hook fired on the counterpart when the "show recurrence" preference arrives
+        /// in an application context. Passes the received value. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onShowDateReceived`.
+        public nonisolated(unsafe) var onShowRecurrenceReceived: ((Bool) -> Void)?
+
+        /// Hook fired on the counterpart when the "show alarms" preference arrives
+        /// in an application context. Passes the received value. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onShowDateReceived`.
+        public nonisolated(unsafe) var onShowAlarmsReceived: ((Bool) -> Void)?
 
         /// Hook fired on the counterpart when the skipped-reminder identifier array
         /// arrives in an application context. Passes the received IDs. Fired **after**
@@ -114,6 +130,8 @@ import os
                 if sendsShowDate {
                     context[PayloadKey.showDate] = showDateStore.isEnabled
                 }
+                context[PayloadKey.showRecurrence] = showRecurrenceStore.isEnabled
+                context[PayloadKey.showAlarms] = showAlarmsStore.isEnabled
                 try session.updateApplicationContext(context)
             } catch {
                 let description = error.localizedDescription
@@ -188,6 +206,8 @@ import os
             static let showUndatedReminders = "showUndatedReminders"
             static let sortOption = "sortOption"
             static let showDate = "showDate"
+            static let showRecurrence = "showRecurrence"
+            static let showAlarms = "showAlarms"
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")
@@ -198,6 +218,8 @@ import os
         private let sortStore: SortOptionStore
         private let showUndatedStore: ShowUndatedRemindersPreference
         private let showDateStore: ShowDatePreference
+        private let showRecurrenceStore: ShowRecurrencePreference
+        private let showAlarmsStore: ShowAlarmsPreference
         private let sendsShowDate: Bool
 
         /// Single receive path: decode → persist → notify for each present key;
@@ -237,6 +259,16 @@ import os
                 showDateStore.set(showDate)
                 let handler = onShowDateReceived
                 handler?(showDate)
+            }
+            if let showRecurrence = context[PayloadKey.showRecurrence] as? Bool {
+                showRecurrenceStore.set(showRecurrence)
+                let handler = onShowRecurrenceReceived
+                handler?(showRecurrence)
+            }
+            if let showAlarms = context[PayloadKey.showAlarms] as? Bool {
+                showAlarmsStore.set(showAlarms)
+                let handler = onShowAlarmsReceived
+                handler?(showAlarms)
             }
         }
     }

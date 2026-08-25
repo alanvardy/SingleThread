@@ -1127,8 +1127,8 @@ func showAlarmsSurvivesRelaunch() {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchTests` — all new and existing `WatchSyncPipelineTests` pass
-- [ ] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17'` compiles (all targets including watch)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchTests` — all new and existing `WatchSyncPipelineTests` pass
+- [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17'` compiles (all targets including watch)
 - [ ] `./scripts/test.sh` gate passes (format → lint → build → Periphery → unit tests → UI tests)
 
 #### Manual

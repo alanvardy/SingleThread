@@ -28,6 +28,8 @@ struct SingleThreadApp: App {
                     session: WCSession.default,
                     skipStore: skipStore,
                     showDateStore: ShowDatePreference(),
+                    showRecurrenceStore: ShowRecurrencePreference(),
+                    showAlarmsStore: ShowAlarmsPreference(),
                     sendsShowDate: true)
                 // Assign the handler before activating: the service documents a
                 // write-once-before-activate invariant, and a completion message
@@ -83,6 +85,12 @@ struct SingleThreadApp: App {
                     // pushAll() snapshots it via ShowDatePreference().
                     syncService?.pushAll()
                 }
+                .onChange(of: showRecurrence) { _, _ in
+                    syncService?.pushAll()
+                }
+                .onChange(of: showAlarms) { _, _ in
+                    syncService?.pushAll()
+                }
             #endif
         }
     }
@@ -102,6 +110,12 @@ struct SingleThreadApp: App {
 
     @AppStorage("showDate", store: AppGroup.defaults)
     private var showDate = true
+
+    @AppStorage("showRecurrence", store: AppGroup.defaults)
+    private var showRecurrence = true
+
+    @AppStorage("showAlarms", store: AppGroup.defaults)
+    private var showAlarms = true
 
     private let store: ReminderStore
     private let usesInMemoryStore: Bool
