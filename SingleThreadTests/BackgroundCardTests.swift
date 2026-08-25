@@ -63,6 +63,40 @@ import Testing
             #expect(!displayed)
         }
 
+        /// Regression test for VAR-703: toggling "Show date" in Settings re-evaluates
+        /// `SingleThreadApp.body` which re-creates `ContentView`. If `BackgroundImageStore`
+        /// isn't owned in the App (like `ReminderStore` is), a fresh default instance with
+        /// `nil` imageData replaces the loaded one and the background disappears.
+        @Test
+        func imageSurvivesContentViewRecreation() async throws {
+            let key = "backgroundEnabled"
+            UserDefaults.standard.set(true, forKey: key)
+            defer { UserDefaults.standard.removeObject(forKey: key) }
+
+            let seeded = try seededStore()
+            await seeded.refreshIfNeeded(maxAge: 3600)
+            #expect(seeded.imageData != nil, "seeded store should load")
+
+            // Simulate what happens when SingleThreadApp.body re-evaluates:
+            // the same BackgroundImageStore is passed to a new ContentView.
+            let firstView = ContentView(
+                store: storeWithReminder(),
+                speechTranscriber: BackgroundCardFakeTranscriber(),
+                backgroundImage: seeded)
+            #expect(firstView.backgroundDisplayed, "First view should show background")
+
+            // Re-create ContentView with the *same* BackgroundImageStore — this
+            // is exactly what happens when @AppStorage("showDate") triggers a
+            // body re-evaluation in SingleThreadApp.
+            let secondView = ContentView(
+                store: storeWithReminder(),
+                speechTranscriber: BackgroundCardFakeTranscriber(),
+                backgroundImage: seeded)
+            #expect(
+                secondView.backgroundDisplayed,
+                "Background should survive ContentView re-creation when the same BackgroundImageStore is reused")
+        }
+
         // MARK: Private
 
         /// Smallest valid JPEG (1×1 pixel), passes the store's decodability gate.

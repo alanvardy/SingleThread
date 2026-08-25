@@ -69,13 +69,14 @@ struct SingleThreadApp: App {
                 WidgetCenter.shared.reloadAllTimelines()
             }
         #endif
+        backgroundImage = BackgroundImageStore()
     }
 
     // MARK: Internal
 
     var body: some Scene {
         WindowGroup {
-            ContentView(store: store)
+            ContentView(store: store, backgroundImage: backgroundImage)
             #if os(iOS)
                 .onChange(of: showDate) { _, _ in
                     // @AppStorage has already written the App Group suite;
@@ -104,6 +105,7 @@ struct SingleThreadApp: App {
 
     private let store: ReminderStore
     private let usesInMemoryStore: Bool
+    private let backgroundImage: BackgroundImageStore
 
     /// Builds the app's ``ReminderStore`` from launch arguments.
     ///
