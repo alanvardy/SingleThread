@@ -140,7 +140,8 @@ struct WatchReminderView: View {
     private func reminderCard(_ reminder: EKReminder) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             ScrollView {
-                reminderDetails(reminder)
+                let display = ReminderDisplay(reminder: reminder)
+                reminderDetails(display)
             }
             .onTapGesture {
                 isShowingRefreshConfirmation = true
@@ -161,24 +162,29 @@ struct WatchReminderView: View {
         .padding()
     }
 
-    private func reminderDetails(_ reminder: EKReminder) -> some View {
+    private func reminderDetails(_ display: ReminderDisplay) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline, spacing: 3) {
-                if let level = ReminderPriority.level(for: reminder.priority) {
-                    Text(ReminderPriority.marker(for: reminder.priority))
+                if let level = ReminderPriority.level(forMarker: display.priorityMarker) {
+                    Text(display.priorityMarker)
                         .font(.headline)
                         .foregroundStyle(priorityColor(level))
                         .accessibilityLabel("\(level.displayName) priority")
                 }
-                Text(reminder.title)
+                Text(display.title)
                     .font(.headline)
             }
-            if showDateState.isEnabled, let due = reminder.dueDateComponents?.date {
+            if showDateState.isEnabled, let due = display.dueDate {
                 Text(due, style: .date)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            if let noteText = ReminderNotesFormatter.format(reminder.notes) {
+            if let listName = display.listName {
+                Text(listName)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+            }
+            if let noteText = display.notes {
                 Text(noteText)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
