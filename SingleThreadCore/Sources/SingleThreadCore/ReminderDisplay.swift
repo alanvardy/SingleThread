@@ -19,7 +19,7 @@ public struct ReminderDisplay: Equatable, Sendable {
         hasAlarms = reminder.hasAlarms
     }
 
-    /// Full constructor for tests and previews that need the new fields.
+    /// Constructor for tests, previews, and placeholder entries.
     public init(
         title: String,
         notes: String? = nil,
@@ -37,24 +37,6 @@ public struct ReminderDisplay: Equatable, Sendable {
         self.hasRecurrence = hasRecurrence
         self.recurrenceSummary = recurrenceSummary
         self.hasAlarms = hasAlarms
-    }
-
-    /// Direct constructor for previews, placeholder entries, and tests.
-    public init(
-        title: String,
-        notes: String? = nil,
-        dueDate: Date? = nil,
-        priorityMarker: String = "",
-        listName: String? = nil) {
-        self.init(
-            title: title,
-            notes: notes,
-            dueDate: dueDate,
-            priorityMarker: priorityMarker,
-            listName: listName,
-            hasRecurrence: false,
-            recurrenceSummary: nil,
-            hasAlarms: false)
     }
 
     // MARK: Public

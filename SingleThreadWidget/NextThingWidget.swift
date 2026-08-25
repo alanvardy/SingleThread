@@ -219,10 +219,12 @@ struct NextThingWidgetView: View {
             if entry.showsRecurrence, display.hasRecurrence {
                 Label(display.recurrenceSummary ?? "Repeats", systemImage: "repeat")
                     .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
             if entry.showsAlarms, display.hasAlarms {
                 Label("Alert", systemImage: "bell")
                     .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
             if let notes = display.notes {
                 Text(notes)
