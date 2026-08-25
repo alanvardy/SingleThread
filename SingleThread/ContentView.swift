@@ -498,10 +498,7 @@ struct ContentView: View {
     private var recordingIndicator: some View {
         Image(systemName: "mic.fill")
             .font(.title2)
-            .foregroundStyle(.white)
-            .frame(width: 56, height: 56)
-            .background(.red, in: Circle())
-            .shadow(radius: 4)
+            .controlPlate(fill: .red, glyph: .white)
             .symbolEffect(.pulse, options: .repeating)
             .accessibilityLabel("Recording")
     }
@@ -509,10 +506,7 @@ struct ContentView: View {
     private func creationFeedbackView(for feedback: CreationFeedback) -> some View {
         Image(systemName: feedback.systemImage)
             .font(.title2)
-            .foregroundStyle(.white)
-            .frame(width: 56, height: 56)
-            .background(feedback.backgroundColor, in: Circle())
-            .shadow(radius: 4)
+            .controlPlate(fill: feedback.backgroundColor, glyph: .white)
             .accessibilityLabel(feedback.accessibilityLabel)
     }
 
