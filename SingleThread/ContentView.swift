@@ -19,9 +19,10 @@ struct ContentView: View {
 
     init(
         loadsReminders: Bool = true,
+        eventStore: any EventKitStoring = EKEventStore(),
         speechTranscriber: (any SpeechTranscribing)? = nil,
         backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
-        store = ReminderStore(loadsReminders: loadsReminders)
+        store = ReminderStore(eventStore: eventStore, loadsReminders: loadsReminders)
         self.speechTranscriber = speechTranscriber ?? ReminderDictation()
         self.backgroundImage = backgroundImage
     }
@@ -576,7 +577,9 @@ private let mockReminderInList: EKReminder = {
 // MARK: - Previews
 
 #Preview("Empty") {
-    ContentView(loadsReminders: false)
+    ContentView(
+        loadsReminders: false,
+        eventStore: InMemoryEventStore())
 }
 
 #Preview("Nothing Due") {

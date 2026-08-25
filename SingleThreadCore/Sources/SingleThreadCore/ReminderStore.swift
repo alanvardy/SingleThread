@@ -41,7 +41,7 @@ public final class ReminderStore {
     public private(set) var excludedListTitles: Set<String> = []
     /// `true` when incomplete reminders exist outside the current date window
     /// (or are undated while `showsUndatedReminders` is off). Set by `reload()`;
-    /// seeded by the preview/test init. Lets surfaces explain an empty state
+    /// seeded via the init. Lets surfaces explain an empty state
     /// that is actually "nothing due right now".
     public private(set) var hasHidden = false
     /// All reminder-list titles (sorted, deduplicated) the settings UI presents.

@@ -231,10 +231,10 @@ struct ReminderStoreTests {
     // MARK: - addReminder
 
     @Test
-    func addReminderDoesNotCrashWithoutAccess() async {
+    func addReminderWithInMemoryStoreDoesNotCrash() async {
         let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
-        // Without EventKit authorization the save fails and is logged internally;
-        // the important assertion is that this completes without crashing.
+        // The in-memory store's save never throws; the important assertion is
+        // that this completes without crashing.
         await store.addReminder(
             title: "Buy milk",
             notes: "Two percent",
