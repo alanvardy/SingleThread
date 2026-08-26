@@ -231,9 +231,13 @@ struct WatchReminderView: View {
 
 // MARK: - Previews
 
+/// A single `EKEventStore` kept alive to back the preview reminders. The
+/// backing store must outlive the reminders — `EKReminder` holds a weak
+/// reference to it, so a deallocated store crashes canvas with SIGTRAP.
+private let mockWatchEventStore = EKEventStore()
+
 private let mockWatchReminder: EKReminder = {
-    let eventStore = EKEventStore()
-    let reminder = EKReminder(eventStore: eventStore)
+    let reminder = EKReminder(eventStore: mockWatchEventStore)
     reminder.title = "Buy groceries"
     reminder.priority = 5
     reminder.dueDateComponents = DateComponents(year: 2026, month: 8, day: 18, hour: 14, minute: 0)
