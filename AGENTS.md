@@ -2,10 +2,9 @@
 
 ## Shell Environment
 
-- The command tool runs **fish** (`/opt/homebrew/bin/fish`), not bash. Use
-  fish-native `for … end` loops, never `for … do / done`.
-- **Never use bash heredocs** (`<<'EOF'`) — write files with the `write` tool
-  and pass them via `--body-file`/paths instead.
+- The command tool runs **fish** — see `~/.pi/agent/skills/fish-shell/SKILL.md`
+  for the bash→fish translation table. Never use bash heredocs (`<<'EOF'`) —
+  write files with the `write` tool instead.
 
 ## Build & Test
 
@@ -90,23 +89,22 @@ SingleThread/                  # git root
 
 ## QRSPI Workflow
 
-- Complex tasks go through the QRSPI pipeline: `/1_spec` → `/2_clarify` →
-  `/3_design` → `/4_research` → `/5_plan` → `/6_implement` (see
-  `~/AGENTS.md`). Artifacts live in `.pi/qrspi/<branch>/`
-  (`task.md`, `questions.md`, `research.md`, `design.md`, `plan.md`).
+- QRSPI pipeline: `/1_spec` → `/2_clarify` → `/3_design` → `/4_research` →
+  `/5_plan` → `/6_implement` (see `~/AGENTS.md` and `.pi/skills/qrspi/SKILL.md`).
 - A **design phase runs on a separate child subtask** of the main ticket
-  (`linear issue create --parent <MAIN-ID>`), on its **own branch** (Linear's
-  `branchName`), with artifacts under `.pi/qrspi/<design-branch>/`, forked
-  from `origin/main`, and a **draft PR titled with "design"**.
-- All research for the current task lives under `.pi/qrspi/<branch>/` — the
-  root-level `research.md` is stale scratch from an earlier task. See the
-  `.pi/skills/qrspi/SKILL.md` skill for the full convention.
+  (`linear issue create --parent <MAIN-ID>`), on its **own branch**, with
+  artifacts under `.pi/qrspi/<design-branch>/`, forked from `origin/main`,
+  and a **draft PR titled with "design"**.
+- All research for the current task lives under `.pi/qrspi/<branch>/`.
 
-## Adding New Files
+## Adding New Files and Targets
 
-The project uses Xcode's synchronized file groups (`objectVersion = 77`), so
-Xcode auto-discovers `.swift` files placed in `SingleThread/`,
-`SingleThreadTests/`, or `SingleThreadUITests/` — no pbxproj edits needed.
+- **New `.swift` files**: Xcode auto-discovers them (synchronized file groups,
+  `objectVersion = 77`) — no pbxproj edits needed.
+- **New test target** (e.g. `SingleThreadWatchUITests`): requires pbxproj
+  object IDs, scheme TestAction wiring, a `-only-testing` entry in
+  `scripts/test.sh`, and CI matrix entries. The QRSPI design phase should
+  flag this explicitly — it is not a simple file-add.
 
 ## Lint & Format
 
