@@ -5,55 +5,6 @@ import SwiftUI
     import WidgetKit
 #endif
 
-// MARK: - ExcludedListsView
-
-/// Submenu listing the lists the user has chosen to exclude. Pushed from
-/// the settings screen so the main settings view stays focused on its core
-/// preferences.
-struct ExcludedListsView: View {
-    // MARK: Lifecycle
-
-    init(excludedLists: Binding<Set<String>>, availableLists: [String]) {
-        _excludedLists = excludedLists
-        self.availableLists = availableLists
-    }
-
-    // MARK: Internal
-
-    var body: some View {
-        Form {
-            Section {
-                ForEach(availableLists, id: \.self) { list in
-                    Toggle(isOn: excludedBinding(for: list)) {
-                        Text(list)
-                    }
-                }
-            } footer: {
-                Text("Excluded lists are hidden from the reminder list.")
-            }
-        }
-        .navigationTitle("Excluded Lists")
-    }
-
-    // MARK: Private
-
-    @Binding private var excludedLists: Set<String>
-
-    private let availableLists: [String]
-
-    private func excludedBinding(for list: String) -> Binding<Bool> {
-        Binding(
-            get: { excludedLists.contains(list) },
-            set: { isExcluded in
-                if isExcluded {
-                    excludedLists.insert(list)
-                } else {
-                    excludedLists.remove(list)
-                }
-            })
-    }
-}
-
 // MARK: - SettingsView
 
 /// Modal settings screen presented from the gear button. Owns no state —
@@ -91,6 +42,21 @@ struct SettingsView: View {
                             viewModel: viewModel)
                     } label: {
                         Label("Interface", systemImage: "paintpalette")
+                    }
+                    NavigationLink {
+                        ReminderSettingsView(
+                            bindings: bindings,
+                            viewModel: viewModel)
+                    } label: {
+                        Label("Reminder", systemImage: "bell.badge")
+                    }
+                    NavigationLink {
+                        FilterSortSettingsView(
+                            bindings: bindings,
+                            availableLists: availableLists,
+                            excludedLists: $excludedLists)
+                    } label: {
+                        Label("Filtering & Sorting", systemImage: "line.3.horizontal.decrease")
                     }
                 }
                 Picker("Appearance", selection: $bindings.appearanceMode) {
@@ -165,15 +131,6 @@ struct SettingsView: View {
                     viewModel.showPreferenceChanged()
                 }
                 #endif
-                Section {
-                    NavigationLink {
-                        ExcludedListsView(
-                            excludedLists: $excludedLists,
-                            availableLists: availableLists)
-                    } label: {
-                        Label("Excluded Lists", systemImage: "eye.slash")
-                    }
-                }
                 Section {} footer: {
                     if let backgroundPhotographer {
                         if let backgroundPhotographerURL {
