@@ -593,17 +593,17 @@ Test the watch build first — if it passes, no change needed. If it fails, appl
 ### Verification
 
 #### Automated
-- [ ] Watch build:
+- [x] Watch build:
   ```fish
   xcodebuild -scheme SingleThreadWatch \
     -destination 'platform=watchOS Simulator,name=Apple Watch Series 10 (46mm)' \
     -configuration Debug build
   ```
-- [ ] Full build (all targets):
+- [x] Full build (all targets):
   ```fish
   make build
   ```
-- [ ] Watch UI tests:
+- [x] Watch UI tests:
   ```fish
   xcodebuild -scheme SingleThreadWatch \
     -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)' \
