@@ -6,16 +6,24 @@ import Testing
 @MainActor
 struct SingleThreadTests {
     @Test
-    func contentViewInitializesWithoutReminders() {
-        let view = ContentView(loadsReminders: false)
-        // Verify the view body renders without crashing
+    func contentViewModelInitializesWithoutReminders() {
+        let viewModel = ContentViewModel(
+            store: ReminderStore(loadsReminders: false),
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation())
+        // Verify the view model init and its content-view wrapper render without crashing.
+        let view = ContentView(viewModel: viewModel)
         let bodyValue = view.body
         #expect(String(describing: bodyValue).isEmpty == false)
     }
 
     @Test
     func contentViewBodyContainsRefreshableModifier() {
-        let view = ContentView(loadsReminders: false)
+        let viewModel = ContentViewModel(
+            store: ReminderStore(loadsReminders: false),
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation())
+        let view = ContentView(viewModel: viewModel)
         // Verify body renders with the List + refreshable structure
         let bodyValue = view.body
         let description = String(describing: bodyValue)
@@ -24,12 +32,12 @@ struct SingleThreadTests {
 
     @Test
     func contentViewEmptyStatesShowDistinctCopy() {
-        let emptyCopy = ContentView.emptyStateCopy(hasHidden: false)
+        let emptyCopy = ContentViewModel.emptyStateCopy(hasHidden: false)
         #expect(emptyCopy.title == "No Reminders")
         #expect(emptyCopy.systemImage == "checklist")
         #expect(emptyCopy.description == "You don't have any reminders yet.")
 
-        let nothingDueCopy = ContentView.emptyStateCopy(hasHidden: true)
+        let nothingDueCopy = ContentViewModel.emptyStateCopy(hasHidden: true)
         #expect(nothingDueCopy.title == "Nothing due")
         #expect(nothingDueCopy.systemImage == "calendar")
         #expect(nothingDueCopy.description == "Only today's and overdue reminders show here — pull to refresh.")
@@ -38,7 +46,7 @@ struct SingleThreadTests {
 
     @Test
     func contentViewAllDoneShowsAllDoneCopy() {
-        let allDoneCopy = ContentView.allDoneStateCopy()
+        let allDoneCopy = ContentViewModel.allDoneStateCopy()
         #expect(allDoneCopy.title == "All Done")
         #expect(allDoneCopy.systemImage == "checkmark.circle")
         #expect(allDoneCopy.description == "Pull to refresh to see all your reminders again.")

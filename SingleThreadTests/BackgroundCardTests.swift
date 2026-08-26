@@ -34,8 +34,8 @@ import Testing
     // MARK: - Background Card Tests
 
     /// Whether the reminder card renders see-through over the photo is decided by
-    /// `ContentView.backgroundDisplayed`; the visual result itself (transparent row
-    /// chrome, text plate color) can't be distinguished through reflected body
+    /// `ContentViewModel.backgroundDisplayed`; the visual result itself (transparent
+    /// row chrome, text plate color) can't be distinguished through reflected body
     /// descriptions (`_ConditionalContent` names include both branches), so these
     /// tests verify the gate decision directly — same rationale as
     /// `ActionButtonTests`. The rendered look is verified manually / in review.
@@ -68,33 +68,20 @@ import Testing
         /// isn't owned in the App (like `ReminderStore` is), a fresh default instance with
         /// `nil` imageData replaces the loaded one and the background disappears.
         @Test
-        func imageSurvivesContentViewRecreation() async throws {
+        func backgroundSurvivesViewModelConstruction() async throws {
             let key = "backgroundEnabled"
             UserDefaults.standard.set(true, forKey: key)
             defer { UserDefaults.standard.removeObject(forKey: key) }
 
-            let seeded = try seededStore()
+            let seeded = try seededBackgroundImage()
             await seeded.refreshIfNeeded(maxAge: 3600)
             #expect(seeded.imageData != nil, "seeded store should load")
 
-            // Simulate what happens when SingleThreadApp.body re-evaluates:
-            // the same BackgroundImageStore is passed to a new ContentView.
-            let firstView = ContentView(
-                store: storeWithReminder(),
-                speechTranscriber: BackgroundCardFakeTranscriber(),
-                backgroundImage: seeded)
-            #expect(firstView.backgroundDisplayed, "First view should show background")
-
-            // Re-create ContentView with the *same* BackgroundImageStore — this
-            // is exactly what happens when @AppStorage("showDate") triggers a
-            // body re-evaluation in SingleThreadApp.
-            let secondView = ContentView(
-                store: storeWithReminder(),
-                speechTranscriber: BackgroundCardFakeTranscriber(),
-                backgroundImage: seeded)
-            #expect(
-                secondView.backgroundDisplayed,
-                "Background should survive ContentView re-creation when the same BackgroundImageStore is reused")
+            // A ContentViewModel constructed with the same (loaded) BackgroundImageStore
+            // must still report the background as displayed — this is what happens when
+            // the App (which owns the store) builds a fresh view model around it.
+            let viewModel = makeViewModel(backgroundImage: seeded)
+            #expect(viewModel.backgroundDisplayed, "Background should survive view-model construction")
         }
 
         // MARK: Private
@@ -116,7 +103,14 @@ import Testing
 
         // MARK: Helpers
 
-        /// Sets up the toggle + photo state, builds the view, reads the gate once,
+        private func makeViewModel(backgroundImage: BackgroundImageStore) -> ContentViewModel {
+            ContentViewModel(
+                store: storeWithReminder(),
+                backgroundImage: backgroundImage,
+                speechTranscriber: BackgroundCardFakeTranscriber())
+        }
+
+        /// Sets up the toggle + photo state, builds the view model, reads the gate once,
         /// THEN removes the toggle key — reading after cleanup would see the
         /// `@AppStorage` default (true), not the value under test.
         private func gate(toggleOn: Bool, withPhoto: Bool) async throws -> Bool {
@@ -125,7 +119,7 @@ import Testing
 
             let backgroundImage: BackgroundImageStore
             if withPhoto {
-                backgroundImage = try seededStore()
+                backgroundImage = try seededBackgroundImage()
                 // Loads the stored bytes into observable state; the fresh sidecar
                 // means this never touches the network.
                 await backgroundImage.refreshIfNeeded(maxAge: 3600)
@@ -135,18 +129,15 @@ import Testing
                     directory: FileManager.default.temporaryDirectory
                         .appendingPathComponent(UUID().uuidString))
             }
-            let view = ContentView(
-                store: storeWithReminder(),
-                speechTranscriber: BackgroundCardFakeTranscriber(),
-                backgroundImage: backgroundImage)
-            let result = view.backgroundDisplayed
+            let viewModel = makeViewModel(backgroundImage: backgroundImage)
+            let result = viewModel.backgroundDisplayed
             UserDefaults.standard.removeObject(forKey: key)
             return result
         }
 
         /// A store whose Application-Support-like directory already holds a valid
         /// photo + freshly-fetched sidecar, i.e. what a successful fetch leaves on disk.
-        private func seededStore() throws -> BackgroundImageStore {
+        private func seededBackgroundImage() throws -> BackgroundImageStore {
             let directory = FileManager.default.temporaryDirectory
                 .appendingPathComponent(UUID().uuidString)
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)

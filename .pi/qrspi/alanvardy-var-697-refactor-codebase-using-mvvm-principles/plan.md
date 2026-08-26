@@ -508,9 +508,9 @@ The `.sheet` presentation stays as-is, but reads from `viewModel.store` for `exc
 ### Verification
 
 #### Automated
-- [ ] `make test` — `ActionButtonTests`, `BackgroundCardTests`, `SingleThreadTests` green; all other suites green
-- [ ] `make ui-test` — same launch args, same accessible labels, accessibility audit passes
-- [ ] `make build` — iOS + macOS compile
+- [x] `make test` — `ActionButtonTests`, `BackgroundCardTests`, `SingleThreadTests` green; all other suites green
+- [x] `make ui-test` — same launch args, same accessible labels, accessibility audit passes
+- [x] `make build` — iOS + macOS compile
 
 #### Manual
 - [ ] Run app: Complete/Skip cluster shows when `enableActionButtons` is ON and reminder visible; mic button shows when OFF; background appears when enabled + photo loaded

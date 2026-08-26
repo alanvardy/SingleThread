@@ -6,29 +6,32 @@ import SwiftUI
 struct ContentView: View {
     // MARK: Lifecycle
 
-    /// Accepts a pre-configured store (used by the app entry point, which wires
-    /// WatchConnectivity hooks onto the store before handing it to the view).
+    init(viewModel: ContentViewModel) {
+        self.viewModel = viewModel
+    }
+
+    /// Convenience for callers that build a `ReminderStore` directly and want a
+    /// matching `ContentView` (used by the app entry point and unit tests).
     init(
         store: ReminderStore,
         speechTranscriber: (any SpeechTranscribing)? = nil,
         backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
-        self.store = store
-        self.backgroundImage = backgroundImage
-        dictationViewModel = DictationViewModel(
-            speechTranscriber: speechTranscriber ?? ReminderDictation(),
-            store: store)
+        viewModel = ContentViewModel(
+            store: store,
+            backgroundImage: backgroundImage,
+            speechTranscriber: speechTranscriber ?? ReminderDictation())
     }
 
+    /// Pre-populates state for canvas previews.
     init(
         loadsReminders: Bool = true,
         eventStore: any EventKitStoring = EKEventStore(),
         speechTranscriber: (any SpeechTranscribing)? = nil,
         backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
-        store = ReminderStore(eventStore: eventStore, loadsReminders: loadsReminders)
-        self.backgroundImage = backgroundImage
-        dictationViewModel = DictationViewModel(
-            speechTranscriber: speechTranscriber ?? ReminderDictation(),
-            store: store)
+        viewModel = ContentViewModel(
+            store: ReminderStore(eventStore: eventStore, loadsReminders: loadsReminders),
+            backgroundImage: backgroundImage,
+            speechTranscriber: speechTranscriber ?? ReminderDictation())
     }
 
     /// Pre-populates state for canvas previews.
@@ -41,60 +44,31 @@ struct ContentView: View {
         hasHidden: Bool = false,
         speechTranscriber: (any SpeechTranscribing)? = nil,
         backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
-        store = ReminderStore(
-            eventStore: InMemoryEventStore(),
-            loadsReminders: loadsReminders,
-            reminders: reminders,
-            skippedIDs: skippedIDs,
-            authorizationStatus: authorizationStatus,
-            excludedListTitles: excludedListTitles,
-            hasHidden: hasHidden)
-        self.backgroundImage = backgroundImage
-        dictationViewModel = DictationViewModel(
-            speechTranscriber: speechTranscriber ?? ReminderDictation(),
-            store: store)
+        viewModel = ContentViewModel(
+            store: ReminderStore(
+                eventStore: InMemoryEventStore(),
+                loadsReminders: loadsReminders,
+                reminders: reminders,
+                skippedIDs: skippedIDs,
+                authorizationStatus: authorizationStatus,
+                excludedListTitles: excludedListTitles,
+                hasHidden: hasHidden),
+            backgroundImage: backgroundImage,
+            speechTranscriber: speechTranscriber ?? ReminderDictation())
     }
 
     // MARK: Internal
-
-    /// Copy + icon describing why the `reminderList` has nothing to show —
-    /// either an empty/in-window-hiding state (keyed off `hasHidden`) or the
-    /// fully-skipped "All Done" state.
-    struct EmptyStateCopy {
-        let title: String
-        let systemImage: String
-        let description: String
-    }
-
-    /// Created before view init, so a plain `let` gives StateObject-like lifetime.
-    var backgroundImage: BackgroundImageStore
-
-    #if os(iOS)
-        /// Whether the Complete/Skip cluster replaces the plain mic in the bottom
-        /// bar: the toggle must be on AND a visible reminder must exist. Readable
-        /// outside a live view (unit-test seam); inside the app it reads the live
-        /// `@AppStorage` value.
-        var showsActionButtons: Bool {
-            enableActionButtons && store.visibleReminders.first != nil
-        }
-    #endif
-
-    /// See-through reminder-card gate: true while a background photo is actually
-    /// on screen. Row chrome clears and the card text sits on its own plate.
-    var backgroundDisplayed: Bool {
-        backgroundEnabled && backgroundImage.imageData != nil
-    }
 
     var body: some View {
         ZStack {
             Color.systemBackground.ignoresSafeArea()
             #if os(iOS)
                 BackgroundPhotoLayer(
-                    imageData: backgroundImage.imageData,
+                    imageData: viewModel.backgroundImage.imageData,
                     isEnabled: backgroundEnabled,
                     opacity: BackgroundFade.opacity(for: backgroundFadePercent))
             #endif
-            if store.loadsReminders {
+            if viewModel.store.loadsReminders {
                 authGatedContent
             } else {
                 reminderList
@@ -115,23 +89,16 @@ struct ContentView: View {
             .padding(.trailing, 12)
         }
         .task {
-            store.showsUndatedReminders = showUndatedReminders
-            await store.start()
-            await backgroundImage.refreshIfNeeded(maxAge: 3600)
+            await viewModel.task(showUndatedReminders: showUndatedReminders)
         }
         .onChange(of: showUndatedReminders) { _, newValue in
-            store.showsUndatedReminders = newValue
-            Task { await store.reload() }
+            viewModel.handleShowUndatedReminders(newValue)
         }
         .onChange(of: sortOption) { _, newValue in
-            store.setSortOption(newValue)
+            viewModel.handleSortOption(newValue)
         }
         .onChange(of: appearanceMode) { _, newValue in
-            #if os(iOS)
-                AppDelegate.applyAppearance(newValue)
-            #elseif os(macOS)
-                MacAppDelegate.applyAppearance(newValue)
-            #endif
+            viewModel.handleAppearanceMode(newValue)
         }
         .modifier(TextSizeModifier(textSize: textSize))
         .sheet(isPresented: $isShowingSettings) {
@@ -144,11 +111,11 @@ struct ContentView: View {
                     showMicrophoneButton: $showMicrophoneButton,
                     backgroundEnabled: $backgroundEnabled,
                     backgroundFadePercent: $backgroundFadePercent,
-                    backgroundPhotographer: backgroundImage.photographer,
-                    backgroundPhotographerURL: backgroundImage.photographerURL,
+                    backgroundPhotographer: viewModel.backgroundImage.photographer,
+                    backgroundPhotographerURL: viewModel.backgroundImage.photographerURL,
                     showUndatedReminders: $showUndatedReminders,
                     excludedLists: excludedListsBinding,
-                    availableLists: store.availableLists,
+                    availableLists: viewModel.store.availableLists,
                     sortOption: $sortOption,
                     showDate: $showDate,
                     showList: $showList,
@@ -160,38 +127,17 @@ struct ContentView: View {
                     showMicrophoneButton: $showMicrophoneButton,
                     backgroundEnabled: $backgroundEnabled,
                     backgroundFadePercent: $backgroundFadePercent,
-                    backgroundPhotographer: backgroundImage.photographer,
-                    backgroundPhotographerURL: backgroundImage.photographerURL,
+                    backgroundPhotographer: viewModel.backgroundImage.photographer,
+                    backgroundPhotographerURL: viewModel.backgroundImage.photographerURL,
                     showUndatedReminders: $showUndatedReminders,
                     excludedLists: excludedListsBinding,
-                    availableLists: store.availableLists,
+                    availableLists: viewModel.store.availableLists,
                     sortOption: $sortOption,
                     showDate: $showDate,
                     showList: $showList,
                     showRecurrence: $showRecurrence, showAlarms: $showAlarms)
             #endif
         }
-    }
-
-    static func emptyStateCopy(hasHidden: Bool) -> EmptyStateCopy {
-        if hasHidden {
-            return EmptyStateCopy(
-                title: "Nothing due",
-                systemImage: "calendar",
-                description: "Only today's and overdue reminders show here — pull to refresh.")
-        }
-        return EmptyStateCopy(
-            title: "No Reminders",
-            systemImage: "checklist",
-            description: "You don't have any reminders yet.")
-    }
-
-    /// Copy + icon for the fully-skipped `reminderList` state.
-    static func allDoneStateCopy() -> EmptyStateCopy {
-        EmptyStateCopy(
-            title: "All Done",
-            systemImage: "checkmark.circle",
-            description: "Pull to refresh to see all your reminders again.")
     }
 
     // MARK: Private
@@ -245,20 +191,19 @@ struct ContentView: View {
     @Environment(\.openURL)
     private var openURL
 
-    private let store: ReminderStore
-    private let dictationViewModel: DictationViewModel
+    private let viewModel: ContentViewModel
 
     private var excludedListsBinding: Binding<Set<String>> {
         Binding(
-            get: { store.excludedListTitles },
-            set: { store.setExcludedListTitles($0) })
+            get: { viewModel.store.excludedListTitles },
+            set: { viewModel.store.setExcludedListTitles($0) })
     }
 
     #if os(macOS)
         private var actionButtons: some View {
             HStack(spacing: 32) {
                 Button {
-                    Task { await store.completeCurrentReminder() }
+                    Task { await viewModel.store.completeCurrentReminder() }
                 } label: {
                     Label("Complete", systemImage: "checkmark.circle.fill")
                         .labelStyle(.iconOnly)
@@ -270,7 +215,7 @@ struct ContentView: View {
                 .accessibilityAddTraits(.isButton)
 
                 Button {
-                    store.skipCurrentReminder()
+                    viewModel.store.skipCurrentReminder()
                 } label: {
                     Label("Skip", systemImage: "circle.slash")
                         .labelStyle(.iconOnly)
@@ -282,7 +227,7 @@ struct ContentView: View {
                 .accessibilityAddTraits(.isButton)
 
                 Button {
-                    Task { await store.deleteCurrentReminder() }
+                    Task { await viewModel.store.deleteCurrentReminder() }
                 } label: {
                     Label("Delete", systemImage: "trash")
                         .labelStyle(.iconOnly)
@@ -297,7 +242,7 @@ struct ContentView: View {
     #endif
 
     @ViewBuilder private var authGatedContent: some View {
-        switch store.authorizationStatus {
+        switch viewModel.store.authorizationStatus {
         case .notDetermined:
             ProgressView("Requesting access…")
         case .fullAccess:
@@ -315,8 +260,8 @@ struct ContentView: View {
             let viewHeight = geometry.size.height
                 - geometry.safeAreaInsets.top
                 - geometry.safeAreaInsets.bottom
-            if store.allSkipped {
-                let allDoneCopy = Self.allDoneStateCopy()
+            if viewModel.store.allSkipped {
+                let allDoneCopy = ContentViewModel.allDoneStateCopy()
                 ScrollView {
                     ContentUnavailableView(
                         allDoneCopy.title,
@@ -326,10 +271,10 @@ struct ContentView: View {
                 }
                 .scrollBounceBehavior(.always)
                 .refreshable {
-                    await store.reload(clearSkipped: true)
+                    await viewModel.store.reload(clearSkipped: true)
                 }
-            } else if store.reminders.isEmpty {
-                let emptyCopy = Self.emptyStateCopy(hasHidden: store.hasHidden)
+            } else if viewModel.store.reminders.isEmpty {
+                let emptyCopy = ContentViewModel.emptyStateCopy(hasHidden: viewModel.store.hasHidden)
                 ZStack(alignment: .bottom) {
                     ScrollView {
                         ContentUnavailableView(
@@ -340,21 +285,21 @@ struct ContentView: View {
                     }
                     .scrollBounceBehavior(.always)
                     .refreshable {
-                        await store.reload()
+                        await viewModel.store.reload()
                     }
                     bottomBar
                 }
             } else {
                 ZStack(alignment: .bottom) {
                     List {
-                        if let reminder = store.visibleReminders.first {
+                        if let reminder = viewModel.store.visibleReminders.first {
                             ReminderCardView(
                                 display: ReminderDisplay(reminder: reminder),
                                 showDate: showDate,
                                 showList: showList,
                                 showRecurrence: showRecurrence, showAlarms: showAlarms,
-                                showsOverPhoto: backgroundDisplayed)
-                                .listRowBackground(backgroundDisplayed ? Color.clear : nil)
+                                showsOverPhoto: viewModel.backgroundDisplayed)
+                                .listRowBackground(viewModel.backgroundDisplayed ? Color.clear : nil)
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 12)
                                 // Center the card's plate in the row; text inside
@@ -375,7 +320,7 @@ struct ContentView: View {
                                     }
 
                                     Button {
-                                        Task { await store.deleteCurrentReminder() }
+                                        Task { await viewModel.store.deleteCurrentReminder() }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -384,7 +329,7 @@ struct ContentView: View {
                             #endif
                                 .swipeActions(edge: .leading) {
                                     Button {
-                                        Task { await store.completeCurrentReminder() }
+                                        Task { await viewModel.store.completeCurrentReminder() }
                                     } label: {
                                         Label("Complete", systemImage: "checkmark.circle.fill")
                                     }
@@ -392,7 +337,7 @@ struct ContentView: View {
                                 }
                                 .swipeActions(edge: .trailing) {
                                     Button {
-                                        store.skipCurrentReminder()
+                                        viewModel.store.skipCurrentReminder()
                                     } label: {
                                         Label("Skip", systemImage: "circle.slash")
                                     }
@@ -402,7 +347,7 @@ struct ContentView: View {
                     }
                     .listStyle(.plain)
                     .refreshable {
-                        await store.reload()
+                        await viewModel.store.reload()
                     }
                     bottomBar
                 }
@@ -413,31 +358,31 @@ struct ContentView: View {
     private var bottomBar: some View {
         VStack(spacing: 8) {
             #if os(macOS)
-                if store.visibleReminders.first != nil {
+                if viewModel.store.visibleReminders.first != nil {
                     actionButtons
                 }
             #endif
-            if let error = dictationViewModel.dictationError {
+            if let error = viewModel.dictation.dictationError {
                 Text(error)
                     .font(.caption)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
-            if let feedback = dictationViewModel.creationFeedback {
+            if let feedback = viewModel.dictation.creationFeedback {
                 creationFeedbackView(for: feedback)
-            } else if dictationViewModel.isDictating {
-                if !dictationViewModel.dictationText.isEmpty {
-                    Text(dictationViewModel.dictationText)
+            } else if viewModel.dictation.isDictating {
+                if !viewModel.dictation.dictationText.isEmpty {
+                    Text(viewModel.dictation.dictationText)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
                 recordingIndicator
-            } else if dictationViewModel.canDictate, showMicrophoneButton {
+            } else if viewModel.dictation.canDictate, showMicrophoneButton {
                 #if os(iOS)
-                    if showsActionButtons {
+                    if viewModel.showsActionButtons {
                         actionCluster
                     } else {
                         micButton
@@ -453,7 +398,7 @@ struct ContentView: View {
     #if os(iOS)
         private var completeButton: some View {
             Button {
-                Task { await store.completeCurrentReminder() }
+                Task { await viewModel.store.completeCurrentReminder() }
             } label: {
                 Label("Complete", systemImage: "checkmark.circle.fill")
                     .labelStyle(.iconOnly)
@@ -465,7 +410,7 @@ struct ContentView: View {
 
         private var skipButton: some View {
             Button {
-                store.skipCurrentReminder()
+                viewModel.store.skipCurrentReminder()
             } label: {
                 Label("Skip", systemImage: "circle.slash")
                     .labelStyle(.iconOnly)
@@ -488,7 +433,7 @@ struct ContentView: View {
 
     private var micButton: some View {
         Button {
-            Task { await dictationViewModel.startDictation() }
+            Task { await viewModel.dictation.startDictation() }
         } label: {
             Image(systemName: "mic.fill")
                 .font(.title2)
