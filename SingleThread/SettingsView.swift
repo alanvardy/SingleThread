@@ -1,10 +1,6 @@
 import SingleThreadCore
 import SwiftUI
 
-#if os(iOS) || os(macOS)
-    import WidgetKit
-#endif
-
 // MARK: - SettingsView
 
 /// Modal settings screen presented from the gear button. Owns no state —
@@ -34,115 +30,39 @@ struct SettingsView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    NavigationLink {
-                        InterfaceSettingsView(
-                            bindings: bindings,
-                            viewModel: viewModel)
-                    } label: {
-                        Label("Interface", systemImage: "paintpalette")
-                    }
-                    NavigationLink {
-                        ReminderSettingsView(
-                            bindings: bindings,
-                            viewModel: viewModel)
-                    } label: {
-                        Label("Reminder", systemImage: "bell.badge")
-                    }
-                    NavigationLink {
-                        FilterSortSettingsView(
-                            bindings: bindings,
-                            availableLists: availableLists,
-                            excludedLists: $excludedLists)
-                    } label: {
-                        Label("Filtering & Sorting", systemImage: "line.3.horizontal.decrease")
-                    }
+            List {
+                NavigationLink {
+                    InterfaceSettingsView(
+                        bindings: bindings,
+                        viewModel: viewModel)
+                } label: {
+                    Label("Interface", systemImage: "paintpalette")
                 }
-                Picker("Appearance", selection: $bindings.appearanceMode) {
-                    ForEach(AppearanceMode.allCases, id: \.self) { mode in
-                        Label(mode.title, systemImage: mode.systemImage)
-                            .tag(mode)
-                    }
+                NavigationLink {
+                    ReminderSettingsView(
+                        bindings: bindings,
+                        viewModel: viewModel)
+                } label: {
+                    Label("Reminder", systemImage: "bell.badge")
                 }
-                Picker("Text Size", selection: $bindings.textSize) {
-                    ForEach(TextSize.allCases, id: \.self) { size in
-                        Label(size.title, systemImage: size.systemImage)
-                            .tag(size)
-                    }
+                NavigationLink {
+                    FilterSortSettingsView(
+                        bindings: bindings,
+                        availableLists: availableLists,
+                        excludedLists: $excludedLists)
+                } label: {
+                    Label("Filtering & Sorting", systemImage: "line.3.horizontal.decrease")
                 }
-                Picker("Sort By", selection: $bindings.sortOption) {
-                    ForEach(SortOption.allCases, id: \.self) { option in
-                        Label(option.title, systemImage: option.systemImage)
-                            .tag(option)
-                    }
-                }
-                #if os(iOS)
-                    Toggle(isOn: $bindings.allowsLandscape) {
-                        Label("Allow landscape", systemImage: "rectangle.landscape.rotate")
-                    }
-                    .onChange(of: bindings.allowsLandscape) { _, newValue in
-                        viewModel.allowsLandscapeChanged(newValue)
-                    }
-                #endif
-                Toggle(isOn: $bindings.showMicrophoneButton) {
-                    Label("Show microphone", systemImage: "microphone")
-                }
-                Toggle(isOn: $bindings.backgroundEnabled) {
-                    Label("Background", systemImage: "photo")
-                }
-                Picker("Background Fade", selection: $bindings.backgroundFadePercent) {
-                    ForEach(BackgroundFade.allValues, id: \.self) { percent in
-                        Text("\(percent)%").tag(percent)
-                    }
-                }
-                #if os(iOS)
-                    Toggle(isOn: $bindings.enableActionButtons) {
-                        Label("Show action buttons", systemImage: "hand.tap")
-                    }
-                #endif
-                Toggle(isOn: $bindings.showUndatedReminders) {
-                    Label("Show undated reminders", systemImage: "calendar.badge.minus")
-                }
-                Toggle(isOn: $bindings.showDate) {
-                    Label("Show date", systemImage: "calendar")
-                }
-                #if os(iOS) || os(macOS)
-                .onChange(of: bindings.showDate) { _, _ in
-                    viewModel.showPreferenceChanged()
-                }
-                #endif
-                Toggle(isOn: $bindings.showList) {
-                    Label("Show list", systemImage: "list.bullet")
-                }
-                Toggle(isOn: $bindings.showRecurrence) {
-                    Label("Recurrence indicator", systemImage: "repeat")
-                }
-                #if os(iOS) || os(macOS)
-                .onChange(of: bindings.showRecurrence) { _, _ in
-                    viewModel.showPreferenceChanged()
-                }
-                #endif
-                Toggle(isOn: $bindings.showAlarms) {
-                    Label("Reminder alerts", systemImage: "bell")
-                }
-                #if os(iOS) || os(macOS)
-                .onChange(of: bindings.showAlarms) { _, _ in
-                    viewModel.showPreferenceChanged()
-                }
-                #endif
-                Section {} footer: {
-                    if let backgroundPhotographer {
-                        if let backgroundPhotographerURL {
-                            Link(
-                                "Photo by \(backgroundPhotographer) on Unsplash",
-                                destination: backgroundPhotographerURL)
-                        } else {
-                            Text("Photo by \(backgroundPhotographer) on Unsplash")
-                        }
-                    }
+                NavigationLink {
+                    BackgroundSettingsView(
+                        bindings: bindings,
+                        backgroundPhotographer: backgroundPhotographer,
+                        backgroundPhotographerURL: backgroundPhotographerURL)
+                } label: {
+                    Label("Background", systemImage: "photo.on.rectangle")
                 }
             }
+            .navigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {
@@ -156,12 +76,12 @@ struct SettingsView: View {
 
     // MARK: Private
 
-    @Bindable private var bindings: SettingsBindings
-
     @Environment(\.dismiss)
     private var dismiss
 
     @Binding private var excludedLists: Set<String>
+
+    private let bindings: SettingsBindings
 
     private let viewModel: SettingsViewModel
     private let backgroundPhotographer: String?
