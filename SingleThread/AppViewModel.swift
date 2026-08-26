@@ -134,14 +134,19 @@ final class AppViewModel {
             // XCTest seam on a test-only destination.
             if arguments.contains("--ui-testing") {
                 UserDefaults.standard.set(true, forKey: "enableActionButtons")
-                let scratchStore = EKEventStore()
-                let reminder = EKReminder(eventStore: scratchStore)
-                reminder.title = "Buy groceries"
-                reminder.priority = 5
-                reminder.notes = "Don't forget the milk"
+                // Build the reminder through `InMemoryEventStore.makeReminder` so it is
+                // backed by the store's persistent `EKEventStore`. A local `EKEventStore()`
+                // would be deallocated when this scope exits, crashing any later reads of
+                // the reminder with SIGTRAP.
                 let inMemoryStore = InMemoryEventStore(
-                    reminders: [reminder],
+                    reminders: [],
                     calendars: [])
+                let reminder = inMemoryStore.makeReminder(
+                    title: "Buy groceries",
+                    notes: "Don't forget the milk",
+                    dueDate: nil,
+                    recurrenceRule: nil)
+                reminder.priority = 5
                 return (ReminderStore(
                     eventStore: inMemoryStore,
                     loadsReminders: false,

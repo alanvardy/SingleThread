@@ -332,23 +332,4 @@ struct SettingsView: View {
             showAlarms: .constant(true))
             .preferredColorScheme(AppearanceMode.dark.colorScheme)
     }
-#else
-    #Preview("Default (macOS)") {
-        SettingsView(
-            appearanceMode: .constant(.system),
-            textSize: .constant(.system),
-            showMicrophoneButton: .constant(true),
-            backgroundEnabled: .constant(true),
-            backgroundFadePercent: .constant(50),
-            backgroundPhotographer: "NEOM",
-            backgroundPhotographerURL: URL(string: "https://unsplash.com/@neom"),
-            showUndatedReminders: .constant(false),
-            excludedLists: .constant([]),
-            availableLists: ["Work", "Personal"],
-            sortOption: .constant(.priority),
-            showDate: .constant(true),
-            showList: .constant(false),
-            showRecurrence: .constant(true),
-            showAlarms: .constant(true))
-    }
 #endif
