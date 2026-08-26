@@ -6,13 +6,14 @@
     @MainActor
     struct AppDelegateTests {
         @Test
-        func replayingSystemAfterLightClearsWindowOverride() throws {
-            // `UIWindow(frame:)` is deprecated in iOS 26, so build the test
-            // window off the host app's connected `UIWindowScene`. It is never
-            // shown or made key, so it doesn't disturb the live key window.
-            let scene = try #require(
-                UIApplication.shared.connectedScenes.first as? UIWindowScene)
-            let window = UIWindow(windowScene: scene)
+        func replayingSystemAfterLightClearsWindowOverride() {
+            // Build a scene-independent window so the test does not depend on
+            // the host app's `connectedScenes` ordering/timing (which flaked on
+            // iPad in the full-suite CI run). `UIWindow(frame:)` is deprecated
+            // only for iOS 26+ deployment targets; this target is 18.7, so it
+            // compiles without a deprecation warning. The window is never shown
+            // or made key, so it doesn't disturb the live key window.
+            let window = UIWindow(frame: .zero)
 
             AppDelegate.applyAppearance(.light, to: [window])
             #expect(window.overrideUserInterfaceStyle == .light)
