@@ -91,7 +91,9 @@ struct SettingsView: View {
             showDate: Binding<Bool>,
             showList: Binding<Bool>,
             showRecurrence: Binding<Bool>,
-            showAlarms: Binding<Bool>) {
+            showAlarms: Binding<Bool>,
+            viewModel: SettingsViewModel = SettingsViewModel()) {
+            self.viewModel = viewModel
             _appearanceMode = appearanceMode
             _textSize = textSize
             _allowsLandscape = allowsLandscape
@@ -126,7 +128,9 @@ struct SettingsView: View {
             showDate: Binding<Bool>,
             showList: Binding<Bool>,
             showRecurrence: Binding<Bool>,
-            showAlarms: Binding<Bool>) {
+            showAlarms: Binding<Bool>,
+            viewModel: SettingsViewModel = SettingsViewModel()) {
+            self.viewModel = viewModel
             _appearanceMode = appearanceMode
             _textSize = textSize
             _showMicrophoneButton = showMicrophoneButton
@@ -173,7 +177,7 @@ struct SettingsView: View {
                         Label("Allow landscape", systemImage: "rectangle.landscape.rotate")
                     }
                     .onChange(of: allowsLandscape) { _, newValue in
-                        AppDelegate.applyLock(allowsLandscape: newValue)
+                        viewModel.allowsLandscapeChanged(newValue)
                     }
                 #endif
                 Toggle(isOn: $showMicrophoneButton) {
@@ -199,8 +203,8 @@ struct SettingsView: View {
                     Label("Show date", systemImage: "calendar")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showDate) { _, _ in
-                    WidgetCenter.shared.reloadAllTimelines()
+                .onChange(of: showDate) { _, newValue in
+                    viewModel.showDateChanged(newValue)
                 }
                 #endif
                 Toggle(isOn: $showList) {
@@ -210,16 +214,16 @@ struct SettingsView: View {
                     Label("Recurrence indicator", systemImage: "repeat")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showRecurrence) { _, _ in
-                    WidgetCenter.shared.reloadAllTimelines()
+                .onChange(of: showRecurrence) { _, newValue in
+                    viewModel.showRecurrenceChanged(newValue)
                 }
                 #endif
                 Toggle(isOn: $showAlarms) {
                     Label("Reminder alerts", systemImage: "bell")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showAlarms) { _, _ in
-                    WidgetCenter.shared.reloadAllTimelines()
+                .onChange(of: showAlarms) { _, newValue in
+                    viewModel.showAlarmsChanged(newValue)
                 }
                 #endif
                 Section {
@@ -274,6 +278,8 @@ struct SettingsView: View {
     @Binding private var showAlarms: Bool
     @Environment(\.dismiss)
     private var dismiss
+
+    private let viewModel: SettingsViewModel
 
     private let backgroundPhotographer: String?
     private let backgroundPhotographerURL: URL?
