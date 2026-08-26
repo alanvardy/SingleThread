@@ -99,40 +99,46 @@ struct ContentView: View {
         .modifier(TextSizeModifier(textSize: textSize))
         .sheet(isPresented: $isShowingSettings) {
             #if os(iOS)
+                let bag = SettingsBindings(
+                    appearanceMode: appearanceMode,
+                    textSize: textSize,
+                    allowsLandscape: allowsLandscape,
+                    enableActionButtons: enableActionButtons,
+                    showMicrophoneButton: showMicrophoneButton,
+                    backgroundEnabled: backgroundEnabled,
+                    backgroundFadePercent: backgroundFadePercent,
+                    showUndatedReminders: showUndatedReminders,
+                    sortOption: sortOption,
+                    showDate: showDate,
+                    showList: showList,
+                    showRecurrence: showRecurrence,
+                    showAlarms: showAlarms)
                 SettingsView(
-                    appearanceMode: $appearanceMode,
-                    textSize: $textSize,
-                    allowsLandscape: $allowsLandscape,
-                    enableActionButtons: $enableActionButtons,
-                    showMicrophoneButton: $showMicrophoneButton,
-                    backgroundEnabled: $backgroundEnabled,
-                    backgroundFadePercent: $backgroundFadePercent,
+                    bindings: bag,
                     backgroundPhotographer: viewModel.backgroundImage.photographer,
                     backgroundPhotographerURL: viewModel.backgroundImage.photographerURL,
-                    showUndatedReminders: $showUndatedReminders,
-                    excludedLists: excludedListsBinding,
                     availableLists: viewModel.store.availableLists,
-                    sortOption: $sortOption,
-                    showDate: $showDate,
-                    showList: $showList,
-                    showRecurrence: $showRecurrence, showAlarms: $showAlarms,
+                    excludedLists: excludedListsBinding,
                     viewModel: SettingsViewModel())
             #else
+                let bag = SettingsBindings(
+                    appearanceMode: appearanceMode,
+                    textSize: textSize,
+                    showMicrophoneButton: showMicrophoneButton,
+                    backgroundEnabled: backgroundEnabled,
+                    backgroundFadePercent: backgroundFadePercent,
+                    showUndatedReminders: showUndatedReminders,
+                    sortOption: sortOption,
+                    showDate: showDate,
+                    showList: showList,
+                    showRecurrence: showRecurrence,
+                    showAlarms: showAlarms)
                 SettingsView(
-                    appearanceMode: $appearanceMode,
-                    textSize: $textSize,
-                    showMicrophoneButton: $showMicrophoneButton,
-                    backgroundEnabled: $backgroundEnabled,
-                    backgroundFadePercent: $backgroundFadePercent,
+                    bindings: bag,
                     backgroundPhotographer: viewModel.backgroundImage.photographer,
                     backgroundPhotographerURL: viewModel.backgroundImage.photographerURL,
-                    showUndatedReminders: $showUndatedReminders,
-                    excludedLists: excludedListsBinding,
                     availableLists: viewModel.store.availableLists,
-                    sortOption: $sortOption,
-                    showDate: $showDate,
-                    showList: $showList,
-                    showRecurrence: $showRecurrence, showAlarms: $showAlarms,
+                    excludedLists: excludedListsBinding,
                     viewModel: SettingsViewModel())
             #endif
         }

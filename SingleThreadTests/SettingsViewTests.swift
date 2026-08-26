@@ -16,16 +16,30 @@ struct SettingsViewTests {
 
         // `Form` content (unlike `.sheet` content) is reflected in the
         // body description, so the row labels below are assertable.
+        // Interface labels (Appearance, Text Size, Show microphone) moved to
+        // InterfaceSettingsView and are covered by the dedicated focused test.
         let commonLabels = [
-            "Appearance", "Text Size", "Sort By", "Show microphone", "Background",
-            "Background Fade", "Unsplash", "Show undated reminders", "Show date",
-            "Show list", "Recurrence indicator", "Reminder alerts", "Excluded Lists",
-            "Done"
+            "Sort By", "Background", "Background Fade", "Unsplash",
+            "Show undated reminders", "Show date", "Show list",
+            "Recurrence indicator", "Reminder alerts", "Excluded Lists", "Done"
+        ]
+        for label in commonLabels {
+            #expect(bodyDescription.contains(label))
+        }
+    }
+
+    @Test
+    func interfaceSettingsViewContainsExpectedRows() {
+        let view = InterfaceSettingsView(
+            bindings: SettingsBindings(),
+            viewModel: SettingsViewModel())
+        let bodyDescription = String(describing: view.body)
+
+        var expectedLabels = [
+            "Appearance", "Text Size", "Show microphone"
         ]
         #if os(iOS)
-            let expectedLabels = commonLabels + ["Allow landscape", "Show action buttons"]
-        #else
-            let expectedLabels = commonLabels
+            expectedLabels += ["Allow landscape", "Show action buttons"]
         #endif
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
@@ -36,45 +50,12 @@ struct SettingsViewTests {
 
     private static let sampleURL = URL(string: "https://unsplash.com/@neom")
 
-    #if os(iOS)
-        private func settingsView() -> SettingsView {
-            SettingsView(
-                appearanceMode: .constant(.system),
-                textSize: .constant(.system),
-                allowsLandscape: .constant(true),
-                enableActionButtons: .constant(true),
-                showMicrophoneButton: .constant(true),
-                backgroundEnabled: .constant(true),
-                backgroundFadePercent: .constant(50),
-                backgroundPhotographer: "NEOM",
-                backgroundPhotographerURL: Self.sampleURL,
-                showUndatedReminders: .constant(false),
-                excludedLists: .constant([]),
-                availableLists: ["Work", "Personal"],
-                sortOption: .constant(.priority),
-                showDate: .constant(true),
-                showList: .constant(true),
-                showRecurrence: .constant(true),
-                showAlarms: .constant(true))
-        }
-    #else
-        private func settingsView() -> SettingsView {
-            SettingsView(
-                appearanceMode: .constant(.system),
-                textSize: .constant(.system),
-                showMicrophoneButton: .constant(true),
-                backgroundEnabled: .constant(true),
-                backgroundFadePercent: .constant(50),
-                backgroundPhotographer: "NEOM",
-                backgroundPhotographerURL: Self.sampleURL,
-                showUndatedReminders: .constant(false),
-                excludedLists: .constant([]),
-                availableLists: ["Work", "Personal"],
-                sortOption: .constant(.priority),
-                showDate: .constant(true),
-                showList: .constant(true),
-                showRecurrence: .constant(true),
-                showAlarms: .constant(true))
-        }
-    #endif
+    private func settingsView() -> SettingsView {
+        SettingsView(
+            bindings: SettingsBindings(),
+            backgroundPhotographer: "NEOM",
+            backgroundPhotographerURL: Self.sampleURL,
+            availableLists: ["Work", "Personal"],
+            excludedLists: .constant([]))
+    }
 }

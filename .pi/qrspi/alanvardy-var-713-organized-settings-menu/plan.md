@@ -549,9 +549,9 @@ Also update the `settingsView()` helper to construct via `SettingsBindings` inst
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build` — builds green
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests` — both old (updated) and new test pass
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` — all unit tests green
+- [x] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build` — builds green
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests` — both old (updated) and new test pass
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` — all unit tests green
 
 #### Manual
 - [ ] Open settings → "Interface" NavigationLink visible at top → tap pushes to Interface sub-view showing Appearance, Text Size, Show microphone, and (iOS) Allow landscape + Show action buttons
