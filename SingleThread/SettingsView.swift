@@ -57,173 +57,111 @@ struct ExcludedListsView: View {
 // MARK: - SettingsView
 
 /// Modal settings screen presented from the gear button. Owns no state —
-/// every preference is bound back to `ContentView`'s `@AppStorage` values.
+/// every preference is bound back through a single `SettingsBindings` bag.
 ///
-/// Thirteen settings, two persistence tiers, one sync scope.
-///
-/// Synced to Apple Watch via `SkippedReminderSyncService` (VAR-648): sort
-/// option, show-undated, show date, show list, show recurrence, show alarms,
-/// excluded projects, plus the skip set.
-///
-/// Intentionally **not** synced — these seven are phone-only cosmetics with no
-/// watch UI counterpart (design decision: syncing them adds payload surface
-/// for no user-visible effect):
-/// `appearanceMode`, `textSize`, `allowsLandscape` (iOS-only),
-/// `showMicrophoneButton`, `backgroundEnabled`, `backgroundFadePercent`,
-/// `enableActionButtons` (iOS-only).
+/// `excludedLists` is the one store-backed value and is passed separately as
+/// a `Binding<Set<String>>` (see the note in `SettingsBindings`).
 struct SettingsView: View {
     // MARK: Lifecycle
 
-    #if os(iOS)
-        init(
-            appearanceMode: Binding<AppearanceMode>,
-            textSize: Binding<TextSize>,
-            allowsLandscape: Binding<Bool>,
-            enableActionButtons: Binding<Bool>,
-            showMicrophoneButton: Binding<Bool>,
-            backgroundEnabled: Binding<Bool>,
-            backgroundFadePercent: Binding<Int>,
-            backgroundPhotographer: String?,
-            backgroundPhotographerURL: URL?,
-            showUndatedReminders: Binding<Bool>,
-            excludedLists: Binding<Set<String>>,
-            availableLists: [String],
-            sortOption: Binding<SortOption>,
-            showDate: Binding<Bool>,
-            showList: Binding<Bool>,
-            showRecurrence: Binding<Bool>,
-            showAlarms: Binding<Bool>,
-            viewModel: SettingsViewModel = SettingsViewModel()) {
-            self.viewModel = viewModel
-            _appearanceMode = appearanceMode
-            _textSize = textSize
-            _allowsLandscape = allowsLandscape
-            _enableActionButtons = enableActionButtons
-            _showMicrophoneButton = showMicrophoneButton
-            _backgroundEnabled = backgroundEnabled
-            _backgroundFadePercent = backgroundFadePercent
-            self.backgroundPhotographer = backgroundPhotographer
-            self.backgroundPhotographerURL = backgroundPhotographerURL
-            _showUndatedReminders = showUndatedReminders
-            _excludedLists = excludedLists
-            self.availableLists = availableLists
-            _sortOption = sortOption
-            _showDate = showDate
-            _showList = showList
-            _showRecurrence = showRecurrence
-            _showAlarms = showAlarms
-        }
-    #else
-        init(
-            appearanceMode: Binding<AppearanceMode>,
-            textSize: Binding<TextSize>,
-            showMicrophoneButton: Binding<Bool>,
-            backgroundEnabled: Binding<Bool>,
-            backgroundFadePercent: Binding<Int>,
-            backgroundPhotographer: String?,
-            backgroundPhotographerURL: URL?,
-            showUndatedReminders: Binding<Bool>,
-            excludedLists: Binding<Set<String>>,
-            availableLists: [String],
-            sortOption: Binding<SortOption>,
-            showDate: Binding<Bool>,
-            showList: Binding<Bool>,
-            showRecurrence: Binding<Bool>,
-            showAlarms: Binding<Bool>,
-            viewModel: SettingsViewModel = SettingsViewModel()) {
-            self.viewModel = viewModel
-            _appearanceMode = appearanceMode
-            _textSize = textSize
-            _showMicrophoneButton = showMicrophoneButton
-            _backgroundEnabled = backgroundEnabled
-            _backgroundFadePercent = backgroundFadePercent
-            self.backgroundPhotographer = backgroundPhotographer
-            self.backgroundPhotographerURL = backgroundPhotographerURL
-            _showUndatedReminders = showUndatedReminders
-            _excludedLists = excludedLists
-            self.availableLists = availableLists
-            _sortOption = sortOption
-            _showDate = showDate
-            _showList = showList
-            _showRecurrence = showRecurrence
-            _showAlarms = showAlarms
-        }
-    #endif
+    init(
+        bindings: SettingsBindings,
+        backgroundPhotographer: String?,
+        backgroundPhotographerURL: URL?,
+        availableLists: [String],
+        excludedLists: Binding<Set<String>>,
+        viewModel: SettingsViewModel = SettingsViewModel()) {
+        self.bindings = bindings
+        self.viewModel = viewModel
+        self.backgroundPhotographer = backgroundPhotographer
+        self.backgroundPhotographerURL = backgroundPhotographerURL
+        self.availableLists = availableLists
+        _excludedLists = excludedLists
+    }
 
     // MARK: Internal
 
     var body: some View {
         NavigationStack {
             Form {
-                Picker("Appearance", selection: $appearanceMode) {
+                Section {
+                    NavigationLink {
+                        InterfaceSettingsView(
+                            bindings: bindings,
+                            viewModel: viewModel)
+                    } label: {
+                        Label("Interface", systemImage: "paintpalette")
+                    }
+                }
+                Picker("Appearance", selection: $bindings.appearanceMode) {
                     ForEach(AppearanceMode.allCases, id: \.self) { mode in
                         Label(mode.title, systemImage: mode.systemImage)
                             .tag(mode)
                     }
                 }
-                Picker("Text Size", selection: $textSize) {
+                Picker("Text Size", selection: $bindings.textSize) {
                     ForEach(TextSize.allCases, id: \.self) { size in
                         Label(size.title, systemImage: size.systemImage)
                             .tag(size)
                     }
                 }
-                Picker("Sort By", selection: $sortOption) {
+                Picker("Sort By", selection: $bindings.sortOption) {
                     ForEach(SortOption.allCases, id: \.self) { option in
                         Label(option.title, systemImage: option.systemImage)
                             .tag(option)
                     }
                 }
                 #if os(iOS)
-                    Toggle(isOn: $allowsLandscape) {
+                    Toggle(isOn: $bindings.allowsLandscape) {
                         Label("Allow landscape", systemImage: "rectangle.landscape.rotate")
                     }
-                    .onChange(of: allowsLandscape) { _, newValue in
+                    .onChange(of: bindings.allowsLandscape) { _, newValue in
                         viewModel.allowsLandscapeChanged(newValue)
                     }
                 #endif
-                Toggle(isOn: $showMicrophoneButton) {
+                Toggle(isOn: $bindings.showMicrophoneButton) {
                     Label("Show microphone", systemImage: "microphone")
                 }
-                Toggle(isOn: $backgroundEnabled) {
+                Toggle(isOn: $bindings.backgroundEnabled) {
                     Label("Background", systemImage: "photo")
                 }
-                Picker("Background Fade", selection: $backgroundFadePercent) {
+                Picker("Background Fade", selection: $bindings.backgroundFadePercent) {
                     ForEach(BackgroundFade.allValues, id: \.self) { percent in
                         Text("\(percent)%").tag(percent)
                     }
                 }
                 #if os(iOS)
-                    Toggle(isOn: $enableActionButtons) {
+                    Toggle(isOn: $bindings.enableActionButtons) {
                         Label("Show action buttons", systemImage: "hand.tap")
                     }
                 #endif
-                Toggle(isOn: $showUndatedReminders) {
+                Toggle(isOn: $bindings.showUndatedReminders) {
                     Label("Show undated reminders", systemImage: "calendar.badge.minus")
                 }
-                Toggle(isOn: $showDate) {
+                Toggle(isOn: $bindings.showDate) {
                     Label("Show date", systemImage: "calendar")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showDate) { _, _ in
+                .onChange(of: bindings.showDate) { _, _ in
                     viewModel.showPreferenceChanged()
                 }
                 #endif
-                Toggle(isOn: $showList) {
+                Toggle(isOn: $bindings.showList) {
                     Label("Show list", systemImage: "list.bullet")
                 }
-                Toggle(isOn: $showRecurrence) {
+                Toggle(isOn: $bindings.showRecurrence) {
                     Label("Recurrence indicator", systemImage: "repeat")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showRecurrence) { _, _ in
+                .onChange(of: bindings.showRecurrence) { _, _ in
                     viewModel.showPreferenceChanged()
                 }
                 #endif
-                Toggle(isOn: $showAlarms) {
+                Toggle(isOn: $bindings.showAlarms) {
                     Label("Reminder alerts", systemImage: "bell")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showAlarms) { _, _ in
+                .onChange(of: bindings.showAlarms) { _, _ in
                     viewModel.showPreferenceChanged()
                 }
                 #endif
@@ -256,81 +194,55 @@ struct SettingsView: View {
                 }
             }
         }
-        .modifier(TextSizeModifier(textSize: textSize))
+        .modifier(TextSizeModifier(textSize: bindings.textSize))
     }
 
     // MARK: Private
 
-    @Binding private var appearanceMode: AppearanceMode
-    @Binding private var textSize: TextSize
-    @Binding private var sortOption: SortOption
-    #if os(iOS)
-        @Binding private var allowsLandscape: Bool
-        @Binding private var enableActionButtons: Bool
-    #endif
-    @Binding private var showMicrophoneButton: Bool
-    @Binding private var backgroundEnabled: Bool
-    @Binding private var backgroundFadePercent: Int
-    @Binding private var showUndatedReminders: Bool
-    @Binding private var excludedLists: Set<String>
-    @Binding private var showDate: Bool
-    @Binding private var showList: Bool
-    @Binding private var showRecurrence: Bool
-    @Binding private var showAlarms: Bool
+    @Bindable private var bindings: SettingsBindings
+
     @Environment(\.dismiss)
     private var dismiss
 
-    private let viewModel: SettingsViewModel
+    @Binding private var excludedLists: Set<String>
 
+    private let viewModel: SettingsViewModel
     private let backgroundPhotographer: String?
     private let backgroundPhotographerURL: URL?
-
     private let availableLists: [String]
 }
 
 // MARK: - Previews
 
-#if os(iOS)
-    #Preview("Default") {
-        SettingsView(
-            appearanceMode: .constant(.system),
-            textSize: .constant(.system),
-            allowsLandscape: .constant(true),
-            enableActionButtons: .constant(false),
-            showMicrophoneButton: .constant(true),
-            backgroundEnabled: .constant(true),
-            backgroundFadePercent: .constant(50),
-            backgroundPhotographer: "NEOM",
-            backgroundPhotographerURL: URL(string: "https://unsplash.com/@neom"),
-            showUndatedReminders: .constant(false),
-            excludedLists: .constant([]),
-            availableLists: ["Work", "Personal"],
-            sortOption: .constant(.priority),
-            showDate: .constant(true),
-            showList: .constant(false),
-            showRecurrence: .constant(true),
-            showAlarms: .constant(true))
-    }
+#Preview("Default") {
+    SettingsView(
+        bindings: SettingsBindings(),
+        backgroundPhotographer: "NEOM",
+        backgroundPhotographerURL: URL(string: "https://unsplash.com/@neom"),
+        availableLists: ["Work", "Personal"],
+        excludedLists: .constant([]))
+}
 
-    #Preview("Dark + Extra Large") {
-        SettingsView(
-            appearanceMode: .constant(.dark),
-            textSize: .constant(.extraLarge),
-            allowsLandscape: .constant(false),
-            enableActionButtons: .constant(false),
-            showMicrophoneButton: .constant(false),
-            backgroundEnabled: .constant(true),
-            backgroundFadePercent: .constant(50),
-            backgroundPhotographer: nil,
-            backgroundPhotographerURL: nil,
-            showUndatedReminders: .constant(true),
-            excludedLists: .constant([]),
-            availableLists: ["Work", "Personal"],
-            sortOption: .constant(.dueDate),
-            showDate: .constant(false),
-            showList: .constant(true),
-            showRecurrence: .constant(true),
-            showAlarms: .constant(true))
-            .preferredColorScheme(AppearanceMode.dark.colorScheme)
-    }
-#endif
+#Preview("Dark + Extra Large") {
+    let bag = SettingsBindings(
+        appearanceMode: .dark,
+        textSize: .extraLarge,
+        allowsLandscape: false,
+        enableActionButtons: false,
+        showMicrophoneButton: false,
+        backgroundEnabled: true,
+        backgroundFadePercent: 50,
+        showUndatedReminders: true,
+        sortOption: .dueDate,
+        showDate: false,
+        showList: true,
+        showRecurrence: true,
+        showAlarms: true)
+    SettingsView(
+        bindings: bag,
+        backgroundPhotographer: nil,
+        backgroundPhotographerURL: nil,
+        availableLists: ["Work", "Personal"],
+        excludedLists: .constant([]))
+        .preferredColorScheme(AppearanceMode.dark.colorScheme)
+}
