@@ -1,4 +1,5 @@
 @testable import SingleThread
+import SwiftUI
 import Testing
 
 #if os(iOS)
@@ -49,6 +50,23 @@ struct AppearanceModeTests {
             #expect(AppearanceMode.dark.appKitAppearance?.name == .darkAqua)
         }
     #endif
+
+    // MARK: colorScheme (previews)
+
+    @Test
+    func systemMapsToNilColorScheme() {
+        #expect(AppearanceMode.system.colorScheme == nil)
+    }
+
+    @Test
+    func lightMapsToLightColorScheme() {
+        #expect(AppearanceMode.light.colorScheme == .light)
+    }
+
+    @Test
+    func darkMapsToDarkColorScheme() {
+        #expect(AppearanceMode.dark.colorScheme == .dark)
+    }
 
     // MARK: load(from:)
 

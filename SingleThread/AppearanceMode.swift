@@ -1,3 +1,4 @@
+import SwiftUI
 #if os(iOS)
     import UIKit
 #endif
@@ -41,6 +42,18 @@ enum AppearanceMode: String, CaseIterable {
             }
         }
     #endif
+
+    /// The `ColorScheme` to force in a SwiftUI preview (the canvas), or `nil`
+    /// for `.system` to follow the device. Previews have no window to override,
+    /// so they translate the appearance through this property instead of
+    /// `windowOverrideStyle` / `appKitAppearance`.
+    var colorScheme: ColorScheme? {
+        switch self {
+        case .system: nil
+        case .light: .light
+        case .dark: .dark
+        }
+    }
 
     /// SF Symbol shown alongside the label in the appearance picker.
     var systemImage: String {
