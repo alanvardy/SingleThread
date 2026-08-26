@@ -10,21 +10,6 @@ struct SettingsViewTests {
     // MARK: Internal
 
     @Test
-    func settingsViewContainsAllPreferenceRows() {
-        let view = settingsView()
-        let bodyDescription = String(describing: view.body)
-
-        // The root SettingsView now hosts only the group NavigationLinks plus
-        // transitional inline rows that Phase 4 removes. Each preference group
-        // is covered by its own focused sub-view test below; here we check the
-        // Background group that remains inline through the transition.
-        let commonLabels = ["Background", "Background Fade", "Unsplash", "Done"]
-        for label in commonLabels {
-            #expect(bodyDescription.contains(label))
-        }
-    }
-
-    @Test
     func interfaceSettingsViewContainsExpectedRows() {
         let view = InterfaceSettingsView(
             bindings: SettingsBindings(),
@@ -73,16 +58,21 @@ struct SettingsViewTests {
         }
     }
 
+    @Test
+    func backgroundSettingsViewContainsExpectedRows() {
+        let view = BackgroundSettingsView(
+            bindings: SettingsBindings(),
+            backgroundPhotographer: "NEOM",
+            backgroundPhotographerURL: Self.sampleURL)
+        let bodyDescription = String(describing: view.body)
+
+        let expectedLabels = ["Background", "Background Fade", "Unsplash"]
+        for label in expectedLabels {
+            #expect(bodyDescription.contains(label))
+        }
+    }
+
     // MARK: Private
 
     private static let sampleURL = URL(string: "https://unsplash.com/@neom")
-
-    private func settingsView() -> SettingsView {
-        SettingsView(
-            bindings: SettingsBindings(),
-            backgroundPhotographer: "NEOM",
-            backgroundPhotographerURL: Self.sampleURL,
-            availableLists: ["Work", "Personal"],
-            excludedLists: .constant([]))
-    }
 }

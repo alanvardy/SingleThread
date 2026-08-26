@@ -1016,9 +1016,9 @@ Replace the old 17-arg / 15-arg preview blocks with bag-based construction:
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build` — builds green
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` — all unit tests pass (four focused SettingsViewTests + all other test suites)
-- [ ] `make periphery` — no new dead code warnings
+- [x] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build` — builds green
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` — all unit tests pass (four focused SettingsViewTests + all other test suites)
+- [x] `make periphery` — no new dead code warnings
 
 #### Manual
 - [ ] Settings opens to a clean four-row menu with icons: Interface, Reminder, Filtering & Sorting, Background
