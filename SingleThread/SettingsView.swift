@@ -32,22 +32,38 @@ struct SettingsView: View {
         NavigationStack {
             List {
                 NavigationLink {
-                    InterfaceSettingsView(
-                        bindings: bindings,
-                        viewModel: viewModel)
+                    #if os(iOS)
+                        InterfaceSettingsView(
+                            appearanceMode: $bindings.appearanceMode,
+                            textSize: $bindings.textSize,
+                            allowsLandscape: $bindings.allowsLandscape,
+                            showMicrophoneButton: $bindings.showMicrophoneButton,
+                            enableActionButtons: $bindings.enableActionButtons,
+                            viewModel: viewModel)
+                    #else
+                        InterfaceSettingsView(
+                            appearanceMode: $bindings.appearanceMode,
+                            textSize: $bindings.textSize,
+                            showMicrophoneButton: $bindings.showMicrophoneButton,
+                            viewModel: viewModel)
+                    #endif
                 } label: {
                     Label("Interface", systemImage: "paintpalette")
                 }
                 NavigationLink {
                     ReminderSettingsView(
-                        bindings: bindings,
+                        showDate: $bindings.showDate,
+                        showList: $bindings.showList,
+                        showRecurrence: $bindings.showRecurrence,
+                        showAlarms: $bindings.showAlarms,
                         viewModel: viewModel)
                 } label: {
                     Label("Reminder", systemImage: "bell.badge")
                 }
                 NavigationLink {
                     FilterSortSettingsView(
-                        bindings: bindings,
+                        sortOption: $bindings.sortOption,
+                        showUndatedReminders: $bindings.showUndatedReminders,
                         availableLists: availableLists,
                         excludedLists: $excludedLists)
                 } label: {
@@ -55,7 +71,8 @@ struct SettingsView: View {
                 }
                 NavigationLink {
                     BackgroundSettingsView(
-                        bindings: bindings,
+                        backgroundEnabled: $bindings.backgroundEnabled,
+                        backgroundFadePercent: $bindings.backgroundFadePercent,
                         backgroundPhotographer: backgroundPhotographer,
                         backgroundPhotographerURL: backgroundPhotographerURL)
                 } label: {
@@ -81,7 +98,7 @@ struct SettingsView: View {
 
     @Binding private var excludedLists: Set<String>
 
-    private let bindings: SettingsBindings
+    @Bindable private var bindings: SettingsBindings
 
     private let viewModel: SettingsViewModel
     private let backgroundPhotographer: String?

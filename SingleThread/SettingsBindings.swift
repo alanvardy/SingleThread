@@ -9,9 +9,8 @@ import SwiftUI
 ///
 /// `allowsLandscape` and `enableActionButtons` are iOS-only in ContentView, but
 /// the compiler does not support `#if` directives inside a parameter list, so
-/// they are declared unconditionally here with their ContentView defaults. This
-/// app target builds only for iOS; the values are simply never wired on other
-/// platforms.
+/// they are declared unconditionally here with their ContentView defaults. On
+/// macOS they are harmless: the values are simply never wired or read.
 @MainActor
 @Observable
 final class SettingsBindings {

@@ -19,7 +19,8 @@ struct WatchReminderView: View {
         hasHidden: Bool = false,
         showDateState: ShowDateState = ShowDateState(),
         showRecurrenceState: ShowRecurrenceState = ShowRecurrenceState(),
-        showAlarmsState: ShowAlarmsState = ShowAlarmsState()) {
+        showAlarmsState: ShowAlarmsState = ShowAlarmsState(),
+        showListState: ShowListState = ShowListState()) {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: loadsReminders,
@@ -31,7 +32,8 @@ struct WatchReminderView: View {
             store: store,
             showDateState: showDateState,
             showRecurrenceState: showRecurrenceState,
-            showAlarmsState: showAlarmsState)
+            showAlarmsState: showAlarmsState,
+            showListState: showListState)
     }
 
     // MARK: Internal
@@ -194,7 +196,7 @@ struct WatchReminderView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            if let listName = display.listName {
+            if viewModel.showListState.isEnabled, let listName = display.listName {
                 Text(listName)
                     .font(.caption2)
                     .foregroundStyle(.secondary)

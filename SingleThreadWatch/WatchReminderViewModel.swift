@@ -12,11 +12,13 @@ final class WatchReminderViewModel {
         store: ReminderStore,
         showDateState: ShowDateState,
         showRecurrenceState: ShowRecurrenceState,
-        showAlarmsState: ShowAlarmsState) {
+        showAlarmsState: ShowAlarmsState,
+        showListState: ShowListState) {
         self.store = store
         self.showDateState = showDateState
         self.showRecurrenceState = showRecurrenceState
         self.showAlarmsState = showAlarmsState
+        self.showListState = showListState
     }
 
     // MARK: Internal
@@ -25,6 +27,7 @@ final class WatchReminderViewModel {
     let showDateState: ShowDateState
     let showRecurrenceState: ShowRecurrenceState
     let showAlarmsState: ShowAlarmsState
+    let showListState: ShowListState
 
     /// Drives the brief full-screen green flash after a successful completion.
     let completionGlow = CompletionGlow()

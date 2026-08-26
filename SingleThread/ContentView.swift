@@ -64,6 +64,7 @@ struct ContentView: View {
         }
         .overlay(alignment: .topTrailing) {
             Button {
+                settingsBag = makeSettingsBag()
                 isShowingSettings = true
             } label: {
                 Image(systemName: "gearshape")
@@ -98,11 +99,12 @@ struct ContentView: View {
         }
         .modifier(TextSizeModifier(textSize: textSize))
         .onChange(of: isShowingSettings) { _, showing in
-            // Recreate the bindings bag each time the sheet opens so it
-            // reflects the latest persisted values, then keep it stable for
-            // the sheet's lifetime so edits don't snap back on re-render
-            // (the bag must outlive ContentView body re-evaluations).
-            settingsBag = showing ? makeSettingsBag() : nil
+            // Nil the bag on dismiss so a fresh one is created next open.
+            // The bag is built in the gear-button action before the flag
+            // flips, so it is never nil when the sheet first renders.
+            if !showing {
+                settingsBag = nil
+            }
         }
         .sheet(isPresented: $isShowingSettings) {
             if let bag = settingsBag {

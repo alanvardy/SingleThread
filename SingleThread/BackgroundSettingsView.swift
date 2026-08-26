@@ -1,11 +1,13 @@
-import SingleThreadCore
+import SingleThreadCore // periphery:ignore
 import SwiftUI
 
 /// Background preferences: toggle, fade percentage, and Unsplash photo credit.
-/// Bound through the shared `@Observable` bag; photo credit is passed read-only
-/// from ContentView's loaded background image.
+/// Takes only the bindings it needs rather than the full bag; photo credit is
+/// passed read-only from ContentView's loaded background image.
 struct BackgroundSettingsView: View {
-    @Bindable var bindings: SettingsBindings
+    @Binding var backgroundEnabled: Bool
+
+    @Binding var backgroundFadePercent: Int
 
     let backgroundPhotographer: String?
 
@@ -13,10 +15,10 @@ struct BackgroundSettingsView: View {
 
     var body: some View {
         Form {
-            Toggle(isOn: $bindings.backgroundEnabled) {
+            Toggle(isOn: $backgroundEnabled) {
                 Label("Background", systemImage: "photo")
             }
-            Picker("Background Fade", selection: $bindings.backgroundFadePercent) {
+            Picker("Background Fade", selection: $backgroundFadePercent) {
                 ForEach(BackgroundFade.allValues, id: \.self) { percent in
                     Text("\(percent)%").tag(percent)
                 }
@@ -42,7 +44,8 @@ struct BackgroundSettingsView: View {
 #Preview("Default") {
     NavigationStack {
         BackgroundSettingsView(
-            bindings: SettingsBindings(),
+            backgroundEnabled: .constant(true),
+            backgroundFadePercent: .constant(50),
             backgroundPhotographer: "NEOM",
             backgroundPhotographerURL: URL(string: "https://unsplash.com/@neom"))
     }

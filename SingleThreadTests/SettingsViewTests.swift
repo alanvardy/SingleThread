@@ -10,10 +10,41 @@ struct SettingsViewTests {
     // MARK: Internal
 
     @Test
-    func interfaceSettingsViewContainsExpectedRows() {
-        let view = InterfaceSettingsView(
+    func settingsViewContainsNavigationLinkLabels() {
+        let view = SettingsView(
             bindings: SettingsBindings(),
-            viewModel: SettingsViewModel())
+            backgroundPhotographer: nil,
+            backgroundPhotographerURL: nil,
+            availableLists: [],
+            excludedLists: .constant([]))
+        let bodyDescription = String(describing: view.body)
+
+        let expectedLabels = [
+            "Interface", "Reminder", "Filtering & Sorting", "Background"
+        ]
+        for label in expectedLabels {
+            #expect(bodyDescription.contains(label))
+        }
+        #expect(bodyDescription.contains("Done"))
+    }
+
+    @Test
+    func interfaceSettingsViewContainsExpectedRows() {
+        #if os(iOS)
+            let view = InterfaceSettingsView(
+                appearanceMode: .constant(.system),
+                textSize: .constant(.system),
+                allowsLandscape: .constant(true),
+                showMicrophoneButton: .constant(true),
+                enableActionButtons: .constant(false),
+                viewModel: SettingsViewModel())
+        #else
+            let view = InterfaceSettingsView(
+                appearanceMode: .constant(.system),
+                textSize: .constant(.system),
+                showMicrophoneButton: .constant(true),
+                viewModel: SettingsViewModel())
+        #endif
         let bodyDescription = String(describing: view.body)
 
         var expectedLabels = [
@@ -30,7 +61,10 @@ struct SettingsViewTests {
     @Test
     func reminderSettingsViewContainsExpectedRows() {
         let view = ReminderSettingsView(
-            bindings: SettingsBindings(),
+            showDate: .constant(true),
+            showList: .constant(false),
+            showRecurrence: .constant(true),
+            showAlarms: .constant(true),
             viewModel: SettingsViewModel())
         let bodyDescription = String(describing: view.body)
 
@@ -45,7 +79,8 @@ struct SettingsViewTests {
     @Test
     func filterSortSettingsViewContainsExpectedRows() {
         let view = FilterSortSettingsView(
-            bindings: SettingsBindings(),
+            sortOption: .constant(.priority),
+            showUndatedReminders: .constant(false),
             availableLists: ["Work"],
             excludedLists: .constant([]))
         let bodyDescription = String(describing: view.body)
@@ -61,7 +96,8 @@ struct SettingsViewTests {
     @Test
     func backgroundSettingsViewContainsExpectedRows() {
         let view = BackgroundSettingsView(
-            bindings: SettingsBindings(),
+            backgroundEnabled: .constant(true),
+            backgroundFadePercent: .constant(50),
             backgroundPhotographer: "NEOM",
             backgroundPhotographerURL: Self.sampleURL)
         let bodyDescription = String(describing: view.body)

@@ -1,41 +1,54 @@
-import SingleThreadCore
+import SingleThreadCore // periphery:ignore
 import SwiftUI
 
 /// Interface preferences: appearance, text size, and platform-gated
-/// orientation + action button toggles. Bound through the shared
-/// @Observable SettingsBindings bag.
+/// orientation + action button toggles. Takes only the bindings it needs
+/// rather than the full bag so it cannot accidentally mutate unrelated
+/// preferences.
 struct InterfaceSettingsView: View {
-    @Bindable var bindings: SettingsBindings
+    @Binding var appearanceMode: AppearanceMode
+
+    @Binding var textSize: TextSize
+
+    #if os(iOS)
+        @Binding var allowsLandscape: Bool
+    #endif
+
+    @Binding var showMicrophoneButton: Bool
+
+    #if os(iOS)
+        @Binding var enableActionButtons: Bool
+    #endif
 
     let viewModel: SettingsViewModel
 
     var body: some View {
         Form {
-            Picker("Appearance", selection: $bindings.appearanceMode) {
+            Picker("Appearance", selection: $appearanceMode) {
                 ForEach(AppearanceMode.allCases, id: \.self) { mode in
                     Label(mode.title, systemImage: mode.systemImage)
                         .tag(mode)
                 }
             }
-            Picker("Text Size", selection: $bindings.textSize) {
+            Picker("Text Size", selection: $textSize) {
                 ForEach(TextSize.allCases, id: \.self) { size in
                     Label(size.title, systemImage: size.systemImage)
                         .tag(size)
                 }
             }
             #if os(iOS)
-                Toggle(isOn: $bindings.allowsLandscape) {
+                Toggle(isOn: $allowsLandscape) {
                     Label("Allow landscape", systemImage: "rectangle.landscape.rotate")
                 }
-                .onChange(of: bindings.allowsLandscape) { _, newValue in
+                .onChange(of: allowsLandscape) { _, newValue in
                     viewModel.allowsLandscapeChanged(newValue)
                 }
             #endif
-            Toggle(isOn: $bindings.showMicrophoneButton) {
+            Toggle(isOn: $showMicrophoneButton) {
                 Label("Show microphone", systemImage: "microphone")
             }
             #if os(iOS)
-                Toggle(isOn: $bindings.enableActionButtons) {
+                Toggle(isOn: $enableActionButtons) {
                     Label("Show action buttons", systemImage: "hand.tap")
                 }
             #endif
@@ -48,8 +61,20 @@ struct InterfaceSettingsView: View {
 
 #Preview("Default") {
     NavigationStack {
-        InterfaceSettingsView(
-            bindings: SettingsBindings(),
-            viewModel: SettingsViewModel())
+        #if os(iOS)
+            InterfaceSettingsView(
+                appearanceMode: .constant(.system),
+                textSize: .constant(.system),
+                allowsLandscape: .constant(true),
+                showMicrophoneButton: .constant(true),
+                enableActionButtons: .constant(false),
+                viewModel: SettingsViewModel())
+        #else
+            InterfaceSettingsView(
+                appearanceMode: .constant(.system),
+                textSize: .constant(.system),
+                showMicrophoneButton: .constant(true),
+                viewModel: SettingsViewModel())
+        #endif
     }
 }
