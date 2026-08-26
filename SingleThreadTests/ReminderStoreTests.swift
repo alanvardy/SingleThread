@@ -323,8 +323,8 @@ struct ReminderStoreTests {
             reminders: [],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        await store.completeCurrentReminder()
-        #expect(Bool(true)) // no crash
+        let completed = await store.completeCurrentReminder()
+        #expect(!completed)
     }
 
     @Test
@@ -336,12 +336,13 @@ struct ReminderStoreTests {
             reminders: [rem],
             skippedIDs: [rem.calendarItemIdentifier],
             authorizationStatus: .fullAccess)
-        await store.completeCurrentReminder()
+        let completed = await store.completeCurrentReminder()
+        #expect(!completed)
         #expect(store.reminders.count == 1) // unchanged
     }
 
     @Test
-    func completeCurrentReminderDoesNotCrashWithVisibleReminder() async {
+    func completeCurrentReminderWithVisibleReminderReturnsTrue() async {
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
@@ -349,9 +350,9 @@ struct ReminderStoreTests {
             reminders: [rem],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        // Without EventKit access, save fails but does not crash.
-        await store.completeCurrentReminder()
-        #expect(Bool(true))
+        let completed = await store.completeCurrentReminder()
+        #expect(completed)
+        #expect(rem.isCompleted)
     }
 
     // MARK: - completeReminder
@@ -364,8 +365,8 @@ struct ReminderStoreTests {
             reminders: [],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        await store.completeReminder(identifier: "nonexistent")
-        #expect(Bool(true)) // no crash
+        let completed = await store.completeReminder(identifier: "nonexistent")
+        #expect(!completed)
     }
 
     // MARK: - start / reload guards

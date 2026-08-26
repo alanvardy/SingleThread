@@ -136,26 +136,41 @@ public final class ReminderStore {
     /// On iOS: marks it done in EventKit and reloads. On watchOS (where EventKit is
     /// read-only): removes it locally and relays the completion to the iPhone via
     /// `onCompleteReminder`.
-    public func completeReminder(identifier: String) async {
+    ///
+    /// Returns `true` when a reminder was actually completed (or, on watchOS,
+    /// removed and relayed); `false` when the identifier didn't match or the
+    /// EventKit save failed. Callers use this to gate success-only feedback
+    /// such as the completion glow.
+    @discardableResult
+    public func completeReminder(identifier: String) async -> Bool {
         #if os(watchOS)
+            let removed = reminders.contains { $0.calendarItemIdentifier == identifier }
             reminders.removeAll { $0.calendarItemIdentifier == identifier }
-            onCompleteReminder?(identifier)
+            if removed {
+                onCompleteReminder?(identifier)
+            }
+            return removed
         #else
-            guard let reminder = reminders.first(where: { $0.calendarItemIdentifier == identifier }) else { return }
+            guard
+                let reminder = reminders.first(where: { $0.calendarItemIdentifier == identifier })
+            else { return false }
             do {
                 reminder.isCompleted = true
                 try eventStore.save(reminder, commit: true)
                 try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
                 await reload()
+                return true
             } catch {
                 Self.logger.error("Failed to complete reminder: \(error.localizedDescription, privacy: .public)")
+                return false
             }
         #endif
     }
 
-    public func completeCurrentReminder() async {
-        guard let reminder = visibleReminders.first else { return }
-        await completeReminder(identifier: reminder.calendarItemIdentifier)
+    @discardableResult
+    public func completeCurrentReminder() async -> Bool {
+        guard let reminder = visibleReminders.first else { return false }
+        return await completeReminder(identifier: reminder.calendarItemIdentifier)
     }
 
     /// Deletes a specific reminder by identifier.
