@@ -184,12 +184,15 @@ final class AppViewModel {
             let currentShowDate = ShowDatePreference().isEnabled
             let currentShowRecurrence = ShowRecurrencePreference().isEnabled
             let currentShowAlarms = ShowAlarmsPreference().isEnabled
+            let currentShowList = ShowListPreference().isEnabled
             if currentShowDate != lastShowDate
                 || currentShowRecurrence != lastShowRecurrence
-                || currentShowAlarms != lastShowAlarms {
+                || currentShowAlarms != lastShowAlarms
+                || currentShowList != lastShowList {
                 lastShowDate = currentShowDate
                 lastShowRecurrence = currentShowRecurrence
                 lastShowAlarms = currentShowAlarms
+                lastShowList = currentShowList
                 syncService?.pushAll()
             }
         }
@@ -198,6 +201,7 @@ final class AppViewModel {
         private var lastShowDate = ShowDatePreference().isEnabled
         private var lastShowRecurrence = ShowRecurrencePreference().isEnabled
         private var lastShowAlarms = ShowAlarmsPreference().isEnabled
+        private var lastShowList = ShowListPreference().isEnabled
 
         private var syncDefaultsObserver: NSObjectProtocol?
     #endif

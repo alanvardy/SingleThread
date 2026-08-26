@@ -32,9 +32,11 @@ import os
             showDateStore: ShowDatePreference = ShowDatePreference(),
             showRecurrenceStore: ShowRecurrencePreference = ShowRecurrencePreference(),
             showAlarmsStore: ShowAlarmsPreference = ShowAlarmsPreference(),
+            showListStore: ShowListPreference = ShowListPreference(),
             sendsShowDate: Bool = true,
             sendsShowRecurrence: Bool = true,
-            sendsShowAlarms: Bool = true) {
+            sendsShowAlarms: Bool = true,
+            sendsShowList: Bool = true) {
             self.session = session
             self.skipStore = skipStore
             self.excludeStore = excludeStore
@@ -43,9 +45,11 @@ import os
             self.showDateStore = showDateStore
             self.showRecurrenceStore = showRecurrenceStore
             self.showAlarmsStore = showAlarmsStore
+            self.showListStore = showListStore
             self.sendsShowDate = sendsShowDate
             self.sendsShowRecurrence = sendsShowRecurrence
             self.sendsShowAlarms = sendsShowAlarms
+            self.sendsShowList = sendsShowList
             super.init()
         }
 
@@ -94,6 +98,12 @@ import os
         /// `onShowDateReceived`.
         public nonisolated(unsafe) var onShowAlarmsReceived: ((Bool) -> Void)?
 
+        /// Hook fired on the counterpart when the "show list" preference arrives
+        /// in an application context. Passes the received value. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onShowDateReceived`.
+        public nonisolated(unsafe) var onShowListReceived: ((Bool) -> Void)?
+
         /// Hook fired on the counterpart when the skipped-reminder identifier array
         /// arrives in an application context. Passes the received IDs. Fired **after**
         /// the skip store is persisted, so a watch-side handler can simply reload.
@@ -139,6 +149,9 @@ import os
                 }
                 if sendsShowAlarms {
                     context[PayloadKey.showAlarms] = showAlarmsStore.isEnabled
+                }
+                if sendsShowList {
+                    context[PayloadKey.showList] = showListStore.isEnabled
                 }
                 try session.updateApplicationContext(context)
             } catch {
@@ -216,6 +229,7 @@ import os
             static let showDate = "showDate"
             static let showRecurrence = "showRecurrence"
             static let showAlarms = "showAlarms"
+            static let showList = "showList"
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")
@@ -228,9 +242,11 @@ import os
         private let showDateStore: ShowDatePreference
         private let showRecurrenceStore: ShowRecurrencePreference
         private let showAlarmsStore: ShowAlarmsPreference
+        private let showListStore: ShowListPreference
         private let sendsShowDate: Bool
         private let sendsShowRecurrence: Bool
         private let sendsShowAlarms: Bool
+        private let sendsShowList: Bool
 
         /// Single receive path: decode → persist → notify for each present key;
         /// absent keys are no-ops. Handlers are snapshotted before invocation because
@@ -279,6 +295,11 @@ import os
                 showAlarmsStore.set(showAlarms)
                 let handler = onShowAlarmsReceived
                 handler?(showAlarms)
+            }
+            if let showList = context[PayloadKey.showList] as? Bool {
+                showListStore.set(showList)
+                let handler = onShowListReceived
+                handler?(showList)
             }
         }
     }

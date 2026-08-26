@@ -107,7 +107,7 @@ final class WatchAppViewModel {
             showDateStore: ShowDatePreference(defaults: .standard),
             showRecurrenceStore: ShowRecurrencePreference(defaults: .standard),
             showAlarmsStore: ShowAlarmsPreference(defaults: .standard),
-            sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false)
+            sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false)
         service.onShowUndatedRemindersReceived = { [weak store] value in
             Task {
                 store?.showsUndatedReminders = value
