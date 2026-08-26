@@ -14,15 +14,11 @@ struct SettingsViewTests {
         let view = settingsView()
         let bodyDescription = String(describing: view.body)
 
-        // `Form` content (unlike `.sheet` content) is reflected in the
-        // body description, so the row labels below are assertable.
-        // Interface labels (Appearance, Text Size, Show microphone) moved to
-        // InterfaceSettingsView and are covered by the dedicated focused test.
-        let commonLabels = [
-            "Sort By", "Background", "Background Fade", "Unsplash",
-            "Show undated reminders", "Show date", "Show list",
-            "Recurrence indicator", "Reminder alerts", "Excluded Lists", "Done"
-        ]
+        // The root SettingsView now hosts only the group NavigationLinks plus
+        // transitional inline rows that Phase 4 removes. Each preference group
+        // is covered by its own focused sub-view test below; here we check the
+        // Background group that remains inline through the transition.
+        let commonLabels = ["Background", "Background Fade", "Unsplash", "Done"]
         for label in commonLabels {
             #expect(bodyDescription.contains(label))
         }
@@ -41,6 +37,37 @@ struct SettingsViewTests {
         #if os(iOS)
             expectedLabels += ["Allow landscape", "Show action buttons"]
         #endif
+        for label in expectedLabels {
+            #expect(bodyDescription.contains(label))
+        }
+    }
+
+    @Test
+    func reminderSettingsViewContainsExpectedRows() {
+        let view = ReminderSettingsView(
+            bindings: SettingsBindings(),
+            viewModel: SettingsViewModel())
+        let bodyDescription = String(describing: view.body)
+
+        let expectedLabels = [
+            "Show date", "Show list", "Recurrence indicator", "Reminder alerts"
+        ]
+        for label in expectedLabels {
+            #expect(bodyDescription.contains(label))
+        }
+    }
+
+    @Test
+    func filterSortSettingsViewContainsExpectedRows() {
+        let view = FilterSortSettingsView(
+            bindings: SettingsBindings(),
+            availableLists: ["Work"],
+            excludedLists: .constant([]))
+        let bodyDescription = String(describing: view.body)
+
+        let expectedLabels = [
+            "Sort By", "Show undated reminders", "Excluded Lists"
+        ]
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
         }
