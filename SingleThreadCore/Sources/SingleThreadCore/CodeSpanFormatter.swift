@@ -4,21 +4,21 @@ import Foundation
     import SwiftUI
 #endif
 
-/// Parses backtick-delimited text into `AttributedString` with monospaced
-/// styling on code spans. Follows the same caseless-enum pattern as
-/// `ReminderNotesFormatter`.
-public enum CodeSpanFormatter {
+/// Parses backtick-delimited text into `AttributedString` with subtle
+/// background styling on code spans. Follows the same caseless-enum
+/// pattern as `ReminderNotesFormatter`.
+public nonisolated enum CodeSpanFormatter {
     // MARK: Public
 
     /// Returns an `AttributedString` where backtick-delimited spans are
-    /// styled with a monospaced font and subtle background; backtick fences
-    /// are stripped from visible text. Unmatched backticks render as literal
-    /// text.
+    /// styled with a subtle background color; backtick fences are stripped
+    /// from visible text.
     ///
     /// - Single backtick pairs `` `code` `` render as inline code.
     /// - Triple-backtick pairs ```` ```block``` ```` render as fenced code.
-    /// - Unmatched backticks (odd count, mismatched delimiters) render as
-    ///   literal text.
+    /// - Unmatched single backticks render as literal text.
+    /// - Unclosed fenced blocks (no closing ```) consume the remainder as
+    ///   code content.
     public static func format(_ text: String) -> AttributedString {
         var result = AttributedString()
         var remainder = text[...]
@@ -86,7 +86,7 @@ public enum CodeSpanFormatter {
         guard text.hasPrefix("```") else { return nil }
         let afterOpen = text.dropFirst(3)
 
-        // Find the closing ``` — must be on its own or at end.
+        // Find the closing ``` anywhere in the remaining text.
         guard let closeRange = afterOpen.range(of: "```") else {
             // No closing fence: rest of string is code content.
             return CodeSpan(
@@ -120,11 +120,14 @@ public enum CodeSpanFormatter {
 
     private static func applyCodeAttributes(to attributed: inout AttributedString) {
         #if canImport(SwiftUI)
-            // Monospaced font, scaled relative to `.body`.
-            attributed.font = .system(.body, design: .monospaced)
-            // Subtle rounded background using a platform-adaptive secondary
-            // system background color. Falls back to gray opacity on platforms
-            // where `secondarySystemBackground` is not available.
+            // Subtle background using a platform-adaptive secondary system
+            // background color. Falls back to gray opacity on platforms where
+            // `secondarySystemBackground` is not available.
+            //
+            // Note: background styling requires SwiftUI. On platforms without
+            // SwiftUI, code spans are fence-stripped but unstyled. A font is
+            // intentionally not set here — code-span runs inherit the view-level
+            // `.font()` modifier so sizing stays consistent with surrounding text.
             if let bgColor = platformSecondaryBackground() {
                 attributed.backgroundColor = bgColor
             }

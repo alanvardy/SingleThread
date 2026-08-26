@@ -352,6 +352,10 @@ struct ContentView: View {
                         }
                     }
                     .listStyle(.plain)
+                    // iPadOS gives `List` an opaque scroll-content background by
+                    // default, which would hide the photo. Hide it so the photo
+                    // (or the system background when none is shown) shows through.
+                    .scrollContentBackground(.hidden)
                     .refreshable {
                         await viewModel.reload()
                     }

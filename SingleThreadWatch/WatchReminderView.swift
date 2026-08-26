@@ -247,6 +247,14 @@ private let mockWatchReminder: EKReminder = {
     return reminder
 }()
 
+private let mockWatchReminderWithCode: EKReminder = {
+    let reminder = EKReminder(eventStore: mockWatchEventStore)
+    reminder.title = "Use `map` and `filter`"
+    reminder.priority = 5
+    reminder.notes = "```\nlet x = 1\nlet y = 2\n```"
+    return reminder
+}()
+
 #Preview("Requesting Access") {
     WatchReminderView(
         loadsReminders: false,
@@ -259,6 +267,14 @@ private let mockWatchReminder: EKReminder = {
     WatchReminderView(
         loadsReminders: false,
         reminders: [mockWatchReminder],
+        skippedIDs: [],
+        authorizationStatus: .fullAccess)
+}
+
+#Preview("Code Spans") {
+    WatchReminderView(
+        loadsReminders: false,
+        reminders: [mockWatchReminderWithCode],
         skippedIDs: [],
         authorizationStatus: .fullAccess)
 }
