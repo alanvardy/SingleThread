@@ -202,7 +202,7 @@ struct NextThingWidgetView: View {
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
-                Text(display.title)
+                Text(display.titleAttributed)
                     .font(.headline)
                     .lineLimit(2)
             }
@@ -226,8 +226,8 @@ struct NextThingWidgetView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            if let notes = display.notes {
-                Text(notes)
+            if let notesAttr = display.notesAttributed {
+                Text(notesAttr)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)

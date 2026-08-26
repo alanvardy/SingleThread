@@ -692,13 +692,13 @@ Text(notesAttr)
 ### Verification
 
 #### Automated
-- [ ] Widget build:
+- [x] Widget build:
   ```fish
   xcodebuild -scheme SingleThreadWidget \
     -destination 'platform=iOS Simulator,name=iPhone 17' \
     build
   ```
-- [ ] Full pipeline:
+- [x] Full pipeline:
   ```fish
   ./scripts/test.sh
   ```
