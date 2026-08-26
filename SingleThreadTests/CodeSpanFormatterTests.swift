@@ -95,28 +95,46 @@ struct CodeSpanFormatterTests {
         #expect(String(result.characters[...]) == "start and end")
     }
 
+    // MARK: Nested / sequences
+
+    @Test
+    func fencedBlockWithInnerBackticksRenderedLiterally() {
+        // Inner backticks inside a fenced block are treated literally —
+        // no nesting recursion.
+        let result = CodeSpanFormatter.format("```\ncode `x` more\n```")
+        let text = String(result.characters[...])
+        #expect(text.contains("code `x` more"))
+        #expect(!text.contains("```"))
+    }
+
+    @Test
+    func multipleSpansWithPlainTextBetween() {
+        // Plain text between code spans is preserved in correct order.
+        let result = CodeSpanFormatter.format("a `x` b `y` c")
+        #expect(String(result.characters[...]) == "a x b y c")
+    }
+
     // MARK: Attributes
 
     @Test
-    func codeSpanHasMonospacedFontAttribute() {
+    func codeSpanHasBackgroundAttribute() {
         let result = CodeSpanFormatter.format("`code`")
-        // Verify at least one run has a font attribute (monospaced).
-        var foundMonospaced = false
-        for run in result.runs where run.font != nil {
-            foundMonospaced = true
+        var foundBackground = false
+        for run in result.runs where run.backgroundColor != nil {
+            foundBackground = true
             break
         }
-        #expect(foundMonospaced, "Code span should carry a font attribute")
+        #expect(foundBackground, "Code span should carry a background color attribute")
     }
 
     @Test
     func plainTextHasNoCodeAttributes() {
         let result = CodeSpanFormatter.format("plain `code` plain")
-        // The plain runs should not have monospaced styling.
+        // The plain runs should not have background color.
         for run in result.runs {
             let runText = String(result.characters[run.range])
             if runText == "plain " || runText == " plain" {
-                #expect(run.font == nil, "Plain text run should not have font attribute")
+                #expect(run.backgroundColor == nil, "Plain text run should not have background color")
             }
         }
     }

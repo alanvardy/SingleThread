@@ -246,8 +246,8 @@ struct NextThingWidgetView: View {
     NextThingEntry(
         date: Date(),
         state: .reminder(ReminderDisplay(
-            title: "Buy groceries",
-            notes: "Don't forget the milk",
+            title: "Use `map`",
+            notes: "```\nlet x = 1\n```",
             dueDate: Date(),
             priorityMarker: "!!",
             listName: "Groceries")),
