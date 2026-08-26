@@ -5,16 +5,9 @@ import SwiftUI
 struct WatchReminderView: View {
     // MARK: Lifecycle
 
-    /// Accepts a pre-configured store (production or preview).
-    init(
-        store: ReminderStore,
-        showDateState: ShowDateState = ShowDateState(),
-        showRecurrenceState: ShowRecurrenceState = ShowRecurrenceState(),
-        showAlarmsState: ShowAlarmsState = ShowAlarmsState()) {
-        self.store = store
-        self.showDateState = showDateState
-        self.showRecurrenceState = showRecurrenceState
-        self.showAlarmsState = showAlarmsState
+    /// Accepts a pre-configured view model (production or preview).
+    init(viewModel: WatchReminderViewModel) {
+        self.viewModel = viewModel
     }
 
     /// Pre-populates state for canvas previews.
@@ -27,23 +20,25 @@ struct WatchReminderView: View {
         showDateState: ShowDateState = ShowDateState(),
         showRecurrenceState: ShowRecurrenceState = ShowRecurrenceState(),
         showAlarmsState: ShowAlarmsState = ShowAlarmsState()) {
-        store = ReminderStore(
+        let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: loadsReminders,
             reminders: reminders,
             skippedIDs: skippedIDs,
             authorizationStatus: authorizationStatus,
             hasHidden: hasHidden)
-        self.showDateState = showDateState
-        self.showRecurrenceState = showRecurrenceState
-        self.showAlarmsState = showAlarmsState
+        viewModel = WatchReminderViewModel(
+            store: store,
+            showDateState: showDateState,
+            showRecurrenceState: showRecurrenceState,
+            showAlarmsState: showAlarmsState)
     }
 
     // MARK: Internal
 
     var body: some View {
         Group {
-            switch store.authorizationStatus {
+            switch viewModel.store.authorizationStatus {
             case .notDetermined:
                 ProgressView("Requesting access…")
             case .fullAccess:
@@ -54,40 +49,27 @@ struct WatchReminderView: View {
             }
         }
         .task {
-            await store.start()
+            await viewModel.task()
         }
     }
 
     // MARK: Private
 
-    /// The refresh spinner stays visible for at least this long so brief
-    /// EventKit fetches still read as a refresh.
-    private static let refreshMinimumDisplayDuration: TimeInterval = 1
-
-    @State private var isRefreshing = false
-    @State private var isShowingRefreshConfirmation = false
-
-    private let store: ReminderStore
-
-    private let showDateState: ShowDateState
-
-    private let showRecurrenceState: ShowRecurrenceState
-
-    private let showAlarmsState: ShowAlarmsState
+    private let viewModel: WatchReminderViewModel
 
     // MARK: - Content
 
     private var reminderContent: some View {
         ZStack {
-            if store.allSkipped {
+            if viewModel.store.allSkipped {
                 allDoneState
-            } else if let reminder = store.visibleReminders.first {
+            } else if let reminder = viewModel.store.visibleReminders.first {
                 reminderCard(reminder)
             } else {
                 noRemindersState
             }
 
-            if isRefreshing {
+            if viewModel.isRefreshing {
                 ProgressView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
                     .padding(.top, 8)
@@ -98,7 +80,7 @@ struct WatchReminderView: View {
     private var actionButtons: some View {
         HStack {
             Button {
-                Task { await store.completeCurrentReminder() }
+                Task { await viewModel.store.completeCurrentReminder() }
             } label: {
                 Label("Complete", systemImage: "checkmark.circle.fill")
                     .labelStyle(.iconOnly)
@@ -108,7 +90,7 @@ struct WatchReminderView: View {
             .accessibilityAddTraits(.isButton)
 
             Button {
-                store.skipCurrentReminder()
+                viewModel.store.skipCurrentReminder()
             } label: {
                 Label("Skip", systemImage: "circle.slash")
                     .labelStyle(.iconOnly)
@@ -131,7 +113,7 @@ struct WatchReminderView: View {
         VStack(spacing: 6) {
             Text("No Reminders")
                 .foregroundStyle(.secondary)
-            Text(store.hasHidden ? "Nothing due right now" : "No reminders yet")
+            Text(viewModel.store.hasHidden ? "Nothing due right now" : "No reminders yet")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -141,29 +123,30 @@ struct WatchReminderView: View {
 
     private var refreshButton: some View {
         Button("Refresh") {
-            refresh()
+            Task { await viewModel.refresh(clearSkipped: viewModel.store.allSkipped) }
         }
-        .disabled(isRefreshing)
+        .disabled(viewModel.isRefreshing)
     }
 
     /// The reminder is always scrollable so long titles and notes are never cut off.
     private func reminderCard(_ reminder: EKReminder) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        @Bindable var viewModel = viewModel
+        return VStack(alignment: .leading, spacing: 6) {
             ScrollView {
                 let display = ReminderDisplay(reminder: reminder)
                 reminderDetails(display)
             }
             .onTapGesture {
-                isShowingRefreshConfirmation = true
+                viewModel.isShowingRefreshConfirmation = true
             }
             .accessibilityAddTraits(.isButton)
-            .confirmationDialog("Reminder", isPresented: $isShowingRefreshConfirmation) {
+            .confirmationDialog("Reminder", isPresented: $viewModel.isShowingRefreshConfirmation) {
                 Button("Refresh") {
-                    refresh()
+                    Task { await viewModel.refresh(clearSkipped: viewModel.store.allSkipped) }
                 }
 
                 Button("Delete", role: .destructive) {
-                    Task { await store.deleteCurrentReminder() }
+                    Task { await viewModel.store.deleteCurrentReminder() }
                 }
             }
 
@@ -184,7 +167,7 @@ struct WatchReminderView: View {
                 Text(display.title)
                     .font(.headline)
             }
-            if showDateState.isEnabled, let due = display.dueDate {
+            if viewModel.showDateState.isEnabled, let due = display.dueDate {
                 Text(due, style: .date)
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -194,12 +177,12 @@ struct WatchReminderView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            if showRecurrenceState.isEnabled, display.hasRecurrence {
+            if viewModel.showRecurrenceState.isEnabled, display.hasRecurrence {
                 Label(display.recurrenceSummary ?? "Repeats", systemImage: "repeat")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            if showAlarmsState.isEnabled, display.hasAlarms {
+            if viewModel.showAlarmsState.isEnabled, display.hasAlarms {
                 Label("Alert", systemImage: "bell")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -211,25 +194,6 @@ struct WatchReminderView: View {
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    // MARK: - Refresh
-
-    private func refresh() {
-        guard !isRefreshing else { return }
-        let clearSkipped = store.allSkipped
-        isRefreshing = true
-        let startedAt = Date()
-        Task {
-            await store.reload(clearSkipped: clearSkipped)
-            let remaining = MinimumDisplayDuration.remainingSleep(
-                elapsed: Date().timeIntervalSince(startedAt),
-                minimum: Self.refreshMinimumDisplayDuration)
-            if remaining > 0 {
-                try? await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000))
-            }
-            isRefreshing = false
-        }
     }
 
     // MARK: - Helpers
