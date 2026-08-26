@@ -392,7 +392,7 @@ struct ContentView: View {
             } label: {
                 Label("Complete", systemImage: "checkmark.circle.fill")
                     .labelStyle(.iconOnly)
-                    .controlPlate()
+                    .controlPlate(glyph: viewModel.actionButtonsUseAccentColors ? Color.green : nil)
             }
             .accessibilityLabel("Complete reminder")
             .accessibilityAddTraits(.isButton)
@@ -404,7 +404,7 @@ struct ContentView: View {
             } label: {
                 Label("Skip", systemImage: "circle.slash")
                     .labelStyle(.iconOnly)
-                    .controlPlate()
+                    .controlPlate(glyph: viewModel.actionButtonsUseAccentColors ? Color.orange : nil)
             }
             .accessibilityLabel("Skip reminder")
             .accessibilityAddTraits(.isButton)

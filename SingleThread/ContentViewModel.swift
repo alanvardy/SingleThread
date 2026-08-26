@@ -41,6 +41,14 @@ final class ContentViewModel {
             UserDefaults.standard.bool(forKey: "enableActionButtons")
                 && store.visibleReminders.first != nil
         }
+
+        /// Whether the Complete/Skip buttons render their accent glyph colors
+        /// (green/orange). True only when no background photo is on screen — over
+        /// a photo the neutral scheme-adaptive glyph stays legible. Readable
+        /// outside a live view (unit-test seam).
+        var actionButtonsUseAccentColors: Bool {
+            !backgroundDisplayed
+        }
     #endif
 
     /// See-through reminder-card gate: true while a background photo is actually
