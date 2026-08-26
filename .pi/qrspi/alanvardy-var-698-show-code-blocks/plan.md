@@ -503,31 +503,31 @@ Same modifier-preservation logic: `.font(.callout)`, `.foregroundStyle(.secondar
 ### Verification
 
 #### Automated
-- [ ] iOS build:
+- [x] iOS build:
   ```fish
   xcodebuild -scheme SingleThread \
     -destination 'platform=iOS Simulator,name=iPhone 17' \
     -configuration Debug build
   ```
-- [ ] Unit tests still pass:
+- [x] Unit tests still pass:
   ```fish
   xcodebuild test -scheme SingleThread \
     -destination 'platform=iOS Simulator,name=iPhone 17' \
     -only-testing:SingleThreadTests
   ```
-- [ ] UI flows — existing seeded tests + new code-block test:
+- [x] UI flows — existing seeded tests + new code-block test:
   ```fish
   xcodebuild test -scheme SingleThread \
     -destination 'platform=iOS Simulator,name=iPhone 17' \
     -only-testing:SingleThreadUITests/SingleThreadUITestsFlows
   ```
-- [ ] Accessibility audit still passes:
+- [x] Accessibility audit still passes:
   ```fish
   xcodebuild test -scheme SingleThread \
     -destination 'platform=iOS Simulator,name=iPhone 17' \
     -only-testing:SingleThreadUITests/SingleThreadUITests/testAccessibilityAudit
   ```
-- [ ] SwiftLint clean:
+- [x] SwiftLint clean:
   ```fish
   swiftlint lint --strict
   ```

@@ -183,6 +183,35 @@ final class SingleThreadUITestsFlows: XCTestCase {
             "Background-off should persist across relaunch")
     }
 
+    // MARK: - Code blocks
+
+    @MainActor
+    func testCodeBlocksRenderWithoutBacktickFences() {
+        let seed = #"{"reminders":[{"title":"Use `map`","notes":"```\nlet x = 1\n```"}]}"#
+        let app = launchApp(seedJSON: seed)
+
+        // Attributed text with code spans exposes accessibility *labels* but
+        // not string identifiers, so the `staticTexts["..."]` subscript lookup
+        // (which matches by identifier) fails. Gather all StaticText labels and
+        // assert on the aggregated visible text instead.
+        let loaded = NSPredicate { _, _ in
+            let text = app.staticTexts.allElementsBoundByIndex.map(\.label).joined(separator: "\n")
+            return text.contains("map") && text.contains("let x = 1")
+        }
+        let expectation = XCTNSPredicateExpectation(predicate: loaded, object: nil)
+        XCTAssertEqual(XCTWaiter.wait(for: [expectation], timeout: 5), .completed)
+
+        let labels = app.staticTexts.allElementsBoundByIndex.map(\.label)
+        let visible = labels.joined(separator: "\n")
+
+        // Backtick fences themselves are NOT part of visible text.
+        XCTAssertFalse(visible.contains("`"), "Backtick fences should be stripped, got: \(labels)")
+
+        // Styled code content is visible without the fences.
+        XCTAssertTrue(visible.contains("map"), "Inline code span content should be visible, got: \(labels)")
+        XCTAssertTrue(visible.contains("let x = 1"), "Fenced code content should be visible, got: \(labels)")
+    }
+
     // MARK: - Show list toggle
 
     /// Uses `--ui-testing` (not `--seed`) for both launches: seeding calls
