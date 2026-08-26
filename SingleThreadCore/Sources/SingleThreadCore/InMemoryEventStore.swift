@@ -92,12 +92,17 @@ public final class InMemoryEventStore: EventKitStoring {
             allReminders.removeAll { $0.calendarItemIdentifier == reminder.calendarItemIdentifier }
         }
 
+        /// A single `EKEventStore` kept alive to back all `EKReminder`
+        /// instances created by `makeReminder`. The backing store must
+        /// outlive the reminders to avoid a SIGTRAP crash on iOS.
+        private let storeForReminderCreation = EKEventStore()
+
         public func makeReminder(
             title: String,
             notes: String?,
             dueDate: DateComponents?,
             recurrenceRule: EKRecurrenceRule?) -> EKReminder {
-            let reminder = EKReminder(eventStore: EKEventStore())
+            let reminder = EKReminder(eventStore: storeForReminderCreation)
             reminder.title = title
             reminder.notes = notes
             reminder.dueDateComponents = dueDate

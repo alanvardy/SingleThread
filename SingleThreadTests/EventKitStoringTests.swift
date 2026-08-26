@@ -121,7 +121,7 @@ private final class FakeEventStore: EventKitStoring {
             notes: String?,
             dueDate: DateComponents?,
             recurrenceRule: EKRecurrenceRule?) -> EKReminder {
-            let reminder = EKReminder(eventStore: EKEventStore())
+            let reminder = EKReminder(eventStore: storeForReminderCreation)
             reminder.title = title
             reminder.notes = notes
             reminder.dueDateComponents = dueDate
@@ -132,6 +132,13 @@ private final class FakeEventStore: EventKitStoring {
             return reminder
         }
     #endif
+
+    // MARK: Private
+
+    /// A single `EKEventStore` kept alive to back all `EKReminder`
+    /// instances created by `makeReminder`. The backing store must
+    /// outlive the reminders to avoid a SIGTRAP crash on iOS.
+    private let storeForReminderCreation = EKEventStore()
 }
 
 // MARK: - Write-path tests
@@ -447,16 +454,20 @@ struct ReminderStoreAvailableListsTests {
 
 // MARK: - Fixtures
 
+@MainActor private let sharedTestEventStore = EKEventStore()
+
 /// Construction only — never saved through EventKit.
+@MainActor
 private func makeReminder(title: String) -> EKReminder {
-    let reminder = EKReminder(eventStore: EKEventStore())
+    let reminder = EKReminder(eventStore: sharedTestEventStore)
     reminder.title = title
     return reminder
 }
 
 /// Construction only — never saved through EventKit.
+@MainActor
 private func makeCalendar(title: String) -> EKCalendar {
-    let calendar = EKCalendar(for: .reminder, eventStore: EKEventStore())
+    let calendar = EKCalendar(for: .reminder, eventStore: sharedTestEventStore)
     calendar.title = title
     return calendar
 }

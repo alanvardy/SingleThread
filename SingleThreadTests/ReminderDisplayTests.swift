@@ -2,6 +2,9 @@ import EventKit
 import SingleThreadCore
 import Testing
 
+@MainActor private let sharedTestEventStore = EKEventStore()
+
+@MainActor
 struct ReminderDisplayTests {
     @Test
     func mapsTitle() {
@@ -131,8 +134,9 @@ struct ReminderDisplayTests {
 }
 
 /// Construction only — never saved through EventKit.
+@MainActor
 private func makeReminder(title: String) -> EKReminder {
-    let reminder = EKReminder(eventStore: EKEventStore())
+    let reminder = EKReminder(eventStore: sharedTestEventStore)
     reminder.title = title
     return reminder
 }
