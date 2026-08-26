@@ -188,7 +188,7 @@ struct WatchReminderView: View {
                         .foregroundStyle(priorityColor(level))
                         .accessibilityLabel("\(level.displayName) priority")
                 }
-                Text(display.title)
+                Text(display.titleAttributed)
                     .font(.headline)
             }
             if viewModel.showDateState.isEnabled, let due = display.dueDate {
@@ -211,8 +211,8 @@ struct WatchReminderView: View {
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
-            if let noteText = display.notes {
-                Text(noteText)
+            if let notesAttr = display.notesAttributed {
+                Text(notesAttr)
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
