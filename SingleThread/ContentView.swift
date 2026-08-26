@@ -76,6 +76,14 @@ struct ContentView: View {
             .padding(.top, 8)
             .padding(.trailing, 12)
         }
+        .overlay {
+            if viewModel.completionGlow.isActive {
+                completionGlowOverlay
+            }
+        }
+        .animation(
+            reduceMotion ? nil : .easeInOut(duration: 0.4),
+            value: viewModel.completionGlow.isActive)
         .task {
             await viewModel.task(showUndatedReminders: showUndatedReminders)
         }
@@ -180,6 +188,9 @@ struct ContentView: View {
 
     @Environment(\.openURL)
     private var openURL
+
+    @Environment(\.accessibilityReduceMotion)
+    private var reduceMotion
 
     private let viewModel: ContentViewModel
 
@@ -439,6 +450,18 @@ struct ContentView: View {
             .controlPlate(fill: .red, glyph: .white)
             .symbolEffect(.pulse, options: .repeating)
             .accessibilityLabel("Recording")
+    }
+
+    /// Decorative full-screen green flash shown after a successful completion.
+    /// Passes touches through and stays out of the accessibility tree; fades via
+    /// the `.animation` on `body`.
+    private var completionGlowOverlay: some View {
+        Color.green
+            .opacity(0.3)
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .transition(.opacity)
     }
 
     private func creationFeedbackView(for feedback: CreationFeedback) -> some View {

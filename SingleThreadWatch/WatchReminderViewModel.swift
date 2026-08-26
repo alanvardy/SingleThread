@@ -26,11 +26,23 @@ final class WatchReminderViewModel {
     let showRecurrenceState: ShowRecurrenceState
     let showAlarmsState: ShowAlarmsState
 
+    /// Drives the brief full-screen green flash after a successful completion.
+    let completionGlow = CompletionGlow()
+
     var isRefreshing = false
     var isShowingRefreshConfirmation = false
 
     func task() async {
         await store.start()
+    }
+
+    /// Completes the visible reminder and triggers the glow on success.
+    /// The view routes its Complete button through here so the success-only
+    /// glow gates on the store's actual completion result.
+    func completeCurrentReminder() async {
+        if await store.completeCurrentReminder() {
+            completionGlow.trigger()
+        }
     }
 
     func refresh(clearSkipped: Bool) async {

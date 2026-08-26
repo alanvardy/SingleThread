@@ -32,6 +32,9 @@ final class ContentViewModel {
     let backgroundImage: BackgroundImageStore
     let dictation: DictationViewModel
 
+    /// Drives the brief full-screen green flash after a successful completion.
+    let completionGlow = CompletionGlow()
+
     #if os(iOS)
         /// Whether the Complete/Skip cluster replaces the plain mic in the bottom
         /// bar: the toggle must be on AND a visible reminder must exist. Readable
@@ -98,9 +101,12 @@ final class ContentViewModel {
     // MARK: - Store mutation forwarding
 
     /// Forwards to ``ReminderStore/completeCurrentReminder()`` so the view
-    /// never reaches through to the model for mutations.
+    /// never reaches through to the model for mutations. On success, triggers
+    /// the completion glow for positive visual feedback.
     func completeCurrentReminder() async {
-        await store.completeCurrentReminder()
+        if await store.completeCurrentReminder() {
+            completionGlow.trigger()
+        }
     }
 
     func skipCurrentReminder() {

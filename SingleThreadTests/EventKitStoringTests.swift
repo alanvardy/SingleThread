@@ -155,8 +155,9 @@ private final class FakeEventStore: EventKitStoring {
             await store.reload()
             let before = fake.fetchCallCount
 
-            await store.completeReminder(identifier: reminder.calendarItemIdentifier)
+            let completed = await store.completeReminder(identifier: reminder.calendarItemIdentifier)
 
+            #expect(completed)
             #expect(reminder.isCompleted)
             #expect(fake.saved.count == 1)
             #expect(fake.saved.first === reminder)
@@ -174,8 +175,9 @@ private final class FakeEventStore: EventKitStoring {
             await store.reload()
             let before = fake.fetchCallCount
 
-            await store.completeReminder(identifier: reminder.calendarItemIdentifier)
+            let completed = await store.completeReminder(identifier: reminder.calendarItemIdentifier)
 
+            #expect(!completed)
             #expect(fake.saved.isEmpty)
             #expect(fake.fetchCallCount == before) // no reload on save error
         }

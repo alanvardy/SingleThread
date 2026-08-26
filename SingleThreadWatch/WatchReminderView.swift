@@ -55,6 +55,9 @@ struct WatchReminderView: View {
 
     // MARK: Private
 
+    @Environment(\.accessibilityReduceMotion)
+    private var reduceMotion
+
     private let viewModel: WatchReminderViewModel
 
     // MARK: - Content
@@ -75,12 +78,20 @@ struct WatchReminderView: View {
                     .padding(.top, 8)
             }
         }
+        .overlay {
+            if viewModel.completionGlow.isActive {
+                completionGlowOverlay
+            }
+        }
+        .animation(
+            reduceMotion ? nil : .easeInOut(duration: 0.4),
+            value: viewModel.completionGlow.isActive)
     }
 
     private var actionButtons: some View {
         HStack {
             Button {
-                Task { await viewModel.store.completeCurrentReminder() }
+                Task { await viewModel.completeCurrentReminder() }
             } label: {
                 Label("Complete", systemImage: "checkmark.circle.fill")
                     .labelStyle(.iconOnly)
@@ -119,6 +130,17 @@ struct WatchReminderView: View {
                 .multilineTextAlignment(.center)
             refreshButton
         }
+    }
+
+    /// Decorative full-screen green flash. Passes touches through and stays out
+    /// of the accessibility tree; fades via the `.animation` on `reminderContent`.
+    private var completionGlowOverlay: some View {
+        Color.green
+            .opacity(0.3)
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .transition(.opacity)
     }
 
     private var refreshButton: some View {
