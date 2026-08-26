@@ -1188,9 +1188,9 @@ var body: some Scene {
 ### Verification
 
 #### Automated
-- [ ] `make watch-build` — compiles without errors
-- [ ] `make watch-ui-test` — same launch args, same labels, passes
-- [ ] `./scripts/test.sh` — full gate: format + lint + build + periphery + unit + iOS UI + watch UI
+- [x] `make watch-build` — compiles without errors
+- [x] `make watch-ui-test` — same launch args, same labels, passes
+- [x] `./scripts/test.sh` — full gate: format + lint + build + periphery + unit + iOS UI + watch UI
 
 #### Manual
 - [ ] Run watch app in simulator: reminder card renders, skip/complete works, refresh shows spinner

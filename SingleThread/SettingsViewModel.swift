@@ -1,4 +1,3 @@
-import SingleThreadCore
 import SwiftUI
 #if os(iOS) || os(macOS)
     import WidgetKit

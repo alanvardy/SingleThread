@@ -10,18 +10,6 @@ struct ContentView: View {
         self.viewModel = viewModel
     }
 
-    /// Convenience for callers that build a `ReminderStore` directly and want a
-    /// matching `ContentView` (used by the app entry point and unit tests).
-    init(
-        store: ReminderStore,
-        speechTranscriber: (any SpeechTranscribing)? = nil,
-        backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
-        viewModel = ContentViewModel(
-            store: store,
-            backgroundImage: backgroundImage,
-            speechTranscriber: speechTranscriber ?? ReminderDictation())
-    }
-
     /// Pre-populates state for canvas previews.
     init(
         loadsReminders: Bool = true,
