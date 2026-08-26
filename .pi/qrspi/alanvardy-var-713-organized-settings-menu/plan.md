@@ -1144,8 +1144,8 @@ func testShowListTogglePersistsAcrossRelaunch() {
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` — full CI pipeline passes: format, lint, periphery, build, unit tests, UI tests (including accessibility audit)
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` — all UI tests pass
+- [x] `./scripts/test.sh` — full CI pipeline passes: format, lint, periphery, build, unit tests, UI tests (including accessibility audit)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` — all UI tests pass
 
 #### Manual
 - [ ] Settings menu renders four rows, each navigable

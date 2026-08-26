@@ -129,14 +129,22 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         app.buttons["Settings"].tap()
 
-        XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 3), "Settings should show Appearance")
-        XCTAssertTrue(app.staticTexts["Text Size"].waitForExistence(timeout: 2), "Settings should show Text Size")
-        XCTAssertTrue(app.staticTexts["Sort By"].waitForExistence(timeout: 2), "Settings should show Sort By")
-        // "Show date" sits lower in the Form; scroll the sheet to reveal it.
-        app.swipeUp()
-        XCTAssertTrue(
-            app.staticTexts["Show date"].waitForExistence(timeout: 3),
-            "Settings should show Show date (after scrolling)")
+        // Navigate into the Interface sub-view.
+        XCTAssertTrue(app.staticTexts["Interface"].waitForExistence(timeout: 3), "Settings should show Interface")
+        app.staticTexts["Interface"].tap()
+        XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Text Size"].waitForExistence(timeout: 2))
+
+        // Back to root, then into Reminder.
+        app.navigationBars.buttons.firstMatch.tap()
+        app.staticTexts["Reminder"].tap()
+        XCTAssertTrue(app.staticTexts["Show date"].waitForExistence(timeout: 2))
+
+        // Back to root, then into Filtering & Sorting.
+        app.navigationBars.buttons.firstMatch.tap()
+        app.staticTexts["Filtering & Sorting"].tap()
+        XCTAssertTrue(app.staticTexts["Sort By"].waitForExistence(timeout: 2))
+        XCTAssertTrue(app.staticTexts["Excluded Lists"].waitForExistence(timeout: 2))
     }
 
     // MARK: - Background toggle
@@ -147,11 +155,16 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         app.buttons["Settings"].tap()
 
+        // Navigate into the Background sub-view.
+        XCTAssertTrue(app.staticTexts["Background"].waitForExistence(timeout: 3), "Settings should show Background")
+        app.staticTexts["Background"].tap()
         let toggle = app.switches["Background"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 3))
         XCTAssertEqual(toggle.value as? String, "1", "Background should default to on")
         XCTAssertTrue(flipToggle(toggle), "Tapping should hide the background")
 
+        // The done button lives on the settings root, so pop back to it first.
+        app.navigationBars.buttons.firstMatch.tap()
         app.buttons["Done"].tap()
         app.terminate()
 
@@ -162,6 +175,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         relaunched.launchArguments = ["--ui-testing"]
         relaunched.launch()
         relaunched.buttons["Settings"].tap()
+        relaunched.staticTexts["Background"].tap()
         let persistedToggle = relaunched.switches["Background"]
         XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
         XCTAssertEqual(
@@ -180,12 +194,16 @@ final class SingleThreadUITestsFlows: XCTestCase {
         app.launch()
         app.buttons["Settings"].tap()
 
+        // Navigate into the Reminder sub-view.
+        XCTAssertTrue(app.staticTexts["Reminder"].waitForExistence(timeout: 3), "Settings should show Reminder")
+        app.staticTexts["Reminder"].tap()
         let toggle = app.switches["Show list"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 3))
         XCTAssertEqual(toggle.value as? String, "0", "Show list should default to off")
-        app.swipeUp()  // reveal lower rows if needed before flipping
         XCTAssertTrue(flipToggle(toggle, target: "1"), "Tapping should enable Show list")
 
+        // The done button lives on the settings root, so pop back to it first.
+        app.navigationBars.buttons.firstMatch.tap()
         app.buttons["Done"].tap()
         app.terminate()
 
@@ -193,6 +211,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         relaunched.launchArguments = ["--ui-testing"]
         relaunched.launch()
         relaunched.buttons["Settings"].tap()
+        relaunched.staticTexts["Reminder"].tap()
         let persistedToggle = relaunched.switches["Show list"]
         XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
         XCTAssertEqual(
@@ -201,14 +220,16 @@ final class SingleThreadUITestsFlows: XCTestCase {
     }
 
     /// SwiftUI Form rows expose a nested switch control; tapping the outer row
-    /// element is swallowed, so tap the inner control until it flips.
+    /// element is swallowed, so tap the inner control until it flips. In the
+    /// pushed sub-view the switch itself is the control (no nested `switches`
+    /// child), so fall back to tapping the outer element directly.
     @MainActor
     private func flipToggle(_ toggle: XCUIElement, target: String = "0") -> Bool {
         let inner = toggle.switches.firstMatch
-        guard inner.waitForExistence(timeout: 2) else { return false }
+        let tapTarget = inner.exists ? inner : toggle
         for _ in 0..<3 {
             if toggle.value as? String == target { return true }
-            inner.tap()
+            tapTarget.tap()
             let deadline = Date().addingTimeInterval(1)
             while Date() < deadline {
                 if toggle.value as? String == target { return true }

@@ -97,22 +97,15 @@ struct ContentView: View {
             viewModel.handleAppearanceMode(newValue)
         }
         .modifier(TextSizeModifier(textSize: textSize))
+        .onChange(of: isShowingSettings) { _, showing in
+            // Recreate the bindings bag each time the sheet opens so it
+            // reflects the latest persisted values, then keep it stable for
+            // the sheet's lifetime so edits don't snap back on re-render
+            // (the bag must outlive ContentView body re-evaluations).
+            settingsBag = showing ? makeSettingsBag() : nil
+        }
         .sheet(isPresented: $isShowingSettings) {
-            #if os(iOS)
-                let bag = SettingsBindings(
-                    appearanceMode: appearanceMode,
-                    textSize: textSize,
-                    allowsLandscape: allowsLandscape,
-                    enableActionButtons: enableActionButtons,
-                    showMicrophoneButton: showMicrophoneButton,
-                    backgroundEnabled: backgroundEnabled,
-                    backgroundFadePercent: backgroundFadePercent,
-                    showUndatedReminders: showUndatedReminders,
-                    sortOption: sortOption,
-                    showDate: showDate,
-                    showList: showList,
-                    showRecurrence: showRecurrence,
-                    showAlarms: showAlarms)
+            if let bag = settingsBag {
                 SettingsView(
                     bindings: bag,
                     backgroundPhotographer: viewModel.backgroundImage.photographer,
@@ -120,27 +113,25 @@ struct ContentView: View {
                     availableLists: viewModel.store.availableLists,
                     excludedLists: excludedListsBinding,
                     viewModel: SettingsViewModel())
-            #else
-                let bag = SettingsBindings(
-                    appearanceMode: appearanceMode,
-                    textSize: textSize,
-                    showMicrophoneButton: showMicrophoneButton,
-                    backgroundEnabled: backgroundEnabled,
-                    backgroundFadePercent: backgroundFadePercent,
-                    showUndatedReminders: showUndatedReminders,
-                    sortOption: sortOption,
-                    showDate: showDate,
-                    showList: showList,
-                    showRecurrence: showRecurrence,
-                    showAlarms: showAlarms)
-                SettingsView(
-                    bindings: bag,
-                    backgroundPhotographer: viewModel.backgroundImage.photographer,
-                    backgroundPhotographerURL: viewModel.backgroundImage.photographerURL,
-                    availableLists: viewModel.store.availableLists,
-                    excludedLists: excludedListsBinding,
-                    viewModel: SettingsViewModel())
-            #endif
+                    // The bag is a plain in-memory holder; write each changed
+                    // value back to the @AppStorage-backed property so settings
+                    // survive relaunch (mirrors the old direct-bind behavior).
+                    .onChange(of: bag.appearanceMode) { _, new in appearanceMode = new }
+                    .onChange(of: bag.textSize) { _, new in textSize = new }
+                #if os(iOS)
+                    .onChange(of: bag.allowsLandscape) { _, new in allowsLandscape = new }
+                    .onChange(of: bag.enableActionButtons) { _, new in enableActionButtons = new }
+                #endif
+                    .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
+                    .onChange(of: bag.backgroundEnabled) { _, new in backgroundEnabled = new }
+                    .onChange(of: bag.backgroundFadePercent) { _, new in backgroundFadePercent = new }
+                    .onChange(of: bag.showUndatedReminders) { _, new in showUndatedReminders = new }
+                    .onChange(of: bag.sortOption) { _, new in sortOption = new }
+                    .onChange(of: bag.showDate) { _, new in showDate = new }
+                    .onChange(of: bag.showList) { _, new in showList = new }
+                    .onChange(of: bag.showRecurrence) { _, new in showRecurrence = new }
+                    .onChange(of: bag.showAlarms) { _, new in showAlarms = new }
+            }
         }
     }
 
@@ -191,6 +182,12 @@ struct ContentView: View {
     private var showAlarms = true
 
     @State private var isShowingSettings = false
+
+    /// Stable bag of settings bindings for the currently presented sheet.
+    /// Recreated when the sheet opens so it reflects the latest persisted
+    /// values, then kept alive for the sheet's lifetime so edits done inside
+    /// don't snap back when `ContentView` re-evaluates its body.
+    @State private var settingsBag: SettingsBindings?
 
     @Environment(\.openURL)
     private var openURL
@@ -475,6 +472,41 @@ struct ContentView: View {
             .font(.title2)
             .controlPlate(fill: feedback.backgroundColor, glyph: .white)
             .accessibilityLabel(feedback.accessibilityLabel)
+    }
+
+    /// Builds a fresh bindings bag from the current `@AppStorage`-backed
+    /// preference values.
+    @MainActor
+    private func makeSettingsBag() -> SettingsBindings {
+        #if os(iOS)
+            SettingsBindings(
+                appearanceMode: appearanceMode,
+                textSize: textSize,
+                allowsLandscape: allowsLandscape,
+                enableActionButtons: enableActionButtons,
+                showMicrophoneButton: showMicrophoneButton,
+                backgroundEnabled: backgroundEnabled,
+                backgroundFadePercent: backgroundFadePercent,
+                showUndatedReminders: showUndatedReminders,
+                sortOption: sortOption,
+                showDate: showDate,
+                showList: showList,
+                showRecurrence: showRecurrence,
+                showAlarms: showAlarms)
+        #else
+            SettingsBindings(
+                appearanceMode: appearanceMode,
+                textSize: textSize,
+                showMicrophoneButton: showMicrophoneButton,
+                backgroundEnabled: backgroundEnabled,
+                backgroundFadePercent: backgroundFadePercent,
+                showUndatedReminders: showUndatedReminders,
+                sortOption: sortOption,
+                showDate: showDate,
+                showList: showList,
+                showRecurrence: showRecurrence,
+                showAlarms: showAlarms)
+        #endif
     }
 }
 
