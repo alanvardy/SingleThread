@@ -282,6 +282,88 @@ struct WatchSyncPipelineTests {
         let freshStore = ShowAlarmsPreference(defaults: .standard, key: key)
         #expect(!freshStore.isEnabled)
     }
+
+    @Test
+    func receiveAppliesShowList() {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let showListStore = ShowListPreference(defaults: .standard, key: "wtest-sl-\(suffix)")
+        showListStore.set(false)
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-sl-ids-\(suffix)"),
+            showListStore: showListStore)
+
+        var showListValues: [Bool] = []
+        service.onShowListReceived = { showListValues.append($0) }
+
+        service.session(
+            WCSession.default,
+            didReceiveApplicationContext: ["showList": true])
+
+        #expect(showListStore.isEnabled)
+        #expect(showListValues == [true])
+    }
+
+    @Test
+    func receiveAbsentShowListKeyIsNoOp() {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let showListStore = ShowListPreference(defaults: .standard, key: "wtest-absent-sl-\(suffix)")
+        showListStore.set(false)
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-absent-sl-ids-\(suffix)"),
+            showListStore: showListStore)
+
+        var fired = false
+        service.onShowListReceived = { _ in fired = true }
+
+        service.session(
+            WCSession.default,
+            didReceiveApplicationContext: ["skippedReminderIdentifiers": ["X"]])
+
+        #expect(!showListStore.isEnabled)
+        #expect(!fired)
+    }
+
+    @Test
+    func showListSurvivesRelaunch() {
+        let key = "wtest-relaunch-sl-\(UUID().uuidString)"
+        let fake = WatchFakeSession()
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
+            showListStore: ShowListPreference(defaults: .standard, key: key))
+        service.session(
+            WCSession.default,
+            didReceiveApplicationContext: ["showList": true])
+        let freshStore = ShowListPreference(defaults: .standard, key: key)
+        #expect(freshStore.isEnabled)
+    }
+
+    @Test
+    func pushAllFromWatchOmitsShowListWhenFlagged() throws {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let skipStore = SkippedReminderStore(defaults: .standard, key: "wtest-push-sl-skip-\(suffix)")
+        skipStore.save(["A"])
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: skipStore,
+            excludeStore: ExcludedListStore(defaults: .standard, key: "wtest-push-sl-excl-\(suffix)"),
+            sortStore: SortOptionStore(defaults: .standard, key: "wtest-push-sl-sort-\(suffix)"),
+            showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard, key: "wtest-push-sl-und-\(suffix)"),
+            showDateStore: ShowDatePreference(defaults: .standard, key: "wtest-push-sl-date-\(suffix)"),
+            showListStore: ShowListPreference(defaults: .standard, key: "wtest-push-sl-\(suffix)"),
+            sendsShowDate: false, sendsShowList: false)
+        service.pushAll()
+        let context = try #require(fake.lastContext)
+        #expect(context["showDate"] == nil)
+        #expect(context["showList"] == nil)
+        #expect(context["showRecurrence"] != nil)
+        #expect(context["showAlarms"] != nil)
+    }
 }
 
 /// Builds a reminder that lives in a calendar titled `list`, so exclusion
