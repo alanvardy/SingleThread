@@ -330,9 +330,10 @@ struct SettingsView: View {
             showList: .constant(true),
             showRecurrence: .constant(true),
             showAlarms: .constant(true))
+            .preferredColorScheme(AppearanceMode.dark.colorScheme)
     }
 #else
-    #Preview("Default") {
+    #Preview("Default (macOS)") {
         SettingsView(
             appearanceMode: .constant(.system),
             textSize: .constant(.system),

@@ -503,6 +503,7 @@ private let mockReminderInList: EKReminder = {
     ContentView(
         loadsReminders: false,
         eventStore: InMemoryEventStore())
+        .preferredColorScheme(AppearanceMode.dark.colorScheme)
 }
 
 #Preview("Nothing Due") {
@@ -520,6 +521,7 @@ private let mockReminderInList: EKReminder = {
         reminders: [mockReminder],
         skippedIDs: [],
         authorizationStatus: .fullAccess)
+        .preferredColorScheme(AppearanceMode.dark.colorScheme)
 }
 
 #Preview("All Skipped") {
