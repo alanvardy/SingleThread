@@ -918,9 +918,9 @@ var body: some Scene {
 ### Verification
 
 #### Automated
-- [ ] `make test` — `SkippedReminderSyncServiceTests` still pass; all unit test suites green
-- [ ] `make ui-test` — all flows + accessibility audit pass unchanged
-- [ ] `make watch-ui-test` — sync: phone push → watch applies
+- [x] `make test` — `SkippedReminderSyncServiceTests` still pass; all unit test suites green
+- [x] `make ui-test` — all flows + accessibility audit pass unchanged
+- [x] `make watch-ui-test` — sync: phone push → watch applies
 
 #### Manual
 - [ ] Toggle "Show date" in Settings on the phone, confirm the watch card updates without relaunch (requires paired watch simulator or device)
