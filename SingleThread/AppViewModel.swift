@@ -46,7 +46,7 @@ final class AppViewModel {
                 }
                 // Receive-side: a watch exclusion toggle arrives and re-filters the local list.
                 service.onExcludedListTitlesReceived = { [weak store] titles in
-                    store?.refreshExcludedListTitles(Set(titles))
+                    Task { @MainActor in store?.refreshExcludedListTitles(Set(titles)) }
                 }
                 service.activate()
                 syncService = service

@@ -186,14 +186,14 @@ struct ContentView: View {
     private var excludedListsBinding: Binding<Set<String>> {
         Binding(
             get: { viewModel.store.excludedListTitles },
-            set: { viewModel.store.setExcludedListTitles($0) })
+            set: { viewModel.setExcludedListTitles($0) })
     }
 
     #if os(macOS)
         private var actionButtons: some View {
             HStack(spacing: 32) {
                 Button {
-                    Task { await viewModel.store.completeCurrentReminder() }
+                    Task { await viewModel.completeCurrentReminder() }
                 } label: {
                     Label("Complete", systemImage: "checkmark.circle.fill")
                         .labelStyle(.iconOnly)
@@ -205,7 +205,7 @@ struct ContentView: View {
                 .accessibilityAddTraits(.isButton)
 
                 Button {
-                    viewModel.store.skipCurrentReminder()
+                    viewModel.skipCurrentReminder()
                 } label: {
                     Label("Skip", systemImage: "circle.slash")
                         .labelStyle(.iconOnly)
@@ -217,7 +217,7 @@ struct ContentView: View {
                 .accessibilityAddTraits(.isButton)
 
                 Button {
-                    Task { await viewModel.store.deleteCurrentReminder() }
+                    Task { await viewModel.deleteCurrentReminder() }
                 } label: {
                     Label("Delete", systemImage: "trash")
                         .labelStyle(.iconOnly)
@@ -261,7 +261,7 @@ struct ContentView: View {
                 }
                 .scrollBounceBehavior(.always)
                 .refreshable {
-                    await viewModel.store.reload(clearSkipped: true)
+                    await viewModel.reload(clearSkipped: true)
                 }
             } else if viewModel.store.reminders.isEmpty {
                 let emptyCopy = ContentViewModel.emptyStateCopy(hasHidden: viewModel.store.hasHidden)
@@ -275,7 +275,7 @@ struct ContentView: View {
                     }
                     .scrollBounceBehavior(.always)
                     .refreshable {
-                        await viewModel.store.reload()
+                        await viewModel.reload()
                     }
                     bottomBar
                 }
@@ -310,7 +310,7 @@ struct ContentView: View {
                                     }
 
                                     Button {
-                                        Task { await viewModel.store.deleteCurrentReminder() }
+                                        Task { await viewModel.deleteCurrentReminder() }
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
@@ -319,7 +319,7 @@ struct ContentView: View {
                             #endif
                                 .swipeActions(edge: .leading) {
                                     Button {
-                                        Task { await viewModel.store.completeCurrentReminder() }
+                                        Task { await viewModel.completeCurrentReminder() }
                                     } label: {
                                         Label("Complete", systemImage: "checkmark.circle.fill")
                                     }
@@ -327,7 +327,7 @@ struct ContentView: View {
                                 }
                                 .swipeActions(edge: .trailing) {
                                     Button {
-                                        viewModel.store.skipCurrentReminder()
+                                        viewModel.skipCurrentReminder()
                                     } label: {
                                         Label("Skip", systemImage: "circle.slash")
                                     }
@@ -337,7 +337,7 @@ struct ContentView: View {
                     }
                     .listStyle(.plain)
                     .refreshable {
-                        await viewModel.store.reload()
+                        await viewModel.reload()
                     }
                     bottomBar
                 }
@@ -388,7 +388,7 @@ struct ContentView: View {
     #if os(iOS)
         private var completeButton: some View {
             Button {
-                Task { await viewModel.store.completeCurrentReminder() }
+                Task { await viewModel.completeCurrentReminder() }
             } label: {
                 Label("Complete", systemImage: "checkmark.circle.fill")
                     .labelStyle(.iconOnly)
@@ -400,7 +400,7 @@ struct ContentView: View {
 
         private var skipButton: some View {
             Button {
-                viewModel.store.skipCurrentReminder()
+                viewModel.skipCurrentReminder()
             } label: {
                 Label("Skip", systemImage: "circle.slash")
                     .labelStyle(.iconOnly)

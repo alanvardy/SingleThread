@@ -2,6 +2,9 @@ import SingleThreadCore
 import Speech
 import SwiftUI
 
+/// Owns the reminder-list screen's presentation logic: determines which
+/// empty state to show, whether the background / action-buttons gates are
+/// open, and delegates dictation to its child ``DictationViewModel``.
 @MainActor
 @Observable
 final class ContentViewModel {
@@ -90,6 +93,30 @@ final class ContentViewModel {
         #elseif os(macOS)
             MacAppDelegate.applyAppearance(mode)
         #endif
+    }
+
+    // MARK: - Store mutation forwarding
+
+    /// Forwards to ``ReminderStore/completeCurrentReminder()`` so the view
+    /// never reaches through to the model for mutations.
+    func completeCurrentReminder() async {
+        await store.completeCurrentReminder()
+    }
+
+    func skipCurrentReminder() {
+        store.skipCurrentReminder()
+    }
+
+    func deleteCurrentReminder() async {
+        await store.deleteCurrentReminder()
+    }
+
+    func reload(clearSkipped: Bool = false) async {
+        await store.reload(clearSkipped: clearSkipped)
+    }
+
+    func setExcludedListTitles(_ titles: Set<String>) {
+        store.setExcludedListTitles(titles)
     }
 
     // MARK: Private
