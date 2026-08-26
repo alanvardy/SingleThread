@@ -21,23 +21,9 @@ struct SettingsViewModelTests {
 
     #if os(iOS) || os(macOS)
         @Test
-        func showDateChangedDoesNotCrash() {
+        func showPreferenceChangedDoesNotCrash() {
             let viewModel = SettingsViewModel()
-            viewModel.showDateChanged(true)
-            #expect(Bool(true))
-        }
-
-        @Test
-        func showRecurrenceChangedDoesNotCrash() {
-            let viewModel = SettingsViewModel()
-            viewModel.showRecurrenceChanged(false)
-            #expect(Bool(true))
-        }
-
-        @Test
-        func showAlarmsChangedDoesNotCrash() {
-            let viewModel = SettingsViewModel()
-            viewModel.showAlarmsChanged(true)
+            viewModel.showPreferenceChanged()
             #expect(Bool(true))
         }
     #endif

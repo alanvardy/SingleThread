@@ -203,8 +203,8 @@ struct SettingsView: View {
                     Label("Show date", systemImage: "calendar")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showDate) { _, newValue in
-                    viewModel.showDateChanged(newValue)
+                .onChange(of: showDate) { _, _ in
+                    viewModel.showPreferenceChanged()
                 }
                 #endif
                 Toggle(isOn: $showList) {
@@ -214,16 +214,16 @@ struct SettingsView: View {
                     Label("Recurrence indicator", systemImage: "repeat")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showRecurrence) { _, newValue in
-                    viewModel.showRecurrenceChanged(newValue)
+                .onChange(of: showRecurrence) { _, _ in
+                    viewModel.showPreferenceChanged()
                 }
                 #endif
                 Toggle(isOn: $showAlarms) {
                     Label("Reminder alerts", systemImage: "bell")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showAlarms) { _, newValue in
-                    viewModel.showAlarmsChanged(newValue)
+                .onChange(of: showAlarms) { _, _ in
+                    viewModel.showPreferenceChanged()
                 }
                 #endif
                 Section {

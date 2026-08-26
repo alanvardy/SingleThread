@@ -120,14 +120,22 @@ final class WatchAppViewModel {
         service.onSkippedIdentifiersReceived = { [weak store] _ in
             Task { await store?.reload() }
         }
-        service.onShowDateReceived = { [weak showDateState] value in showDateState?.apply(value) }
-        service.onShowRecurrenceReceived = { [weak showRecurrenceState] value in showRecurrenceState?.apply(value) }
-        service.onShowAlarmsReceived = { [weak showAlarmsState] value in showAlarmsState?.apply(value) }
-        service.onSortOptionReceived = { [weak store] option in store?.setSortOption(option) }
+        service.onShowDateReceived = { [weak showDateState] value in
+            Task { @MainActor in showDateState?.apply(value) }
+        }
+        service.onShowRecurrenceReceived = { [weak showRecurrenceState] value in
+            Task { @MainActor in showRecurrenceState?.apply(value) }
+        }
+        service.onShowAlarmsReceived = { [weak showAlarmsState] value in
+            Task { @MainActor in showAlarmsState?.apply(value) }
+        }
+        service.onSortOptionReceived = { [weak store] option in
+            Task { @MainActor in store?.setSortOption(option) }
+        }
         // A phone-side exclusion toggle arrives and re-filters this watch's live list.
         // Same write-before-activate invariant as shared onShowUndatedRemindersReceived.
         service.onExcludedListTitlesReceived = { [weak store] titles in
-            store?.refreshExcludedListTitles(Set(titles))
+            Task { @MainActor in store?.refreshExcludedListTitles(Set(titles)) }
         }
         service.activate()
         store.onSkipSetChanged = { _ in service.pushAll() }

@@ -58,6 +58,7 @@ public struct UITestingSeed {
         "showAlarms",
         "showUndatedReminders",
         "sortOption",
+        "enableActionButtons",
         "showMicrophoneButton",
         "backgroundEnabled",
         "allowsLandscape",

@@ -16,15 +16,9 @@ final class SettingsViewModel {
     #endif
 
     #if os(iOS) || os(macOS)
-        func showDateChanged(_: Bool) {
-            WidgetCenter.shared.reloadAllTimelines()
-        }
-
-        func showRecurrenceChanged(_: Bool) {
-            WidgetCenter.shared.reloadAllTimelines()
-        }
-
-        func showAlarmsChanged(_: Bool) {
+        /// Reloads widget timelines when any display preference (show date,
+        /// show recurrence, show alarms) changes.
+        func showPreferenceChanged() {
             WidgetCenter.shared.reloadAllTimelines()
         }
     #endif

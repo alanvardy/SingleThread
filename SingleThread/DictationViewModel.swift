@@ -2,6 +2,9 @@ import SingleThreadCore
 import Speech
 import SwiftUI
 
+/// Owns speech recognition authorization, transcription, and the
+/// parse→create reminder flow. Injected with ``any SpeechTranscribing`` so
+/// tests can supply a fake transcriber.
 @MainActor
 @Observable
 final class DictationViewModel {
