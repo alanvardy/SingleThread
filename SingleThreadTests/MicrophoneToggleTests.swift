@@ -1,4 +1,5 @@
 @testable import SingleThread
+import SingleThreadCore
 import Speech
 import Testing
 
@@ -30,9 +31,12 @@ private final class MicToggleFakeTranscriber: SpeechTranscribing {
 
 @MainActor
 struct MicrophoneToggleTests {
+    // MARK: Internal
+
     @Test
     func settingsGearButtonIsPresent() {
-        let view = ContentView(loadsReminders: false)
+        let fake = MicToggleFakeTranscriber()
+        let view = ContentView(loadsReminders: false, speechTranscriber: fake)
         let bodyDescription = String(describing: view.body)
 
         // The settings entry point (gear button) should survive the
@@ -47,19 +51,20 @@ struct MicrophoneToggleTests {
 
     @Test
     func micButtonHiddenWhenSpeechDenied() {
-        // Even with the toggle on, the mic button should be hidden when
-        // speech recognition is denied.
         let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let viewModel = makeViewModel(fake)
+
+        // Mic button should be unavailable when speech recognition is denied.
+        #expect(!viewModel.canDictate)
+
+        // Regression guard: even with the toggle on, the mic button should
+        // not appear in the body when speech recognition is denied.
         let defaultsKey = "showMicrophoneButton"
         UserDefaults.standard.set(true, forKey: defaultsKey)
         defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
 
         let view = ContentView(loadsReminders: false, speechTranscriber: fake)
         let bodyDescription = String(describing: view.body)
-
-        // "Microphone" toggle label is in settings menu, but mic/recording
-        // views (which include "Circle") should not appear in bottomBar
-        // since canDictate is false.
         #expect(
             !bodyDescription.contains("mic.fill"),
             "Mic button should be absent when speech recognition is denied")
@@ -68,6 +73,9 @@ struct MicrophoneToggleTests {
     @Test
     func micButtonAbsentWhenToggleOff() {
         let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let viewModel = makeViewModel(fake)
+        #expect(viewModel.canDictate)
+
         let defaultsKey = "showMicrophoneButton"
         UserDefaults.standard.set(false, forKey: defaultsKey)
         defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
@@ -81,6 +89,9 @@ struct MicrophoneToggleTests {
     @Test
     func micButtonWithToggleEnabledDoesNotCrash() {
         let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let viewModel = makeViewModel(fake)
+        #expect(viewModel.canDictate)
+
         let defaultsKey = "showMicrophoneButton"
         UserDefaults.standard.set(true, forKey: defaultsKey)
         defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
@@ -89,5 +100,13 @@ struct MicrophoneToggleTests {
         // Verify that creating the view with toggle on does not crash.
         let bodyDescription = String(describing: view.body)
         #expect(!bodyDescription.isEmpty)
+    }
+
+    // MARK: Private
+
+    private func makeViewModel(_ fake: MicToggleFakeTranscriber) -> DictationViewModel {
+        DictationViewModel(
+            speechTranscriber: fake,
+            store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false))
     }
 }

@@ -277,9 +277,9 @@ Button {
 ### Verification
 
 #### Automated
-- [ ] `make test` passes — `MicrophoneToggleTests` + `ReminderDictationTests` rewritten to use VM; all other suites green
-- [ ] `make build` — iOS app compiles
-- [ ] Confirm `ContentView` has NO `@State` dictation vars (`rg "@State.*(isDictating|dictationText|dictationError|creationFeedback)" SingleThread/ContentView.swift` returns nothing)
+- [x] `make test` passes — `MicrophoneToggleTests` + `ReminderDictationTests` rewritten to use VM; all other suites green
+- [x] `make build` — iOS app compiles
+- [x] Confirm `ContentView` has NO `@State` dictation vars (`rg "@State.*(isDictating|dictationText|dictationError|creationFeedback)" SingleThread/ContentView.swift` returns nothing)
 
 #### Manual
 - [ ] On simulator, grant speech permission: tap mic, speak "buy milk tomorrow", verify reminder appears with creation-feedback checkmark

@@ -1,3 +1,4 @@
+import EventKit
 @testable import SingleThread
 import SingleThreadCore
 import Speech
@@ -161,21 +162,48 @@ struct ReminderDictationTests {
         #expect(fake.partialText == "Buy milk today")
     }
 
-    // MARK: - ContentView integration
+    // MARK: - DictationViewModel integration
 
     @Test
-    func contentViewCanInitWithFakeTranscriber() {
+    func dictationViewModelCanInitWithFakeTranscriber() {
         let fake = FakeSpeechTranscriber()
-        let view = ContentView(loadsReminders: false, speechTranscriber: fake)
-        #expect(String(describing: view.body).isEmpty == false)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
+        let viewModel = DictationViewModel(speechTranscriber: fake, store: store)
+        #expect(viewModel.canDictate)
     }
 
     @Test
-    func contentViewCanInitWithReminderStoreAndFakeTranscriber() {
+    func dictationViewModelCanInitWithStore() {
         let fake = FakeSpeechTranscriber()
-        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
-        let view = ContentView(store: store, speechTranscriber: fake)
-        #expect(String(describing: view.body).isEmpty == false)
+        let scratchStore = EKEventStore()
+        let reminder = EKReminder(eventStore: scratchStore)
+        reminder.title = "Buy milk"
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [reminder],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let viewModel = DictationViewModel(speechTranscriber: fake, store: store)
+        #expect(viewModel.canDictate)
+    }
+
+    @Test
+    func startDictationAddsReminderAndFlowsText() async {
+        let fake = FakeSpeechTranscriber(
+            transcriptionResult: "Buy milk",
+            partialUpdates: ["Buy", "Buy milk"])
+        let eventStore = InMemoryEventStore()
+        let store = ReminderStore(eventStore: eventStore, loadsReminders: false)
+        let viewModel = DictationViewModel(speechTranscriber: fake, store: store)
+        #expect(viewModel.canDictate)
+
+        await viewModel.startDictation()
+
+        #expect(!viewModel.isDictating)
+        #expect(viewModel.dictationText == "Buy milk")
+        #expect(viewModel.dictationError == nil)
+        #expect(eventStore.allReminders.contains { $0.title == "Buy milk" })
     }
 }
 
