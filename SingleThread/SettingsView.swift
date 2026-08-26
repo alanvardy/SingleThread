@@ -1,5 +1,6 @@
 import SingleThreadCore
 import SwiftUI
+
 #if os(iOS) || os(macOS)
     import WidgetKit
 #endif
@@ -92,7 +93,8 @@ struct SettingsView: View {
             showList: Binding<Bool>,
             showRecurrence: Binding<Bool>,
             showAlarms: Binding<Bool>,
-            viewModel: SettingsViewModel = SettingsViewModel()) {
+            viewModel: SettingsViewModel = SettingsViewModel()
+        ) {
             self.viewModel = viewModel
             _appearanceMode = appearanceMode
             _textSize = textSize
@@ -129,7 +131,8 @@ struct SettingsView: View {
             showList: Binding<Bool>,
             showRecurrence: Binding<Bool>,
             showAlarms: Binding<Bool>,
-            viewModel: SettingsViewModel = SettingsViewModel()) {
+            viewModel: SettingsViewModel = SettingsViewModel()
+        ) {
             self.viewModel = viewModel
             _appearanceMode = appearanceMode
             _textSize = textSize
@@ -203,9 +206,9 @@ struct SettingsView: View {
                     Label("Show date", systemImage: "calendar")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showDate) { _, _ in
-                    viewModel.showPreferenceChanged()
-                }
+                    .onChange(of: showDate) { _, _ in
+                        viewModel.showPreferenceChanged()
+                    }
                 #endif
                 Toggle(isOn: $showList) {
                     Label("Show list", systemImage: "list.bullet")
@@ -214,17 +217,17 @@ struct SettingsView: View {
                     Label("Recurrence indicator", systemImage: "repeat")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showRecurrence) { _, _ in
-                    viewModel.showPreferenceChanged()
-                }
+                    .onChange(of: showRecurrence) { _, _ in
+                        viewModel.showPreferenceChanged()
+                    }
                 #endif
                 Toggle(isOn: $showAlarms) {
                     Label("Reminder alerts", systemImage: "bell")
                 }
                 #if os(iOS) || os(macOS)
-                .onChange(of: showAlarms) { _, _ in
-                    viewModel.showPreferenceChanged()
-                }
+                    .onChange(of: showAlarms) { _, _ in
+                        viewModel.showPreferenceChanged()
+                    }
                 #endif
                 Section {
                     NavigationLink {
@@ -235,7 +238,8 @@ struct SettingsView: View {
                         Label("Excluded Lists", systemImage: "eye.slash")
                     }
                 }
-                Section {} footer: {
+                Section {
+                } footer: {
                     if let backgroundPhotographer {
                         if let backgroundPhotographerURL {
                             Link(
