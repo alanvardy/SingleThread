@@ -28,6 +28,7 @@ final class WatchAppViewModel {
         showDateState = ShowDateState()
         showRecurrenceState = ShowRecurrenceState()
         showAlarmsState = ShowAlarmsState()
+        showListState = ShowListState()
 
         setupSyncService(arguments: arguments)
     }
@@ -38,13 +39,15 @@ final class WatchAppViewModel {
     let showDateState: ShowDateState
     let showRecurrenceState: ShowRecurrenceState
     let showAlarmsState: ShowAlarmsState
+    let showListState: ShowListState
 
     var reminderViewModel: WatchReminderViewModel {
         WatchReminderViewModel(
             store: store,
             showDateState: showDateState,
             showRecurrenceState: showRecurrenceState,
-            showAlarmsState: showAlarmsState)
+            showAlarmsState: showAlarmsState,
+            showListState: showListState)
     }
 
     // MARK: Private
@@ -100,6 +103,7 @@ final class WatchAppViewModel {
         let showDateState = showDateState
         let showRecurrenceState = showRecurrenceState
         let showAlarmsState = showAlarmsState
+        let showListState = showListState
         let service = SkippedReminderSyncService(
             session: WCSession.default,
             skipStore: SkippedReminderStore(),
@@ -107,6 +111,7 @@ final class WatchAppViewModel {
             showDateStore: ShowDatePreference(defaults: .standard),
             showRecurrenceStore: ShowRecurrencePreference(defaults: .standard),
             showAlarmsStore: ShowAlarmsPreference(defaults: .standard),
+            showListStore: ShowListPreference(defaults: .standard),
             sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false)
         service.onShowUndatedRemindersReceived = { [weak store] value in
             Task {
@@ -129,6 +134,9 @@ final class WatchAppViewModel {
         service.onShowAlarmsReceived = { [weak showAlarmsState] value in
             Task { @MainActor in showAlarmsState?.apply(value) }
         }
+        service.onShowListReceived = { [weak showListState] value in
+            Task { @MainActor in showListState?.apply(value) }
+        }
         service.onSortOptionReceived = { [weak store] option in
             Task { @MainActor in store?.setSortOption(option) }
         }
@@ -143,11 +151,15 @@ final class WatchAppViewModel {
         // push hook is wired here. The receive path above applies incoming exclusions.
         store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
         store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
+        scheduleUITestLiveExcludedDelivery(service: service, arguments: arguments)
+    }
 
-        // UI-test seam: delivers a real applicationContext through the WCSession
-        // delegate entry point several seconds after launch, proving settings
-        // apply live (no relaunch) end-to-end in SingleThreadWatchUITests. Long
-        // enough that the seeded card has rendered first.
+    /// Delivers a real applicationContext several seconds after launch when the
+    /// `--ui-testing-live-excluded` flag is present, proving settings apply
+    /// live (no relaunch) end-to-end in watch UI tests.
+    private func scheduleUITestLiveExcludedDelivery(
+        service: SkippedReminderSyncService,
+        arguments: [String]) {
         if let index = arguments.firstIndex(of: "--ui-testing-live-excluded"),
            index + 1 < arguments.count {
             let list = arguments[index + 1]

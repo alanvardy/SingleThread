@@ -1,40 +1,46 @@
-import SingleThreadCore
 import SwiftUI
 
 /// Display preferences for reminder content: show date, show list,
 /// recurrence indicator, and reminder alerts. Each changes widget timelines,
-/// so the sub-view fires the reload hooks through `viewModel`.
+/// so the sub-view fires the reload hooks through `viewModel`. Takes only
+/// the bindings it needs rather than the full bag.
 struct ReminderSettingsView: View {
-    @Bindable var bindings: SettingsBindings
+    @Binding var showDate: Bool
+
+    @Binding var showList: Bool
+
+    @Binding var showRecurrence: Bool
+
+    @Binding var showAlarms: Bool
 
     let viewModel: SettingsViewModel
 
     var body: some View {
         Form {
-            Toggle(isOn: $bindings.showDate) {
+            Toggle(isOn: $showDate) {
                 Label("Show date", systemImage: "calendar")
             }
             #if os(iOS) || os(macOS)
-            .onChange(of: bindings.showDate) { _, _ in
+            .onChange(of: showDate) { _, _ in
                 viewModel.showPreferenceChanged()
             }
             #endif
-            Toggle(isOn: $bindings.showList) {
+            Toggle(isOn: $showList) {
                 Label("Show list", systemImage: "list.bullet")
             }
-            Toggle(isOn: $bindings.showRecurrence) {
+            Toggle(isOn: $showRecurrence) {
                 Label("Recurrence indicator", systemImage: "repeat")
             }
             #if os(iOS) || os(macOS)
-            .onChange(of: bindings.showRecurrence) { _, _ in
+            .onChange(of: showRecurrence) { _, _ in
                 viewModel.showPreferenceChanged()
             }
             #endif
-            Toggle(isOn: $bindings.showAlarms) {
+            Toggle(isOn: $showAlarms) {
                 Label("Reminder alerts", systemImage: "bell")
             }
             #if os(iOS) || os(macOS)
-            .onChange(of: bindings.showAlarms) { _, _ in
+            .onChange(of: showAlarms) { _, _ in
                 viewModel.showPreferenceChanged()
             }
             #endif
@@ -48,7 +54,10 @@ struct ReminderSettingsView: View {
 #Preview("Default") {
     NavigationStack {
         ReminderSettingsView(
-            bindings: SettingsBindings(),
+            showDate: .constant(true),
+            showList: .constant(false),
+            showRecurrence: .constant(true),
+            showAlarms: .constant(true),
             viewModel: SettingsViewModel())
     }
 }
