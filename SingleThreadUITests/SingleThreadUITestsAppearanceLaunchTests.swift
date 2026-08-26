@@ -63,6 +63,9 @@ final class SingleThreadUITestsAppearanceLaunchTests: XCTestCase {
         app.launch()
 
         app.buttons["Settings"].tap()
+        // The appearance picker now lives inside the Interface sub-menu.
+        XCTAssertTrue(app.staticTexts["Interface"].waitForExistence(timeout: 3), "Settings should show Interface")
+        app.staticTexts["Interface"].tap()
         let appearancePicker = app.buttons
             .matching(NSPredicate(format: "label == %@", "Appearance"))
             .firstMatch
@@ -94,6 +97,9 @@ final class SingleThreadUITestsAppearanceLaunchTests: XCTestCase {
         app.launch()
 
         app.buttons["Settings"].tap()
+        // The appearance picker now lives inside the Interface sub-menu.
+        XCTAssertTrue(app.staticTexts["Interface"].waitForExistence(timeout: 3), "Settings should show Interface")
+        app.staticTexts["Interface"].tap()
         let appearancePicker = app.buttons
             .matching(NSPredicate(format: "label == %@", "Appearance"))
             .firstMatch
