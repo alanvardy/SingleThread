@@ -13,8 +13,10 @@ struct ContentView: View {
         speechTranscriber: (any SpeechTranscribing)? = nil,
         backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
         self.store = store
-        self.speechTranscriber = speechTranscriber ?? ReminderDictation()
         self.backgroundImage = backgroundImage
+        dictationViewModel = DictationViewModel(
+            speechTranscriber: speechTranscriber ?? ReminderDictation(),
+            store: store)
     }
 
     init(
@@ -23,8 +25,10 @@ struct ContentView: View {
         speechTranscriber: (any SpeechTranscribing)? = nil,
         backgroundImage: BackgroundImageStore = BackgroundImageStore()) {
         store = ReminderStore(eventStore: eventStore, loadsReminders: loadsReminders)
-        self.speechTranscriber = speechTranscriber ?? ReminderDictation()
         self.backgroundImage = backgroundImage
+        dictationViewModel = DictationViewModel(
+            speechTranscriber: speechTranscriber ?? ReminderDictation(),
+            store: store)
     }
 
     /// Pre-populates state for canvas previews.
@@ -45,8 +49,10 @@ struct ContentView: View {
             authorizationStatus: authorizationStatus,
             excludedListTitles: excludedListTitles,
             hasHidden: hasHidden)
-        self.speechTranscriber = speechTranscriber ?? ReminderDictation()
         self.backgroundImage = backgroundImage
+        dictationViewModel = DictationViewModel(
+            speechTranscriber: speechTranscriber ?? ReminderDictation(),
+            store: store)
     }
 
     // MARK: Internal
@@ -234,27 +240,18 @@ struct ContentView: View {
     @AppStorage("showAlarms", store: AppGroup.defaults)
     private var showAlarms = true
 
-    @State private var isDictating = false
-    @State private var dictationText = ""
-    @State private var dictationError: String?
-    @State private var creationFeedback: CreationFeedback?
     @State private var isShowingSettings = false
 
     @Environment(\.openURL)
     private var openURL
 
     private let store: ReminderStore
-    private let speechTranscriber: any SpeechTranscribing
+    private let dictationViewModel: DictationViewModel
 
     private var excludedListsBinding: Binding<Set<String>> {
         Binding(
             get: { store.excludedListTitles },
             set: { store.setExcludedListTitles($0) })
-    }
-
-    private var canDictate: Bool {
-        speechTranscriber.authorizationStatus == .authorized
-            || speechTranscriber.authorizationStatus == .notDetermined
     }
 
     #if os(macOS)
@@ -420,25 +417,25 @@ struct ContentView: View {
                     actionButtons
                 }
             #endif
-            if let error = dictationError {
+            if let error = dictationViewModel.dictationError {
                 Text(error)
                     .font(.caption)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal)
             }
-            if let feedback = creationFeedback {
+            if let feedback = dictationViewModel.creationFeedback {
                 creationFeedbackView(for: feedback)
-            } else if isDictating {
-                if !dictationText.isEmpty {
-                    Text(dictationText)
+            } else if dictationViewModel.isDictating {
+                if !dictationViewModel.dictationText.isEmpty {
+                    Text(dictationViewModel.dictationText)
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }
                 recordingIndicator
-            } else if canDictate, showMicrophoneButton {
+            } else if dictationViewModel.canDictate, showMicrophoneButton {
                 #if os(iOS)
                     if showsActionButtons {
                         actionCluster
@@ -491,7 +488,7 @@ struct ContentView: View {
 
     private var micButton: some View {
         Button {
-            Task { await startDictation() }
+            Task { await dictationViewModel.startDictation() }
         } label: {
             Image(systemName: "mic.fill")
                 .font(.title2)
@@ -514,46 +511,6 @@ struct ContentView: View {
             .font(.title2)
             .controlPlate(fill: feedback.backgroundColor, glyph: .white)
             .accessibilityLabel(feedback.accessibilityLabel)
-    }
-
-    private func startDictation() async {
-        if speechTranscriber.authorizationStatus == .notDetermined {
-            let status = await speechTranscriber.requestAuthorization()
-            guard status == .authorized else {
-                dictationError = "Speech recognition access is required."
-                return
-            }
-        }
-        guard speechTranscriber.authorizationStatus == .authorized else {
-            dictationError = "Speech recognition access was denied."
-            return
-        }
-        isDictating = true
-        dictationText = ""
-        dictationError = nil
-        do {
-            let result = try await speechTranscriber.transcribe { text in
-                dictationText = text
-            }
-            let parsed = ReminderDictationParser.parse(result)
-            if !parsed.title.isEmpty {
-                let saved = await store.addReminder(
-                    title: parsed.title,
-                    notes: nil,
-                    dueDate: parsed.dueDateComponents,
-                    recurrenceRule: parsed.recurrenceRule)
-                if saved {
-                    creationFeedback = .success
-                } else {
-                    creationFeedback = .failure
-                }
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
-                creationFeedback = nil
-            }
-        } catch {
-            dictationError = error.localizedDescription
-        }
-        isDictating = false
     }
 }
 
