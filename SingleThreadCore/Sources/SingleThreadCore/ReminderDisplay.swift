@@ -49,4 +49,20 @@ public struct ReminderDisplay: Equatable, Sendable {
     public let hasRecurrence: Bool
     public let recurrenceSummary: String?
     public let hasAlarms: Bool
+
+    // MARK: Attributed variants
+
+    /// `title` with any backtick-delimited code spans styled as monospaced.
+    /// Backtick fences are stripped from the visible string.
+    public var titleAttributed: AttributedString {
+        CodeSpanFormatter.format(title)
+    }
+
+    /// `notes` with any backtick-delimited code spans styled as monospaced,
+    /// or `nil` when raw notes is `nil`. Runs after `ReminderNotesFormatter`
+    /// (already applied during `init`).
+    public var notesAttributed: AttributedString? {
+        guard let notes else { return nil }
+        return CodeSpanFormatter.format(notes)
+    }
 }

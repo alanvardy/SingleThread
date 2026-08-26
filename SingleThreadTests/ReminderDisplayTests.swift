@@ -1,4 +1,5 @@
 import EventKit
+import Foundation
 import SingleThreadCore
 import Testing
 
@@ -130,6 +131,48 @@ struct ReminderDisplayTests {
         #expect(display.dueDate == due)
         #expect(display.priorityMarker == "!")
         #expect(display.listName == "Errands")
+    }
+
+    @Test
+    func titleAttributedReturnsPlainForPlainTitle() {
+        let display = ReminderDisplay(reminder: makeReminder(title: "Buy milk"))
+        let attributed = display.titleAttributed
+        #expect(String(attributed.characters[...]) == "Buy milk")
+    }
+
+    @Test
+    func titleAttributedStripsBackticks() {
+        let display = ReminderDisplay(reminder: makeReminder(title: "Use `map` now"))
+        let attributed = display.titleAttributed
+        #expect(String(attributed.characters[...]) == "Use map now")
+    }
+
+    @Test
+    func notesAttributedReturnsNilForNilNotes() {
+        let display = ReminderDisplay(reminder: makeReminder(title: "Test"))
+        #expect(display.notesAttributed == nil)
+    }
+
+    @Test
+    func notesAttributedStripsBackticks() throws {
+        let reminder = makeReminder(title: "Use `map`")
+        reminder.notes = "See `filter` docs"
+        let display = ReminderDisplay(reminder: reminder)
+        let attributed = display.notesAttributed
+        #expect(attributed != nil)
+        #expect(try String(#require(attributed?.characters[...])) == "See filter docs")
+    }
+
+    @Test
+    func notesAttributedRunsAfterNotesFormatter() throws {
+        // Verifies the pipeline: EKReminder.notes → ReminderNotesFormatter → CodeSpanFormatter
+        let reminder = makeReminder(title: "Test")
+        reminder.notes = "tUse `map`" // t-artifact + code span
+        let display = ReminderDisplay(reminder: reminder)
+        let attributed = display.notesAttributed
+        #expect(attributed != nil)
+        let text = try String(#require(attributed?.characters[...]))
+        #expect(text == "Use map") // t stripped, backticks stripped
     }
 }
 
