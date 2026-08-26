@@ -702,9 +702,9 @@ The existing test constructs `SettingsView` directly with `.constant` bindings. 
 ### Verification
 
 #### Automated
-- [ ] `make test` — `SettingsViewTests` + new `SettingsViewModelTests` pass; all other suites green
-- [ ] `make build` — iOS + macOS compile
-- [ ] `make ui-test` — accessibility audit passes; widget timeline reload fires (no visible regression)
+- [x] `make test` — `SettingsViewTests` + new `SettingsViewModelTests` pass; all other suites green
+- [x] `make build` — iOS + macOS compile
+- [x] `make ui-test` — accessibility audit passes; widget timeline reload fires (no visible regression)
 
 #### Manual
 - [ ] Open Settings, toggle "Allow landscape" — orientation lock updates

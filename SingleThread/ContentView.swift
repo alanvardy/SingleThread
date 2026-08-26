@@ -119,7 +119,8 @@ struct ContentView: View {
                     sortOption: $sortOption,
                     showDate: $showDate,
                     showList: $showList,
-                    showRecurrence: $showRecurrence, showAlarms: $showAlarms)
+                    showRecurrence: $showRecurrence, showAlarms: $showAlarms,
+                    viewModel: SettingsViewModel())
             #else
                 SettingsView(
                     appearanceMode: $appearanceMode,
@@ -135,7 +136,8 @@ struct ContentView: View {
                     sortOption: $sortOption,
                     showDate: $showDate,
                     showList: $showList,
-                    showRecurrence: $showRecurrence, showAlarms: $showAlarms)
+                    showRecurrence: $showRecurrence, showAlarms: $showAlarms,
+                    viewModel: SettingsViewModel())
             #endif
         }
     }
