@@ -75,15 +75,11 @@ struct WatchReminderView: View {
 
     private let showAlarmsState: ShowAlarmsState
 
-    private var allSkipped: Bool {
-        store.visibleReminders.isEmpty && !store.reminders.isEmpty
-    }
-
     // MARK: - Content
 
     private var reminderContent: some View {
         ZStack {
-            if allSkipped {
+            if store.allSkipped {
                 allDoneState
             } else if let reminder = store.visibleReminders.first {
                 reminderCard(reminder)
@@ -221,7 +217,7 @@ struct WatchReminderView: View {
 
     private func refresh() {
         guard !isRefreshing else { return }
-        let clearSkipped = allSkipped
+        let clearSkipped = store.allSkipped
         isRefreshing = true
         let startedAt = Date()
         Task {

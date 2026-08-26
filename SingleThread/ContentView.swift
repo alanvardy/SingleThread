@@ -252,10 +252,6 @@ struct ContentView: View {
             set: { store.setExcludedListTitles($0) })
     }
 
-    private var allSkipped: Bool {
-        !store.reminders.isEmpty && store.visibleReminders.isEmpty
-    }
-
     private var canDictate: Bool {
         speechTranscriber.authorizationStatus == .authorized
             || speechTranscriber.authorizationStatus == .notDetermined
@@ -322,7 +318,7 @@ struct ContentView: View {
             let viewHeight = geometry.size.height
                 - geometry.safeAreaInsets.top
                 - geometry.safeAreaInsets.bottom
-            if allSkipped {
+            if store.allSkipped {
                 let allDoneCopy = Self.allDoneStateCopy()
                 ScrollView {
                     ContentUnavailableView(

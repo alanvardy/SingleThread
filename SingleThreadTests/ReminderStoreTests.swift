@@ -443,6 +443,56 @@ struct ReminderStoreTests {
         let hidden = makeReminder(title: "Hidden")
         #expect(ReminderStore.hasHiddenFor(shown: [shown], allIncomplete: [shown, hidden]))
     }
+
+    // MARK: - allSkipped
+
+    @Test
+    func allSkippedTrueWhenRemindersExistButAllSkipped() {
+        let rem = makeReminder(title: "A")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [rem],
+            skippedIDs: [rem.calendarItemIdentifier],
+            authorizationStatus: .fullAccess)
+        #expect(store.allSkipped)
+    }
+
+    @Test
+    func allSkippedFalseWhenRemindersEmpty() {
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        #expect(!store.allSkipped)
+    }
+
+    @Test
+    func allSkippedFalseWhenVisibleRemindersExist() {
+        let rem = makeReminder(title: "A")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        #expect(!store.allSkipped)
+    }
+
+    @Test
+    func allSkippedTrueWhenAllExcluded() {
+        let rem = makeReminder(title: "A", calendarTitle: "Work")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            excludedListTitles: ["Work"])
+        #expect(store.allSkipped)
+    }
 }
 
 // MARK: - makeReminder test seam

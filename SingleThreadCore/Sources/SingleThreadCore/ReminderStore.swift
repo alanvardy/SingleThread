@@ -103,6 +103,12 @@ public final class ReminderStore {
             .sorted { ReminderSort.areInIncreasingOrder($0, $1, using: sortOption) }
     }
 
+    /// `true` when reminders exist but are all skipped or excluded — i.e. nothing
+    /// to display in the current view despite a non-empty source list.
+    public var allSkipped: Bool {
+        !reminders.isEmpty && visibleReminders.isEmpty
+    }
+
     /// Returns `true` when `allIncomplete` contains a reminder absent from
     /// `shown` (by `calendarItemIdentifier`) — i.e. the current in-window view
     /// is hiding at least one incomplete reminder.
