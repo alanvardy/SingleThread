@@ -65,12 +65,19 @@ final class BackgroundImageStore {
 
     // MARK: Internal
 
+    /// A stored wallpaper is considered fresh for 24 hours before the network
+    /// is consulted again.
+    static let defaultMaxAge: TimeInterval = 86_400
+
     /// Bytes of the currently-displayed photo, or nil before first success.
     private(set) var imageData: Data?
     /// Photographer of the currently-displayed photo, or nil.
     private(set) var photographer: String?
     /// Unsplash attribution URL for the currently-displayed photo, or nil.
     private(set) var photographerURL: URL?
+    /// `true` while an explicit force-refresh is in-flight; drives the button's
+    /// `ProgressView` and disables it to prevent double-fetch.
+    private(set) var isRefreshing = false
 
     var imageURL: URL {
         directory.appendingPathComponent("background.jpg")
@@ -85,7 +92,7 @@ final class BackgroundImageStore {
     /// ContentView's `.task`; rendering is never gated on the network result.
     /// Failure convention: persist to disk FIRST, then flip observable state;
     /// on any error, log and keep prior state.
-    func refreshIfNeeded(maxAge: TimeInterval) async {
+    func refreshIfNeeded(maxAge: TimeInterval = BackgroundImageStore.defaultMaxAge) async {
         loadStoredImage()
         guard !isFresh(maxAge: maxAge) else { return }
         do {
@@ -104,6 +111,32 @@ final class BackgroundImageStore {
             photographerURL = payload.photographerURL
         } catch {
             Self.logger.error("Background refresh failed: \(error.localizedDescription)")
+        }
+    }
+
+    /// Fetches a fresh wallpaper immediately, ignoring the staleness check.
+    /// Unlike `refreshIfNeeded`, this always hits the network and toggles
+    /// `isRefreshing` so the button can show progress. On any error it keeps
+    /// the prior photo and attribution.
+    func forceRefresh() async {
+        isRefreshing = true
+        defer { isRefreshing = false }
+        do {
+            let payloadData = try await client.fetchData(from: Self.endpoint)
+            let decoder = JSONDecoder()
+            let payload = try decoder.decode(UnsplashPayload.self, from: payloadData)
+            let data = try await client.fetchData(from: payload.url)
+            guard isDecodableImage(data) else { throw URLError(.cannotDecodeContentData) }
+            let metadata = BackgroundMetadata(
+                photographer: payload.photographer,
+                photographerURL: payload.photographerURL?.absoluteString,
+                fetchedAt: Date())
+            try persist(imageData: data, metadata: metadata) // disk before state
+            imageData = data
+            photographer = payload.photographer
+            photographerURL = payload.photographerURL
+        } catch {
+            Self.logger.error("Background force refresh failed: \(error.localizedDescription)")
         }
     }
 

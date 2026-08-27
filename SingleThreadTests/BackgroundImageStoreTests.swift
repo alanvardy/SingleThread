@@ -61,34 +61,39 @@ struct BackgroundImageStoreTests {
     }
 
     @Test
-    func staleSidecarTriggersRefetch() async throws {
+    func staleSidecarTriggersRefetchWith24hDefault() async throws {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
         fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
         let (store, _) = makeStore(client: fake)
-        await store.refreshIfNeeded(maxAge: 3600)
+        await store.refreshIfNeeded()
 
-        // Rewrite the sidecar with a fetchedAt older than maxAge.
-        let staleMetadata = Data(
-            "{\"photographer\":\"Old\",\"fetchedAt\":\"2000-01-01T00:00:00Z\"}".utf8)
-        try staleMetadata.write(to: store.metadataURL, options: .atomic)
+        // 23h-old sidecar is still within the 24h default → skip.
+        try sidecarJSON(fetchedAt: Date().addingTimeInterval(-23 * 3600))
+            .write(to: store.metadataURL, options: .atomic)
+        await store.refreshIfNeeded()
+        let endpointCountWithinDay = fake.requestedURLs.filter { $0 == Self.endpoint }.count
 
-        await store.refreshIfNeeded(maxAge: 3600)
+        // 25h-old sidecar is beyond the 24h default → refetch.
+        try sidecarJSON(fetchedAt: Date().addingTimeInterval(-25 * 3600))
+            .write(to: store.metadataURL, options: .atomic)
+        await store.refreshIfNeeded()
+        let endpointCountBeyondDay = fake.requestedURLs.filter { $0 == Self.endpoint }.count
 
-        let endpointRequests = fake.requestedURLs.filter { $0 == Self.endpoint }
-        #expect(endpointRequests.count >= 2)
+        #expect(endpointCountBeyondDay > endpointCountWithinDay,
+                "only the 25h-old sidecar should trigger a refetch")
     }
 
     @Test
-    func freshSidecarSkipsNetwork() async {
+    func freshSidecarSkipsNetworkWith24hDefault() async {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
         fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
         let (store, _) = makeStore(client: fake)
-        await store.refreshIfNeeded(maxAge: 3600)
+        await store.refreshIfNeeded()
         #expect(fake.requestedURLs.count == 2)
 
-        await store.refreshIfNeeded(maxAge: 3600)
+        await store.refreshIfNeeded()
 
         #expect(fake.requestedURLs.count == 2, "Fresh sidecar should not trigger refetch")
     }
@@ -169,6 +174,77 @@ struct BackgroundImageStoreTests {
         #expect(store.photographer == nil)
     }
 
+    @Test
+    func forceRefreshBypassesFreshSidecar() async throws {
+        let fake = FakeBackgroundFetcher()
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        let (store, _) = makeStore(client: fake)
+        await store.refreshIfNeeded() // seeds a fresh sidecar + photo
+        let countAfterInitial = fake.requestedURLs.count
+        #expect(countAfterInitial == 2)
+
+        await store.forceRefresh()
+
+        #expect(fake.requestedURLs.count > countAfterInitial,
+                "forceRefresh should hit the network even with a fresh sidecar")
+    }
+
+    @Test
+    func forceRefreshRetainsPriorImageOnFailure() async {
+        let fake = FakeBackgroundFetcher()
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        let (store, _) = makeStore(client: fake)
+        await store.refreshIfNeeded()
+
+        struct StubError: Error {}
+        fake.stubbedData[Self.imageURL] = .failure(StubError())
+        await store.forceRefresh()
+
+        #expect(store.imageData == Self.jpegData)
+        #expect(store.photographer == "NEOM")
+        #expect(store.photographerURL?.absoluteString == "https://unsplash.com/@neom")
+        #expect(!store.isRefreshing, "failure path must reset isRefreshing")
+    }
+
+    @Test
+    func forceRefreshUpdatesAttributionAfterSuccess() async throws {
+        let fake = FakeBackgroundFetcher()
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        let (store, _) = makeStore(client: fake)
+        await store.refreshIfNeeded()
+        #expect(store.photographer == "NEOM")
+
+        fake.stubbedData[Self.endpoint] = .success(Data(
+            ("{\"url\":\"\(Self.imageURL.absoluteString)\",\"photographer\":\"Adele\"," +
+                "\"photographer_url\":\"https://unsplash.com/@adele\"}").utf8))
+        await store.forceRefresh()
+
+        #expect(store.photographer == "Adele")
+        #expect(store.photographerURL?.absoluteString == "https://unsplash.com/@adele")
+        #expect(store.imageData == Self.jpegData)
+    }
+
+    @Test
+    func isRefreshingToggledDuringForceRefresh() async throws {
+        let fetcher = GatedBackgroundFetcher(endpointURL: Self.endpoint)
+        fetcher.endpointData = payloadJSON()
+        fetcher.imageData = Self.jpegData
+        let store = BackgroundImageStore(
+            client: fetcher,
+            directory: FileManager.default.temporaryDirectory
+                .appendingPathComponent(UUID().uuidString))
+
+        let task = Task { await store.forceRefresh() }
+        await fetcher.gate.waitUntilHit()
+        #expect(store.isRefreshing)
+        await fetcher.gate.open()
+        await task.value
+        #expect(!store.isRefreshing)
+    }
+
     // MARK: Private
 
     private final class FakeBackgroundFetcher: BackgroundImageFetching, @unchecked Sendable {
@@ -178,6 +254,49 @@ struct BackgroundImageStoreTests {
         func fetchData(from url: URL) async throws -> Data {
             requestedURLs.append(url)
             return try stubbedData[url]!.get()
+        }
+    }
+
+    /// One-shot rendezvous that parks a fetch in-flight so a test can observe
+    /// `isRefreshing` before releasing it.
+    private actor FetchGate {
+        private var parked: CheckedContinuation<Void, Never>?
+        private var hitSignal: CheckedContinuation<Void, Never>?
+        private var wasHit = false
+
+        func wait() async {
+            if wasHit { return }
+            wasHit = true
+            hitSignal?.resume()
+            await withCheckedContinuation { parked = $0 }
+        }
+
+        func waitUntilHit() async {
+            if wasHit { return }
+            await withCheckedContinuation { hitSignal = $0 }
+        }
+
+        func open() {
+            parked?.resume()
+            parked = nil
+        }
+    }
+
+    /// Parks the first (endpoint) fetch behind a gate, then serves valid data.
+    private final class GatedBackgroundFetcher: BackgroundImageFetching, @unchecked Sendable {
+        let gate = FetchGate()
+        private let endpointURL: URL
+        var endpointData: Data = Data()
+        var imageData: Data = Data()
+
+        init(endpointURL: URL) {
+            self.endpointURL = endpointURL
+        }
+
+        func fetchData(from url: URL) async throws -> Data {
+            let isEndpoint = url == endpointURL
+            if isEndpoint { await gate.wait() }
+            return isEndpoint ? endpointData : imageData
         }
     }
 
@@ -212,5 +331,11 @@ struct BackgroundImageStoreTests {
         let json = "{\"url\":\"\(Self.imageURL.absoluteString)\",\"photographer\":\"NEOM\"," +
             "\"photographer_url\":\"https://unsplash.com/@neom\",\"created_at\":\"2026-01-01\"}"
         return Data(json.utf8)
+    }
+
+    /// Builds a minimal sidecar JSON with a `fetchedAt` relative to now.
+    private func sidecarJSON(fetchedAt: Date) -> Data {
+        let dateString = ISO8601DateFormatter().string(from: fetchedAt)
+        return Data("{\"photographer\":\"Old\",\"fetchedAt\":\"\(dateString)\"}".utf8)
     }
 }
