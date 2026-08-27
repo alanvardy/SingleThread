@@ -148,9 +148,9 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
         // Back to root, then into Privacy.
         app.navigationBars.buttons.firstMatch.tap()
-        app.staticTexts["Privacy"].tap()
+        app.staticTexts["Privacy Policy"].tap()
         XCTAssertTrue(
-            app.navigationBars["Privacy"].waitForExistence(timeout: 2),
+            app.navigationBars["Privacy Policy"].waitForExistence(timeout: 2),
             "Privacy screen should be pushed with its own navigation title")
         XCTAssertTrue(
             app.staticTexts["Skipped & Excluded Lists"].waitForExistence(timeout: 2),
