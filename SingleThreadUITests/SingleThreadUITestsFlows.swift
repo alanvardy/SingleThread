@@ -320,7 +320,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testCompletionGlowTogglePersistsAcrossRelaunch() {
         let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing"]
+        app.launchArguments = ["--ui-testing", "--reset-glow-preference"]
         app.launch()
         app.buttons["Settings"].tap()
 

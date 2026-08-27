@@ -140,6 +140,9 @@ final class AppViewModel {
             // (a persistent `.standard` value on the test simulator) is isolated to the
             // XCTest seam on a test-only destination.
             if arguments.contains("--ui-testing") {
+                if arguments.contains("--reset-glow-preference") {
+                    UserDefaults.standard.removeObject(forKey: "showCompletionGlow")
+                }
                 UserDefaults.standard.set(true, forKey: "enableActionButtons")
                 // Build the reminder through `InMemoryEventStore.makeReminder` so it is
                 // backed by the store's persistent `EKEventStore`. A local `EKEventStore()`
