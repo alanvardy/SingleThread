@@ -102,3 +102,38 @@ Expect the app scene (reminder list, not SpringBoard) and the log line.
 3. **Device-follow (`.system`)** — `testDeviceFollowingClearsOverride`: same reachable
    surface; the `.system` override-clear is unit-proven
    (`systemMapsToUnspecifiedWindowStyle`).
+
+## Container opacity (VAR-722)
+
+The reminder card's container is now transparent on every device: row chrome is always
+clear (`ContentViewModel.rowChromeBackground`), scroll content stays hidden, and the
+`List` itself gets `.background(Color.clear)`. Verifying the rendered look is manual-only —
+opacity cannot be asserted headlessly (`BackgroundCardTests` assert the gate decision, not
+the paint).
+
+**Gate:**
+
+```bash
+SIM='platform=iOS Simulator,name=iPad (A16)' make simverify   # iPad (A16)
+make simverify                                                # iPhone 17
+```
+
+The `make simverify` XCTest asserts are the determinism gate; for the opacity matrix,
+capture side-by-side screenshots after booting each device:
+
+```bash
+xcrun simctl io "<UDID>" screenshot build/var722-ipad-light-photo-on.png
+# repeat for: light/photo-off, dark/photo-on, dark/photo-off
+```
+
+**Expectations (both devices, light × dark × toggle-on/off):**
+
+- The card plate (`showsOverPhoto`) appears **only** when a photo is shown — never as an
+  opaque row when no photo is displayed.
+- No opaque row on iPad in any state (previously the row fell back to the opaque system
+  default when no photo was shown).
+- Text contrast is unchanged in dark mode over `systemBackground`.
+
+**Screenshot slots** (record filenames next to each expectation): `build/var722-ipad-light-photo-on.png`,
+`build/var722-ipad-light-photo-off.png`, `build/var722-ipad-dark-photo-on.png`,
+`build/var722-ipad-dark-photo-off.png`, and the iPhone equivalents.

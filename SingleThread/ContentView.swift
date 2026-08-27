@@ -303,8 +303,8 @@ struct ContentView: View {
                                 display: ReminderDisplay(reminder: reminder),
                                 showDate: showDate,
                                 showList: showList,
-                                showRecurrence: showRecurrence, showAlarms: showAlarms,
-                                showsOverPhoto: viewModel.backgroundDisplayed)
+                                showRecurrence: showRecurrence,
+                                showAlarms: showAlarms)
                                 .listRowBackground(viewModel.rowChromeBackground)
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 12)

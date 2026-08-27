@@ -46,13 +46,6 @@ final class ContentViewModel {
         }
     #endif
 
-    /// See-through reminder-card gate: true while a background photo is actually
-    /// on screen. Row chrome clears and the card text sits on its own plate.
-    var backgroundDisplayed: Bool {
-        UserDefaults.standard.bool(forKey: "backgroundEnabled")
-            && backgroundImage.imageData != nil
-    }
-
     /// Row chrome is always clear so the photo (or `systemBackground` when none is
     /// shown) shows through on every device. Extracted because the rendered paint
     /// can't be asserted headlessly — tests assert this decision instead.
