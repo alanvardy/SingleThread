@@ -78,6 +78,11 @@ struct SettingsView: View {
                 } label: {
                     Label("Background", systemImage: "photo.on.rectangle")
                 }
+                NavigationLink {
+                    PrivacySettingsView()
+                } label: {
+                    Label("Privacy", systemImage: "hand.raised")
+                }
             }
             .navigationTitle("Settings")
             .toolbar {
