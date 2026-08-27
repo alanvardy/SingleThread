@@ -31,65 +31,70 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
-                NavigationLink {
-                    #if os(iOS)
-                        InterfaceSettingsView(
-                            appearanceMode: $bindings.appearanceMode,
-                            textSize: $bindings.textSize,
-                            allowsLandscape: $bindings.allowsLandscape,
-                            showMicrophoneButton: $bindings.showMicrophoneButton,
-                            enableActionButtons: $bindings.enableActionButtons,
+                Section {
+                    NavigationLink {
+                        #if os(iOS)
+                            InterfaceSettingsView(
+                                appearanceMode: $bindings.appearanceMode,
+                                textSize: $bindings.textSize,
+                                allowsLandscape: $bindings.allowsLandscape,
+                                showMicrophoneButton: $bindings.showMicrophoneButton,
+                                enableActionButtons: $bindings.enableActionButtons,
+                                viewModel: viewModel)
+                        #else
+                            InterfaceSettingsView(
+                                appearanceMode: $bindings.appearanceMode,
+                                textSize: $bindings.textSize,
+                                showMicrophoneButton: $bindings.showMicrophoneButton,
+                                viewModel: viewModel)
+                        #endif
+                    } label: {
+                        Label("Interface", systemImage: "paintpalette")
+                    }
+                    NavigationLink {
+                        ReminderSettingsView(
+                            showDate: $bindings.showDate,
+                            showList: $bindings.showList,
+                            showRecurrence: $bindings.showRecurrence,
+                            showAlarms: $bindings.showAlarms,
                             viewModel: viewModel)
-                    #else
-                        InterfaceSettingsView(
-                            appearanceMode: $bindings.appearanceMode,
-                            textSize: $bindings.textSize,
-                            showMicrophoneButton: $bindings.showMicrophoneButton,
-                            viewModel: viewModel)
-                    #endif
-                } label: {
-                    Label("Interface", systemImage: "paintpalette")
+                    } label: {
+                        Label("Reminder", systemImage: "bell.badge")
+                    }
+                    NavigationLink {
+                        FilterSortSettingsView(
+                            sortOption: $bindings.sortOption,
+                            showUndatedReminders: $bindings.showUndatedReminders,
+                            availableLists: availableLists,
+                            excludedLists: $excludedLists)
+                    } label: {
+                        Label("Filtering & Sorting", systemImage: "line.3.horizontal.decrease")
+                    }
+                    NavigationLink {
+                        BackgroundSettingsView(
+                            backgroundEnabled: $bindings.backgroundEnabled,
+                            backgroundFadePercent: $bindings.backgroundFadePercent,
+                            backgroundPhotographer: backgroundPhotographer,
+                            backgroundPhotographerURL: backgroundPhotographerURL)
+                    } label: {
+                        Label("Background", systemImage: "photo.on.rectangle")
+                    }
                 }
-                NavigationLink {
-                    ReminderSettingsView(
-                        showDate: $bindings.showDate,
-                        showList: $bindings.showList,
-                        showRecurrence: $bindings.showRecurrence,
-                        showAlarms: $bindings.showAlarms,
-                        viewModel: viewModel)
-                } label: {
-                    Label("Reminder", systemImage: "bell.badge")
+
+                Section {
+                    NavigationLink {
+                        PrivacySettingsView()
+                    } label: {
+                        Label("Privacy Policy", systemImage: "hand.raised")
+                    }
+                    NavigationLink {
+                        AboutView()
+                    } label: {
+                        Label("About", systemImage: "info.circle")
+                    }
+                    .accessibilityLabel("About")
+                    .accessibilityAddTraits(.isButton)
                 }
-                NavigationLink {
-                    FilterSortSettingsView(
-                        sortOption: $bindings.sortOption,
-                        showUndatedReminders: $bindings.showUndatedReminders,
-                        availableLists: availableLists,
-                        excludedLists: $excludedLists)
-                } label: {
-                    Label("Filtering & Sorting", systemImage: "line.3.horizontal.decrease")
-                }
-                NavigationLink {
-                    BackgroundSettingsView(
-                        backgroundEnabled: $bindings.backgroundEnabled,
-                        backgroundFadePercent: $bindings.backgroundFadePercent,
-                        backgroundPhotographer: backgroundPhotographer,
-                        backgroundPhotographerURL: backgroundPhotographerURL)
-                } label: {
-                    Label("Background", systemImage: "photo.on.rectangle")
-                }
-                NavigationLink {
-                    PrivacySettingsView()
-                } label: {
-                    Label("Privacy Policy", systemImage: "hand.raised")
-                }
-                NavigationLink {
-                    AboutView()
-                } label: {
-                    Label("About", systemImage: "info.circle")
-                }
-                .accessibilityLabel("About")
-                .accessibilityAddTraits(.isButton)
             }
             .navigationTitle("Settings")
             .toolbar {
