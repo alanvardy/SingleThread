@@ -83,6 +83,13 @@ struct SettingsView: View {
                 } label: {
                     Label("Privacy Policy", systemImage: "hand.raised")
                 }
+                NavigationLink {
+                    AboutView()
+                } label: {
+                    Label("About", systemImage: "info.circle")
+                }
+                .accessibilityLabel("About")
+                .accessibilityAddTraits(.isButton)
             }
             .navigationTitle("Settings")
             .toolbar {
