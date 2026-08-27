@@ -56,6 +56,7 @@ public struct UITestingSeed {
         "showList",
         "showRecurrence",
         "showAlarms",
+        "showCompletionGlow",
         "showUndatedReminders",
         "sortOption",
         "enableActionButtons",

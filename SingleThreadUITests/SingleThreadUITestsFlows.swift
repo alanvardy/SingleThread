@@ -312,4 +312,82 @@ final class SingleThreadUITestsFlows: XCTestCase {
         }
         return toggle.value as? String == target
     }
+
+    // MARK: - Completion glow
+
+    /// Uses `--ui-testing` (not `--seed`) for both launches: seeding calls
+    /// `resetPersistedState()` and would wipe the key under test.
+    @MainActor
+    func testCompletionGlowTogglePersistsAcrossRelaunch() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+        app.buttons["Settings"].tap()
+
+        XCTAssertTrue(app.staticTexts["Reminder"].waitForExistence(timeout: 3))
+        app.staticTexts["Reminder"].tap()
+        let toggle = app.switches["Completion glow"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
+        XCTAssertEqual(toggle.value as? String, "1", "Completion glow should default to on")
+        XCTAssertTrue(flipToggle(toggle, target: "0"), "Tapping should disable the glow")
+
+        app.navigationBars.buttons.firstMatch.tap()
+        app.buttons["Done"].tap()
+        app.terminate()
+
+        let relaunched = XCUIApplication()
+        relaunched.launchArguments = ["--ui-testing"]
+        relaunched.launch()
+        relaunched.buttons["Settings"].tap()
+        relaunched.staticTexts["Reminder"].tap()
+        let persistedToggle = relaunched.switches["Completion glow"]
+        XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
+        XCTAssertEqual(persistedToggle.value as? String, "0", "Completion-glow-off should persist across relaunch")
+    }
+
+    @MainActor
+    func testCompletionGlowDoesNotAppearWhenDisabled() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--seed", #"{"reminders":[{"title":"Buy groceries"}]}"#, "--ui-testing-glow"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        // Disable the glow, then complete the only reminder.
+        app.buttons["Settings"].tap()
+        XCTAssertTrue(app.staticTexts["Reminder"].waitForExistence(timeout: 3))
+        app.staticTexts["Reminder"].tap()
+        let toggle = app.switches["Completion glow"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
+        XCTAssertTrue(flipToggle(toggle, target: "0"), "Tapping should disable the glow")
+        app.navigationBars.buttons.firstMatch.tap()
+        app.buttons["Done"].tap()
+
+        app.staticTexts["Buy groceries"].swipeRight()
+        let complete = app.buttons["Complete"]
+        XCTAssertTrue(complete.waitForExistence(timeout: 3))
+        complete.tap()
+
+        XCTAssertTrue(app.staticTexts["No Reminders"].waitForExistence(timeout: 5), "Completing should empty the list")
+        // The overlay must never appear once the preference is off.
+        XCTAssertFalse(app.otherElements["completionGlowOverlay"].exists, "Glow should be suppressed when disabled")
+    }
+
+    @MainActor
+    func testCompletionGlowFlashesWhenEnabled() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--seed", #"{"reminders":[{"title":"Buy groceries"}]}"#, "--ui-testing-glow"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        app.staticTexts["Buy groceries"].swipeRight()
+        let complete = app.buttons["Complete"]
+        XCTAssertTrue(complete.waitForExistence(timeout: 3))
+        complete.tap()
+
+        // Glow duration is extended to 2 s under the seam, so `waitForExistence`
+        // is deterministic.
+        XCTAssertTrue(
+            app.otherElements["completionGlowOverlay"].waitForExistence(timeout: 3),
+            "Glow overlay should flash briefly after completion")
+    }
 }
