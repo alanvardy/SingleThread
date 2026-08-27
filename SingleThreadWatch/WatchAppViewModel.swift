@@ -32,9 +32,14 @@ final class WatchAppViewModel {
         showCompletionGlowState = ShowCompletionGlowState()
 
         // --ui-testing-glow-disabled: pre-disable the state so the disabled-flow
-        // watch UI test doesn't need a settings screen.
+        // watch UI test doesn't need a settings screen. --ui-testing-glow:
+        // force-enable so the enabled-flow test never inherits a `false` persisted
+        // by an earlier disabled-flow test in the same UI-test session (both tests
+        // relaunch the same app install, so UserDefaults carries across).
         if arguments.contains("--ui-testing-glow-disabled") {
             showCompletionGlowState.apply(false)
+        } else if arguments.contains("--ui-testing-glow") {
+            showCompletionGlowState.apply(true)
         }
         isGlowUITesting = arguments.contains("--ui-testing-glow")
         if isGlowUITesting {

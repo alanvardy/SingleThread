@@ -313,7 +313,7 @@ No new types, no new files. These are XCTest methods in the existing
 
 #### Automated
 
-- [ ] `make watch-ui-test` passes — the two new tests must be green
+- [x] `make watch-ui-test` passes — the two new tests must be green
   ```bash
   xcodebuild -scheme SingleThreadWatch \
     -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)' \
@@ -322,8 +322,8 @@ No new types, no new files. These are XCTest methods in the existing
     test \
     -only-testing:SingleThreadWatchUITests
   ```
-- [ ] `make test` passes (unit tests — no regression)
-- [ ] `./scripts/test.sh --ui-only` passes (iOS UI tests — no regression)
+- [x] `make test` passes (unit tests — no regression)
+- [x] `./scripts/test.sh --ui-only` passes (iOS UI tests — no regression; pre-existing `testSettingsOpensAndShowsControls` failure on `origin/main` is unrelated — verify glow iOS tests pass)
 
 #### Manual
 

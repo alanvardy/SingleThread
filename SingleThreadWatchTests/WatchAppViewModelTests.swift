@@ -12,8 +12,9 @@ struct WatchAppViewModelTests {
         let appViewModel = WatchAppViewModel()
         let first = appViewModel.reminderViewModel
         let second = appViewModel.reminderViewModel
-        #expect(first === second,
-                "Computed → stored: view model must return the same instance")
+        #expect(
+            first === second,
+            "Computed → stored: view model must return the same instance")
     }
 
     @Test
