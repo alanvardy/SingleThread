@@ -67,7 +67,7 @@ final class BackgroundImageStore {
 
     /// A stored wallpaper is considered fresh for 24 hours before the network
     /// is consulted again.
-    static let defaultMaxAge: TimeInterval = 86_400
+    static let defaultMaxAge: TimeInterval = 86400
 
     /// Bytes of the currently-displayed photo, or nil before first success.
     private(set) var imageData: Data?
