@@ -80,7 +80,7 @@ final class ContentViewModel {
     func task(showUndatedReminders: Bool) async {
         store.showsUndatedReminders = showUndatedReminders
         await store.start()
-        await backgroundImage.refreshIfNeeded(maxAge: 3600)
+        await backgroundImage.refreshIfNeeded()
     }
 
     func handleShowUndatedReminders(_ value: Bool) {
