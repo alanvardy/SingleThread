@@ -21,7 +21,8 @@ struct WatchReminderView: View {
         showRecurrenceState: ShowRecurrenceState = ShowRecurrenceState(),
         showAlarmsState: ShowAlarmsState = ShowAlarmsState(),
         showListState: ShowListState = ShowListState(),
-        showCompletionGlowState: ShowCompletionGlowState = ShowCompletionGlowState()) {
+        showCompletionGlowState: ShowCompletionGlowState = ShowCompletionGlowState(),
+        showGuideState: ShowGuideState = ShowGuideState()) {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: loadsReminders,
@@ -35,7 +36,8 @@ struct WatchReminderView: View {
             showRecurrenceState: showRecurrenceState,
             showAlarmsState: showAlarmsState,
             showListState: showListState,
-            showCompletionGlowState: showCompletionGlowState)
+            showCompletionGlowState: showCompletionGlowState,
+            showGuideState: showGuideState)
     }
 
     // MARK: Internal
@@ -85,6 +87,13 @@ struct WatchReminderView: View {
         .overlay {
             if viewModel.completionGlow.isActive {
                 completionGlowOverlay
+            }
+            if viewModel.showGuideState.isEnabled {
+                GuideOverlay(
+                    isActive: viewModel.showGuideState.isEnabled,
+                    onDismiss: { viewModel.showGuideState.apply(false) },
+                    reduceMotion: reduceMotion)
+                    .zIndex(1) // above the glow overlay
             }
         }
         .animation(

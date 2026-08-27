@@ -12,6 +12,13 @@ final class WatchAppViewModel {
 
     init(arguments: [String] = ProcessInfo.processInfo.arguments) {
         let isUITesting = arguments.contains("--ui-testing")
+        // UI-testing default: treat launches as a returning user so the guide's
+        // first-launch overlay doesn't block the pre-existing interaction tests.
+        // `--reset-guide` (added in Phase 6) overrides this to simulate a fresh
+        // first launch.
+        if isUITesting, !arguments.contains("--reset-guide") {
+            UserDefaults.standard.set(false, forKey: "showGuide")
+        }
         let store: ReminderStore = if isUITesting {
             Self.uiTestingStore(arguments: arguments)
         } else {
@@ -52,7 +59,8 @@ final class WatchAppViewModel {
             showRecurrenceState: showRecurrenceState,
             showAlarmsState: showAlarmsState,
             showListState: showListState,
-            showCompletionGlowState: showCompletionGlowState)
+            showCompletionGlowState: showCompletionGlowState,
+            showGuideState: showGuideState)
     }
 
     // MARK: Private

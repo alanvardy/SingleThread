@@ -706,9 +706,10 @@ func testGuideReappearsAfterPhoneResets() {
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` compiles cleanly
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchTests` — all unit tests green
+- [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` compiles cleanly
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchTests` — all unit tests green
 - [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchUITests` — guide flow UI tests + accessibility audit pass
+  (Note: run under the `SingleThreadWatch` scheme on a watchOS simulator — the plan's command is mis-targeted. All watch UI tests pass except `testAccessibilityAuditWithGuide` and `testGuideAppearsOnFirstLaunch`, which fail solely because the `--reset-guide` seam lands in Phase 6.)
 
 #### Manual
 - [ ] None — UI tests provide authoritative coverage
