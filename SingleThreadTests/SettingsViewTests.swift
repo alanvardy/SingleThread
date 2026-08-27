@@ -108,6 +108,25 @@ struct SettingsViewTests {
         }
     }
 
+    @Test
+    func privacySettingsViewContainsExpectedContent() {
+        let view = PrivacySettingsView()
+        let bodyDescription = String(describing: view.body)
+
+        let expected = [
+            "Privacy",
+            "Reminders",
+            "Display & Sync Preferences",
+            "Skipped & Excluded Lists",
+            "Background Image",
+            "vardy.cc/unsplash",
+            "no analytics"
+        ]
+        for label in expected {
+            #expect(bodyDescription.contains(label), "Expected privacy content to contain \(label)")
+        }
+    }
+
     // MARK: Private
 
     private static let sampleURL = URL(string: "https://unsplash.com/@neom")
