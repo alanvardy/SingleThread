@@ -29,6 +29,7 @@ final class WatchAppViewModel {
         showRecurrenceState = ShowRecurrenceState()
         showAlarmsState = ShowAlarmsState()
         showListState = ShowListState()
+        showCompletionGlowState = ShowCompletionGlowState()
 
         setupSyncService(arguments: arguments)
     }
@@ -40,6 +41,7 @@ final class WatchAppViewModel {
     let showRecurrenceState: ShowRecurrenceState
     let showAlarmsState: ShowAlarmsState
     let showListState: ShowListState
+    let showCompletionGlowState: ShowCompletionGlowState
 
     var reminderViewModel: WatchReminderViewModel {
         WatchReminderViewModel(
@@ -47,7 +49,8 @@ final class WatchAppViewModel {
             showDateState: showDateState,
             showRecurrenceState: showRecurrenceState,
             showAlarmsState: showAlarmsState,
-            showListState: showListState)
+            showListState: showListState,
+            showCompletionGlowState: showCompletionGlowState)
     }
 
     // MARK: Private
