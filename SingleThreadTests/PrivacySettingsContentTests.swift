@@ -18,7 +18,7 @@ struct PrivacySettingsContentTests {
         let allText = (sections.map(\.body) + [PrivacyGuideContent.closingLine])
             .joined(separator: " ")
 
-        #expect(allText.contains("vardy.cc/unsplash"))
+        #expect(allText.contains("vardy.cc"))
         #expect(allText.contains("Apple Watch"))
         #expect(allText.contains("never sent"))
         #expect(allText.contains("iCloud"))

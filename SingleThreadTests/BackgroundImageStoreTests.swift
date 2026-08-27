@@ -13,16 +13,16 @@ struct BackgroundImageStoreTests {
     func successfulFetchStoresBytesAndMetadata() async throws {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
-        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
         let (store, _) = makeStore(client: fake)
 
         await store.refreshIfNeeded(maxAge: 3600)
 
-        #expect(store.imageData == Self.jpegData)
+        #expect(store.imageData == BackgroundTestFixtures.jpegData)
         #expect(store.photographer == "NEOM")
         #expect(store.photographerURL?.absoluteString == "https://unsplash.com/@neom")
         let savedImage = try Data(contentsOf: store.imageURL)
-        #expect(savedImage == Self.jpegData)
+        #expect(savedImage == BackgroundTestFixtures.jpegData)
         let savedMetadata = try Data(contentsOf: store.metadataURL)
         #expect(!savedMetadata.isEmpty)
         #expect(String(bytes: savedMetadata, encoding: .utf8)?.contains("NEOM") == true)
@@ -47,7 +47,7 @@ struct BackgroundImageStoreTests {
     func failedFetchRetainsPriorImage() async {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
-        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
         let (store, _) = makeStore(client: fake)
         await store.refreshIfNeeded(maxAge: 3600)
 
@@ -55,7 +55,7 @@ struct BackgroundImageStoreTests {
         fake.stubbedData[Self.imageURL] = .failure(StubError())
         await store.refreshIfNeeded(maxAge: 3600)
 
-        #expect(store.imageData == Self.jpegData)
+        #expect(store.imageData == BackgroundTestFixtures.jpegData)
         #expect(store.photographer == "NEOM")
         #expect(store.photographerURL?.absoluteString == "https://unsplash.com/@neom")
     }
@@ -64,7 +64,7 @@ struct BackgroundImageStoreTests {
     func staleSidecarTriggersRefetchWith24hDefault() async throws {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
-        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
         let (store, _) = makeStore(client: fake)
         await store.refreshIfNeeded()
 
@@ -89,7 +89,7 @@ struct BackgroundImageStoreTests {
     func freshSidecarSkipsNetworkWith24hDefault() async {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
-        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
         let (store, _) = makeStore(client: fake)
         await store.refreshIfNeeded()
         #expect(fake.requestedURLs.count == 2)
@@ -104,16 +104,16 @@ struct BackgroundImageStoreTests {
         // Write background.jpg only — no sidecar.
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
-        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
         let (store, directory) = makeStore(client: fake)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        try Self.jpegData.write(to: store.imageURL)
+        try BackgroundTestFixtures.jpegData.write(to: store.imageURL)
 
         await store.refreshIfNeeded(maxAge: 3600)
 
         // Sidecar missing ⇒ stored image is discarded and a network fetch runs;
         // here the fetch succeeds so state reflects the fresh payload.
-        #expect(store.imageData == Self.jpegData)
+        #expect(store.imageData == BackgroundTestFixtures.jpegData)
         #expect(store.photographer == "NEOM")
         #expect(store.photographerURL?.absoluteString == "https://unsplash.com/@neom")
 
@@ -126,7 +126,7 @@ struct BackgroundImageStoreTests {
         let orphanStore = BackgroundImageStore(client: failingFake, directory: orphanDirectory)
         try FileManager.default.createDirectory(
             at: orphanDirectory, withIntermediateDirectories: true)
-        try Self.jpegData.write(to: orphanStore.imageURL)
+        try BackgroundTestFixtures.jpegData.write(to: orphanStore.imageURL)
         await orphanStore.refreshIfNeeded(maxAge: 3600)
         #expect(orphanStore.imageData == nil)
         #expect(orphanStore.photographer == nil)
@@ -138,7 +138,7 @@ struct BackgroundImageStoreTests {
     func photographerURLMatchesStoredPhotoAfterFetch() async throws {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
-        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
         let (store, _) = makeStore(client: fake)
 
         await store.refreshIfNeeded(maxAge: 3600)
@@ -160,7 +160,7 @@ struct BackgroundImageStoreTests {
     func photographerClearedWithoutValidSidecar() async throws {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
-        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
         let (store, _) = makeStore(client: fake)
         await store.refreshIfNeeded(maxAge: 3600)
         #expect(store.photographer != nil)
@@ -180,7 +180,7 @@ struct BackgroundImageStoreTests {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
         fake.stubbedData[Self.randomEndpoint] = .success(payloadJSON())
-        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
         let (store, _) = makeStore(client: fake)
         await store.refreshIfNeeded() // seeds a fresh sidecar + photo
         let countAfterInitial = fake.requestedURLs.count
@@ -198,7 +198,7 @@ struct BackgroundImageStoreTests {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
         fake.stubbedData[Self.randomEndpoint] = .success(payloadJSON())
-        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
         let (store, _) = makeStore(client: fake)
         await store.refreshIfNeeded()
 
@@ -206,7 +206,7 @@ struct BackgroundImageStoreTests {
         fake.stubbedData[Self.imageURL] = .failure(StubError())
         await store.forceRefresh()
 
-        #expect(store.imageData == Self.jpegData)
+        #expect(store.imageData == BackgroundTestFixtures.jpegData)
         #expect(store.photographer == "NEOM")
         #expect(store.photographerURL?.absoluteString == "https://unsplash.com/@neom")
         #expect(!store.isRefreshing, "failure path must reset isRefreshing")
@@ -216,7 +216,7 @@ struct BackgroundImageStoreTests {
     func forceRefreshUpdatesAttributionAfterSuccess() async {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
-        fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
         let (store, _) = makeStore(client: fake)
         await store.refreshIfNeeded()
         #expect(store.photographer == "NEOM")
@@ -228,14 +228,14 @@ struct BackgroundImageStoreTests {
 
         #expect(store.photographer == "Adele")
         #expect(store.photographerURL?.absoluteString == "https://unsplash.com/@adele")
-        #expect(store.imageData == Self.jpegData)
+        #expect(store.imageData == BackgroundTestFixtures.jpegData)
     }
 
     @Test
     func isRefreshingToggledDuringForceRefresh() async {
         let fetcher = GatedBackgroundFetcher(endpointURL: Self.randomEndpoint)
         fetcher.endpointData = payloadJSON()
-        fetcher.imageData = Self.jpegData
+        fetcher.imageData = BackgroundTestFixtures.jpegData
         let store = BackgroundImageStore(
             client: fetcher,
             directory: FileManager.default.temporaryDirectory
@@ -320,21 +320,6 @@ struct BackgroundImageStoreTests {
 
         private let endpointURL: URL
     }
-
-    /// Smallest valid JPEG (1×1 pixel), used to pass the decodability gate.
-    private static let jpegData = Data(
-        base64Encoded: "/9j/4AAQSkZJRgABAQAASABIAAD/4QBMRXhpZgAATU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEA"
-            + "AKACAAQAAAABAAAAAaADAAQAAAABAAAAAQAAAAD/7QA4UGhvdG9zaG9wIDMuMAA4QklNBAQAAAAAAAA4QklNBCUAAAAA"
-            + "ABDUHYzZjwCyBOmACZjs+EJ+/8AAEQgAAQABAwEiAAIRAQMRAf/EAB8AAAEFAQEBAQEBAAAAAAAAAAABAgMEBQYHCAkK"
-            + "C//EALUQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYn"
-            + "KCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqy"
-            + "s7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+v/EAB8BAAMBAQEBAQEBAQEAAAAAAAAB"
-            + "AgMEBQYHCAkKC//EALURAAIBAgQEAwQHBQQEAAECdwABAgMRBAUhMQYSQVEHYXETIjKBCBRCkaGxwQkjM1LwFWJy0QoW"
-            + "JDThJfEXGBkaJicoKSo1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoKDhIWGh4iJipKTlJWWl5iZ"
-            + "mqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uLj5OXm5+jp6vLz9PX29/j5+v/bAEMAAgICAgICAwIC"
-            + "AwUDAwMFBgUFBQUGCAYGBgYGCAoICAgICAgKCgoKCgoKCgwMDAwMDA4ODg4ODw8PDw8PDw8PD//bAEMBAgICBAQEBwQE"
-            + "BxALCQsQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEP/dAAQAAf/aAAwDAQAC"
-            + "EQMRAD8A+L6KKK/lM/38P//Z")!
 
     private static let endpoint = URL(string: "https://vardy.cc/unsplash")!
     private static let randomEndpoint = URL(string: "https://vardy.cc/unsplash/random")!

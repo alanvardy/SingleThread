@@ -65,10 +65,6 @@ final class BackgroundImageStore {
 
     // MARK: Internal
 
-    /// A stored wallpaper is considered fresh for 24 hours before the network
-    /// is consulted again.
-    static let defaultMaxAge: TimeInterval = 86400
-
     /// Bytes of the currently-displayed photo, or nil before first success.
     private(set) var imageData: Data?
     /// Photographer of the currently-displayed photo, or nil.
@@ -96,19 +92,7 @@ final class BackgroundImageStore {
         loadStoredImage()
         guard !isFresh(maxAge: maxAge) else { return }
         do {
-            let payloadData = try await client.fetchData(from: Self.endpoint)
-            let decoder = JSONDecoder()
-            let payload = try decoder.decode(UnsplashPayload.self, from: payloadData)
-            let data = try await client.fetchData(from: payload.url)
-            guard isDecodableImage(data) else { throw URLError(.cannotDecodeContentData) }
-            let metadata = BackgroundMetadata(
-                photographer: payload.photographer,
-                photographerURL: payload.photographerURL?.absoluteString,
-                fetchedAt: Date())
-            try persist(imageData: data, metadata: metadata) // disk before state
-            imageData = data
-            photographer = payload.photographer
-            photographerURL = payload.photographerURL
+            try await fetchAndPersist(from: Self.endpoint)
         } catch {
             Self.logger.error("Background refresh failed: \(error.localizedDescription)")
         }
@@ -121,28 +105,21 @@ final class BackgroundImageStore {
     /// the button can show progress. On any error it keeps the prior photo and
     /// attribution.
     func forceRefresh() async {
+        guard !isRefreshing else { return }
         isRefreshing = true
         defer { isRefreshing = false }
         do {
-            let payloadData = try await client.fetchData(from: Self.randomEndpoint)
-            let decoder = JSONDecoder()
-            let payload = try decoder.decode(UnsplashPayload.self, from: payloadData)
-            let data = try await client.fetchData(from: payload.url)
-            guard isDecodableImage(data) else { throw URLError(.cannotDecodeContentData) }
-            let metadata = BackgroundMetadata(
-                photographer: payload.photographer,
-                photographerURL: payload.photographerURL?.absoluteString,
-                fetchedAt: Date())
-            try persist(imageData: data, metadata: metadata) // disk before state
-            imageData = data
-            photographer = payload.photographer
-            photographerURL = payload.photographerURL
+            try await fetchAndPersist(from: Self.randomEndpoint)
         } catch {
             Self.logger.error("Background force refresh failed: \(error.localizedDescription)")
         }
     }
 
     // MARK: Private
+
+    /// A stored wallpaper is considered fresh for 24 hours before the network
+    /// is consulted again.
+    private static let defaultMaxAge: TimeInterval = 86400
 
     /// `GET /unsplash` — the 6h-cached wallpaper used on cold launch.
     private static let endpoint = URL(string: "https://vardy.cc/unsplash")!
@@ -160,6 +137,26 @@ final class BackgroundImageStore {
 
     private let client: any BackgroundImageFetching
     private let directory: URL
+
+    /// Fetches the Unsplash payload and photo from the given endpoint, validates
+    /// it as a decodable image, persists both files atomically, then flips the
+    /// observable state. Callers must be MainActor-isolated; the actual network
+    /// I/O suspends off the main thread.
+    private func fetchAndPersist(from endpoint: URL) async throws {
+        let payloadData = try await client.fetchData(from: endpoint)
+        let decoder = JSONDecoder()
+        let payload = try decoder.decode(UnsplashPayload.self, from: payloadData)
+        let data = try await client.fetchData(from: payload.url)
+        guard isDecodableImage(data) else { throw URLError(.cannotDecodeContentData) }
+        let metadata = BackgroundMetadata(
+            photographer: payload.photographer,
+            photographerURL: payload.photographerURL?.absoluteString,
+            fetchedAt: Date())
+        try persist(imageData: data, metadata: metadata) // disk before state
+        imageData = data
+        photographer = payload.photographer
+        photographerURL = payload.photographerURL
+    }
 
     /// Missing/corrupt sidecar ⇒ treated as "no valid stored image".
     private func loadStoredImage() {
@@ -191,7 +188,7 @@ final class BackgroundImageStore {
         return try decoder.decode(BackgroundMetadata.self, from: data)
     }
 
-    private func isDecodableImage(_ data: Data) -> Bool {
+    private nonisolated func isDecodableImage(_ data: Data) -> Bool {
         #if os(iOS)
             UIImage(data: data) != nil
         #elseif os(macOS)
