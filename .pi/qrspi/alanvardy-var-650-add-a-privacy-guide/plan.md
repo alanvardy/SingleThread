@@ -284,8 +284,8 @@ Notes:
 ### Verification
 
 #### Automated
-- [ ] `make test` passes — confirms the new row renders and the existing labels remain unchanged
-- [ ] `swiftlint lint --strict` passes
+- [x] `make test` passes — confirms the new row renders and the existing labels remain unchanged
+- [x] `swiftlint lint --strict` passes
 
 #### Manual
 - [ ] Run the app on the iOS simulator; open Settings and confirm a fifth "Privacy" row appears
