@@ -186,7 +186,7 @@ Add one test to the existing `SettingsViewTests` struct:
 - [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` (full iOS unit suite) stays green — NOT run; see privacy-suite flake residual risk
 
 #### Manual
-- [ ] Build for simulator (`make build`); no warnings (warnings are errors).
+- [x] Build for simulator (`make build`); no warnings (warnings are errors).
 
 ---
 
