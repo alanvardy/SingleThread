@@ -55,6 +55,15 @@ struct ShowCompletionGlowStateTests {
     }
 
     @Test
+    func uiTestingGlowDisabledFlagPreDisablesState() {
+        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
+        let appViewModel = WatchAppViewModel(arguments: ["--ui-testing-glow-disabled"])
+        #expect(
+            !appViewModel.showCompletionGlowState.isEnabled,
+            "The seam pre-disables the state so the disabled-flow test needs no settings screen")
+    }
+
+    @Test
     func watchGateSuppressesGlowWhenDisabled() async {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
@@ -63,6 +72,9 @@ struct ShowCompletionGlowStateTests {
             skippedIDs: [],
             authorizationStatus: .fullAccess)
         let glowState = ShowCompletionGlowState()
+        // apply(false) persists to .standard; clean up so the enabled case
+        // still reads the default (true) in this serialized suite.
+        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
         glowState.apply(false)
         let viewModel = WatchReminderViewModel(
             store: store,
