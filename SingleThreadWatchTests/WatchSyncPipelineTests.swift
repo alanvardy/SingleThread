@@ -397,6 +397,78 @@ struct WatchSyncPipelineTests {
         let freshStore = ShowCompletionGlowPreference(defaults: .standard, key: key)
         #expect(!freshStore.isEnabled)
     }
+
+    @Test
+    func receiveAppliesShowGuide() {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let showGuideStore = ShowGuidePreference(defaults: .standard, key: "wtest-guide-\(suffix)")
+        showGuideStore.set(true)
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-guide-ids-\(suffix)"),
+            showGuideStore: showGuideStore)
+
+        var values: [Bool] = []
+        service.onShowGuideReceived = { values.append($0) }
+
+        service.session(WCSession.default, didReceiveApplicationContext: ["showGuide": false])
+
+        #expect(!showGuideStore.isEnabled)
+        #expect(values == [false])
+    }
+
+    @Test
+    func showGuideSurvivesRelaunch() {
+        let key = "wtest-relaunch-guide-\(UUID().uuidString)"
+        let fake = WatchFakeSession()
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
+            showGuideStore: ShowGuidePreference(defaults: .standard, key: key))
+        service.session(WCSession.default, didReceiveApplicationContext: ["showGuide": false])
+        let freshStore = ShowGuidePreference(defaults: .standard, key: key)
+        #expect(!freshStore.isEnabled)
+    }
+
+    @Test
+    func pushAllFromWatchOmitsShowGuideWhenFlagged() throws {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let skipStore = SkippedReminderStore(defaults: .standard, key: "wtest-push-guide-skip-\(suffix)")
+        skipStore.save(["A"])
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: skipStore,
+            excludeStore: ExcludedListStore(defaults: .standard, key: "wtest-push-guide-excl-\(suffix)"),
+            sortStore: SortOptionStore(defaults: .standard, key: "wtest-push-guide-sort-\(suffix)"),
+            showUndatedStore: ShowUndatedRemindersPreference(
+                defaults: .standard,
+                key: "wtest-push-guide-und-\(suffix)"),
+            showGuideStore: ShowGuidePreference(defaults: .standard, key: "wtest-push-guide-\(suffix)"),
+            sendsShowGuide: false)
+        service.pushAll()
+        let context = try #require(fake.lastContext)
+        #expect(context["showGuide"] == nil)
+        #expect(context["showRecurrence"] != nil)
+        #expect(context["showAlarms"] != nil)
+    }
+
+    @Test
+    func pushAllIncludesShowGuideWhenFlagged() throws {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let skipStore = SkippedReminderStore(defaults: .standard, key: "wtest-push-guide-true-skip-\(suffix)")
+        skipStore.save(["A"])
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: skipStore,
+            showGuideStore: ShowGuidePreference(defaults: .standard, key: "wtest-push-guide-true-\(suffix)"),
+            sendsShowGuide: true)
+        service.pushAll()
+        let context = try #require(fake.lastContext)
+        #expect(context["showGuide"] != nil)
+    }
 }
 
 /// Builds a reminder that lives in a calendar titled `list`, so exclusion

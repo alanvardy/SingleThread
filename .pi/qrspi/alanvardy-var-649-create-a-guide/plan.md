@@ -389,7 +389,7 @@ func pushAllIncludesShowGuideWhenFlagged() throws {
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchTests` passes — all existing + new sync tests green
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchTests` passes — all existing + new sync tests green. *Run with the corrected scheme/destination: `-scheme SingleThreadWatch -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)'` (watchos target).*
 
 #### Manual
 - [ ] None

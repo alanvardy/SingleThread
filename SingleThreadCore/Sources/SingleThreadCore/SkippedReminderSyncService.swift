@@ -34,11 +34,13 @@ import os
             showAlarmsStore: ShowAlarmsPreference = ShowAlarmsPreference(),
             showListStore: ShowListPreference = ShowListPreference(),
             showCompletionGlowStore: ShowCompletionGlowPreference = ShowCompletionGlowPreference(),
+            showGuideStore: ShowGuidePreference = ShowGuidePreference(),
             sendsShowDate: Bool = true,
             sendsShowRecurrence: Bool = true,
             sendsShowAlarms: Bool = true,
             sendsShowList: Bool = true,
-            sendsShowCompletionGlow: Bool = true) {
+            sendsShowCompletionGlow: Bool = true,
+            sendsShowGuide: Bool = true) {
             self.session = session
             self.skipStore = skipStore
             self.excludeStore = excludeStore
@@ -49,11 +51,13 @@ import os
             self.showAlarmsStore = showAlarmsStore
             self.showListStore = showListStore
             self.showCompletionGlowStore = showCompletionGlowStore
+            self.showGuideStore = showGuideStore
             self.sendsShowDate = sendsShowDate
             self.sendsShowRecurrence = sendsShowRecurrence
             self.sendsShowAlarms = sendsShowAlarms
             self.sendsShowList = sendsShowList
             self.sendsShowCompletionGlow = sendsShowCompletionGlow
+            self.sendsShowGuide = sendsShowGuide
             super.init()
         }
 
@@ -114,6 +118,12 @@ import os
         /// `onShowDateReceived`.
         public nonisolated(unsafe) var onShowCompletionGlowReceived: ((Bool) -> Void)?
 
+        /// Hook fired on the counterpart when the "show guide" preference arrives
+        /// in an application context. Passes the received value. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onShowDateReceived`.
+        public nonisolated(unsafe) var onShowGuideReceived: ((Bool) -> Void)?
+
         /// Hook fired on the counterpart when the skipped-reminder identifier array
         /// arrives in an application context. Passes the received IDs. Fired **after**
         /// the skip store is persisted, so a watch-side handler can simply reload.
@@ -165,6 +175,9 @@ import os
                 }
                 if sendsShowCompletionGlow {
                     context[PayloadKey.showCompletionGlow] = showCompletionGlowStore.isEnabled
+                }
+                if sendsShowGuide {
+                    context[PayloadKey.showGuide] = showGuideStore.isEnabled
                 }
                 try session.updateApplicationContext(context)
             } catch {
@@ -244,6 +257,7 @@ import os
             static let showAlarms = "showAlarms"
             static let showList = "showList"
             static let showCompletionGlow = "showCompletionGlow"
+            static let showGuide = "showGuide"
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")
@@ -258,11 +272,13 @@ import os
         private let showAlarmsStore: ShowAlarmsPreference
         private let showListStore: ShowListPreference
         private let showCompletionGlowStore: ShowCompletionGlowPreference
+        private let showGuideStore: ShowGuidePreference
         private let sendsShowDate: Bool
         private let sendsShowRecurrence: Bool
         private let sendsShowAlarms: Bool
         private let sendsShowList: Bool
         private let sendsShowCompletionGlow: Bool
+        private let sendsShowGuide: Bool
 
         /// Single receive path: decode → persist → notify for each present key;
         /// absent keys are no-ops. Handlers are snapshotted before invocation because
@@ -322,6 +338,18 @@ import os
                 let handler = onShowCompletionGlowReceived
                 handler?(showCompletionGlow)
             }
+            if let showGuide = context[PayloadKey.showGuide] as? Bool {
+                applyShowGuide(showGuide)
+            }
+        }
+
+        /// Persists a received "show guide" value and notifies the hook. Lives in
+        /// its own helper so `apply(context:)` stays within SwiftLint's 50-line
+        /// function-body limit.
+        private func applyShowGuide(_ showGuide: Bool) {
+            showGuideStore.set(showGuide)
+            let handler = onShowGuideReceived
+            handler?(showGuide)
         }
     }
 #endif

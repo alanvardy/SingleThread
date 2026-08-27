@@ -32,6 +32,7 @@ final class AppViewModel {
                     showRecurrenceStore: ShowRecurrencePreference(),
                     showAlarmsStore: ShowAlarmsPreference(),
                     showCompletionGlowStore: ShowCompletionGlowPreference(),
+                    showGuideStore: ShowGuidePreference(),
                     sendsShowDate: true)
                 // Assign the handler before activating: the service documents a
                 // write-once-before-activate invariant, and a completion message
@@ -196,16 +197,19 @@ final class AppViewModel {
             let currentShowAlarms = ShowAlarmsPreference().isEnabled
             let currentShowList = ShowListPreference().isEnabled
             let currentShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
+            let currentShowGuide = ShowGuidePreference().isEnabled
             if currentShowDate != lastShowDate
                 || currentShowRecurrence != lastShowRecurrence
                 || currentShowAlarms != lastShowAlarms
                 || currentShowList != lastShowList
-                || currentShowCompletionGlow != lastShowCompletionGlow {
+                || currentShowCompletionGlow != lastShowCompletionGlow
+                || currentShowGuide != lastShowGuide {
                 lastShowDate = currentShowDate
                 lastShowRecurrence = currentShowRecurrence
                 lastShowAlarms = currentShowAlarms
                 lastShowList = currentShowList
                 lastShowCompletionGlow = currentShowCompletionGlow
+                lastShowGuide = currentShowGuide
                 syncService?.pushAll()
             }
         }
@@ -216,6 +220,7 @@ final class AppViewModel {
         private var lastShowAlarms = ShowAlarmsPreference().isEnabled
         private var lastShowList = ShowListPreference().isEnabled
         private var lastShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
+        private var lastShowGuide = ShowGuidePreference().isEnabled
 
         private var syncDefaultsObserver: NSObjectProtocol?
     #endif

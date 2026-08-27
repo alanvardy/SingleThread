@@ -30,6 +30,7 @@ final class WatchAppViewModel {
         showAlarmsState = ShowAlarmsState()
         showListState = ShowListState()
         showCompletionGlowState = ShowCompletionGlowState()
+        showGuideState = ShowGuideState()
 
         setupSyncService(arguments: arguments)
     }
@@ -42,6 +43,7 @@ final class WatchAppViewModel {
     let showAlarmsState: ShowAlarmsState
     let showListState: ShowListState
     let showCompletionGlowState: ShowCompletionGlowState
+    let showGuideState: ShowGuideState
 
     var reminderViewModel: WatchReminderViewModel {
         WatchReminderViewModel(
@@ -112,8 +114,9 @@ final class WatchAppViewModel {
             showAlarmsStore: ShowAlarmsPreference(defaults: .standard),
             showListStore: ShowListPreference(defaults: .standard),
             showCompletionGlowStore: ShowCompletionGlowPreference(defaults: .standard),
+            showGuideStore: ShowGuidePreference(defaults: .standard),
             sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false,
-            sendsShowCompletionGlow: false)
+            sendsShowCompletionGlow: false, sendsShowGuide: false)
         service.onShowUndatedRemindersReceived = { [weak store] value in
             Task {
                 store?.showsUndatedReminders = value
@@ -154,6 +157,7 @@ final class WatchAppViewModel {
         let showAlarmsState = showAlarmsState
         let showListState = showListState
         let showCompletionGlowState = showCompletionGlowState
+        let showGuideState = showGuideState
         service.onShowDateReceived = { [weak showDateState] value in
             Task { @MainActor in showDateState?.apply(value) }
         }
@@ -168,6 +172,9 @@ final class WatchAppViewModel {
         }
         service.onShowCompletionGlowReceived = { [weak showCompletionGlowState] value in
             Task { @MainActor in showCompletionGlowState?.apply(value) }
+        }
+        service.onShowGuideReceived = { [weak showGuideState] value in
+            Task { @MainActor in showGuideState?.apply(value) }
         }
     }
 
