@@ -10,6 +10,14 @@ struct SettingsViewTests {
     // MARK: Internal
 
     @Test
+    func settingsBindingsCarriesShowCompletionGlow() {
+        let bag = SettingsBindings()
+        #expect(bag.showCompletionGlow) // default enabled
+        let off = SettingsBindings(showCompletionGlow: false)
+        #expect(!off.showCompletionGlow) // explicit false round-trips
+    }
+
+    @Test
     func settingsViewContainsNavigationLinkLabels() {
         let view = SettingsView(
             bindings: SettingsBindings(),

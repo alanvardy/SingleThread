@@ -133,6 +133,7 @@ struct ContentView: View {
                     .onChange(of: bag.showList) { _, new in showList = new }
                     .onChange(of: bag.showRecurrence) { _, new in showRecurrence = new }
                     .onChange(of: bag.showAlarms) { _, new in showAlarms = new }
+                    .onChange(of: bag.showCompletionGlow) { _, new in showCompletionGlow = new }
             }
         }
     }
@@ -182,6 +183,9 @@ struct ContentView: View {
     private var showRecurrence = true
     @AppStorage("showAlarms", store: AppGroup.defaults)
     private var showAlarms = true
+
+    @AppStorage("showCompletionGlow", store: AppGroup.defaults)
+    private var showCompletionGlow = true
 
     @State private var isShowingSettings = false
 
@@ -501,7 +505,8 @@ struct ContentView: View {
                 showDate: showDate,
                 showList: showList,
                 showRecurrence: showRecurrence,
-                showAlarms: showAlarms)
+                showAlarms: showAlarms,
+                showCompletionGlow: showCompletionGlow)
         #else
             SettingsBindings(
                 appearanceMode: appearanceMode,
@@ -514,7 +519,8 @@ struct ContentView: View {
                 showDate: showDate,
                 showList: showList,
                 showRecurrence: showRecurrence,
-                showAlarms: showAlarms)
+                showAlarms: showAlarms,
+                showCompletionGlow: showCompletionGlow)
         #endif
     }
 }
