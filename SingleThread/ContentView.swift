@@ -209,6 +209,12 @@ struct ContentView: View {
             set: { viewModel.setExcludedListTitles($0) })
     }
 
+    /// True only for the completion-glow UI test; production always hides the
+    /// overlay from accessibility (unchanged behavior for real users).
+    private var isGlowUITesting: Bool {
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-glow")
+    }
+
     #if os(macOS)
         private var actionButtons: some View {
             HStack(spacing: 32) {
@@ -470,13 +476,17 @@ struct ContentView: View {
 
     /// Decorative full-screen green flash shown after a successful completion.
     /// Passes touches through and stays out of the accessibility tree; fades via
-    /// the `.animation` on `body`.
+    /// the `.animation` on `body`. During the completion-glow UI test the overlay
+    /// is exposed to the accessibility tree so an XCUITest can observe it.
     private var completionGlowOverlay: some View {
         Color.green
             .opacity(0.3)
             .ignoresSafeArea()
             .allowsHitTesting(false)
-            .accessibilityHidden(true)
+            .accessibilityHidden(!isGlowUITesting)
+            .accessibilityElement(children: .ignore)
+            .accessibilityIdentifier("completionGlowOverlay")
+            .accessibilityLabel("Completion glow")
             .transition(.opacity)
     }
 

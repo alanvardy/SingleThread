@@ -95,10 +95,16 @@ final class AppViewModel {
     /// The root view model. Rebuilt on demand so the view always reflects the
     /// latest store/background state.
     var contentViewModel: ContentViewModel {
-        ContentViewModel(
+        let viewModel = ContentViewModel(
             store: store,
             backgroundImage: backgroundImage,
             speechTranscriber: ReminderDictation())
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing-glow") {
+            // UI-test seam: keep the glow visible long enough for a
+            // deterministic `exists` assertion (production duration is 0.25 s).
+            viewModel.completionGlow.duration = 2.0
+        }
+        return viewModel
     }
 
     // MARK: Private

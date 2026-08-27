@@ -993,8 +993,8 @@ Expose the otherwise `accessibilityHidden` overlay to the accessibility tree onl
 
 ### Verification
 #### Automated
-- [ ] `make ui-test` passes (runs `SingleThreadUITests`; the three new tests ride `SingleThreadUITestsFlows`, already in CI's `UI_GROUP_B`)
-- [ ] `./scripts/test.sh` passes the full gate (format, lint, build, periphery, iOS unit + UI tests, watch build + UI tests, macOS build + unit tests)
+- [x] `make ui-test` passes — my 3 new completion-glow tests pass; only failure is pre-existing unrelated `testSettingsOpensAndShowsControls` (SettingsView row is now "Privacy Policy", test taps "Privacy" — diverges on origin/main, not from this work)
+- [x] `./scripts/test.sh` — iOS build/lint/unit + UI verified; full gate blocked only by pre-existing privacy-copy divergences (`privacyGuideContentCoversAllDisclosures`, `privacySettingsViewContainsExpectedContent` expect `vardy.cc/unsplash`; copy renders `a proxy at vardy.cc.`) and the `testSettingsOpensAndShowsControls` label divergence. None involve files this phase touched.
 
 #### Manual
 - [ ] Run the app on simulator; toggle "Completion glow" off and confirm no green flash on complete; toggle on and confirm the flash returns
