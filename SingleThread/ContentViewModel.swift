@@ -53,6 +53,13 @@ final class ContentViewModel {
             && backgroundImage.imageData != nil
     }
 
+    /// Row chrome is always clear so the photo (or `systemBackground` when none is
+    /// shown) shows through on every device. Extracted because the rendered paint
+    /// can't be asserted headlessly — tests assert this decision instead.
+    var rowChromeBackground: Color {
+        .clear
+    }
+
     static func emptyStateCopy(hasHidden: Bool) -> EmptyStateCopy {
         if hasHidden {
             return EmptyStateCopy(
