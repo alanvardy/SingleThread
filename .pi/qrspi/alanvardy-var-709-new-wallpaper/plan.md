@@ -282,6 +282,7 @@ No other changes. `SingleThreadTests/BackgroundCardTests.swift:116` still passes
 ### Verification
 #### Automated
 - [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes
+  \-\- **BLOCKED on pre-existing main failure**: full suite fails 2 unrelated privacy tests (`SettingsViewTests/privacySettingsViewContainsExpectedContent`, `PrivacySettingsContentTests/privacyGuideContentCoversAllDisclosures`) even with phase changes stashed; source files byte-identical origin/main..HEAD; root cause = body says "proxy at vardy.cc." but test asserts `contains("vardy.cc/unsplash")`. Not checked: gate not green through no fault of Phase 2. (per supervisor, surfaced to user)
 
 #### Manual
 - [ ] No user-visible change; wallpaper fetch cadence is now governed by the store's 24h default.
