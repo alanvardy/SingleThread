@@ -274,8 +274,8 @@ In `reminderSettingsViewContainsExpectedRows`, add the binding arg and the expec
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests` passes
-- [ ] `make build` succeeds (iOS simulator build; warnings-as-errors)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests` passes
+- [x] `make build` succeeds (iOS simulator build; warnings-as-errors)
 
 #### Manual
 - [ ] Run on simulator; open Settings → Reminder → confirm "Completion glow" toggle renders (default ON) alongside the four existing rows
