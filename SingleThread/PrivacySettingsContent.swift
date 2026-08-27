@@ -44,7 +44,7 @@ enum PrivacyGuideContent {
             body: "When the background is enabled, the image is downloaded "
                 + "from vardy.cc/unsplash and cached on your device. This is "
                 + "the app's only network request, and it never includes any "
-                + "reminder, preference, or list data."),
+                + "reminder, preference, or list data.")
     ]
 
     static let closingLine =

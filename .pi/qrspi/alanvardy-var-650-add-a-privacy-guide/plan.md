@@ -238,8 +238,8 @@ Notes:
 ### Verification
 
 #### Automated
-- [ ] `make test` passes
-- [ ] `swiftlint lint --strict` passes (no `line_length` violations from the view; the copy lives in `PrivacySettingsContent.swift`)
+- [x] `make test` passes
+- [x] `swiftlint lint --strict` passes (no `line_length` violations from the view; the copy lives in `PrivacySettingsContent.swift`)
 
 #### Manual
 - [ ] Open the `#Preview("Default")` in Xcode; bump to the largest Dynamic Type size and confirm
