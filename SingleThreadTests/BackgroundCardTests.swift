@@ -84,6 +84,21 @@ import Testing
             #expect(viewModel.backgroundDisplayed, "Background should survive view-model construction")
         }
 
+        /// Row chrome must be clear when a photo is stored (the gate is open).
+        @Test
+        func rowBackgroundClearWithPhotoStored() async throws {
+            let viewModel = try await makeViewModel(toggleOn: true, withPhoto: true)
+            #expect(viewModel.rowChromeBackground == Color.clear)
+        }
+
+        /// Sad path: row chrome stays clear with no photo and the gate closed — the exact
+        /// state that previously fell back to the opaque system row default on iPad.
+        @Test
+        func rowBackgroundClearWithoutPhoto() async throws {
+            let viewModel = try await makeViewModel(toggleOn: false, withPhoto: false)
+            #expect(viewModel.rowChromeBackground == Color.clear)
+        }
+
         // MARK: Private
 
         /// Smallest valid JPEG (1×1 pixel), passes the store's decodability gate.
@@ -133,6 +148,27 @@ import Testing
             let result = viewModel.backgroundDisplayed
             UserDefaults.standard.removeObject(forKey: key)
             return result
+        }
+
+        /// Builds a view model with the given toggle + photo state. The toggle key is
+        /// removed via `defer` (reading after cleanup would see the `@AppStorage`
+        /// default, not the value under test) — same rule as `gate(toggleOn:withPhoto:)`.
+        private func makeViewModel(toggleOn: Bool, withPhoto: Bool) async throws -> ContentViewModel {
+            let key = "backgroundEnabled"
+            UserDefaults.standard.set(toggleOn, forKey: key)
+            defer { UserDefaults.standard.removeObject(forKey: key) }
+
+            let backgroundImage: BackgroundImageStore
+            if withPhoto {
+                backgroundImage = try seededBackgroundImage()
+                await backgroundImage.refreshIfNeeded(maxAge: 3600)
+                #expect(backgroundImage.imageData != nil, "seeded store should load")
+            } else {
+                backgroundImage = BackgroundImageStore(
+                    directory: FileManager.default.temporaryDirectory
+                        .appendingPathComponent(UUID().uuidString))
+            }
+            return makeViewModel(backgroundImage: backgroundImage)
         }
 
         /// A store whose Application-Support-like directory already holds a valid
