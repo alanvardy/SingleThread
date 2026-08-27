@@ -438,7 +438,7 @@ it were ever traversed.
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` passes (includes the new flow test and `testAccessibilityAudit`)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` passes (includes the new flow test and `testAccessibilityAudit`)
 - [ ] `./scripts/test.sh` passes — the full format + lint + build + Periphery + unit + UI gate
 
 #### Manual

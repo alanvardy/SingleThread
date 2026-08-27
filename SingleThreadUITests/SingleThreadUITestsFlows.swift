@@ -157,6 +157,41 @@ final class SingleThreadUITestsFlows: XCTestCase {
             "Privacy should show its disclosure sections")
     }
 
+    // MARK: - About
+
+    @MainActor
+    func testAboutModalShowsAttribution() {
+        let app = launchApp(seedJSON: #"{"reminders":[]}"#)
+
+        XCTAssertTrue(app.staticTexts.firstMatch.waitForExistence(timeout: 5))
+        app.buttons["Settings"].tap()
+
+        // The About row sits at the bottom of the Settings List; scroll if needed.
+        let about = app.buttons["About"]
+        if !about.waitForExistence(timeout: 2) {
+            app.swipeUp()
+        }
+        XCTAssertTrue(about.waitForExistence(timeout: 3), "Settings should show an About row")
+        about.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["Copyright 2026 Alan Vardy"].waitForExistence(timeout: 3),
+            "About should show the copyright line")
+        XCTAssertTrue(
+            app.staticTexts["Made with love by a lone developer"].waitForExistence(timeout: 2),
+            "About should show the made-with-love line")
+        XCTAssertTrue(
+            app.staticTexts["Version 1.0 (1)"].waitForExistence(timeout: 2),
+            "About should show the version + build")
+
+        // The `mailto:` link is a tappable `Link`, not a plain `Text`. Assert its
+        // presence (as a button OR staticText, whichever the element tree exposes)
+        // but NEVER tap it.
+        let emailElement = app.buttons["alan@vardy.cc"].exists
+            || app.staticTexts["alan@vardy.cc"].waitForExistence(timeout: 2)
+        XCTAssertTrue(emailElement, "About should show the feedback email link")
+    }
+
     // MARK: - Background toggle
 
     @MainActor
