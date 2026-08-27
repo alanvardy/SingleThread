@@ -480,7 +480,7 @@ struct ContentView: View {
     /// is exposed to the accessibility tree so an XCUITest can observe it.
     private var completionGlowOverlay: some View {
         Color.green
-            .opacity(0.3)
+            .opacity(0.1)
             .ignoresSafeArea()
             .allowsHitTesting(false)
             .accessibilityHidden(!isGlowUITesting)
