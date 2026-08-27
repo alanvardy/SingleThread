@@ -34,6 +34,7 @@ struct BackgroundSettingsView: View {
                     }
                 }
                 .disabled(backgroundImage.isRefreshing)
+                .accessibilityValue(backgroundImage.isRefreshing ? "Refreshing" : "")
             }
             Section {} footer: {
                 if let photographer = backgroundImage.photographer {
