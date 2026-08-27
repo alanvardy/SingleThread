@@ -91,9 +91,9 @@ hypothesis (b) is not needed.
 
 #### Automated
 
-- [ ] `make test` passes (unit tests, including `CompletionGlowTests`)
-- [ ] `make watch-build` compiles
-- [ ] If hypothesis (b) was applied: `make watch-test` passes
+- [x] `make test` passes (unit tests, including `CompletionGlowTests`)
+- [x] `make watch-build` compiles
+- [ ] If hypothesis (b) was applied: `make watch-test` passes (not applied — hypothesis (a) chosen)
 
 #### Manual
 
