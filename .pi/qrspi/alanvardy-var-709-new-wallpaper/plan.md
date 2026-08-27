@@ -420,8 +420,8 @@ This file was **not listed in `structure.md`**, but it must be updated or it wil
 
 ### Verification
 #### Automated
-- [ ] `make build` succeeds (proves all previews + test inits compile)
-- [ ] `./scripts/test.sh` passes (full CI gate: format, lint, build, periphery, unit + UI tests)
+- [x] `make build` succeeds (proves all previews + test inits compile)
+- [ ] `./scripts/test.sh` passes (full CI gate: format, lint, build, periphery, unit + UI tests) — **blocked by pre-existing, unrelated privacy-test failures on `origin/main`** (`PrivacySettingsContentTests.privacyGuideContentCoversAllDisclosures` and `SettingsViewTests.privacySettingsViewContainsExpectedContent`, both asserting `vardy.cc/unsplash` against copy that reads `proxy at vardy.cc.`). Not caused by this plan.
 
 #### Manual
 - [ ] Open Settings → Background: the new "Refresh wallpaper" row sits between the fade picker and the attribution footer.

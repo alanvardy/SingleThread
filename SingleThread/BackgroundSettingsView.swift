@@ -1,17 +1,15 @@
 import SingleThreadCore // periphery:ignore
 import SwiftUI
 
-/// Background preferences: toggle, fade percentage, and Unsplash photo credit.
-/// Takes only the bindings it needs rather than the full bag; photo credit is
-/// passed read-only from ContentView's loaded background image.
+/// Background preferences: toggle, fade percentage, and refreshing the wallpaper.
+/// Takes only the bindings it needs plus the live `BackgroundImageStore`, whose
+/// photo/attribution drives the refresh button's progress feedback.
 struct BackgroundSettingsView: View {
     @Binding var backgroundEnabled: Bool
 
     @Binding var backgroundFadePercent: Int
 
-    let backgroundPhotographer: String?
-
-    let backgroundPhotographerURL: URL?
+    var backgroundImage: BackgroundImageStore
 
     var body: some View {
         Form {
@@ -23,14 +21,28 @@ struct BackgroundSettingsView: View {
                     Text("\(percent)%").tag(percent)
                 }
             }
+            Section {
+                Button {
+                    Task { await backgroundImage.forceRefresh() }
+                } label: {
+                    HStack {
+                        Label("Refresh wallpaper", systemImage: "arrow.triangle.2.circlepath")
+                        Spacer()
+                        if backgroundImage.isRefreshing {
+                            ProgressView()
+                        }
+                    }
+                }
+                .disabled(backgroundImage.isRefreshing)
+            }
             Section {} footer: {
-                if let backgroundPhotographer {
-                    if let backgroundPhotographerURL {
+                if let photographer = backgroundImage.photographer {
+                    if let url = backgroundImage.photographerURL {
                         Link(
-                            "Photo by \(backgroundPhotographer) on Unsplash",
-                            destination: backgroundPhotographerURL)
+                            "Photo by \(photographer) on Unsplash",
+                            destination: url)
                     } else {
-                        Text("Photo by \(backgroundPhotographer) on Unsplash")
+                        Text("Photo by \(photographer) on Unsplash")
                     }
                 }
             }
@@ -46,7 +58,6 @@ struct BackgroundSettingsView: View {
         BackgroundSettingsView(
             backgroundEnabled: .constant(true),
             backgroundFadePercent: .constant(50),
-            backgroundPhotographer: "NEOM",
-            backgroundPhotographerURL: URL(string: "https://unsplash.com/@neom"))
+            backgroundImage: BackgroundImageStore())
     }
 }
