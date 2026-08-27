@@ -93,11 +93,38 @@ struct CompletionGlowViewModelTests {
         #expect(!viewModel.completionGlow.isActive)
     }
 
+    @Test
+    func glowStaysInactiveWhenPreferenceDisabled() async {
+        let eventStore = EKEventStore()
+        let reminder = EKReminder(eventStore: eventStore)
+        reminder.title = "Buy groceries"
+        let disabled = ShowCompletionGlowPreference(
+            defaults: .standard, key: "glow-disabled-\(UUID().uuidString)")
+        disabled.set(false)
+        let viewModel = makeViewModel(reminders: [reminder], showCompletionGlow: disabled)
+        await viewModel.completeCurrentReminder()
+        #expect(!viewModel.completionGlow.isActive)
+    }
+
+    @Test
+    func glowTriggersWhenPreferenceEnabled() async {
+        let eventStore = EKEventStore()
+        let reminder = EKReminder(eventStore: eventStore)
+        reminder.title = "Buy groceries"
+        let enabled = ShowCompletionGlowPreference(
+            defaults: .standard, key: "glow-enabled-\(UUID().uuidString)")
+        enabled.set(true)
+        let viewModel = makeViewModel(reminders: [reminder], showCompletionGlow: enabled)
+        await viewModel.completeCurrentReminder()
+        #expect(viewModel.completionGlow.isActive)
+    }
+
     // MARK: Private
 
     private func makeViewModel(
         reminders: [EKReminder],
-        skippedIDs: Set<String> = []) -> ContentViewModel {
+        skippedIDs: Set<String> = [],
+        showCompletionGlow: ShowCompletionGlowPreference = ShowCompletionGlowPreference()) -> ContentViewModel {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
@@ -107,7 +134,8 @@ struct CompletionGlowViewModelTests {
         return ContentViewModel(
             store: store,
             backgroundImage: BackgroundImageStore(),
-            speechTranscriber: GlowFakeTranscriber())
+            speechTranscriber: GlowFakeTranscriber(),
+            showCompletionGlow: showCompletionGlow)
     }
 }
 

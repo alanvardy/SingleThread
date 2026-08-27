@@ -564,9 +564,9 @@ struct ShowCompletionGlowStateTests {
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/CompletionGlowViewModelTests` passes (existing + 2 new)
-- [ ] `make watch-test` passes (watch unit target; `ShowCompletionGlowStateTests` new)
-- [ ] `xcodebuild -scheme SingleThreadWatch -destination 'generic/platform=watchOS Simulator' -configuration Debug build` succeeds (watch app compiles with the new holder/param)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/CompletionGlowViewModelTests` passes (existing + 2 new)
+- [x] `make watch-test` passes (watch unit target; `ShowCompletionGlowStateTests` new)
+- [x] `xcodebuild -scheme SingleThreadWatch -destination 'generic/platform=watchOS Simulator' -configuration Debug build` succeeds (watch app compiles with the new holder/param)
 
 #### Manual
 - [ ] iOS: complete a reminder with the default setting — glow still flashes; disable "Completion glow" in Settings, complete again — no flash

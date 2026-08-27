@@ -13,12 +13,14 @@ final class WatchReminderViewModel {
         showDateState: ShowDateState,
         showRecurrenceState: ShowRecurrenceState,
         showAlarmsState: ShowAlarmsState,
-        showListState: ShowListState) {
+        showListState: ShowListState,
+        showCompletionGlowState: ShowCompletionGlowState) {
         self.store = store
         self.showDateState = showDateState
         self.showRecurrenceState = showRecurrenceState
         self.showAlarmsState = showAlarmsState
         self.showListState = showListState
+        self.showCompletionGlowState = showCompletionGlowState
     }
 
     // MARK: Internal
@@ -28,6 +30,7 @@ final class WatchReminderViewModel {
     let showRecurrenceState: ShowRecurrenceState
     let showAlarmsState: ShowAlarmsState
     let showListState: ShowListState
+    let showCompletionGlowState: ShowCompletionGlowState
 
     /// Drives the brief full-screen green flash after a successful completion.
     let completionGlow = CompletionGlow()
@@ -43,7 +46,7 @@ final class WatchReminderViewModel {
     /// The view routes its Complete button through here so the success-only
     /// glow gates on the store's actual completion result.
     func completeCurrentReminder() async {
-        if await store.completeCurrentReminder() {
+        if await store.completeCurrentReminder(), showCompletionGlowState.isEnabled {
             completionGlow.trigger()
         }
     }

@@ -20,7 +20,8 @@ struct WatchReminderView: View {
         showDateState: ShowDateState = ShowDateState(),
         showRecurrenceState: ShowRecurrenceState = ShowRecurrenceState(),
         showAlarmsState: ShowAlarmsState = ShowAlarmsState(),
-        showListState: ShowListState = ShowListState()) {
+        showListState: ShowListState = ShowListState(),
+        showCompletionGlowState: ShowCompletionGlowState = ShowCompletionGlowState()) {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: loadsReminders,
@@ -33,7 +34,8 @@ struct WatchReminderView: View {
             showDateState: showDateState,
             showRecurrenceState: showRecurrenceState,
             showAlarmsState: showAlarmsState,
-            showListState: showListState)
+            showListState: showListState,
+            showCompletionGlowState: showCompletionGlowState)
     }
 
     // MARK: Internal

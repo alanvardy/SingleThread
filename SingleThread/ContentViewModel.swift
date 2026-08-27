@@ -13,9 +13,11 @@ final class ContentViewModel {
     init(
         store: ReminderStore,
         backgroundImage: BackgroundImageStore,
-        speechTranscriber: any SpeechTranscribing) {
+        speechTranscriber: any SpeechTranscribing,
+        showCompletionGlow: ShowCompletionGlowPreference = ShowCompletionGlowPreference()) {
         self.store = store
         self.backgroundImage = backgroundImage
+        self.showCompletionGlow = showCompletionGlow
         dictation = DictationViewModel(speechTranscriber: speechTranscriber, store: store)
     }
 
@@ -104,7 +106,7 @@ final class ContentViewModel {
     /// never reaches through to the model for mutations. On success, triggers
     /// the completion glow for positive visual feedback.
     func completeCurrentReminder() async {
-        if await store.completeCurrentReminder() {
+        if await store.completeCurrentReminder(), showCompletionGlow.isEnabled {
             completionGlow.trigger()
         }
     }
@@ -126,4 +128,8 @@ final class ContentViewModel {
     }
 
     // MARK: Private
+
+    /// Preference read at trigger time so a settings toggle takes effect
+    /// without rebuilding the view model.
+    private let showCompletionGlow: ShowCompletionGlowPreference
 }
