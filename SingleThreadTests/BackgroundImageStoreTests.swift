@@ -179,6 +179,7 @@ struct BackgroundImageStoreTests {
     func forceRefreshBypassesFreshSidecar() async {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.randomEndpoint] = .success(payloadJSON())
         fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
         let (store, _) = makeStore(client: fake)
         await store.refreshIfNeeded() // seeds a fresh sidecar + photo
@@ -196,6 +197,7 @@ struct BackgroundImageStoreTests {
     func forceRefreshRetainsPriorImageOnFailure() async {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.randomEndpoint] = .success(payloadJSON())
         fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
         let (store, _) = makeStore(client: fake)
         await store.refreshIfNeeded()
@@ -219,7 +221,7 @@ struct BackgroundImageStoreTests {
         await store.refreshIfNeeded()
         #expect(store.photographer == "NEOM")
 
-        fake.stubbedData[Self.endpoint] = .success(Data(
+        fake.stubbedData[Self.randomEndpoint] = .success(Data(
             ("{\"url\":\"\(Self.imageURL.absoluteString)\",\"photographer\":\"Adele\"," +
                 "\"photographer_url\":\"https://unsplash.com/@adele\"}").utf8))
         await store.forceRefresh()
@@ -231,7 +233,7 @@ struct BackgroundImageStoreTests {
 
     @Test
     func isRefreshingToggledDuringForceRefresh() async {
-        let fetcher = GatedBackgroundFetcher(endpointURL: Self.endpoint)
+        let fetcher = GatedBackgroundFetcher(endpointURL: Self.randomEndpoint)
         fetcher.endpointData = payloadJSON()
         fetcher.imageData = Self.jpegData
         let store = BackgroundImageStore(
@@ -335,6 +337,7 @@ struct BackgroundImageStoreTests {
             + "EQMRAD8A+L6KKK/lM/38P//Z")!
 
     private static let endpoint = URL(string: "https://vardy.cc/unsplash")!
+    private static let randomEndpoint = URL(string: "https://vardy.cc/unsplash/random")!
     private static let imageURL = URL(string: "https://images.unsplash.com/photo-1.jpg")!
 
     private func makeStore(
