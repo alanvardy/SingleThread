@@ -12,6 +12,10 @@
 import XCTest
 
 final class SingleThreadUITestsFlows: XCTestCase {
+    // Shared long-title seeds (also referenced by the accessibility-audit test).
+    static let longTitleSeed = #"{"reminders":[{"title":"Remember to buy groceries milk eggs bread butter cheese yogurt cereal coffee tea sugar flour pasta rice apples oranges bananas tomatoes onions potatoes carrots celery lettuce spinach broccoli cauliflower peppers cucumbers squash zucchini garlic ginger olive oil vinegar salt pepper"}]}"#
+
+    static let longCodeSpanSeed = #"{"reminders":[{"title":"Use `map` and `filter` to process the collection of items before rendering them in the list view with `compactMap` and `reduce` to produce the final result set for the grocery run this week"}]}"#
 
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -283,6 +287,45 @@ final class SingleThreadUITestsFlows: XCTestCase {
         // Styled code content is visible without the fences.
         XCTAssertTrue(visible.contains("map"), "Inline code span content should be visible, got: \(labels)")
         XCTAssertTrue(visible.contains("let x = 1"), "Fenced code content should be visible, got: \(labels)")
+    }
+
+    // MARK: - Long title wrapping
+
+    @MainActor
+    func testLongTitleWrapsWithoutClipping() {
+        let app = launchApp(seedJSON: Self.longTitleSeed)
+
+        XCTAssertTrue(
+            app.staticTexts.firstMatch.waitForExistence(timeout: 5),
+            "Seeded card should render before wrapping assertions")
+
+        let labels = app.staticTexts.allElementsBoundByIndex.map(\.label)
+        let visible = labels.joined(separator: " ")
+
+        // The full title must be present in the aggregated visible text.
+        XCTAssertTrue(
+            visible.contains("Remember to buy groceries milk eggs bread butter cheese"),
+            "Full title should be visible, got: \(labels)")
+
+        // No truncation ellipsis anywhere in the rendered text.
+        XCTAssertFalse(
+            labels.contains(where: { $0.hasSuffix("…") || $0.hasSuffix("...") }),
+            "Title should not be truncated, got: \(labels)")
+
+        // Supplementary clipping check: accessibility labels carry the full string
+        // even when text is visually clipped, so label presence alone can't tell a
+        // wrapped title from a single-line clipped one. A title this long must span
+        // several wrapped lines — assert the title element grew taller than a
+        // single `.title` line (~40pt).
+        guard let titleElement = app.staticTexts
+            .allElementsBoundByIndex
+            .first(where: { $0.label.contains("Remember to buy groceries") })
+        else {
+            return XCTFail("Title element should be present")
+        }
+        XCTAssertGreaterThan(
+            titleElement.frame.height, 60,
+            "Title should wrap to multiple lines; got height \(titleElement.frame.height)")
     }
 
     // MARK: - Show list toggle

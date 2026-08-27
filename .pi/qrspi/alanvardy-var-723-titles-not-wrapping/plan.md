@@ -176,15 +176,19 @@ func testLongTitleWrapsWithoutClipping() {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/SingleThreadUITestsFlows/testLongTitleWrapsWithoutClipping` **PASSES**
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPad (A16)' -only-testing:SingleThreadUITests/SingleThreadUITestsFlows/testLongTitleWrapsWithoutClipping` **FAILS** (proving the bug)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/SingleThreadUITestsFlows/testLongTitleWrapsWithoutClipping` **PASSES**
+- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPad (A16)' -only-testing:SingleThreadUITests/SingleThreadUITestsFlows/testLongTitleWrapsWithoutClipping` **FAILS** (proving the bug) — NOT met: test **PASSED** on iPad (A16); long title already wraps, no clipping reproduced
 
 #### Manual
 - [ ] On iPad, confirm the failure is clipping/truncation of the title (not an unrelated assertion). Screenshot the failure for the PR.
 
-**Checkpoint**: test passes on iPhone, fails on iPad. **If it passes on iPad too**, the bug is
-not reproducible — stop here and close the ticket as already-fixed / not-reproducible; do not
-ship a speculative fix. Otherwise this test becomes the acceptance gate for Phase 3.
+**Checkpoint**: test passes on iPhone and **passed on iPad too** — the bug is NOT reproducible; close the ticket
+as already-fixed / not-reproducible; **do not** ship a speculative fix. Phases 3–4 are SKIPPED.
+
+> **Escape hatch triggered (Phase 2)**: the reproduction test passed on iPad (A16), so the long-title
+> wrapping/clipping bug could not be reproduced on the current codebase. Per the plan's design decision,
+> Stages 3–4 are skipped and the ticket should be closed as already-fixed / not-reproducible. The new
+> test remains as an ongoing regression guard.
 
 ---
 
