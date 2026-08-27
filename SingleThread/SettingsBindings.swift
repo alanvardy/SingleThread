@@ -29,7 +29,8 @@ final class SettingsBindings {
         showDate: Bool = true,
         showList: Bool = false,
         showRecurrence: Bool = true,
-        showAlarms: Bool = true) {
+        showAlarms: Bool = true,
+        showCompletionGlow: Bool = true) {
         self.appearanceMode = appearanceMode
         self.textSize = textSize
         self.allowsLandscape = allowsLandscape
@@ -43,6 +44,7 @@ final class SettingsBindings {
         self.showList = showList
         self.showRecurrence = showRecurrence
         self.showAlarms = showAlarms
+        self.showCompletionGlow = showCompletionGlow
     }
 
     // MARK: Internal
@@ -60,4 +62,5 @@ final class SettingsBindings {
     var showList: Bool
     var showRecurrence: Bool
     var showAlarms: Bool
+    var showCompletionGlow: Bool
 }
