@@ -185,7 +185,7 @@ struct ShowGuideStateTests {
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchTests` — all tests green (preference + state-holder suites)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchTests` — all tests green (preference + state-holder suites). *Run with the corrected scheme/destination: `-scheme SingleThreadWatch -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)'` (watchos target).*
 
 #### Manual
 - [ ] None

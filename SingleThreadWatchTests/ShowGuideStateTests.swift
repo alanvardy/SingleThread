@@ -1,5 +1,6 @@
 import Foundation
 import SingleThreadCore
+@testable import SingleThreadWatch
 import Testing
 
 /// Covers ShowGuidePreference read/write/round-trip semantics.
@@ -40,5 +41,38 @@ struct ShowGuidePreferenceTests {
         prefA.set(false)
         let prefB = ShowGuidePreference(defaults: .standard)
         #expect(!prefB.isEnabled)
+    }
+}
+
+/// Covers the ShowGuideState holder semantics. Same serialization rationale as
+/// the preference suite: it reads/writes the real "showGuide" key via `.standard`.
+@MainActor
+@Suite(.serialized)
+struct ShowGuideStateTests {
+    @Test
+    func initReadsSeededFalse() {
+        UserDefaults.standard.set(false, forKey: "showGuide")
+        defer { UserDefaults.standard.removeObject(forKey: "showGuide") }
+        let state = ShowGuideState()
+        #expect(!state.isEnabled)
+    }
+
+    @Test
+    func applyPersistsToStandardDefaults() {
+        let state = ShowGuideState()
+        defer { UserDefaults.standard.removeObject(forKey: "showGuide") }
+        state.apply(false)
+        #expect(!ShowGuidePreference(defaults: .standard).isEnabled)
+    }
+
+    @Test
+    func applyRepublishes() {
+        let state = ShowGuideState()
+        defer { UserDefaults.standard.removeObject(forKey: "showGuide") }
+        #expect(state.isEnabled) // default
+        state.apply(false)
+        #expect(!state.isEnabled)
+        state.apply(true)
+        #expect(state.isEnabled)
     }
 }

@@ -64,6 +64,7 @@ struct ShowCompletionGlowStateTests {
             authorizationStatus: .fullAccess)
         let glowState = ShowCompletionGlowState()
         glowState.apply(false)
+        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
         let viewModel = WatchReminderViewModel(
             store: store,
             showDateState: ShowDateState(),
