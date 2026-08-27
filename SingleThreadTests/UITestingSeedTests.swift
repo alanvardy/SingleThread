@@ -24,6 +24,23 @@ struct UITestingSeedTests {
     }
 
     @Test
+    func parsesLongTitlesWithoutTruncation() {
+        // 500-character plain title and a >500-character title containing code
+        // spans: the Codable seed path must accept arbitrarily long titles
+        // (no length truncation at the parser surface).
+        let longPlain = String(repeating: "a", count: 500)
+        let longCodeSpan = String(repeating: "word `code` ", count: 45)
+        let seed = UITestingSeed.fromLaunchArguments([
+            "--seed",
+            #"{"reminders":[{"title":"\#(longPlain)"},{"title":"\#(longCodeSpan)"}]}"#
+        ])
+
+        #expect(seed?.reminders.count == 2)
+        #expect(seed?.reminders[0].title == longPlain)
+        #expect(seed?.reminders[1].title == longCodeSpan)
+    }
+
+    @Test
     func parsesCalendarsAndExcludedLists() {
         let args = [
             "--seed",

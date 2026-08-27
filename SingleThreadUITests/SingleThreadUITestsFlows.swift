@@ -25,6 +25,34 @@ final class SingleThreadUITestsFlows: XCTestCase {
         return app
     }
 
+    // MARK: - iPad seed launch
+
+    @MainActor
+    func testSeedLaunchesOnIPad() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--seed", #"{"reminders":[{"title":"Buy groceries"}]}"#]
+
+        // Defensive TCC/interruption handler. The seed path backs the app with
+        // InMemoryEventStore (.fullAccess, no EventKit access request), so no
+        // dialog is expected — but if a system alert appears on iPad, dismiss its
+        // primary action before asserting.
+        addUIInterruptionMonitor(withDescription: "TCC dialog") { alert -> Bool in
+            if alert.buttons.count > 1 {
+                alert.buttons.element(boundBy: 1).tap()
+            } else {
+                alert.buttons.firstMatch.tap()
+            }
+            return true
+        }
+
+        app.launch()
+        app.tap() // triggers any pending interruption monitor
+
+        XCTAssertTrue(
+            app.staticTexts["Buy groceries"].waitForExistence(timeout: 5),
+            "Seeded reminder title should display on iPad without a blocking dialog")
+    }
+
     // MARK: - List rendering
 
     @MainActor
