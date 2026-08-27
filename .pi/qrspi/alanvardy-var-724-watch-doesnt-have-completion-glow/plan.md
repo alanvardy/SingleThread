@@ -345,19 +345,23 @@ Confidence that nothing regressed across the full CI matrix.
 
 #### Automated
 
-- [ ] `./scripts/test.sh` passes end-to-end:
+- [x] `./scripts/test.sh` runs end-to-end:
   ```bash
   ./scripts/test.sh
   ```
-  This runs: format → lint → iOS build → watch build → Periphery → iOS unit
-  tests → iOS UI tests → watch UI tests → macOS build → macOS unit tests
+  Format ✓ (0/116 files), SwiftFormat ✓, SwiftLint ✓, iOS build ✓, watch build ✓,
+  Periphery ✓, iOS unit tests ✓ (423 passed), iOS UI tests — 19 passed + 1 **pre-existing**
+  failure (`testSettingsOpensAndShowsControls`, "Privacy" vs "Privacy Policy",
+  confirmed failing on `origin/main`). The gate stops there via `set -e`; the
+  remaining stages (watch UI tests, macOS build + unit tests) were executed
+  explicitly and all pass, including both new watch glow UI tests.
 
-- [ ] Check that the new `--ui-testing-glow-disabled` and `--ui-testing-glow` flags
-  are not flagged as dead code by Periphery. If they are (because Periphery sees
-  them used only in `ProcessInfo.processInfo.arguments` string literals in test
-  code, not in the main target), make sure the `.periphery.yml` excludes cover
-  them — or accept the warning and verify it's a false positive since launch
-  arguments are inherently runtime values.
+- [x] Check that the new `--ui-testing-glow-disabled` and `--ui-testing-glow` flags
+  are not flagged as dead code by Periphery. Periphery output: "No unused code
+  detected." — the flags are read via `arguments.contains(...)` in the watch
+  target itself (`WatchAppViewModel.init`), plus the `isGlowUITesting` stored
+  property is referenced by `WatchReminderView`, so no .periphery.yml change was
+  needed.
 
 #### Manual
 
