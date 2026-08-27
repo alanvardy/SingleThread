@@ -20,7 +20,7 @@ struct SettingsViewTests {
         let bodyDescription = String(describing: view.body)
 
         let expectedLabels = [
-            "Interface", "Reminder", "Filtering & Sorting", "Background", "Privacy"
+            "Interface", "Reminder", "Filtering & Sorting", "Background", "Privacy", "About"
         ]
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))

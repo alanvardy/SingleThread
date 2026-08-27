@@ -371,7 +371,7 @@ branches — no per-platform change needed):
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests` passes
 
 #### Manual
 - [ ] In Xcode, run the app, tap the gear, confirm an "About" row (info.circle icon) appears below "Excluded Lists", and that tapping it pushes `AboutView` with the "About" navigation title and a working back button.
