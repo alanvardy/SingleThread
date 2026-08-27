@@ -110,8 +110,7 @@ struct ContentView: View {
             if let bag = settingsBag {
                 SettingsView(
                     bindings: bag,
-                    backgroundPhotographer: viewModel.backgroundImage.photographer,
-                    backgroundPhotographerURL: viewModel.backgroundImage.photographerURL,
+                    backgroundImage: viewModel.backgroundImage,
                     availableLists: viewModel.store.availableLists,
                     excludedLists: excludedListsBinding,
                     viewModel: SettingsViewModel())

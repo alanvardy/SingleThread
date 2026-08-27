@@ -13,15 +13,13 @@ struct SettingsView: View {
 
     init(
         bindings: SettingsBindings,
-        backgroundPhotographer: String?,
-        backgroundPhotographerURL: URL?,
+        backgroundImage: BackgroundImageStore,
         availableLists: [String],
         excludedLists: Binding<Set<String>>,
         viewModel: SettingsViewModel = SettingsViewModel()) {
         self.bindings = bindings
         self.viewModel = viewModel
-        self.backgroundPhotographer = backgroundPhotographer
-        self.backgroundPhotographerURL = backgroundPhotographerURL
+        self.backgroundImage = backgroundImage
         self.availableLists = availableLists
         _excludedLists = excludedLists
     }
@@ -75,8 +73,7 @@ struct SettingsView: View {
                         BackgroundSettingsView(
                             backgroundEnabled: $bindings.backgroundEnabled,
                             backgroundFadePercent: $bindings.backgroundFadePercent,
-                            backgroundPhotographer: backgroundPhotographer,
-                            backgroundPhotographerURL: backgroundPhotographerURL)
+                            backgroundImage: backgroundImage)
                     } label: {
                         Label("Background", systemImage: "photo.on.rectangle")
                     }
@@ -119,8 +116,7 @@ struct SettingsView: View {
     @Bindable private var bindings: SettingsBindings
 
     private let viewModel: SettingsViewModel
-    private let backgroundPhotographer: String?
-    private let backgroundPhotographerURL: URL?
+    private let backgroundImage: BackgroundImageStore
     private let availableLists: [String]
 }
 
@@ -129,8 +125,7 @@ struct SettingsView: View {
 #Preview("Default") {
     SettingsView(
         bindings: SettingsBindings(),
-        backgroundPhotographer: "NEOM",
-        backgroundPhotographerURL: URL(string: "https://unsplash.com/@neom"),
+        backgroundImage: BackgroundImageStore(),
         availableLists: ["Work", "Personal"],
         excludedLists: .constant([]))
 }
@@ -152,8 +147,7 @@ struct SettingsView: View {
         showAlarms: true)
     SettingsView(
         bindings: bag,
-        backgroundPhotographer: nil,
-        backgroundPhotographerURL: nil,
+        backgroundImage: BackgroundImageStore(),
         availableLists: ["Work", "Personal"],
         excludedLists: .constant([]))
         .preferredColorScheme(AppearanceMode.dark.colorScheme)
