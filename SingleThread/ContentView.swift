@@ -305,7 +305,7 @@ struct ContentView: View {
                                 showList: showList,
                                 showRecurrence: showRecurrence, showAlarms: showAlarms,
                                 showsOverPhoto: viewModel.backgroundDisplayed)
-                                .listRowBackground(viewModel.backgroundDisplayed ? Color.clear : nil)
+                                .listRowBackground(viewModel.rowChromeBackground)
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 12)
                                 // Center the card's plate in the row; text inside
@@ -356,6 +356,9 @@ struct ContentView: View {
                     // default, which would hide the photo. Hide it so the photo
                     // (or the system background when none is shown) shows through.
                     .scrollContentBackground(.hidden)
+                    // Clear the List's own background too — after the scroll-content
+                    // hide, so it wins on iPadOS 18 regardless of which layer is opaque.
+                    .background(Color.clear)
                     .refreshable {
                         await viewModel.reload()
                     }
