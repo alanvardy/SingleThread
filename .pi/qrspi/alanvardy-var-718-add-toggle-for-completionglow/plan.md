@@ -826,9 +826,9 @@ Add a receive test + relaunch-survival test:
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SkippedReminderSyncServiceTests` passes
-- [ ] `make watch-test` passes (incl. `WatchSyncPipelineTests` additions)
-- [ ] `make lint` passes (SwiftFormat + SwiftLint `--strict`)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SkippedReminderSyncServiceTests` passes
+- [x] `make watch-test` passes (incl. `WatchSyncPipelineTests` additions)
+- [x] `make lint` passes (SwiftFormat + SwiftLint `--strict`)
 
 #### Manual
 - [ ] (Optional, needs paired devices) Toggle off on iPhone → watch's glow is suppressed after the context push; toggle on → glow returns

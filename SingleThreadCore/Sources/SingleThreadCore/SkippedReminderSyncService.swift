@@ -33,10 +33,12 @@ import os
             showRecurrenceStore: ShowRecurrencePreference = ShowRecurrencePreference(),
             showAlarmsStore: ShowAlarmsPreference = ShowAlarmsPreference(),
             showListStore: ShowListPreference = ShowListPreference(),
+            showCompletionGlowStore: ShowCompletionGlowPreference = ShowCompletionGlowPreference(),
             sendsShowDate: Bool = true,
             sendsShowRecurrence: Bool = true,
             sendsShowAlarms: Bool = true,
-            sendsShowList: Bool = true) {
+            sendsShowList: Bool = true,
+            sendsShowCompletionGlow: Bool = true) {
             self.session = session
             self.skipStore = skipStore
             self.excludeStore = excludeStore
@@ -46,10 +48,12 @@ import os
             self.showRecurrenceStore = showRecurrenceStore
             self.showAlarmsStore = showAlarmsStore
             self.showListStore = showListStore
+            self.showCompletionGlowStore = showCompletionGlowStore
             self.sendsShowDate = sendsShowDate
             self.sendsShowRecurrence = sendsShowRecurrence
             self.sendsShowAlarms = sendsShowAlarms
             self.sendsShowList = sendsShowList
+            self.sendsShowCompletionGlow = sendsShowCompletionGlow
             super.init()
         }
 
@@ -104,6 +108,12 @@ import os
         /// `onShowDateReceived`.
         public nonisolated(unsafe) var onShowListReceived: ((Bool) -> Void)?
 
+        /// Hook fired on the counterpart when the "show completion glow" preference
+        /// arrives in an application context. Passes the received value. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onShowDateReceived`.
+        public nonisolated(unsafe) var onShowCompletionGlowReceived: ((Bool) -> Void)?
+
         /// Hook fired on the counterpart when the skipped-reminder identifier array
         /// arrives in an application context. Passes the received IDs. Fired **after**
         /// the skip store is persisted, so a watch-side handler can simply reload.
@@ -152,6 +162,9 @@ import os
                 }
                 if sendsShowList {
                     context[PayloadKey.showList] = showListStore.isEnabled
+                }
+                if sendsShowCompletionGlow {
+                    context[PayloadKey.showCompletionGlow] = showCompletionGlowStore.isEnabled
                 }
                 try session.updateApplicationContext(context)
             } catch {
@@ -230,6 +243,7 @@ import os
             static let showRecurrence = "showRecurrence"
             static let showAlarms = "showAlarms"
             static let showList = "showList"
+            static let showCompletionGlow = "showCompletionGlow"
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")
@@ -243,10 +257,12 @@ import os
         private let showRecurrenceStore: ShowRecurrencePreference
         private let showAlarmsStore: ShowAlarmsPreference
         private let showListStore: ShowListPreference
+        private let showCompletionGlowStore: ShowCompletionGlowPreference
         private let sendsShowDate: Bool
         private let sendsShowRecurrence: Bool
         private let sendsShowAlarms: Bool
         private let sendsShowList: Bool
+        private let sendsShowCompletionGlow: Bool
 
         /// Single receive path: decode → persist → notify for each present key;
         /// absent keys are no-ops. Handlers are snapshotted before invocation because
@@ -300,6 +316,11 @@ import os
                 showListStore.set(showList)
                 let handler = onShowListReceived
                 handler?(showList)
+            }
+            if let showCompletionGlow = context[PayloadKey.showCompletionGlow] as? Bool {
+                showCompletionGlowStore.set(showCompletionGlow)
+                let handler = onShowCompletionGlowReceived
+                handler?(showCompletionGlow)
             }
         }
     }

@@ -364,6 +364,39 @@ struct WatchSyncPipelineTests {
         #expect(context["showRecurrence"] != nil)
         #expect(context["showAlarms"] != nil)
     }
+
+    @Test
+    func receiveAppliesShowCompletionGlow() {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let glowStore = ShowCompletionGlowPreference(defaults: .standard, key: "wtest-glow-\(suffix)")
+        glowStore.set(true)
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-glow-ids-\(suffix)"),
+            showCompletionGlowStore: glowStore)
+
+        var values: [Bool] = []
+        service.onShowCompletionGlowReceived = { values.append($0) }
+
+        service.session(WCSession.default, didReceiveApplicationContext: ["showCompletionGlow": false])
+
+        #expect(!glowStore.isEnabled)
+        #expect(values == [false])
+    }
+
+    @Test
+    func showCompletionGlowSurvivesRelaunch() {
+        let key = "wtest-relaunch-glow-\(UUID().uuidString)"
+        let fake = WatchFakeSession()
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
+            showCompletionGlowStore: ShowCompletionGlowPreference(defaults: .standard, key: key))
+        service.session(WCSession.default, didReceiveApplicationContext: ["showCompletionGlow": false])
+        let freshStore = ShowCompletionGlowPreference(defaults: .standard, key: key)
+        #expect(!freshStore.isEnabled)
+    }
 }
 
 /// Builds a reminder that lives in a calendar titled `list`, so exclusion
