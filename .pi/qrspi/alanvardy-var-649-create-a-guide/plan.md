@@ -450,7 +450,7 @@ In the `.sheet` write-back chain (after `showCompletionGlow` line):
 ### Verification
 #### Automated
 - [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` compiles cleanly
-- [ ] `./scripts/test.sh` passes — full gate: format, lint, periphery, build, unit tests, UI tests
+- [x] `./scripts/test.sh` passes — full gate: format, lint, periphery, build, unit tests, UI tests. *Confirmed green end-to-end after the pre-existing Settings Privacy UI-test label mismatch was fixed (commit 3815053).*
 
 #### Manual
 - [ ] Build to iPhone 17 simulator, open Settings → Reminder, verify "Show guide again" toggle is present and on by default
@@ -737,7 +737,7 @@ This follows the iOS `--reset-glow-preference` pattern (`AppViewModel.swift:186-
 #### Automated
 - [x] Stage 5 UI tests pass (they depend on `--reset-guide` for the first-launch simulation)
 - [x] `./scripts/test.sh` — full gate green
-  (Note: full `./scripts/test.sh` not run in this phase due to runtime; the gate's only prior failure was the pre-existing Privacy UI test, fixed separately in commit 3815053. Watch build, watch unit tests, all 15 watch UI tests, iOS build, SwiftLint --strict, and SwiftFormat all pass.)
+  (Confirmed green end-to-end: `✅ All CI checks passed.` — format, lint strict, iOS+watch+macOS builds, periphery, unit tests, all iOS + watch UI tests. Note: to reach green, a pre-existing (not showGuide-related) Settings Privacy UI-test label mismatch was fixed separately in commit 3815053.)
 
 #### Manual
 - [ ] None required — covered by UI tests
