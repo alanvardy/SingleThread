@@ -356,6 +356,29 @@
 			productReference = 51AA3F410000000000000000 /* SingleThreadWidget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		51AA3F600000000000000001 /* SingleThreadWatchUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51AA3F630000000000000004 /* Build configuration list for PBXNativeTarget "SingleThreadWatchUITests" */;
+			buildPhases = (
+				51AA3F660000000000000007 /* Sources */,
+				51AA3F670000000000000008 /* Frameworks */,
+				51AA3F680000000000000009 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				51AA3F6A000000000000000B /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				51AA3F620000000000000003 /* SingleThreadWatchUITests */,
+			);
+			name = SingleThreadWatchUITests;
+			packageProductDependencies = (
+			);
+			productName = SingleThreadWatchUITests;
+			productReference = 51AA3F610000000000000002 /* SingleThreadWatchUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		51F0F49900000000000000A3 /* SingleThreadWatchTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 51F0F49900000000000000A9 /* Build configuration list for PBXNativeTarget "SingleThreadWatchTests" */;
@@ -379,29 +402,6 @@
 			productName = SingleThreadWatchTests;
 			productReference = 51F0F49900000000000000A1 /* SingleThreadWatchTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		51AA3F600000000000000001 /* SingleThreadWatchUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 51AA3F630000000000000004 /* Build configuration list for PBXNativeTarget "SingleThreadWatchUITests" */;
-			buildPhases = (
-				51AA3F660000000000000007 /* Sources */,
-				51AA3F670000000000000008 /* Frameworks */,
-				51AA3F680000000000000009 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				51AA3F6A000000000000000B /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				51AA3F620000000000000003 /* SingleThreadWatchUITests */,
-			);
-			name = SingleThreadWatchUITests;
-			packageProductDependencies = (
-			);
-			productName = SingleThreadWatchUITests;
-			productReference = 51AA3F610000000000000002 /* SingleThreadWatchUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 /* End PBXNativeTarget section */
 

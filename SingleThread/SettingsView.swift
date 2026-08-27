@@ -81,7 +81,7 @@ struct SettingsView: View {
                 NavigationLink {
                     PrivacySettingsView()
                 } label: {
-                    Label("Privacy", systemImage: "hand.raised")
+                    Label("Privacy Policy", systemImage: "hand.raised")
                 }
             }
             .navigationTitle("Settings")

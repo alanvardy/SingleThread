@@ -23,7 +23,7 @@ enum PrivacyGuideContent {
             title: "Reminders",
             body: "Reminders are read and written through Apple Reminders. "
                 + "They stay on your device or in your own iCloud account, "
-                + "and are never sent to SingleThread or any third party."),
+                + "and are never sent to the author or any third party."),
         PrivacySection(
             id: "preferences",
             title: "Display & Sync Preferences",
@@ -41,10 +41,12 @@ enum PrivacyGuideContent {
         PrivacySection(
             id: "background",
             title: "Background Image",
-            body: "When the background is enabled, the image is downloaded "
-                + "from vardy.cc/unsplash and cached on your device. This is "
-                + "the app's only network request, and it never includes any "
-                + "reminder, preference, or list data.")
+            body: "When the background is enabled, the background url and "
+                + "artist information is downloaded from a proxy at vardy.cc. "
+                + "This is the app's only network request, and it never "
+                + "includes any reminder, preference, or list data. "
+                + "This proxy is used to store an API key for Unsplash and "
+                + "keep API usage reasonable.")
     ]
 
     static let closingLine =
