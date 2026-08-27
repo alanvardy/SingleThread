@@ -228,6 +228,31 @@ final class SingleThreadUITestsFlows: XCTestCase {
             "Background-off should persist across relaunch")
     }
 
+    // MARK: - Background refresh
+
+    @MainActor
+    func testBackgroundRefreshButtonExists() {
+        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+        app.buttons["Settings"].tap()
+
+        // Navigate into the Background sub-view.
+        XCTAssertTrue(app.staticTexts["Background"].waitForExistence(timeout: 3), "Settings should show Background")
+        app.staticTexts["Background"].tap()
+
+        let refreshButton = app.buttons["Refresh wallpaper"]
+        XCTAssertTrue(refreshButton.waitForExistence(timeout: 3), "Background settings should show the refresh button")
+        XCTAssertTrue(refreshButton.isHittable)
+
+        // Tap triggers forceRefresh(); the real URLSession may hit the network.
+        // We assert only that the control is present and interactive, never the
+        // fetched image (headless tests cannot assert rendering or network).
+        refreshButton.tap()
+        XCTAssertTrue(
+            refreshButton.waitForExistence(timeout: 5),
+            "Refresh button should remain in the tree after tap without crashing")
+    }
+
     // MARK: - Code blocks
 
     @MainActor

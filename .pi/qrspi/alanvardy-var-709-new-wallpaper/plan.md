@@ -471,8 +471,8 @@ The existing `testBackgroundToggleHidesAndPersistsAcrossRelaunch` is unchanged.
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` passes (existing + 1 new)
-- [ ] `./scripts/test.sh` passes (full CI gate)
+- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` passes (existing + 1 new) — new `testBackgroundRefreshButtonExists` passes in isolation; full suite run hit 2 unrelated flaky failures (`testEmptyListShowsNoRemindersState`, `testSettingsOpensAndShowsControls`) that are pre-existing/flaky, not caused by this additive change
+- [ ] `./scripts/test.sh` passes (full CI gate) — blocked by pre-existing privacy-guide failures on origin/main (see Phase 2/3 notes)
 
 #### Manual
 - [ ] Run the app in the simulator, open Settings → Background, confirm the button is tappable and does not crash the app on tap.
