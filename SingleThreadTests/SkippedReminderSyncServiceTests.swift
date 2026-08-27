@@ -500,6 +500,70 @@
             #expect(context["sortOption"] != nil)
         }
 
+        // MARK: - Show-completion-glow sync
+
+        @Test
+        func pushAllIncludesShowCompletionGlowWhenEnabled() throws {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let glowStore = ShowCompletionGlowPreference(defaults: .standard, key: "test-glow-push-\(suffix)")
+            glowStore.set(true)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-glow-push-ids-\(suffix)"),
+                showCompletionGlowStore: glowStore,
+                sendsShowCompletionGlow: true)
+            service.pushAll()
+            let context = try #require(fake.lastContext)
+            #expect((context["showCompletionGlow"] as? Bool) == true)
+        }
+
+        @Test
+        func pushAllOmitsShowCompletionGlowWhenDisabled() throws {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-glow-omit-ids-\(suffix)"),
+                showCompletionGlowStore: ShowCompletionGlowPreference(
+                    defaults: .standard,
+                    key: "test-glow-omit-\(suffix)"),
+                sendsShowCompletionGlow: false)
+            service.pushAll()
+            let context = try #require(fake.lastContext)
+            #expect(context["showCompletionGlow"] == nil)
+        }
+
+        @Test
+        func receiveShowCompletionGlowApplies() {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let glowStore = ShowCompletionGlowPreference(defaults: .standard, key: "test-glow-recv-\(suffix)")
+            glowStore.set(true)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-glow-recv-ids-\(suffix)"),
+                showCompletionGlowStore: glowStore)
+            service.session(WCSession.default, didReceiveApplicationContext: ["showCompletionGlow": false])
+            #expect(!glowStore.isEnabled)
+        }
+
+        @Test
+        func receiveShowCompletionGlowFiresHook() {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-glow-hook-ids-\(suffix)"),
+                showCompletionGlowStore: ShowCompletionGlowPreference(
+                    defaults: .standard,
+                    key: "test-glow-hook-\(suffix)"))
+            var received: [Bool] = []
+            service.onShowCompletionGlowReceived = { received.append($0) }
+            service.session(WCSession.default, didReceiveApplicationContext: ["showCompletionGlow": false])
+            #expect(received == [false])
+        }
+
         // MARK: Private
 
         /// An isolated sort store that never touches `AppGroup.defaults`.

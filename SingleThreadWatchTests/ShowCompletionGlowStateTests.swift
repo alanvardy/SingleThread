@@ -19,7 +19,12 @@ private func watchReminder() -> EKReminder {
 }
 
 /// Covers the state-holder semantics and the watch-side completion-glow gate.
+/// Serialized because every test writes the same real UserDefaults key
+/// ("showCompletionGlow") via the holder's hardcoded `.standard` store; running
+/// them in parallel lets one test's `set(false)`/cleanup race another's read of
+/// the default (`true`).
 @MainActor
+@Suite(.serialized)
 struct ShowCompletionGlowStateTests {
     @Test
     func initialValueFromPreference() {

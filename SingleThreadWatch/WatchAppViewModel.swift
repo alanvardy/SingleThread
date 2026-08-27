@@ -103,10 +103,6 @@ final class WatchAppViewModel {
     private func setupSyncService(arguments: [String]) {
         guard WCSession.isSupported() else { return }
         let store = store
-        let showDateState = showDateState
-        let showRecurrenceState = showRecurrenceState
-        let showAlarmsState = showAlarmsState
-        let showListState = showListState
         let service = SkippedReminderSyncService(
             session: WCSession.default,
             skipStore: SkippedReminderStore(),
@@ -115,7 +111,9 @@ final class WatchAppViewModel {
             showRecurrenceStore: ShowRecurrencePreference(defaults: .standard),
             showAlarmsStore: ShowAlarmsPreference(defaults: .standard),
             showListStore: ShowListPreference(defaults: .standard),
-            sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false)
+            showCompletionGlowStore: ShowCompletionGlowPreference(defaults: .standard),
+            sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false,
+            sendsShowCompletionGlow: false)
         service.onShowUndatedRemindersReceived = { [weak store] value in
             Task {
                 store?.showsUndatedReminders = value
@@ -128,18 +126,7 @@ final class WatchAppViewModel {
         service.onSkippedIdentifiersReceived = { [weak store] _ in
             Task { await store?.reload() }
         }
-        service.onShowDateReceived = { [weak showDateState] value in
-            Task { @MainActor in showDateState?.apply(value) }
-        }
-        service.onShowRecurrenceReceived = { [weak showRecurrenceState] value in
-            Task { @MainActor in showRecurrenceState?.apply(value) }
-        }
-        service.onShowAlarmsReceived = { [weak showAlarmsState] value in
-            Task { @MainActor in showAlarmsState?.apply(value) }
-        }
-        service.onShowListReceived = { [weak showListState] value in
-            Task { @MainActor in showListState?.apply(value) }
-        }
+        wireStateReceiveHooks(service)
         service.onSortOptionReceived = { [weak store] option in
             Task { @MainActor in store?.setSortOption(option) }
         }
@@ -155,6 +142,33 @@ final class WatchAppViewModel {
         store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
         store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
         scheduleUITestLiveExcludedDelivery(service: service, arguments: arguments)
+    }
+
+    /// Wires the show-* preference receive hooks onto the sync service. Each
+    /// state holder is captured weakly so a delivered context cannot retain the VM.
+    /// Lives in its own helper so `setupSyncService` stays within SwiftLint's
+    /// 50-line function-body limit.
+    private func wireStateReceiveHooks(_ service: SkippedReminderSyncService) {
+        let showDateState = showDateState
+        let showRecurrenceState = showRecurrenceState
+        let showAlarmsState = showAlarmsState
+        let showListState = showListState
+        let showCompletionGlowState = showCompletionGlowState
+        service.onShowDateReceived = { [weak showDateState] value in
+            Task { @MainActor in showDateState?.apply(value) }
+        }
+        service.onShowRecurrenceReceived = { [weak showRecurrenceState] value in
+            Task { @MainActor in showRecurrenceState?.apply(value) }
+        }
+        service.onShowAlarmsReceived = { [weak showAlarmsState] value in
+            Task { @MainActor in showAlarmsState?.apply(value) }
+        }
+        service.onShowListReceived = { [weak showListState] value in
+            Task { @MainActor in showListState?.apply(value) }
+        }
+        service.onShowCompletionGlowReceived = { [weak showCompletionGlowState] value in
+            Task { @MainActor in showCompletionGlowState?.apply(value) }
+        }
     }
 
     /// Delivers a real applicationContext several seconds after launch when the

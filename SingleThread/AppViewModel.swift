@@ -31,6 +31,7 @@ final class AppViewModel {
                     showDateStore: ShowDatePreference(),
                     showRecurrenceStore: ShowRecurrencePreference(),
                     showAlarmsStore: ShowAlarmsPreference(),
+                    showCompletionGlowStore: ShowCompletionGlowPreference(),
                     sendsShowDate: true)
                 // Assign the handler before activating: the service documents a
                 // write-once-before-activate invariant, and a completion message
@@ -185,14 +186,17 @@ final class AppViewModel {
             let currentShowRecurrence = ShowRecurrencePreference().isEnabled
             let currentShowAlarms = ShowAlarmsPreference().isEnabled
             let currentShowList = ShowListPreference().isEnabled
+            let currentShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
             if currentShowDate != lastShowDate
                 || currentShowRecurrence != lastShowRecurrence
                 || currentShowAlarms != lastShowAlarms
-                || currentShowList != lastShowList {
+                || currentShowList != lastShowList
+                || currentShowCompletionGlow != lastShowCompletionGlow {
                 lastShowDate = currentShowDate
                 lastShowRecurrence = currentShowRecurrence
                 lastShowAlarms = currentShowAlarms
                 lastShowList = currentShowList
+                lastShowCompletionGlow = currentShowCompletionGlow
                 syncService?.pushAll()
             }
         }
@@ -202,6 +206,7 @@ final class AppViewModel {
         private var lastShowRecurrence = ShowRecurrencePreference().isEnabled
         private var lastShowAlarms = ShowAlarmsPreference().isEnabled
         private var lastShowList = ShowListPreference().isEnabled
+        private var lastShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
 
         private var syncDefaultsObserver: NSObjectProtocol?
     #endif
