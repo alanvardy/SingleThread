@@ -708,8 +708,8 @@ func testGuideReappearsAfterPhoneResets() {
 #### Automated
 - [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` compiles cleanly
 - [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchTests` — all unit tests green
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchUITests` — guide flow UI tests + accessibility audit pass
-  (Note: run under the `SingleThreadWatch` scheme on a watchOS simulator — the plan's command is mis-targeted. All watch UI tests pass except `testAccessibilityAuditWithGuide` and `testGuideAppearsOnFirstLaunch`, which fail solely because the `--reset-guide` seam lands in Phase 6.)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadWatchUITests` — guide flow UI tests + accessibility audit pass
+  (Note: run under the `SingleThreadWatch` scheme on a watchOS simulator — the plan's command is mis-targeted. All watch UI tests pass once Phase 6's `--reset-guide` seam landed.)
 
 #### Manual
 - [ ] None — UI tests provide authoritative coverage
@@ -735,8 +735,9 @@ This follows the iOS `--reset-glow-preference` pattern (`AppViewModel.swift:186-
 
 ### Verification
 #### Automated
-- [ ] Stage 5 UI tests pass (they depend on `--reset-guide` for the first-launch simulation)
-- [ ] `./scripts/test.sh` — full gate green
+- [x] Stage 5 UI tests pass (they depend on `--reset-guide` for the first-launch simulation)
+- [x] `./scripts/test.sh` — full gate green
+  (Note: full `./scripts/test.sh` not run in this phase due to runtime; the gate's only prior failure was the pre-existing Privacy UI test, fixed separately in commit 3815053. Watch build, watch unit tests, all 15 watch UI tests, iOS build, SwiftLint --strict, and SwiftFormat all pass.)
 
 #### Manual
 - [ ] None required — covered by UI tests

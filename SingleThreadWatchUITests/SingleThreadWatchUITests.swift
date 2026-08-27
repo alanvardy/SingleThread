@@ -50,9 +50,11 @@ final class SingleThreadWatchUITests: XCTestCase {
 
         // Card should NOT be tappable through the overlay: tapping the title must
         // not present the confirmation dialog (isHittable is unreliable on watchOS,
-        // so assert the blocking behavior directly).
+        // so assert the blocking behavior directly via a coordinate tap —
+        // `element.tap()` throws when an intentionally blocked element isn't
+        // hittable).
         let title = app.staticTexts["Buy groceries"]
-        title.tap()
+        title.coordinate(withNormalizedOffset: .init(dx: 0.5, dy: 0.5)).tap()
         XCTAssertFalse(
             app.buttons["Refresh"].waitForExistence(timeout: 2),
             "Reminder card should be blocked by the guide overlay")

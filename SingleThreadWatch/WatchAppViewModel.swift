@@ -12,12 +12,18 @@ final class WatchAppViewModel {
 
     init(arguments: [String] = ProcessInfo.processInfo.arguments) {
         let isUITesting = arguments.contains("--ui-testing")
-        // UI-testing default: treat launches as a returning user so the guide's
-        // first-launch overlay doesn't block the pre-existing interaction tests.
-        // `--reset-guide` (added in Phase 6) overrides this to simulate a fresh
-        // first launch.
-        if isUITesting, !arguments.contains("--reset-guide") {
-            UserDefaults.standard.set(false, forKey: "showGuide")
+        // Mirrors the iOS `--reset-glow-preference` seam: `--reset-guide` removes
+        // the key so ShowGuideState reads an absent key → `true` and the guide
+        // overlay appears (fresh first launch). Without the flag, UI-test launches
+        // are treated as a returning user (guide off) so the pre-existing
+        // interaction tests are not blocked by the overlay. Production launches
+        // never pass `--ui-testing`, so the persisted key is left untouched.
+        if isUITesting {
+            if arguments.contains("--reset-guide") {
+                UserDefaults.standard.removeObject(forKey: "showGuide")
+            } else {
+                UserDefaults.standard.set(false, forKey: "showGuide")
+            }
         }
         let store: ReminderStore = if isUITesting {
             Self.uiTestingStore(arguments: arguments)
