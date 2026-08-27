@@ -325,10 +325,10 @@ Notes:
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh --ui-only` passes (build-for-testing + `SingleThreadUITests` only)
-- [ ] `./scripts/test.sh` (full) passes — format, lint, build, Periphery, unit tests, UI tests
+- [x] `./scripts/test.sh --ui-only` passes (build-for-testing + `SingleThreadUITests` only)
+- [x] `./scripts/test.sh` (full) passes — format, lint, build, Periphery, unit tests, UI tests
       (including the accessibility audit, which is unaffected because it never enters Settings)
-- [ ] `make lint` passes (`swiftformat --lint` + `swiftlint lint --strict`)
+- [x] `make lint` passes (`swiftformat --lint` + `swiftlint lint --strict`)
 
 #### Manual
 - [ ] Run on the iOS simulator: Settings → Privacy → confirm the screen pushes with title

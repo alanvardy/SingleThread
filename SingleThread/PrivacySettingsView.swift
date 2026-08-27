@@ -17,7 +17,7 @@ struct PrivacySettingsView: View {
                 Text(PrivacyGuideContent.closingLine)
             }
         }
-        .navigationTitle("Privacy")
+        .navigationTitle("Privacy Policy")
     }
 }
 
