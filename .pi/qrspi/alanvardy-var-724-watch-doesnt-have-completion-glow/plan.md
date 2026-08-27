@@ -231,11 +231,15 @@ This exactly mirrors the iOS `completionGlowOverlay` pattern (`ContentView.swift
 
 #### Automated
 
-- [ ] `make test` passes (unit tests)
-- [ ] `make watch-build` compiles
-- [ ] `make watch-ui-test` passes (existing tests — none assert on the glow yet, but
+- [x] `make test` passes (unit tests)
+- [x] `make watch-build` compiles
+- [x] `make watch-ui-test` passes (existing tests — none assert on the glow yet, but
   they must not regress)
-- [ ] `./scripts/test.sh --ui-only` passes (iOS UI tests — regression check)
+- [x] `./scripts/test.sh --ui-only` runs; the only failure is a **pre-existing**
+  iOS `testSettingsOpensAndShowsControls` (app shows "Privacy Policy", test taps
+  "Privacy") that already fails on `origin/main` — unrelated to this ticket. The
+  glow iOS tests (`testCompletionGlowFlashesWhenEnabled`,
+  `testCompletionGlowDoesNotAppearWhenDisabled`) pass.
 
 #### Manual
 
