@@ -309,7 +309,7 @@ struct AboutViewTests {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/AboutViewTests` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/AboutViewTests` passes
 
 #### Manual
 - [ ] In Xcode, open `AboutView.swift`'s `#Preview` and confirm: header shows the `checklist` icon + "SingleThread", then the copyright, "Made with love…", "Version 1.0 (1)" rows, and the "alan@vardy.cc" footer link.
