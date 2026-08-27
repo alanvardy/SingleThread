@@ -64,6 +64,18 @@ struct ShowCompletionGlowStateTests {
     }
 
     @Test
+    func uiTestingGlowFlagPreEnablesState() {
+        // A persisted `false` from an earlier disabled-flow test in the same
+        // UI-test session must not suppress the glow for the enabled-flow test.
+        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
+        UserDefaults.standard.set(false, forKey: "showCompletionGlow")
+        let appViewModel = WatchAppViewModel(arguments: ["--ui-testing-glow"])
+        #expect(
+            appViewModel.showCompletionGlowState.isEnabled,
+            "The seam forces the state on so the enabled-flow test is deterministic")
+    }
+
+    @Test
     func watchGateSuppressesGlowWhenDisabled() async {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
