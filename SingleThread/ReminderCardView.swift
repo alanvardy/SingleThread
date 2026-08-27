@@ -15,14 +15,12 @@ struct ReminderCardView: View {
         showDate: Bool,
         showList: Bool = false,
         showRecurrence: Bool = true,
-        showAlarms: Bool = true,
-        showsOverPhoto: Bool = false) {
+        showAlarms: Bool = true) {
         self.display = display
         self.showDate = showDate
         self.showList = showList
         self.showRecurrence = showRecurrence
         self.showAlarms = showAlarms
-        self.showsOverPhoto = showsOverPhoto
     }
 
     // MARK: Internal
@@ -80,18 +78,25 @@ struct ReminderCardView: View {
         // size-checks each small child (marker / notes rows fall below 44pt). This is
         // a genuine app-wide accessibility improvement, not just a test escape.
         .accessibilityElement(children: .combine)
-        // Over a photo the row chrome is transparent, so the text needs its own
-        // small high-contrast plate: white in light mode, black in dark mode.
-        // The padding pair grows the view to fit the plate, then restores the
-        // original outer geometry so list metrics are unchanged.
-        .padding(showsOverPhoto ? 12 : 0)
+        // The card text always sits on its own small, content-sized high-contrast
+        // plate (off-white in light, black in dark) so it stays readable over the
+        // photo or the wallpaper on every device. The padding pair grows the view
+        // to fit the plate, then restores the original outer geometry so list
+        // metrics are unchanged.
+        .padding(12)
         .background {
-            if showsOverPhoto {
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(colorScheme == .dark ? Color.black : Color.white)
-            }
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Self.plateFill(for: colorScheme))
         }
-        .padding(showsOverPhoto ? -12 : 0)
+        .padding(-12)
+    }
+
+    /// Small content-sized high-contrast plate behind the card text: off-white in
+    /// light, black in dark, so the text stays readable over a photo or wallpaper.
+    /// Extracted because the rendered paint can't be asserted headlessly — tests
+    /// assert this decision instead.
+    static func plateFill(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? Color.black : Color(red: 0.96, green: 0.95, blue: 0.94)
     }
 
     // MARK: Private
@@ -108,9 +113,6 @@ struct ReminderCardView: View {
 
     /// True when the alarm indicator row is shown.
     private let showAlarms: Bool
-
-    /// True when the reminder renders over a visible background photo.
-    private let showsOverPhoto: Bool
 
     private func priorityColor(_ level: ReminderPriority.Level) -> Color {
         switch level {
