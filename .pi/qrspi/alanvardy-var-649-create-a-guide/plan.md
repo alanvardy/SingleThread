@@ -449,7 +449,7 @@ In the `.sheet` write-back chain (after `showCompletionGlow` line):
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` compiles cleanly
+- [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` compiles cleanly
 - [ ] `./scripts/test.sh` passes — full gate: format, lint, periphery, build, unit tests, UI tests
 
 #### Manual
