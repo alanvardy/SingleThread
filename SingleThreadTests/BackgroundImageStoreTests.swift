@@ -80,8 +80,9 @@ struct BackgroundImageStoreTests {
         await store.refreshIfNeeded()
         let endpointCountBeyondDay = fake.requestedURLs.filter { $0 == Self.endpoint }.count
 
-        #expect(endpointCountBeyondDay > endpointCountWithinDay,
-                "only the 25h-old sidecar should trigger a refetch")
+        #expect(
+            endpointCountBeyondDay > endpointCountWithinDay,
+            "only the 25h-old sidecar should trigger a refetch")
     }
 
     @Test
@@ -175,7 +176,7 @@ struct BackgroundImageStoreTests {
     }
 
     @Test
-    func forceRefreshBypassesFreshSidecar() async throws {
+    func forceRefreshBypassesFreshSidecar() async {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
         fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
@@ -186,8 +187,9 @@ struct BackgroundImageStoreTests {
 
         await store.forceRefresh()
 
-        #expect(fake.requestedURLs.count > countAfterInitial,
-                "forceRefresh should hit the network even with a fresh sidecar")
+        #expect(
+            fake.requestedURLs.count > countAfterInitial,
+            "forceRefresh should hit the network even with a fresh sidecar")
     }
 
     @Test
@@ -209,7 +211,7 @@ struct BackgroundImageStoreTests {
     }
 
     @Test
-    func forceRefreshUpdatesAttributionAfterSuccess() async throws {
+    func forceRefreshUpdatesAttributionAfterSuccess() async {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
         fake.stubbedData[Self.imageURL] = .success(Self.jpegData)
@@ -228,7 +230,7 @@ struct BackgroundImageStoreTests {
     }
 
     @Test
-    func isRefreshingToggledDuringForceRefresh() async throws {
+    func isRefreshingToggledDuringForceRefresh() async {
         let fetcher = GatedBackgroundFetcher(endpointURL: Self.endpoint)
         fetcher.endpointData = payloadJSON()
         fetcher.imageData = Self.jpegData
@@ -260,19 +262,21 @@ struct BackgroundImageStoreTests {
     /// One-shot rendezvous that parks a fetch in-flight so a test can observe
     /// `isRefreshing` before releasing it.
     private actor FetchGate {
-        private var parked: CheckedContinuation<Void, Never>?
-        private var hitSignal: CheckedContinuation<Void, Never>?
-        private var wasHit = false
+        // MARK: Internal
 
         func wait() async {
-            if wasHit { return }
+            if wasHit {
+                return
+            }
             wasHit = true
             hitSignal?.resume()
             await withCheckedContinuation { parked = $0 }
         }
 
         func waitUntilHit() async {
-            if wasHit { return }
+            if wasHit {
+                return
+            }
             await withCheckedContinuation { hitSignal = $0 }
         }
 
@@ -280,24 +284,39 @@ struct BackgroundImageStoreTests {
             parked?.resume()
             parked = nil
         }
+
+        // MARK: Private
+
+        private var parked: CheckedContinuation<Void, Never>?
+        private var hitSignal: CheckedContinuation<Void, Never>?
+        private var wasHit = false
     }
 
     /// Parks the first (endpoint) fetch behind a gate, then serves valid data.
     private final class GatedBackgroundFetcher: BackgroundImageFetching, @unchecked Sendable {
-        let gate = FetchGate()
-        private let endpointURL: URL
-        var endpointData: Data = Data()
-        var imageData: Data = Data()
+        // MARK: Lifecycle
 
         init(endpointURL: URL) {
             self.endpointURL = endpointURL
         }
 
+        // MARK: Internal
+
+        let gate = FetchGate()
+        var endpointData: Data = .init()
+        var imageData: Data = .init()
+
         func fetchData(from url: URL) async throws -> Data {
             let isEndpoint = url == endpointURL
-            if isEndpoint { await gate.wait() }
+            if isEndpoint {
+                await gate.wait()
+            }
             return isEndpoint ? endpointData : imageData
         }
+
+        // MARK: Private
+
+        private let endpointURL: URL
     }
 
     /// Smallest valid JPEG (1×1 pixel), used to pass the decodability gate.
