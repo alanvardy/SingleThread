@@ -42,3 +42,14 @@ Both assert `allText.contains("vardy.cc/unsplash")`, but `PrivacyGuideContent` b
 - [ ] Tap it: a spinner appears while the button is disabled, then a fresh photo paints behind the list and the attribution footer updates to the new photographer/URL.
 - [ ] Toggle/fade controls still behave as before.
 - [ ] Run the app in the simulator, open Settings → Background, confirm the button is tappable and does not crash the app on tap.
+
+
+## Follow-up change - refresh hits /unsplash/random
+
+Per review, the explicit "Refresh wallpaper" action should fetch from the
+server's **random** endpoint, not the 6h-cached one. The two endpoints return
+an identical JSON shape, so only the URL changes.
+
+- BackgroundImageStore: added private static let randomEndpoint = URL(string: "https://vardy.cc/unsplash/random")!. forceRefresh() (the refresh button) now fetches from Self.randomEndpoint; refreshIfNeeded() (cold launch, backed by the 24h staleness default) still uses Self.endpoint (/unsplash).
+- Tests: added a randomEndpoint constant to BackgroundImageStoreTests and pointed the force-refresh tests (forceRefreshBypassesFreshSidecar, forceRefreshRetainsPriorImageOnFailure, forceRefreshUpdatesAttributionAfterSuccess, isRefreshingToggledDuringForceRefresh) at it.
+- Verified: all 12 BackgroundImageStoreTests pass; SwiftFormat + SwiftLint --strict clean.

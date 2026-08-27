@@ -115,14 +115,16 @@ final class BackgroundImageStore {
     }
 
     /// Fetches a fresh wallpaper immediately, ignoring the staleness check.
-    /// Unlike `refreshIfNeeded`, this always hits the network and toggles
-    /// `isRefreshing` so the button can show progress. On any error it keeps
-    /// the prior photo and attribution.
+    /// Unlike `refreshIfNeeded`, which consults the cached `GET /unsplash`,
+    /// this hits `GET /unsplash/random` so each explicit refresh can surface a
+    /// different photo. Always hits the network and toggles `isRefreshing` so
+    /// the button can show progress. On any error it keeps the prior photo and
+    /// attribution.
     func forceRefresh() async {
         isRefreshing = true
         defer { isRefreshing = false }
         do {
-            let payloadData = try await client.fetchData(from: Self.endpoint)
+            let payloadData = try await client.fetchData(from: Self.randomEndpoint)
             let decoder = JSONDecoder()
             let payload = try decoder.decode(UnsplashPayload.self, from: payloadData)
             let data = try await client.fetchData(from: payload.url)
@@ -142,7 +144,11 @@ final class BackgroundImageStore {
 
     // MARK: Private
 
+    /// `GET /unsplash` — the 6h-cached wallpaper used on cold launch.
     private static let endpoint = URL(string: "https://vardy.cc/unsplash")!
+    /// `GET /unsplash/random` — a random photo from the server's pool, served
+    /// by the explicit "Refresh wallpaper" action.
+    private static let randomEndpoint = URL(string: "https://vardy.cc/unsplash/random")!
     private static let logger = Logger(
         subsystem: "app.alanvardy.SingleThread", category: "BackgroundImage")
 
