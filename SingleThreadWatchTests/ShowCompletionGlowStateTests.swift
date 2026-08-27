@@ -74,4 +74,25 @@ struct ShowCompletionGlowStateTests {
         await viewModel.completeCurrentReminder()
         #expect(!viewModel.completionGlow.isActive)
     }
+
+    @Test
+    func watchGateTriggersGlowWhenEnabled() async {
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [watchReminder()],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let glowState = ShowCompletionGlowState()
+        // Defaults to enabled — no apply(false) call.
+        let viewModel = WatchReminderViewModel(
+            store: store,
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: glowState)
+        await viewModel.completeCurrentReminder()
+        #expect(viewModel.completionGlow.isActive)
+    }
 }
