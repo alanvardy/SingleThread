@@ -91,11 +91,10 @@ SingleThread/                  # git root
 
 - QRSPI pipeline: `/1_spec` → `/2_clarify` → `/3_design` → `/4_research` →
   `/5_plan` → `/6_implement` (see `~/AGENTS.md` and `.pi/skills/qrspi/SKILL.md`).
-- A **design phase runs on a separate child subtask** of the main ticket
-  (`linear issue create --parent <MAIN-ID>`), on its **own branch**, with
-  artifacts under `.pi/qrspi/<design-branch>/`, forked from `origin/main`,
-  and a **draft PR titled with "design"**.
-- All research for the current task lives under `.pi/qrspi/<branch>/`.
+- All QRSPI work — decompose, research, design, plan — happens directly on
+  the main ticket's current branch. **No child subtasks** and **no separate
+  design PR/branch**. Artifacts live under `.pi/qrspi/<current-branch>/` and
+  are committed alongside the ticket's other work.
 
 ## Adding New Files and Targets
 
