@@ -57,6 +57,7 @@ struct SettingsView: View {
                             showList: $bindings.showList,
                             showRecurrence: $bindings.showRecurrence,
                             showAlarms: $bindings.showAlarms,
+                            showCompletionGlow: $bindings.showCompletionGlow,
                             viewModel: viewModel)
                     } label: {
                         Label("Reminder", systemImage: "bell.badge")

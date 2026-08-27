@@ -73,11 +73,12 @@ struct SettingsViewTests {
             showList: .constant(false),
             showRecurrence: .constant(true),
             showAlarms: .constant(true),
+            showCompletionGlow: .constant(true),
             viewModel: SettingsViewModel())
         let bodyDescription = String(describing: view.body)
 
         let expectedLabels = [
-            "Show date", "Show list", "Recurrence indicator", "Reminder alerts"
+            "Show date", "Show list", "Recurrence indicator", "Reminder alerts", "Completion glow"
         ]
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))

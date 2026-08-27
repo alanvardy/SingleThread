@@ -13,6 +13,8 @@ struct ReminderSettingsView: View {
 
     @Binding var showAlarms: Bool
 
+    @Binding var showCompletionGlow: Bool
+
     let viewModel: SettingsViewModel
 
     var body: some View {
@@ -44,6 +46,9 @@ struct ReminderSettingsView: View {
                 viewModel.showPreferenceChanged()
             }
             #endif
+            Toggle(isOn: $showCompletionGlow) {
+                Label("Completion glow", systemImage: "sparkles")
+            }
         }
         .navigationTitle("Reminder")
     }
@@ -58,6 +63,7 @@ struct ReminderSettingsView: View {
             showList: .constant(false),
             showRecurrence: .constant(true),
             showAlarms: .constant(true),
+            showCompletionGlow: .constant(true),
             viewModel: SettingsViewModel())
     }
 }
