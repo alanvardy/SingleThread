@@ -130,7 +130,7 @@ Add a new test after `resetPersistedStateClearsBackgroundEnabled` (after line ~6
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests -only-testing:SingleThreadTests/UITestingSeedTests` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests -only-testing:SingleThreadTests/UITestingSeedTests` passes
 
 #### Manual
 - [ ] None needed — persistence layer has no visible effect yet.

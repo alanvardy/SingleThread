@@ -143,6 +143,9 @@ final class AppViewModel {
                 if arguments.contains("--reset-glow-preference") {
                     UserDefaults.standard.removeObject(forKey: "showCompletionGlow")
                 }
+                if arguments.contains("--reset-swipe-preference") {
+                    UserDefaults.standard.removeObject(forKey: "showSwipePrompt")
+                }
                 UserDefaults.standard.set(true, forKey: "enableActionButtons")
                 // Build the reminder through `InMemoryEventStore.makeReminder` so it is
                 // backed by the store's persistent `EKEventStore`. A local `EKEventStore()`
