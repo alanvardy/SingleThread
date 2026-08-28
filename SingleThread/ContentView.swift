@@ -220,6 +220,16 @@ struct ContentView: View {
         ProcessInfo.processInfo.arguments.contains("--ui-testing-glow")
     }
 
+    /// iOS-only `showSwipePrompt` preference: other platforms never show the
+    /// swipe prompt, so they get a constant false binding.
+    private var swipePromptBinding: Binding<Bool> {
+        #if os(iOS)
+            $showSwipePrompt
+        #else
+            .constant(false)
+        #endif
+    }
+
     #if os(macOS)
         private var actionButtons: some View {
             HStack(spacing: 32) {
@@ -319,7 +329,8 @@ struct ContentView: View {
                                 showDate: showDate,
                                 showList: showList,
                                 showRecurrence: showRecurrence,
-                                showAlarms: showAlarms)
+                                showAlarms: showAlarms,
+                                showSwipePrompt: swipePromptBinding)
                                 .listRowBackground(viewModel.rowChromeBackground)
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 12)
