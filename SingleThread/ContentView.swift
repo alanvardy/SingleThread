@@ -122,6 +122,7 @@ struct ContentView: View {
                 #if os(iOS)
                     .onChange(of: bag.allowsLandscape) { _, new in allowsLandscape = new }
                     .onChange(of: bag.enableActionButtons) { _, new in enableActionButtons = new }
+                    .onChange(of: bag.showSwipePrompt) { _, new in showSwipePrompt = new }
                 #endif
                     .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
                     .onChange(of: bag.backgroundEnabled) { _, new in backgroundEnabled = new }
@@ -164,6 +165,11 @@ struct ContentView: View {
     #if os(iOS)
         @AppStorage("enableActionButtons")
         private var enableActionButtons = false
+    #endif
+
+    #if os(iOS)
+        @AppStorage("showSwipePrompt")
+        private var showSwipePrompt = true
     #endif
 
     @AppStorage("showUndatedReminders", store: AppGroup.defaults)
@@ -506,6 +512,7 @@ struct ContentView: View {
                 textSize: textSize,
                 allowsLandscape: allowsLandscape,
                 enableActionButtons: enableActionButtons,
+                showSwipePrompt: showSwipePrompt,
                 showMicrophoneButton: showMicrophoneButton,
                 backgroundEnabled: backgroundEnabled,
                 backgroundFadePercent: backgroundFadePercent,

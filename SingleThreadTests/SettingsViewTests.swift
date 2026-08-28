@@ -18,6 +18,14 @@ struct SettingsViewTests {
     }
 
     @Test
+    func settingsBindingsCarriesShowSwipePrompt() {
+        let bag = SettingsBindings()
+        #expect(bag.showSwipePrompt) // default enabled
+        let off = SettingsBindings(showSwipePrompt: false)
+        #expect(!off.showSwipePrompt) // explicit false round-trips
+    }
+
+    @Test
     func settingsViewContainsNavigationLinkLabels() {
         let view = SettingsView(
             bindings: SettingsBindings(),

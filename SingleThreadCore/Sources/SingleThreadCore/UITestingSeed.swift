@@ -61,6 +61,7 @@ public struct UITestingSeed {
         "sortOption",
         "enableActionButtons",
         "showMicrophoneButton",
+        "showSwipePrompt",
         "backgroundEnabled",
         "allowsLandscape",
         "textSize",

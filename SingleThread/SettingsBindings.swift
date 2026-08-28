@@ -21,6 +21,7 @@ final class SettingsBindings {
         textSize: TextSize = .system,
         allowsLandscape: Bool = true,
         enableActionButtons: Bool = false,
+        showSwipePrompt: Bool = true,
         showMicrophoneButton: Bool = true,
         backgroundEnabled: Bool = true,
         backgroundFadePercent: Int = 50,
@@ -35,6 +36,7 @@ final class SettingsBindings {
         self.textSize = textSize
         self.allowsLandscape = allowsLandscape
         self.enableActionButtons = enableActionButtons
+        self.showSwipePrompt = showSwipePrompt
         self.showMicrophoneButton = showMicrophoneButton
         self.backgroundEnabled = backgroundEnabled
         self.backgroundFadePercent = backgroundFadePercent
@@ -53,6 +55,7 @@ final class SettingsBindings {
     var textSize: TextSize
     var allowsLandscape: Bool
     var enableActionButtons: Bool
+    var showSwipePrompt: Bool
     var showMicrophoneButton: Bool
     var backgroundEnabled: Bool
     var backgroundFadePercent: Int
