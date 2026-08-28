@@ -73,7 +73,6 @@ struct SettingsViewTests {
             showRecurrence: .constant(true),
             showAlarms: .constant(true),
             showCompletionGlow: .constant(true),
-            showGuide: .constant(true),
             viewModel: SettingsViewModel())
         let bodyDescription = String(describing: view.body)
 

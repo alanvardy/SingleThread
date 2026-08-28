@@ -186,6 +186,19 @@ import os
             }
         }
 
+        /// One-shot request from the iPhone to the paired watch to show the guide
+        /// overlay again. Pushed as an isolated context (not through ``pushAll``) so
+        /// the guide can be re-requested on demand without re-showing whenever any
+        /// unrelated setting changes. The watch's receive path applies the key alone.
+        public func requestShowGuide() {
+            do {
+                try session.updateApplicationContext([PayloadKey.showGuide: true])
+            } catch {
+                let description = error.localizedDescription
+                Self.logger.error("Failed to push show-guide request: \(description, privacy: .public)")
+            }
+        }
+
         /// Ask the iPhone to complete a reminder (watch-side action).
         public func requestCompleteReminder(_ identifier: String) {
             session.sendMessage(

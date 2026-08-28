@@ -30,6 +30,10 @@ final class ContentViewModel {
         let description: String
     }
 
+    /// Invoked by the settings "Show guide again" control. Set by the app's
+    /// composition root; a no-op by default so previews and tests need not wire it.
+    var onShowGuideAgain: () -> Void = {}
+
     let store: ReminderStore
     let backgroundImage: BackgroundImageStore
     let dictation: DictationViewModel

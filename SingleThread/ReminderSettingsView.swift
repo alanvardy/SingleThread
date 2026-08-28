@@ -15,8 +15,6 @@ struct ReminderSettingsView: View {
 
     @Binding var showCompletionGlow: Bool
 
-    @Binding var showGuide: Bool
-
     let viewModel: SettingsViewModel
 
     var body: some View {
@@ -51,7 +49,12 @@ struct ReminderSettingsView: View {
             Toggle(isOn: $showCompletionGlow) {
                 Label("Completion glow", systemImage: "sparkles")
             }
-            Toggle(isOn: $showGuide) {
+            // The guide is a one-shot on-demand request, not a persisted on/off
+            // preference (so leaving it "on" can't silently stop working). A button
+            // explicitly re-requests the guide on the paired watch each tap.
+            Button {
+                viewModel.showGuideAgain()
+            } label: {
                 Label("Show guide again", systemImage: "questionmark.circle")
             }
         }
@@ -69,7 +72,6 @@ struct ReminderSettingsView: View {
             showRecurrence: .constant(true),
             showAlarms: .constant(true),
             showCompletionGlow: .constant(true),
-            showGuide: .constant(true),
             viewModel: SettingsViewModel())
     }
 }

@@ -11,6 +11,16 @@ struct SettingsViewModelTests {
 
     #if os(iOS)
         @Test
+        func showGuideAgainInvokesClosure() {
+            var requested = 0
+            let viewModel = SettingsViewModel { requested += 1 }
+            viewModel.showGuideAgain()
+            #expect(requested == 1)
+        }
+    #endif
+
+    #if os(iOS)
+        @Test
         func allowsLandscapeChangedDoesNotCrash() {
             let viewModel = SettingsViewModel()
             viewModel.allowsLandscapeChanged(true)

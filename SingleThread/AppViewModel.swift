@@ -33,7 +33,12 @@ final class AppViewModel {
                     showAlarmsStore: ShowAlarmsPreference(),
                     showCompletionGlowStore: ShowCompletionGlowPreference(),
                     showGuideStore: ShowGuidePreference(),
-                    sendsShowDate: true)
+                    // The guide is a one-shot on-demand request, not a persisted
+                    // preference. Exclude it from the routine `pushAll` snapshot so
+                    // changing any other setting doesn't re-show a dismissed guide.
+                    // Re-requesting is an explicit `requestShowGuide()` push instead.
+                    sendsShowDate: true,
+                    sendsShowGuide: false)
                 // Assign the handler before activating: the service documents a
                 // write-once-before-activate invariant, and a completion message
                 // delivered right after activation must not observe a nil (or an
@@ -91,6 +96,12 @@ final class AppViewModel {
     let usesInMemoryStore: Bool
     #if os(iOS)
         private(set) var syncService: SkippedReminderSyncService?
+
+        /// Asks the paired watch to show its guide overlay again. Remote and
+        /// watch-only: the local iPhone screen has no guide, so this only pushes.
+        func requestShowGuide() {
+            syncService?.requestShowGuide()
+        }
     #endif
 
     /// The root view model. Rebuilt on demand so the view always reflects the
@@ -100,6 +111,11 @@ final class AppViewModel {
             store: store,
             backgroundImage: backgroundImage,
             speechTranscriber: ReminderDictation())
+        #if os(iOS)
+            // Wire the settings "Show guide again" button to push the one-shot
+            // guide request to the watch (watch is the only surface that shows it).
+            viewModel.onShowGuideAgain = { [weak self] in self?.requestShowGuide() }
+        #endif
         if ProcessInfo.processInfo.arguments.contains("--ui-testing-glow") {
             // UI-test seam: keep the glow visible long enough for a
             // deterministic `exists` assertion (production duration is 0.25 s).
@@ -197,30 +213,28 @@ final class AppViewModel {
             let currentShowAlarms = ShowAlarmsPreference().isEnabled
             let currentShowList = ShowListPreference().isEnabled
             let currentShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
-            let currentShowGuide = ShowGuidePreference().isEnabled
             if currentShowDate != lastShowDate
                 || currentShowRecurrence != lastShowRecurrence
                 || currentShowAlarms != lastShowAlarms
                 || currentShowList != lastShowList
-                || currentShowCompletionGlow != lastShowCompletionGlow
-                || currentShowGuide != lastShowGuide {
+                || currentShowCompletionGlow != lastShowCompletionGlow {
                 lastShowDate = currentShowDate
                 lastShowRecurrence = currentShowRecurrence
                 lastShowAlarms = currentShowAlarms
                 lastShowList = currentShowList
                 lastShowCompletionGlow = currentShowCompletionGlow
-                lastShowGuide = currentShowGuide
                 syncService?.pushAll()
             }
         }
 
         /// Last-seen values from the App Group suite, used to detect changes.
+        /// The guide is intentionally absent: it is requested explicitly via
+        /// `requestShowGuide()`, never pushed as part of the routine snapshot.
         private var lastShowDate = ShowDatePreference().isEnabled
         private var lastShowRecurrence = ShowRecurrencePreference().isEnabled
         private var lastShowAlarms = ShowAlarmsPreference().isEnabled
         private var lastShowList = ShowListPreference().isEnabled
         private var lastShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
-        private var lastShowGuide = ShowGuidePreference().isEnabled
 
         private var syncDefaultsObserver: NSObjectProtocol?
     #endif

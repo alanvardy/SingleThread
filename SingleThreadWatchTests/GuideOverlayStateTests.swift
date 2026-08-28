@@ -1,6 +1,5 @@
-import SingleThreadCore
-@testable import SingleThreadWatch
 import SwiftUI
+@testable import SingleThreadWatch
 import Testing
 
 // Note: View-level snapshot tests for the overlay presence and dismiss

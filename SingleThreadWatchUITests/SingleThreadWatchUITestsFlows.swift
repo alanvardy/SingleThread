@@ -125,8 +125,6 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
             "No Reminders state should offer a Refresh button")
     }
 
-    // MARK: Private
-
     @MainActor
     func testGuideReappearsAfterPhoneResets() {
         let app = launchApp()
@@ -142,6 +140,8 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         // in UI testing. If this proves unreliable, this test moves to unit-test
         // coverage (the sync pipeline test already covers the receive path).
     }
+
+    // MARK: Private
 
     @MainActor
     private func launchApp() -> XCUIApplication {

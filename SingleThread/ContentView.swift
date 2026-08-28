@@ -113,7 +113,8 @@ struct ContentView: View {
                     backgroundImage: viewModel.backgroundImage,
                     availableLists: viewModel.store.availableLists,
                     excludedLists: excludedListsBinding,
-                    viewModel: SettingsViewModel())
+                    viewModel: SettingsViewModel(
+                        onShowGuideAgain: viewModel.onShowGuideAgain))
                     // The bag is a plain in-memory holder; write each changed
                     // value back to the @AppStorage-backed property so settings
                     // survive relaunch (mirrors the old direct-bind behavior).
@@ -133,7 +134,6 @@ struct ContentView: View {
                     .onChange(of: bag.showRecurrence) { _, new in showRecurrence = new }
                     .onChange(of: bag.showAlarms) { _, new in showAlarms = new }
                     .onChange(of: bag.showCompletionGlow) { _, new in showCompletionGlow = new }
-                    .onChange(of: bag.showGuide) { _, new in showGuide = new }
             }
         }
     }
@@ -186,9 +186,6 @@ struct ContentView: View {
 
     @AppStorage("showCompletionGlow", store: AppGroup.defaults)
     private var showCompletionGlow = true
-
-    @AppStorage("showGuide", store: AppGroup.defaults)
-    private var showGuide = true
 
     @State private var isShowingSettings = false
 
@@ -519,8 +516,7 @@ struct ContentView: View {
                 showList: showList,
                 showRecurrence: showRecurrence,
                 showAlarms: showAlarms,
-                showCompletionGlow: showCompletionGlow,
-                showGuide: showGuide)
+                showCompletionGlow: showCompletionGlow)
         #else
             SettingsBindings(
                 appearanceMode: appearanceMode,
@@ -534,8 +530,7 @@ struct ContentView: View {
                 showList: showList,
                 showRecurrence: showRecurrence,
                 showAlarms: showAlarms,
-                showCompletionGlow: showCompletionGlow,
-                showGuide: showGuide)
+                showCompletionGlow: showCompletionGlow)
         #endif
     }
 }

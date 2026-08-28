@@ -469,6 +469,17 @@ struct WatchSyncPipelineTests {
         let context = try #require(fake.lastContext)
         #expect(context["showGuide"] != nil)
     }
+
+    @Test
+    func requestShowGuidePushesTrue() throws {
+        let fake = WatchFakeSession()
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-request-guide-ids-\\(UUID().uuidString)"))
+        service.requestShowGuide()
+        let context = try #require(fake.lastContext)
+        #expect(context["showGuide"] as? Bool == true)
+    }
 }
 
 /// Builds a reminder that lives in a calendar titled `list`, so exclusion
