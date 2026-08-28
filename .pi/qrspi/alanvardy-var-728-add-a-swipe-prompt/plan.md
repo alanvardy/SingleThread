@@ -213,7 +213,7 @@ In the `#if os(iOS)` branch (line ~40-46):
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests` passes
 
 #### Manual
 - [ ] Build & run on simulator → Settings → Interface, confirm "Show swipe prompt" toggle appears, defaults ON

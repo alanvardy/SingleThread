@@ -38,6 +38,7 @@ struct SettingsView: View {
                                 allowsLandscape: $bindings.allowsLandscape,
                                 showMicrophoneButton: $bindings.showMicrophoneButton,
                                 enableActionButtons: $bindings.enableActionButtons,
+                                showSwipePrompt: $bindings.showSwipePrompt,
                                 viewModel: viewModel)
                         #else
                             InterfaceSettingsView(

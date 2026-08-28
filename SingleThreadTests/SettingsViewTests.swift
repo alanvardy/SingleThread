@@ -52,6 +52,7 @@ struct SettingsViewTests {
                 allowsLandscape: .constant(true),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
+                showSwipePrompt: .constant(true),
                 viewModel: SettingsViewModel())
         #else
             let view = InterfaceSettingsView(
@@ -66,7 +67,7 @@ struct SettingsViewTests {
             "Appearance", "Text Size", "Show microphone"
         ]
         #if os(iOS)
-            expectedLabels += ["Allow landscape", "Show action buttons"]
+            expectedLabels += ["Allow landscape", "Show action buttons", "Show swipe prompt"]
         #endif
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
