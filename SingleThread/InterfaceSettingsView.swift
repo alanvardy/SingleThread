@@ -20,6 +20,10 @@ struct InterfaceSettingsView: View {
         @Binding var enableActionButtons: Bool
     #endif
 
+    #if os(iOS)
+        @Binding var showSwipePrompt: Bool
+    #endif
+
     let viewModel: SettingsViewModel
 
     var body: some View {
@@ -51,6 +55,9 @@ struct InterfaceSettingsView: View {
                 Toggle(isOn: $enableActionButtons) {
                     Label("Show action buttons", systemImage: "hand.tap")
                 }
+                Toggle(isOn: $showSwipePrompt) {
+                    Label("Show swipe prompt", systemImage: "arrow.left.arrow.right")
+                }
             #endif
         }
         .navigationTitle("Interface")
@@ -68,6 +75,7 @@ struct InterfaceSettingsView: View {
                 allowsLandscape: .constant(true),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
+                showSwipePrompt: .constant(true),
                 viewModel: SettingsViewModel())
         #else
             InterfaceSettingsView(
