@@ -2,7 +2,7 @@ import SingleThreadCore
 import SwiftUI
 
 /// The reminder card content: priority marker + title, the optional due-date
-/// and list-name rows, and notes.
+/// and list-name rows, notes, and the dismissible swipe-instruction prompt.
 ///
 /// Lives outside `List` so the due-date gate stays observable in
 /// string-snapshot tests — `List` type-erases `if` conditionals to a stable
@@ -15,17 +15,70 @@ struct ReminderCardView: View {
         showDate: Bool,
         showList: Bool = false,
         showRecurrence: Bool = true,
-        showAlarms: Bool = true) {
+        showAlarms: Bool = true,
+        showSwipePrompt: Binding<Bool> = .constant(false)) {
         self.display = display
         self.showDate = showDate
         self.showList = showList
         self.showRecurrence = showRecurrence
         self.showAlarms = showAlarms
+        _showSwipePrompt = showSwipePrompt
     }
 
     // MARK: Internal
 
     var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            content
+            if showSwipePrompt {
+                prompt
+            }
+        }
+        // The card text always sits on its own small, content-sized high-contrast
+        // plate (off-white in light, black in dark) so it stays readable over the
+        // photo or the wallpaper on every device. The padding pair grows the view
+        // to fit the plate, then restores the original outer geometry so list
+        // metrics are unchanged.
+        .padding(12)
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Self.plateFill(for: colorScheme))
+        }
+        .padding(-12)
+    }
+
+    /// Small content-sized high-contrast plate behind the card text: off-white in
+    /// light, black in dark, so the text stays readable over a photo or wallpaper.
+    /// Extracted because the rendered paint can't be asserted headlessly — tests
+    /// assert this decision instead.
+    static func plateFill(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? Color.black : Color(red: 0.96, green: 0.95, blue: 0.94)
+    }
+
+    // MARK: Private
+
+    @Environment(\.colorScheme)
+    private var colorScheme
+
+    /// Bound to the app's persisted `showSwipePrompt` preference; the Dismiss
+    /// button writes `false` through this binding.
+    @Binding private var showSwipePrompt: Bool
+
+    private let display: ReminderDisplay
+    private let showDate: Bool
+    private let showList: Bool
+
+    /// True when the recurrence indicator row is shown.
+    private let showRecurrence: Bool
+
+    /// True when the alarm indicator row is shown.
+    private let showAlarms: Bool
+
+    /// The card's reminder content, combined into a single accessible element so
+    /// VoiceOver reads the whole card as one unit. The swipe-instruction prompt
+    /// lives outside this subtree so its Dismiss button stays individually
+    /// reachable.
+    private var content: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 if let level = ReminderPriority.level(forMarker: display.priorityMarker) {
@@ -78,41 +131,26 @@ struct ReminderCardView: View {
         // size-checks each small child (marker / notes rows fall below 44pt). This is
         // a genuine app-wide accessibility improvement, not just a test escape.
         .accessibilityElement(children: .combine)
-        // The card text always sits on its own small, content-sized high-contrast
-        // plate (off-white in light, black in dark) so it stays readable over the
-        // photo or the wallpaper on every device. The padding pair grows the view
-        // to fit the plate, then restores the original outer geometry so list
-        // metrics are unchanged.
-        .padding(12)
-        .background {
-            RoundedRectangle(cornerRadius: 10)
-                .fill(Self.plateFill(for: colorScheme))
+    }
+
+    /// Instructs the user that swiping left skips and swiping right completes.
+    /// Visual-only: the text is hidden from accessibility (VoiceOver users know
+    /// the swipe-gesture vocabulary), but the Dismiss button stays reachable.
+    private var prompt: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("← Swipe left to skip  |  Swipe right to complete →")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
+            Button {
+                showSwipePrompt = false
+            } label: {
+                Text("Dismiss")
+                    .font(.caption)
+            }
+            .accessibilityLabel("Dismiss swipe prompt")
         }
-        .padding(-12)
     }
-
-    /// Small content-sized high-contrast plate behind the card text: off-white in
-    /// light, black in dark, so the text stays readable over a photo or wallpaper.
-    /// Extracted because the rendered paint can't be asserted headlessly — tests
-    /// assert this decision instead.
-    static func plateFill(for colorScheme: ColorScheme) -> Color {
-        colorScheme == .dark ? Color.black : Color(red: 0.96, green: 0.95, blue: 0.94)
-    }
-
-    // MARK: Private
-
-    @Environment(\.colorScheme)
-    private var colorScheme
-
-    private let display: ReminderDisplay
-    private let showDate: Bool
-    private let showList: Bool
-
-    /// True when the recurrence indicator row is shown.
-    private let showRecurrence: Bool
-
-    /// True when the alarm indicator row is shown.
-    private let showAlarms: Bool
 
     private func priorityColor(_ level: ReminderPriority.Level) -> Color {
         switch level {
