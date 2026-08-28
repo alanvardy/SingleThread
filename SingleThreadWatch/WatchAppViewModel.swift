@@ -45,6 +45,23 @@ final class WatchAppViewModel {
         showCompletionGlowState = ShowCompletionGlowState()
         showGuideState = ShowGuideState()
 
+        // --ui-testing-glow-disabled: pre-disable the state so the disabled-flow
+        // watch UI test doesn't need a settings screen. --ui-testing-glow:
+        // force-enable so the enabled-flow test never inherits a `false` persisted
+        // by an earlier disabled-flow test in the same UI-test session (both tests
+        // relaunch the same app install, so UserDefaults carries across).
+        if arguments.contains("--ui-testing-glow-disabled") {
+            showCompletionGlowState.apply(false)
+        } else if arguments.contains("--ui-testing-glow") {
+            showCompletionGlowState.apply(true)
+        }
+        isGlowUITesting = arguments.contains("--ui-testing-glow")
+        if isGlowUITesting {
+            // UI-test seam: keep the glow visible long enough for a deterministic
+            // `waitForExistence` assertion (production duration is 0.5 s).
+            reminderViewModel.completionGlow.duration = 2.0
+        }
+
         setupSyncService(arguments: arguments)
     }
 
@@ -58,16 +75,24 @@ final class WatchAppViewModel {
     let showCompletionGlowState: ShowCompletionGlowState
     let showGuideState: ShowGuideState
 
-    var reminderViewModel: WatchReminderViewModel {
-        WatchReminderViewModel(
-            store: store,
-            showDateState: showDateState,
-            showRecurrenceState: showRecurrenceState,
-            showAlarmsState: showAlarmsState,
-            showListState: showListState,
-            showCompletionGlowState: showCompletionGlowState,
-            showGuideState: showGuideState)
-    }
+    /// True when the `--ui-testing-glow` launch argument is present (watch
+    /// completion-glow UI tests). The seam extends the glow duration to 2 s so
+    /// `waitForExistence` is deterministic.
+    let isGlowUITesting: Bool
+
+    /// The root reminder view model. Stored — not rebuilt on every access — so
+    /// the UI-test seam can extend the completion-glow duration on the same
+    /// instance the view renders, and so `completeCurrentReminder()` state
+    /// (including the gate on `showCompletionGlowState`) survives view body
+    /// re-evaluations.
+    lazy var reminderViewModel = WatchReminderViewModel(
+        store: store,
+        showDateState: showDateState,
+        showRecurrenceState: showRecurrenceState,
+        showAlarmsState: showAlarmsState,
+        showListState: showListState,
+        showCompletionGlowState: showCompletionGlowState,
+        showGuideState: showGuideState)
 
     // MARK: Private
 

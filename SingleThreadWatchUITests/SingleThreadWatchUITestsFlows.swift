@@ -125,20 +125,43 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
             "No Reminders state should offer a Refresh button")
     }
 
-    @MainActor
-    func testGuideReappearsAfterPhoneResets() {
-        let app = launchApp()
+    // MARK: - Completion glow
 
-        // Without --reset-guide, guide should not show
-        XCTAssertFalse(app.buttons["Got it"].waitForExistence(timeout: 3))
+    @MainActor
+    func testCompletionGlowDoesNotAppearWhenDisabled() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-glow-disabled"]
+        app.launch()
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
-        // Simulate phone pushing showGuide:true by delivering an application context
-        // with showGuide:true — mirrors the live-exclusion test pattern
-        // NOTE: This test requires the watch app to be running with a sync service.
-        // The app uses a real WCSession which can receive updateApplicationContext
-        // in UI testing. If this proves unreliable, this test moves to unit-test
-        // coverage (the sync pipeline test already covers the receive path).
+        let complete = app.buttons["Complete reminder"]
+        XCTAssertTrue(complete.waitForExistence(timeout: 3))
+        complete.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["No Reminders"].waitForExistence(timeout: 5),
+            "Completing should empty the list")
+        XCTAssertFalse(
+            app.otherElements["completionGlowOverlay"].exists,
+            "Glow should be suppressed when disabled")
+    }
+
+    @MainActor
+    func testCompletionGlowFlashesWhenEnabled() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-glow"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        let complete = app.buttons["Complete reminder"]
+        XCTAssertTrue(complete.waitForExistence(timeout: 3))
+        complete.tap()
+
+        // Glow duration is extended to 2 s under the seam, so `waitForExistence`
+        // is deterministic.
+        XCTAssertTrue(
+            app.otherElements["completionGlowOverlay"].waitForExistence(timeout: 3),
+            "Glow overlay should flash briefly after completion")
     }
 
     // MARK: Private

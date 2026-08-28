@@ -21,8 +21,10 @@ public final class CompletionGlow {
     public private(set) var isActive = false
 
     /// Seconds the glow stays visible before auto‑dismissing.
-    /// Injectable for tests (e.g. 0.05 s); default 0.25 s.
-    public var duration: TimeInterval = 0.25
+    /// Injectable for tests (e.g. 0.05 s); default 0.50 s — the 0.4 s
+    /// animation envelope on watchOS otherwise fades the glow out before
+    /// it is perceptible.
+    public var duration: TimeInterval = 0.50
 
     /// Shows the glow, resetting the auto‑dismiss timer if already active.
     /// Calling this multiple times in quick succession keeps the glow

@@ -66,6 +66,12 @@ struct WatchReminderView: View {
 
     private let viewModel: WatchReminderViewModel
 
+    /// True only for the completion-glow UI test; production always hides the
+    /// overlay from accessibility (unchanged behavior for real users).
+    private var isGlowUITesting: Bool {
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-glow")
+    }
+
     // MARK: - Content
 
     private var reminderContent: some View {
@@ -147,12 +153,17 @@ struct WatchReminderView: View {
 
     /// Decorative full-screen green flash. Passes touches through and stays out
     /// of the accessibility tree; fades via the `.animation` on `reminderContent`.
+    /// During the completion-glow UI test the overlay is exposed to accessibility
+    /// so an XCUITest can observe it.
     private var completionGlowOverlay: some View {
         Color.green
             .opacity(0.3)
             .ignoresSafeArea()
             .allowsHitTesting(false)
-            .accessibilityHidden(true)
+            .accessibilityHidden(!isGlowUITesting)
+            .accessibilityElement(children: .ignore)
+            .accessibilityIdentifier("completionGlowOverlay")
+            .accessibilityLabel("Completion glow")
             .transition(.opacity)
     }
 
