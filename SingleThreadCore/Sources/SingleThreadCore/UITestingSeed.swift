@@ -59,6 +59,8 @@ public struct UITestingSeed {
         "showCompletionGlow",
         "showUndatedReminders",
         "sortOption",
+        "completionCount",
+        "isEntitled",
         "enableActionButtons",
         "showMicrophoneButton",
         "showSwipePrompt",
