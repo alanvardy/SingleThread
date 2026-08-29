@@ -27,6 +27,13 @@ struct ReminderCardView: View {
 
     // MARK: Internal
 
+    /// Dark grey plate behind the swipe instructions and Dismiss button so the
+    /// coloured hints read as one dismissible prompt on the card — in both the
+    /// off-white (light) and black (dark) card-plate modes. Extracted because
+    /// the rendered paint can't be asserted headlessly — tests assert this
+    /// decision instead.
+    static let promptBoxFill = Color(red: 0.16, green: 0.17, blue: 0.18)
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             content
@@ -137,25 +144,51 @@ struct ReminderCardView: View {
     /// Visual-only: the text is hidden from accessibility (VoiceOver users know
     /// the swipe-gesture vocabulary), but the Dismiss button stays reachable.
     private var prompt: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text("← Swipe left to skip  |  Swipe right to complete →")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .accessibilityHidden(true)
+        VStack(spacing: 10) {
+            HStack(spacing: 8) {
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.left")
+                    Text("Swipe left to skip")
+                }
+                .foregroundStyle(.orange)
+
+                Text("|")
+                    .foregroundStyle(.white.opacity(0.5))
+
+                HStack(spacing: 4) {
+                    Text("Swipe right to complete")
+                    Image(systemName: "arrow.right")
+                }
+                .foregroundStyle(.green)
+            }
+            .font(.caption)
+            .accessibilityHidden(true)
+
             Button {
                 showSwipePrompt = false
             } label: {
                 Text("Dismiss")
-                    .font(.caption)
+                    .font(.caption.bold())
+                    .foregroundStyle(.black)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 8)
             }
+            .buttonStyle(.borderedProminent)
+            .tint(.white)
             // Caption-sized text alone falls below the 44pt accessibility
             // hit-region minimum; stretch the button's frame vertically so
             // the hit area passes the audit. Padding on the label content
             // does not expand the accessibility frame, so it goes on the
             // button itself.
-            .padding(.vertical, 15)
+            .padding(.vertical, 8)
             .contentShape(Rectangle())
             .accessibilityLabel("Dismiss swipe prompt")
+        }
+        .frame(maxWidth: .infinity)
+        .padding(12)
+        .background {
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Self.promptBoxFill)
         }
     }
 
