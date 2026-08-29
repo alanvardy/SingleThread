@@ -10,14 +10,29 @@ struct SwipePromptTests {
     @Test
     func promptShownWhenEnabled() {
         let description = String(describing: makeCard(showSwipePrompt: true).body)
-        #expect(description.contains("← Swipe left to skip"))
+        #expect(description.contains("Swipe left to skip"))
+        #expect(description.contains("Swipe right to complete"))
+        // The hints sit on a rounded dark-grey plate with the skip hint orange
+        // and the complete hint green (the swipe actions' own tint colors).
+        #expect(description.contains("RoundedRectangle"))
+        #expect(description.contains("style: orange"))
+        #expect(description.contains("style: green"))
         #expect(description.contains("Dismiss"))
     }
 
     @Test
     func promptHiddenWhenDisabled() {
         let description = String(describing: makeCard(showSwipePrompt: false).body)
-        #expect(!description.contains("← Swipe left to skip"))
+        #expect(!description.contains("Swipe left to skip"))
+    }
+
+    /// The prompt sits on a dark grey plate so the coloured hints read against
+    /// both the off-white (light) and black (dark) card plates. The rendered
+    /// paint can't be asserted headlessly, so the decision is asserted directly
+    /// (same rationale as `plateFill`).
+    @Test
+    func promptBoxIsDarkGrey() {
+        #expect(ReminderCardView.promptBoxFill == Color(red: 0.16, green: 0.17, blue: 0.18))
     }
 
     @Test
@@ -27,8 +42,10 @@ struct SwipePromptTests {
         // `String(describing:)` (see ActionButtonTests), but it does reflect the
         // `AccessibilityAttachmentModifier` on the Dismiss button. The label
         // value itself is asserted by the Phase 4 UI test via
-        // `app.buttons["Dismiss swipe prompt"]`.
-        #expect(description.contains("Button<Text>"))
+        // `app.buttons["Dismiss swipe prompt"]`. The bordered-prominent style
+        // pins the rounded-button treatment.
+        #expect(description.contains("Button<"))
+        #expect(description.contains("BorderedProminentButtonStyle"))
         #expect(description.contains("AccessibilityAttachmentModifier"))
     }
 
