@@ -148,9 +148,9 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
         // Back to root, then into Privacy.
         app.navigationBars.buttons.firstMatch.tap()
-        app.staticTexts["Privacy"].tap()
+        app.staticTexts["Privacy Policy"].tap()
         XCTAssertTrue(
-            app.navigationBars["Privacy"].waitForExistence(timeout: 2),
+            app.navigationBars["Privacy Policy"].waitForExistence(timeout: 2),
             "Privacy screen should be pushed with its own navigation title")
         XCTAssertTrue(
             app.staticTexts["Skipped & Excluded Lists"].waitForExistence(timeout: 2),
@@ -414,5 +414,104 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(
             app.otherElements["completionGlowOverlay"].waitForExistence(timeout: 3),
             "Glow overlay should flash briefly after completion")
+    }
+
+    // MARK: - Swipe prompt
+
+    /// The prompt text is accessibility-hidden (design requirement) so the only
+    /// observable element is the Dismiss button. `--reset-swipe-preference`
+    /// clears the persistent key so the prompt deterministically defaults ON.
+    @MainActor
+    func testSwipePromptAppearsUnderUITesting() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--reset-swipe-preference"]
+        app.launch()
+
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+        XCTAssertTrue(
+            app.buttons["Dismiss swipe prompt"].waitForExistence(timeout: 3),
+            "Swipe prompt should be visible under --ui-testing")
+    }
+
+    /// Uses `--ui-testing` (not `--seed`) for both launches: seeding calls
+    /// `resetPersistedState()` and would wipe the key under test.
+    @MainActor
+    func testDismissSwipePromptHidesItAndPersistsAcrossRelaunch() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--reset-swipe-preference"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        // Dismiss the prompt.
+        let dismissButton = app.buttons["Dismiss swipe prompt"]
+        XCTAssertTrue(dismissButton.waitForExistence(timeout: 3))
+        dismissButton.tap()
+
+        // Prompt should be gone.
+        XCTAssertFalse(
+            dismissButton.exists,
+            "Prompt should be gone after Dismiss tap")
+
+        app.terminate()
+
+        // Relaunch with --ui-testing (NOT --seed — that would reset persisted state).
+        let relaunched = XCUIApplication()
+        relaunched.launchArguments = ["--ui-testing"]
+        relaunched.launch()
+        XCTAssertTrue(relaunched.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+        XCTAssertFalse(
+            relaunched.buttons["Dismiss swipe prompt"].exists,
+            "Prompt should stay gone across relaunch after Dismiss")
+    }
+
+    /// The Settings toggle flips the same persisted key; verify the round-trip
+    /// off → on through the Interface Settings screen.
+    @MainActor
+    func testSwipePromptToggleRoundTripsViaSettings() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--reset-swipe-preference"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        // Open Settings → Interface.
+        app.buttons["Settings"].tap()
+        XCTAssertTrue(app.staticTexts["Interface"].waitForExistence(timeout: 3))
+        app.staticTexts["Interface"].tap()
+
+        // Toggle should be ON by default.
+        let toggle = app.switches["Show swipe prompt"]
+        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
+        XCTAssertEqual(toggle.value as? String, "1", "Show swipe prompt should default to on")
+
+        // Flip it off.
+        XCTAssertTrue(flipToggle(toggle), "Tapping should disable the prompt")
+
+        // Back to root, Done.
+        app.navigationBars.buttons.firstMatch.tap()
+        app.buttons["Done"].tap()
+
+        // Prompt should no longer appear on the main screen.
+        XCTAssertFalse(
+            app.buttons["Dismiss swipe prompt"].exists,
+            "Prompt should be hidden after toggling off in Settings")
+
+        // Re-open Settings → Interface, verify toggle value persists.
+        app.buttons["Settings"].tap()
+        app.staticTexts["Interface"].tap()
+        let toggleAfterReopen = app.switches["Show swipe prompt"]
+        XCTAssertTrue(toggleAfterReopen.waitForExistence(timeout: 3))
+        XCTAssertEqual(
+            toggleAfterReopen.value as? String, "0",
+            "Show swipe prompt should still be off after closing Settings")
+
+        // Flip it back on.
+        XCTAssertTrue(flipToggle(toggleAfterReopen, target: "1"), "Tapping should re-enable the prompt")
+        app.navigationBars.buttons.firstMatch.tap()
+        app.buttons["Done"].tap()
+
+        // Prompt should be visible again.
+        XCTAssertTrue(
+            app.buttons["Dismiss swipe prompt"].waitForExistence(timeout: 3),
+            "Prompt should reappear after re-enabling in Settings")
     }
 }

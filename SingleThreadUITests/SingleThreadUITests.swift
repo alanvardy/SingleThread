@@ -26,7 +26,10 @@ final class SingleThreadUITests: XCTestCase {
     @MainActor
     func testAccessibilityAudit() throws {
         let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing"]
+        // --reset-swipe-preference clears the persisted key so the swipe
+        // prompt (accessibility-hidden text + accessible Dismiss button)
+        // deterministically renders during the audit.
+        app.launchArguments = ["--ui-testing", "--reset-swipe-preference"]
         app.launch()
 
         // With --ui-testing, the app instantiates an empty store

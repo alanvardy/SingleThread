@@ -148,6 +148,13 @@ struct ReminderCardView: View {
                 Text("Dismiss")
                     .font(.caption)
             }
+            // Caption-sized text alone falls below the 44pt accessibility
+            // hit-region minimum; stretch the button's frame vertically so
+            // the hit area passes the audit. Padding on the label content
+            // does not expand the accessibility frame, so it goes on the
+            // button itself.
+            .padding(.vertical, 15)
+            .contentShape(Rectangle())
             .accessibilityLabel("Dismiss swipe prompt")
         }
     }
