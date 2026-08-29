@@ -252,9 +252,9 @@ Note: Xcode auto-discovers new `.swift` files; no pbxproj edits needed.
 
 #### Automated
 
-- [ ] `./scripts/test.sh` passes — specifically `CompletionCounterStoreTests` suite is green
-- [ ] `make lint` passes (SwiftLint `--strict`)
-- [ ] `make format` applies without changes
+- [x] `./scripts/test.sh` passes — specifically `CompletionCounterStoreTests` suite is green
+- [x] `make lint` passes (SwiftLint `--strict`)
+- [x] `make format` applies without changes
 
 #### Manual
 
