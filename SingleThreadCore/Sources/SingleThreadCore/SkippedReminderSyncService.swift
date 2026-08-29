@@ -244,6 +244,7 @@ import os
             static let showAlarms = "showAlarms"
             static let showList = "showList"
             static let showCompletionGlow = "showCompletionGlow"
+            static let entitled = "isEntitled"
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")

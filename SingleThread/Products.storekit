@@ -1,0 +1,24 @@
+{
+  "identifier" : "05D6F4BA",
+  "nonRenewingSubscriptions" : [],
+  "products" : [
+    {
+      "displayName" : "Unlock",
+      "family" : "com.alanvardy.SingleThread.unlock",
+      "type" : "nonConsumable",
+      "subscriptionGroupID" : "",
+      "hostBundleID" : "app.alanvardy.SingleThread",
+      "referenceName" : "Unlock",
+      "price" : [
+        [
+          "USD",
+          2.99
+        ]
+      ],
+      "id" : "com.alanvardy.SingleThread.unlock"
+    }
+  ],
+  "consumableProducts" : [],
+  "autoRenewableSubscriptions" : [],
+  "subscriptionGroups" : []
+}
