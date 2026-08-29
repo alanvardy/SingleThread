@@ -496,8 +496,8 @@ The audit test `testAccessibilityAudit()` launches with `--ui-testing`, which pr
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/SingleThreadUITestsFlows` — all flow tests pass including the three new ones
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/SingleThreadUITests` — accessibility audit passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/SingleThreadUITestsFlows` — all flow tests pass including the three new ones
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/SingleThreadUITests` — accessibility audit passes
 
 #### Manual
 - [ ] Build & run on simulator, verify prompt → Dismiss → Settings toggle round-trip all work visually
@@ -509,7 +509,7 @@ The audit test `testAccessibilityAudit()` launches with `--ui-testing`, which pr
 
 After all four phases are complete:
 
-- [ ] `./scripts/test.sh` passes end-to-end (format, lint, build, periphery, unit tests, UI tests)
+- [x] `./scripts/test.sh` passes end-to-end (format, lint, build, periphery, unit tests, UI tests)
 
 ---
 

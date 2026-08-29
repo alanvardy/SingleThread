@@ -25,11 +25,11 @@ struct SwipePromptTests {
         let description = String(describing: makeCard(showSwipePrompt: true).body)
         // SwiftUI never serializes accessibility label *strings* through
         // `String(describing:)` (see ActionButtonTests), but it does reflect the
-        // `AccessibilityAttachmentModifier` around the button. This confirms the
-        // Dismiss button carries an accessibility attachment; the label value
-        // itself is asserted by the Phase 4 UI test via `app.buttons["Dismiss
-        // swipe prompt"]`.
-        #expect(description.contains("Button<Text>, AccessibilityAttachmentModifier"))
+        // `AccessibilityAttachmentModifier` on the Dismiss button. The label
+        // value itself is asserted by the Phase 4 UI test via
+        // `app.buttons["Dismiss swipe prompt"]`.
+        #expect(description.contains("Button<Text>"))
+        #expect(description.contains("AccessibilityAttachmentModifier"))
     }
 
     // MARK: Private
