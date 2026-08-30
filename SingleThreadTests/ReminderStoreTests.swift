@@ -2,6 +2,11 @@ import EventKit
 @testable import SingleThreadCore
 import Testing
 
+// The Undo completion suite keeps this file above the `file_length` warning
+// threshold (650); the shared file-scoped `makeReminder` fixtures require the
+// suites to live together.
+// swiftlint:disable file_length
+
 @MainActor
 @Suite(.serialized)
 struct ReminderStoreTests {
@@ -495,6 +500,131 @@ struct ReminderStoreTests {
         #expect(store.allSkipped)
     }
 }
+
+// MARK: - Undo completion
+
+#if !os(watchOS)
+    @MainActor
+    @Suite(.serialized)
+    struct UndoCompletionTests {
+        @Test
+        func completeRetainsInUndoStore() async {
+            let rem = makeReminder(title: "A")
+            let store = ReminderStore(
+                eventStore: InMemoryEventStore(),
+                loadsReminders: false,
+                reminders: [rem],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess)
+            _ = await store.completeReminder(identifier: rem.calendarItemIdentifier)
+            #expect(store.undoStore.hasUndoableReminder)
+            #expect(store.undoStore.lastCompletedReminder === rem)
+        }
+
+        @Test
+        func undoLastCompletionRevertsReminder() async {
+            let rem = makeReminder(title: "A")
+            let store = ReminderStore(
+                eventStore: InMemoryEventStore(),
+                loadsReminders: false,
+                reminders: [rem],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess)
+            _ = await store.completeReminder(identifier: rem.calendarItemIdentifier)
+            #expect(rem.isCompleted)
+            let undone = await store.undoLastCompletion()
+            #expect(undone)
+            #expect(!rem.isCompleted)
+        }
+
+        @Test
+        func undoLastCompletionClearsUndoStore() async {
+            let rem = makeReminder(title: "A")
+            let store = ReminderStore(
+                eventStore: InMemoryEventStore(),
+                loadsReminders: false,
+                reminders: [rem],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess)
+            _ = await store.completeReminder(identifier: rem.calendarItemIdentifier)
+            _ = await store.undoLastCompletion()
+            #expect(!store.undoStore.hasUndoableReminder)
+        }
+
+        @Test
+        func secondCompleteOverwritesUndoStore() async {
+            let remA = makeReminder(title: "A")
+            let remB = makeReminder(title: "B")
+            let store = ReminderStore(
+                eventStore: InMemoryEventStore(),
+                loadsReminders: false,
+                reminders: [remA, remB],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess)
+            _ = await store.completeReminder(identifier: remA.calendarItemIdentifier)
+            #expect(store.undoStore.lastCompletedReminder === remA)
+            _ = await store.completeReminder(identifier: remB.calendarItemIdentifier)
+            #expect(store.undoStore.lastCompletedReminder === remB)
+            // Undo B — A is gone permanently
+            _ = await store.undoLastCompletion()
+            #expect(!remB.isCompleted)
+            #expect(remA.isCompleted) // A stays completed
+        }
+
+        @Test
+        func undoReturnsFalseWhenNoRetainedReminder() async {
+            let rem = makeReminder(title: "A")
+            let store = ReminderStore(
+                eventStore: InMemoryEventStore(),
+                loadsReminders: false,
+                reminders: [rem],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess)
+            let undone = await store.undoLastCompletion()
+            #expect(!undone)
+        }
+
+        @Test
+        func undoReturnsFalseWhenGated() async {
+            let key = UUID().uuidString
+            UserDefaults.standard.set(100, forKey: key)
+            let counter = CompletionCounterStore(defaults: .standard, key: key)
+            let rem = makeReminder(title: "A")
+            let store = ReminderStore(
+                eventStore: InMemoryEventStore(),
+                loadsReminders: false,
+                reminders: [rem],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess,
+                completionCounter: counter,
+                entitlementStore: EntitlementStore(testingWithEntitled: false))
+            // Manually stash a reminder (simulating a prior completion before
+            // the gate closed; the complete itself would have been gated).
+            store.undoStore.retain(rem)
+            let undone = await store.undoLastCompletion()
+            #expect(!undone)
+        }
+
+        @Test
+        func undoDecrementsCompletionCounter() async {
+            let key = UUID().uuidString
+            let defaults = UserDefaults.standard
+            let counter = CompletionCounterStore(defaults: defaults, key: key)
+            let rem = makeReminder(title: "A")
+            let store = ReminderStore(
+                eventStore: InMemoryEventStore(),
+                loadsReminders: false,
+                reminders: [rem],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess,
+                completionCounter: counter)
+            _ = await store.completeReminder(identifier: rem.calendarItemIdentifier)
+            #expect(counter.count == 1)
+            _ = await store.undoLastCompletion()
+            #expect(counter.count == 0) // swiftlint:disable:this empty_count
+        }
+    }
+#endif
 
 // MARK: - makeReminder test seam
 

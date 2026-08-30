@@ -3,8 +3,9 @@ import Foundation
 /// Tracks the lifetime completion count in App Group UserDefaults.
 ///
 /// The counter starts at 0 and increments by exactly 1 per successful EventKit
-/// save inside `ReminderStore.completeReminder`. It is never decremented or
-/// reset in production. Tests inject UUID-keyed stores for isolation.
+/// save inside `ReminderStore.completeReminder`. It is only decremented by
+/// undo; it is never reset in production. Tests inject UUID-keyed stores for
+/// isolation.
 public struct CompletionCounterStore {
     // MARK: Lifecycle
 
@@ -26,6 +27,13 @@ public struct CompletionCounterStore {
     /// Increments the counter by 1.
     public func increment() {
         defaults.set(count + 1, forKey: key)
+    }
+
+    /// Decrements the counter by 1, clamping at zero so the count never
+    /// goes negative. Only called by undo; not called in normal production.
+    public func decrement() {
+        let current = count
+        defaults.set(max(0, current - 1), forKey: key)
     }
 
     /// Resets the counter to 0. Test-only; not called in production.

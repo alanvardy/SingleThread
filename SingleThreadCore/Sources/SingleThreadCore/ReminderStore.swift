@@ -97,6 +97,10 @@ public final class ReminderStore {
     /// `canMutate` to gate Complete/Skip/Delete after the free tier cap.
     public let entitlementStore: EntitlementStore
 
+    /// Transient undo store — holds the most-recently completed reminder
+    /// so the user can revert it. iOS-only; not persisted.
+    public let undoStore = UndoStore()
+
     /// When `true`, `reload()` fetches with a nil/nil date predicate and keeps
     /// undated reminders plus dated reminders still inside the current window.
     /// Each surface sets this before its own `reload()` (phone from the Settings
@@ -177,6 +181,7 @@ public final class ReminderStore {
                 reminder.isCompleted = true
                 try eventStore.save(reminder, commit: true)
                 completionCounter.increment()
+                undoStore.retain(reminder)
                 try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
                 await reload()
                 return true
@@ -192,6 +197,31 @@ public final class ReminderStore {
         guard let reminder = visibleReminders.first else { return false }
         return await completeReminder(identifier: reminder.calendarItemIdentifier)
     }
+
+    #if !os(watchOS)
+        /// Reverts the most-recent completion: sets `isCompleted = false` on
+        /// the retained reminder, saves to EventKit, decrements the counter,
+        /// clears the undo store, and reloads. Returns `false` when there is
+        /// nothing to undo or mutation is gated.
+        @discardableResult
+        public func undoLastCompletion() async -> Bool {
+            guard canMutate, let reminder = undoStore.lastCompletedReminder else {
+                return false
+            }
+            do {
+                reminder.isCompleted = false
+                try eventStore.save(reminder, commit: true)
+                completionCounter.decrement()
+                undoStore.clear()
+                try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
+                await reload()
+                return true
+            } catch {
+                Self.logger.error("Failed to undo completion: \(error.localizedDescription, privacy: .public)")
+                return false
+            }
+        }
+    #endif
 
     /// Deletes a specific reminder by identifier.
     ///
