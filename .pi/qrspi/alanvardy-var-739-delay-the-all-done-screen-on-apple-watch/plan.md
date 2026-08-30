@@ -391,8 +391,8 @@ The existing `testCompleteRemovesReminder` (no `--ui-testing-glow`) is unchanged
 ### Verification
 
 #### Automated
-- [ ] `make watch-ui-test` passes — new test green + all existing tests green
-- [ ] `make build` + `make watch-build` both compile cleanly
+- [x] `make watch-ui-test` passes — new test green + all existing tests green
+- [x] `make build` + `make watch-build` both compile cleanly
 - [ ] `./scripts/test.sh` — full CI gate passes (format, lint, build, periphery, unit tests, iOS UI tests, watch UI tests, macOS build + tests)
 
 #### Manual
