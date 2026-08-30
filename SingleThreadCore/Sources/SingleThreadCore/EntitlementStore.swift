@@ -38,6 +38,9 @@ public final class EntitlementStore {
 
     // MARK: Public
 
+    /// The StoreKit product ID for the one-time unlock IAP.
+    public static let unlockProductID = "app.alanvardy.SingleThread.unlimited"
+
     /// Whether the user has purchased the unlock IAP. Reactively updated by
     /// the `Transaction.updates` stream; also updated by `sync()`.
     public private(set) var isEntitled: Bool = false
@@ -60,8 +63,6 @@ public final class EntitlementStore {
     private static let logger = Logger(
         subsystem: "app.alanvardy.SingleThread",
         category: "EntitlementStore")
-
-    private static let unlockProductID = "com.alanvardy.SingleThread.unlock"
 
     /// `nonisolated(unsafe)` so `deinit` (nonisolated) can cancel the observation
     /// task; the task captures `self` weakly and is only read/written on the

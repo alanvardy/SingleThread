@@ -4,7 +4,7 @@
   "products" : [
     {
       "displayName" : "Unlock",
-      "family" : "com.alanvardy.SingleThread.unlock",
+      "family" : "app.alanvardy.SingleThread.unlimited",
       "type" : "nonConsumable",
       "subscriptionGroupID" : "",
       "hostBundleID" : "app.alanvardy.SingleThread",
@@ -15,7 +15,7 @@
           2.99
         ]
       ],
-      "id" : "com.alanvardy.SingleThread.unlock"
+      "id" : "app.alanvardy.SingleThread.unlimited"
     }
   ],
   "consumableProducts" : [],
