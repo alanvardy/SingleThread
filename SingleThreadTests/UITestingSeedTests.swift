@@ -36,6 +36,30 @@ struct UITestingSeedTests {
     }
 
     @Test
+    func parsesCompletionCountAndIsEntitled() {
+        let args = [
+            "--seed",
+            #"{"reminders":[{"title":"A"}],"completionCount":100,"isEntitled":true}"#
+        ]
+        let seed = UITestingSeed.fromLaunchArguments(args)
+
+        #expect(seed?.completionCount == 100)
+        #expect(seed?.isEntitled == true)
+    }
+
+    @Test
+    func completionCountAndIsEntitledDefaultWhenAbsent() {
+        let args = [
+            "--seed",
+            #"{"reminders":[{"title":"A"}]}"#
+        ]
+        let seed = UITestingSeed.fromLaunchArguments(args)
+
+        #expect(seed?.completionCount == 0)
+        #expect(seed?.isEntitled == false)
+    }
+
+    @Test
     func returnsNilWhenSeedAbsentOrMalformed() {
         #expect(UITestingSeed.fromLaunchArguments([]) == nil)
         #expect(UITestingSeed.fromLaunchArguments(["--seed"]) == nil)

@@ -514,4 +514,60 @@ final class SingleThreadUITestsFlows: XCTestCase {
             app.buttons["Dismiss swipe prompt"].waitForExistence(timeout: 3),
             "Prompt should reappear after re-enabling in Settings")
     }
+
+    // MARK: - Freemium gate
+
+    @MainActor
+    func testUpgradePromptAppearsWhenGated() {
+        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":false}"#
+        let app = launchApp(seedJSON: seed)
+
+        // The upgrade prompt should appear instead of action buttons.
+        let upgradeButton = app.buttons["Upgrade to unlock unlimited completions"]
+        XCTAssertTrue(
+            upgradeButton.waitForExistence(timeout: 5),
+            "Upgrade prompt should appear when gated")
+    }
+
+    @MainActor
+    func testActionClusterAppearsWhenEntitledAtCap() {
+        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":true}"#
+        let app = launchApp(seedJSON: seed)
+
+        // Action buttons should appear because the user is entitled.
+        let completeButton = app.buttons["Complete reminder"]
+        XCTAssertTrue(
+            completeButton.waitForExistence(timeout: 5),
+            "Complete button should appear when entitled even at cap")
+    }
+
+    @MainActor
+    func testSettingsHasPurchaseRow() {
+        let seed = #"{"reminders":[{"title":"Buy groceries"}]}"#
+        let app = launchApp(seedJSON: seed)
+
+        // Open settings.
+        app.buttons["Settings"].tap()
+
+        // The Purchase/Unlock row should be visible.
+        let unlockRow = app.buttons["Unlock"]
+        XCTAssertTrue(
+            unlockRow.waitForExistence(timeout: 3),
+            "Settings should have an Unlock row")
+    }
+
+    @MainActor
+    func testPurchaseSheetHasRestoreButton() {
+        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":false}"#
+        let app = launchApp(seedJSON: seed)
+
+        // Tap the upgrade prompt.
+        app.buttons["Upgrade to unlock unlimited completions"].tap()
+
+        // The purchase sheet has a Restore Purchases button.
+        let restoreButton = app.buttons["Restore Purchases"]
+        XCTAssertTrue(
+            restoreButton.waitForExistence(timeout: 3),
+            "Purchase sheet should have a Restore Purchases button")
+    }
 }

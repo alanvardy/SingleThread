@@ -122,18 +122,7 @@ final class AppViewModel {
     /// load for `--ui-testing`/`--no-reminders`).
     private static func makeStore(arguments: [String]) -> (store: ReminderStore, usesInMemory: Bool) {
         if let seed = UITestingSeed.fromLaunchArguments(arguments) {
-            UITestingSeed.resetPersistedState()
-            let inMemoryStore = InMemoryEventStore(
-                reminders: seed.reminders,
-                calendars: seed.calendars,
-                defaultCalendar: seed.calendars.first)
-            let store = ReminderStore(
-                eventStore: inMemoryStore,
-                loadsReminders: true)
-            if !seed.excludedListTitles.isEmpty {
-                store.setExcludedListTitles(seed.excludedListTitles)
-            }
-            return (store, true)
+            return (seededStore(seed), true)
         }
         #if os(iOS)
             // Mirrors the watch `--ui-testing` seam: a deterministic single-reminder
@@ -174,6 +163,41 @@ final class AppViewModel {
         let loads = !arguments.contains("--ui-testing")
             && !arguments.contains("--no-reminders")
         return (ReminderStore(loadsReminders: loads), false)
+    }
+
+    /// Builds the store for a `--seed '<json>'` launch: an in-memory EventKit
+    /// store seeded with the payload's reminders, the freemium counter written
+    /// to the App Group key (or `.standard` fallback), and an entitlement store
+    /// that reflects the seeded `isEntitled` flag.
+    private static func seededStore(_ seed: UITestingSeed) -> ReminderStore {
+        UITestingSeed.resetPersistedState()
+        let inMemoryStore = InMemoryEventStore(
+            reminders: seed.reminders,
+            calendars: seed.calendars,
+            defaultCalendar: seed.calendars.first)
+        // Seed the freemium counter straight into the App Group (or, on
+        // watchOS fallback, `.standard`) so `canMutate` reflects the seeded
+        // cap. The counter store is read-only except `increment()`, so the
+        // value is written before the store observes it.
+        AppGroup.defaults.set(seed.completionCount, forKey: "completionCount")
+        // Mirror the `--ui-testing` seam: enable the action-buttons toggle so
+        // the Complete/Skip/Mic cluster (not just the mic) renders over a
+        // visible reminder in seeded UI tests.
+        UserDefaults.standard.set(true, forKey: "enableActionButtons")
+        let entitlementStore = seed.isEntitled
+            ? EntitlementStore(testingWithEntitled: true)
+            : EntitlementStore()
+        let store = ReminderStore(
+            eventStore: inMemoryStore,
+            loadsReminders: true,
+            completionCounter: CompletionCounterStore(
+                defaults: AppGroup.defaults,
+                key: "completionCount"),
+            entitlementStore: entitlementStore)
+        if !seed.excludedListTitles.isEmpty {
+            store.setExcludedListTitles(seed.excludedListTitles)
+        }
+        return store
     }
 
     #if os(iOS)

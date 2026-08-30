@@ -94,7 +94,8 @@ struct ShowCompletionGlowStateTests {
             showRecurrenceState: ShowRecurrenceState(),
             showAlarmsState: ShowAlarmsState(),
             showListState: ShowListState(),
-            showCompletionGlowState: glowState)
+            showCompletionGlowState: glowState,
+            entitlementState: EntitlementState())
         await viewModel.completeCurrentReminder()
         #expect(!viewModel.completionGlow.isActive)
     }
@@ -115,7 +116,8 @@ struct ShowCompletionGlowStateTests {
             showRecurrenceState: ShowRecurrenceState(),
             showAlarmsState: ShowAlarmsState(),
             showListState: ShowListState(),
-            showCompletionGlowState: glowState)
+            showCompletionGlowState: glowState,
+            entitlementState: EntitlementState())
         await viewModel.completeCurrentReminder()
         #expect(viewModel.completionGlow.isActive)
     }

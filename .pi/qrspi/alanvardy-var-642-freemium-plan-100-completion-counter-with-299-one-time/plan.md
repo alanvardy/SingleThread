@@ -1905,12 +1905,15 @@ let view = SettingsView(
 
 #### Automated
 
-- [ ] `./scripts/test.sh` passes — all unit + UI + lint + periphery + accessibility
-- [ ] `UITestingSeedTests` — new fields parse correctly
-- [ ] `SettingsViewTests` — new Unlock row label in the nav-link list
-- [ ] `SingleThreadUITestsFlows` — all new freemium-gate UI tests green
-- [ ] `SingleThreadWatchUITestsFlows` — Upgrade on iPhone prompt test green
-- [ ] `testAccessibilityAudit()` passes with the new views (no accessibility
+- [x] `./scripts/test.sh` passes — all unit + UI + lint + periphery + accessibility
+  (staged verification: unit 436/0 + macOS 0-fail, UI 29/0 incl. accessibility
+  audit, watch UI 14/0, lint+format clean, periphery clean; see Implementation
+  Notes for the staged-vs-single-script equivalence)
+- [x] `UITestingSeedTests` — new fields parse correctly
+- [x] `SettingsViewTests` — new Unlock row label in the nav-link list
+- [x] `SingleThreadUITestsFlows` — all new freemium-gate UI tests green
+- [x] `SingleThreadWatchUITestsFlows` — Upgrade on iPhone prompt test green
+- [x] `testAccessibilityAudit()` passes with the new views (no accessibility
   violations introduced by `PurchaseSettingsView` or `upgradePrompt`)
 
 #### Manual
@@ -1921,6 +1924,38 @@ let view = SettingsView(
   - [ ] "Restore Purchases" button is tappable
   - [ ] After simulated purchase (via StoreKit config), the action cluster
     renders even with high counter
+
+### Implementation Notes (Phase 6, as built)
+
+- `--seed` now accepts `completionCount` and `isEntitled`; `AppViewModel` seeds
+  the freemium counter into `AppGroup.defaults` and constructs the store with
+  `EntitlementStore(testingWithEntitled:)`. The seam is `public` (the app target
+  is a separate module from the SingleThreadCore package; it is inert in
+  production because `isEntitled` still defaults to false via the public `init()`).
+- `UpgradePromptButton` and `PurchaseSheet` are small view structs extracted
+  into `PurchaseSettingsView.swift` to keep `ContentView` within SwiftLint's
+  file/function-length limits; the `--seed` path is extracted into
+  `AppViewModel.seededStore(_:)` for the same reason.
+- `EntitlementStore.testingWithEntitled:` visibility: the plan wrote it as
+  `internal`, but `AppViewModel` (app module) must call it; made `public` with a
+  doc comment (mirrors `CompletionCounterStore.resetForTesting()` precedent).
+- Watch `--ui-testing-gated` seeds `completionCount` via `AppGroup.defaults`
+  (NOT `.standard`): the watch store's default `CompletionCounterStore()` reads
+  `AppGroup.defaults`, and `UserDefaults(suiteName:)` resolves the registered
+  App Group on the watch simulator instead of falling back. Sowing `.standard`
+  left `canMutate == true` and the upgrade prompt never rendered.
+- **Phase 5 receive-path fix**: `WatchAppViewModel`'s `onCompletionCountReceived`
+  now writes the received count to `AppGroup.defaults` (same key) instead of
+  `.standard` — without this, a phone-pushed completion count would never gate
+  the watch `ReminderStore` on a real device (the count landed in a suite the
+  gate never reads).
+- iOS unit rerun after the watch fix was skipped as redundant: the only change
+  was `WatchAppViewModel` (watch target, not compiled into iOS tests) and the
+  watch test bundle already compiled clean with the `ShowCompletionGlowStateTests`
+  `entitlementState` fix; iOS unit tests passed 436/0 before it.
+- Periphery is now clean ("No unused code detected"): the deferred `sync()`/`logger`/
+  `entitlementState`/payload-key dead-code warnings from Phases 3–5 are resolved
+  by the Phase 6 consumers.
 
 ---
 
@@ -1935,6 +1970,8 @@ let view = SettingsView(
 ### Periphery
 
 - After all phases: `make periphery` must report no dead code
+- ✅ RESOLVED — Phase 6 verification ran `periphery scan --strict` and reports
+  "No unused code detected"; the deferred Phase 3–5 warnings are all consumed.
 
 ### Compiler Warnings
 

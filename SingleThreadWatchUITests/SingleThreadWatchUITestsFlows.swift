@@ -128,6 +128,26 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
     // MARK: - Completion glow
 
     @MainActor
+    func testUpgradeOniPhoneShowsWhenGated() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-gated"]
+        app.launch()
+
+        // With the counter seeded at the cap and no entitlement synced, the
+        // watch must show the iPhone-upgrade prompt instead of action buttons.
+        XCTAssertTrue(
+            app.staticTexts["Buy groceries"].waitForExistence(timeout: 5),
+            "Seeded card should render before the gate check")
+        let upgradeText = app.staticTexts["Upgrade on\nyour iPhone"]
+        XCTAssertTrue(
+            upgradeText.waitForExistence(timeout: 5),
+            "Watch should show upgrade prompt when gated")
+        XCTAssertFalse(
+            app.buttons["Complete reminder"].exists,
+            "Action buttons should be replaced by the upgrade prompt")
+    }
+
+    @MainActor
     func testCompletionGlowDoesNotAppearWhenDisabled() {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing", "--ui-testing-glow-disabled"]
