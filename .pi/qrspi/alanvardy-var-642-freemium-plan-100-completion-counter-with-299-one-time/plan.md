@@ -853,11 +853,15 @@ true`. Options:
 
 #### Automated
 
-- [ ] `./scripts/test.sh` passes — `ReminderStoreGateTests` all green, existing
-  `ReminderStoreTests` still pass (new params have defaults)
-- [ ] `make lint` passes
-- [ ] `make format` applies without changes
-- [ ] `make periphery` — no dead code detected
+- [x] `./scripts/test.sh` passes — `ReminderStoreGateTests` all green, existing
+  `ReminderStoreTests` still pass (new params have defaults). Run per-stage due to
+  periphery deferral below: iOS unit 428/0, iOS UI 25/0, watch build ✓, macOS
+  unit 381/0.
+- [x] `make lint` passes
+- [x] `make format` applies without changes
+- [ ] `make periphery` — no dead code detected. Final Periphery pass deferred to
+  after all phases; currently reports `EntitlementStore` API + `PayloadKey.entitled`
+  as dead code, consumed by Phases 5–6.
 
 #### Manual
 
