@@ -27,6 +27,7 @@ final class SettingsBindings {
         showMicrophoneButton: Bool = true,
         backgroundEnabled: Bool = true,
         backgroundFadePercent: Int = 50,
+        backgroundPinned: Bool = false,
         showUndatedReminders: Bool = false,
         sortOption: SortOption = .priority,
         showDate: Bool = true,
@@ -43,6 +44,7 @@ final class SettingsBindings {
         self.showMicrophoneButton = showMicrophoneButton
         self.backgroundEnabled = backgroundEnabled
         self.backgroundFadePercent = backgroundFadePercent
+        self.backgroundPinned = backgroundPinned
         self.showUndatedReminders = showUndatedReminders
         self.sortOption = sortOption
         self.showDate = showDate
@@ -63,6 +65,7 @@ final class SettingsBindings {
     var showMicrophoneButton: Bool
     var backgroundEnabled: Bool
     var backgroundFadePercent: Int
+    var backgroundPinned: Bool
     var showUndatedReminders: Bool
     var sortOption: SortOption
     var showDate: Bool

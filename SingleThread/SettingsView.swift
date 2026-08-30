@@ -77,6 +77,7 @@ struct SettingsView: View {
                         BackgroundSettingsView(
                             backgroundEnabled: $bindings.backgroundEnabled,
                             backgroundFadePercent: $bindings.backgroundFadePercent,
+                            backgroundPinned: $bindings.backgroundPinned,
                             backgroundImage: backgroundImage)
                     } label: {
                         Label("Background", systemImage: "photo.on.rectangle")
