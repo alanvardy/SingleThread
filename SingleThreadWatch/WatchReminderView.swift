@@ -76,7 +76,10 @@ struct WatchReminderView: View {
 
     private var reminderContent: some View {
         ZStack {
-            if viewModel.store.allSkipped {
+            if viewModel.isShowingCompletionTransition,
+               let reminder = viewModel.transitionReminder {
+                reminderCard(reminder)
+            } else if viewModel.store.allSkipped {
                 allDoneState
             } else if let reminder = viewModel.store.visibleReminders.first {
                 reminderCard(reminder)

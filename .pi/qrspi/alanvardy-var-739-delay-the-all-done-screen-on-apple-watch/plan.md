@@ -324,16 +324,16 @@ No other changes to the view. The glow overlay (lines 91–95) and its `.animati
 ### Verification
 
 #### Automated
-- [ ] `make watch-ui-test` passes — all existing watch UI tests green (no regressions):
-  - `testCardShowsReminderTitleAndNotes`
-  - `testCompleteRemovesReminder`
-  - `testCompletionGlowFlashesWhenEnabled`
-  - `testCompletionGlowDoesNotAppearWhenDisabled`
-  - `testSkipShowsAllDoneState`
-  - `testDeleteViaConfirmationDialogRemovesReminder`
-  - `testExcludedListDoesNotRenderReminder`
-  - `testLiveExclusionHidesReminderWithoutRelaunch`
-  - `testRefreshPresentOnNoRemindersState`
+- [x] `make watch-ui-test` passes — all existing watch UI tests green (no regressions):
+  - [x] `testCardShowsReminderTitleAndNotes`
+  - [x] `testCompleteRemovesReminder`
+  - [x] `testCompletionGlowFlashesWhenEnabled`
+  - [x] `testCompletionGlowDoesNotAppearWhenDisabled`
+  - [x] `testSkipShowsAllDoneState`
+  - [x] `testDeleteViaConfirmationDialogRemovesReminder`
+  - [x] `testExcludedListDoesNotRenderReminder`
+  - [x] `testLiveExclusionHidesReminderWithoutRelaunch`
+  - [x] `testRefreshPresentOnNoRemindersState`
 
 #### Manual
 - [ ] `make watch-build` succeeds
