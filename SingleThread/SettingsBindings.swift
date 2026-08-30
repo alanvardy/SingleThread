@@ -7,10 +7,11 @@ import SwiftUI
 /// it is store-backed (not @AppStorage) and is passed to sub-views as a separate
 /// `Binding<Set<String>>`.
 ///
-/// `allowsLandscape` and `enableActionButtons` are iOS-only in ContentView, but
-/// the compiler does not support `#if` directives inside a parameter list, so
-/// they are declared unconditionally here with their ContentView defaults. On
-/// macOS they are harmless: the values are simply never wired or read.
+/// `allowsLandscape`, `enableActionButtons`, and `showUndoButton` are iOS-only
+/// in ContentView, but the compiler does not support `#if` directives inside a
+/// parameter list, so they are declared unconditionally here with their
+/// ContentView defaults. On macOS they are harmless: the values are simply
+/// never wired or read.
 @MainActor
 @Observable
 final class SettingsBindings {
@@ -22,6 +23,7 @@ final class SettingsBindings {
         allowsLandscape: Bool = true,
         enableActionButtons: Bool = false,
         showSwipePrompt: Bool = true,
+        showUndoButton: Bool = true,
         showMicrophoneButton: Bool = true,
         backgroundEnabled: Bool = true,
         backgroundFadePercent: Int = 50,
@@ -37,6 +39,7 @@ final class SettingsBindings {
         self.allowsLandscape = allowsLandscape
         self.enableActionButtons = enableActionButtons
         self.showSwipePrompt = showSwipePrompt
+        self.showUndoButton = showUndoButton
         self.showMicrophoneButton = showMicrophoneButton
         self.backgroundEnabled = backgroundEnabled
         self.backgroundFadePercent = backgroundFadePercent
@@ -56,6 +59,7 @@ final class SettingsBindings {
     var allowsLandscape: Bool
     var enableActionButtons: Bool
     var showSwipePrompt: Bool
+    var showUndoButton: Bool
     var showMicrophoneButton: Bool
     var backgroundEnabled: Bool
     var backgroundFadePercent: Int

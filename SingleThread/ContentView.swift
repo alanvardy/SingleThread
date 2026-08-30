@@ -1,3 +1,8 @@
+// The settings bag plumbing and (Phase 4) undo overlay keep this file above
+// the `file_length` warning threshold (650); the value drives the entire
+// single-screen UI so the view modifiers stay in one spot.
+// swiftlint:disable file_length
+
 import EventKit
 import SingleThreadCore
 import Speech
@@ -124,6 +129,7 @@ struct ContentView: View {
                     .onChange(of: bag.allowsLandscape) { _, new in allowsLandscape = new }
                     .onChange(of: bag.enableActionButtons) { _, new in enableActionButtons = new }
                     .onChange(of: bag.showSwipePrompt) { _, new in showSwipePrompt = new }
+                    .onChange(of: bag.showUndoButton) { _, new in showUndoButton = new }
                 #endif
                     .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
                     .onChange(of: bag.backgroundEnabled) { _, new in backgroundEnabled = new }
@@ -176,6 +182,11 @@ struct ContentView: View {
     #if os(iOS)
         @AppStorage("showSwipePrompt")
         private var showSwipePrompt = true
+    #endif
+
+    #if os(iOS)
+        @AppStorage("showUndoButton")
+        private var showUndoButton = true
     #endif
 
     @AppStorage("showUndatedReminders", store: AppGroup.defaults)
@@ -541,6 +552,7 @@ struct ContentView: View {
                 allowsLandscape: allowsLandscape,
                 enableActionButtons: enableActionButtons,
                 showSwipePrompt: showSwipePrompt,
+                showUndoButton: showUndoButton,
                 showMicrophoneButton: showMicrophoneButton,
                 backgroundEnabled: backgroundEnabled,
                 backgroundFadePercent: backgroundFadePercent,

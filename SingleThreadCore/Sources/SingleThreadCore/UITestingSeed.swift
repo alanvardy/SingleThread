@@ -68,6 +68,7 @@ public struct UITestingSeed {
         "enableActionButtons",
         "showMicrophoneButton",
         "showSwipePrompt",
+        "showUndoButton",
         "backgroundEnabled",
         "allowsLandscape",
         "textSize",
