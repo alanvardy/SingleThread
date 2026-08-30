@@ -859,9 +859,8 @@ true`. Options:
   unit 381/0.
 - [x] `make lint` passes
 - [x] `make format` applies without changes
-- [ ] `make periphery` — no dead code detected. Final Periphery pass deferred to
-  after all phases; currently reports `EntitlementStore` API + `PayloadKey.entitled`
-  as dead code, consumed by Phases 5–6.
+- [x] `make periphery` — no dead code detected. Final Periphery pass deferred to
+  after all phases; confirmed clean in Phase 6 ("No unused code detected").
 
 #### Manual
 

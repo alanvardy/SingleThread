@@ -527,6 +527,16 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(
             upgradeButton.waitForExistence(timeout: 5),
             "Upgrade prompt should appear when gated")
+
+        // It must be a wide pill, not the small circular control plate — the
+        // label text needs room to breathe.
+        let buttonFrame = upgradeButton.frame
+        XCTAssertGreaterThan(
+            buttonFrame.width, 200,
+            "Upgrade button should be much wider than a small circular plate")
+        XCTAssertGreaterThan(
+            buttonFrame.width, buttonFrame.height,
+            "Upgrade button should be wider than it is tall (pill, not circle)")
     }
 
     @MainActor
