@@ -29,7 +29,8 @@
   ```
 - **Tests** (destination as above): `-only-testing:SingleThreadTests` (Swift
   Testing), `-only-testing:SingleThreadUITests` (XCTest, a11y audit); or use
-  `make build` / `make test` / `make ui-test` / `make periphery` / `make lint`.
+  `make build` / `make test` / `make ui-test` / `make periphery` / `make lint`
+  / `make format`.
 - **Debug builds only**: `DEBUG_INFORMATION_FORMAT = dwarf` keeps incremental
   builds fast. Release builds switch to `dwarf-with-dsym`.
 - **After code changes**, run the full CI check locally: `./scripts/test.sh`
