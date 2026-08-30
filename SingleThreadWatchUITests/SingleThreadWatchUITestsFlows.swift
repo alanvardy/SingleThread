@@ -184,6 +184,39 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
             "Glow overlay should flash briefly after completion")
     }
 
+    @MainActor
+    func testCompleteHoldsCardDuringGlow() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-glow"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        let complete = app.buttons["Complete reminder"]
+        XCTAssertTrue(complete.waitForExistence(timeout: 3))
+        complete.tap()
+
+        // Card must stay visible during the glow (2 s glow + 0.5 s buffer = 2.5 s).
+        // Assert the card text is still present immediately after the tap —
+        // it must NOT disappear in under 1 s.
+        XCTAssertTrue(
+            app.staticTexts["Buy groceries"].waitForExistence(timeout: 1),
+            "Card should persist during the post-completion glow")
+
+        // Glow overlay must be present. waitForExistence polls at ~1 s cadence,
+        // so a second wait here would not poll until the glow's 2.0 s window has
+        // already closed; a direct existence query lands while the glow is still
+        // active and the ghost card is still being held.
+        XCTAssertTrue(
+            app.otherElements["completionGlowOverlay"].exists,
+            "Glow overlay should be present while the card is held")
+
+        // After the full delay (2.0 + 0.5 = 2.5 s), the empty state must appear.
+        // Generous timeout accounts for CI executor variance.
+        XCTAssertTrue(
+            app.staticTexts["No Reminders"].waitForExistence(timeout: 8),
+            "After the glow fades, the No Reminders state should appear")
+    }
+
     // MARK: Private
 
     @MainActor
