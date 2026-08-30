@@ -2,9 +2,10 @@
 
 ## Shell Environment
 
-- The command tool runs **fish** — see `~/.pi/agent/skills/fish-shell/SKILL.md`
-  for the bash→fish translation table. Never use bash heredocs (`<<'EOF'`) —
-  write files with the `write` tool instead.
+- The command tool runs **fish** — keep each bash tool call to ONE simple
+  command. Anything compound (loops, heredocs, `VAR=$(...)`) fails: write the
+  script to `/tmp/x.sh` with the `write` tool and run `bash /tmp/x.sh` (see
+  `~/.pi/agent/skills/fish-shell/SKILL.md` for the translation table).
 
 ## Build & Test
 
@@ -12,38 +13,28 @@
   supported; CI runs **both** in parallel matrix jobs. Check available devices
   with `xcrun simctl list devices available | grep -iE 'iphone|ipad'` if
   either is unavailable.
-- `make` targets and `scripts/test.sh` honor a `SIM` override, e.g.
-  `make test SIM='platform=iOS Simulator,name=iPad (A16)'`.
+- **Destination pinning**: the name-only `iPhone 17` destination is ambiguous
+  when multiple runtimes exist (this machine has 4) — a bare `name=` hangs.
+  Pin `,OS=<ver>` or `,id=<UDID>` (from `xcrun simctl list devices available`).
+  `scripts/test.sh`/`Makefile` accept `SIM=`.
+- **One xcodebuild test process at a time** (simulator contention). On
+  `Busy`/`RequestDenied` runner-launch failures: prune stale
+  `~/Library/Developer/XCTestDevices`, shutdown sims (`xcrun simctl shutdown
+  all`), and kill orphaned `xcodebuild`/`xctest` processes before retrying.
 - **Build**:
   ```bash
   xcodebuild -scheme SingleThread \
     -destination 'platform=iOS Simulator,name=iPhone 17' \
     -configuration Debug build
   ```
-- **Unit tests** (Swift Testing, in `SingleThreadTests`):
-  ```bash
-  xcodebuild test -scheme SingleThread \
-    -destination 'platform=iOS Simulator,name=iPhone 17' \
-    -only-testing:SingleThreadTests
-  ```
-- **UI tests** (XCTest, in `SingleThreadUITests`, includes accessibility audit):
-  ```bash
-  xcodebuild test -scheme SingleThread \
-    -destination 'platform=iOS Simulator,name=iPhone 17' \
-    -only-testing:SingleThreadUITests
-  ```
+- **Tests** (destination as above): `-only-testing:SingleThreadTests` (Swift
+  Testing), `-only-testing:SingleThreadUITests` (XCTest, a11y audit); or use
+  `make build` / `make test` / `make ui-test` / `make periphery` / `make lint`.
 - **Debug builds only**: `DEBUG_INFORMATION_FORMAT = dwarf` keeps incremental
   builds fast. Release builds switch to `dwarf-with-dsym`.
-- Or use `make` targets: `make build`, `make test`, `make ui-test`,
-  `make lint`, `make format`, `make periphery`, `make clean`.
-- **After code changes**, run the full CI check locally:
-  ```bash
-  ./scripts/test.sh
-  ```
-  This formats, lints, builds,
-  runs Periphery dead-code detection (reusing the build's index store),
-  runs unit tests, runs UI tests (including accessibility audit), and runs
-  SwiftFormat + SwiftLint checks — identical to CI.
+- **After code changes**, run the full CI check locally: `./scripts/test.sh`
+  (formats, lints, builds, runs Periphery, unit + UI tests, SwiftFormat +
+  SwiftLint — identical to CI).
 
 ## Concurrency Model
 
@@ -63,6 +54,11 @@
   owns the `EKEventStore` and the skipped-reminder list.
 - Skipped-reminder identifiers persist in a shared App Group `UserDefaults`
   (see `AppGroup.swift`); the phone and watch sync them over WatchConnectivity.
+- **Every persisted value shared with the watch must round-trip through
+  `AppGroup.defaults` (the `UserDefaults(suiteName:)` suite), never
+  `UserDefaults.standard`** — on simulator the suite always exists, so the
+  two diverge silently. This includes `--ui-testing`/`--seed` launch-arg
+  seams.
 - Previews and tests inject a pre-populated `ReminderStore` (or use
   `loadsReminders: false`) instead of a real `EKEventStore`.
 
@@ -122,6 +118,11 @@ SingleThread/                  # git root
   `id`, `e`, `d`, `rt`, `to`, `gvm`).
 - Unit tests use **Swift Testing** (`import Testing`, `@Test`), not XCTest.
   UI tests still use XCTest.
+- **Unit-test names must not start with `test`/`testing`** — SwiftFormat
+  strips those prefixes and silently renames the function under `make format`
+  (phantom "file reverted" diffs). Follow the convention
+  (`isEntitledFallsByDefault`). UI-test (XCTest) names keep `test…` — UI tests
+  are SwiftFormat-excluded.
 - Force-unwrapping is banned outside test code. Test fixtures relax this rule
   via `SingleThreadTests/.swiftlint.yml`.
 
@@ -140,36 +141,33 @@ SingleThread/                  # git root
   tests; reuse the existing `--ui-testing` seam on watchOS.
 - Bug fixes must add (or fix) a test that reproduces the bug before the fix, so
   the fix is proven to hold.
+- **Gate staging**: phase subagents verify with a build plus targeted
+  `-only-testing:` suites only. The full `./scripts/test.sh` runs ONCE, by the
+  parent (or a dedicated final phase), after phases commit — workers
+  re-running the full multi-hour gate exceed run caps and orphan unverified
+  changes.
 - If a feature genuinely can't be UI-tested (e.g. dictation/speech, which is
   handled by unit tests only), say so explicitly in the PR rather than silently
   skipping it.
 
 ## Dead Code Detection (Periphery)
 
-- Periphery 3.8.0 scans the compiler index store for unused declarations.
-  It runs in CI (`periphery scan --strict`) and locally via
-  `make periphery` or as part of `./scripts/test.sh`.
-- Configuration: `.periphery.yml` (retains SwiftUI previews, excludes UI
-  test boilerplate).
+- Run `make periphery` (`periphery scan --strict`) — it scans the build's
+  index store; config in `.periphery.yml`.
 
 ## Accessibility Testing
 
-- `SingleThreadUITests` includes `testAccessibilityAudit()` using
-  `XCUIApplication.performAccessibilityAudit()`, checking dynamic type,
-  hit regions, element descriptions, and traits.
-- Complemented by SwiftLint rules `accessibility_label_for_image` and
-  `accessibility_trait_for_button`.
+- UI tests include `testAccessibilityAudit()` (`performAccessibilityAudit`) +
+  SwiftLint `accessibility_label_for_image` / `accessibility_trait_for_button`.
+- Local audit runs extra strictness categories (`.hitRegion`, `.dynamicType`)
+  beyond CI's — a local hit-region failure can be local-only, not a CI break.
 
 ## Compiler Warnings
 
-- `SWIFT_TREAT_WARNINGS_AS_ERRORS = YES` is set in the project-level build
-  configuration (Debug + Release), inherited by all targets. Warnings are
-  hard failures everywhere — CI, local, and Xcode GUI. This was previously
-  a command-line flag (to keep local iteration unblocked), but the local
-  Swift Package (`SingleThreadCore`) requires scoping it to project targets
-  because `xcodebuild SWIFT_TREAT_WARNINGS_AS_ERRORS=YES` globally injects
-  `-warnings-as-errors` which conflicts with the package's `-suppress-warnings`
-  (a known Apple bug).
+- `SWIFT_TREAT_WARNINGS_AS_ERRORS = YES` project-wide (Debug + Release) —
+  warnings fail everywhere. Scope per-target overrides in the pbxproj; never
+  via CLI flags (`xcodebuild …=YES` conflicts with the SPM package's
+  `-suppress-warnings`).
 
 ## Before Committing
 
@@ -179,3 +177,6 @@ SingleThread/                  # git root
   `scripts/test.sh` if they need explicit `-only-testing` filters.
 - Confirm the feature ships with both unit and UI test coverage (see
   [Testing Requirements](#testing-requirements)) before marking work "done".
+- A test failure your diff didn't touch is likely pre-existing on
+  `origin/main` — verify with git blame / CI history before debugging it, and
+  fix it in a separate scoped commit.
