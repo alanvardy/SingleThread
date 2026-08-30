@@ -64,6 +64,29 @@ struct CompletionCounterStoreTests {
     }
 
     @Test
+    func decrementReducesCount() {
+        let store = CompletionCounterStore(
+            defaults: .standard,
+            key: UUID().uuidString)
+        store.increment()
+        store.increment()
+        store.increment()
+        #expect(store.count == 3)
+        store.decrement()
+        #expect(store.count == 2)
+    }
+
+    @Test
+    func decrementDoesNotGoBelowZero() {
+        let store = CompletionCounterStore(
+            defaults: .standard,
+            key: UUID().uuidString)
+        #expect(store.count == 0) // swiftlint:disable:this empty_count
+        store.decrement()
+        #expect(store.count == 0) // swiftlint:disable:this empty_count
+    }
+
+    @Test
     func countOnSeededKeyReads100() {
         let key = UUID().uuidString
         UserDefaults.standard.set(100, forKey: key)

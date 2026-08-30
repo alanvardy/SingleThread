@@ -369,8 +369,8 @@ struct UndoStoreTests {
 
 ### Verification
 #### Automated
-- [ ] `swiftformat SingleThreadCore/ SingleThreadTests/ && swiftlint lint --strict` passes
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/ReminderStoreTests -only-testing:SingleThreadTests/ReminderStoreGateTests -only-testing:SingleThreadTests/CompletionCounterStoreTests` passes
+- [x] `swiftformat SingleThreadCore/ SingleThreadTests/ && swiftlint lint --strict` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/ReminderStoreTests -only-testing:SingleThreadTests/ReminderStoreGateTests -only-testing:SingleThreadTests/CompletionCounterStoreTests` passes
 
 #### Manual
 - [ ] None needed
