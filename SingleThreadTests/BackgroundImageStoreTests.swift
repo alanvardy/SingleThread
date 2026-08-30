@@ -249,6 +249,133 @@ struct BackgroundImageStoreTests {
         #expect(!store.isRefreshing)
     }
 
+    // MARK: - Pin gating
+
+    @Test
+    func pinBlocksRefreshIfNeeded() async throws {
+        let fake = FakeBackgroundFetcher()
+        let (store, directory) = makeStore(client: fake)
+        try FileManager.default.createDirectory(
+            at: directory, withIntermediateDirectories: true)
+
+        // Seed a stale sidecar so refreshIfNeeded would normally fetch.
+        let staleDate = Date().addingTimeInterval(-25 * 3600)
+        try sidecarJSON(fetchedAt: staleDate)
+            .write(to: store.metadataURL, options: .atomic)
+        try BackgroundTestFixtures.jpegData
+            .write(to: store.imageURL, options: .atomic)
+        store.loadStoredImage()
+
+        // Stub the endpoint to confirm it is NOT called.
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
+
+        await store.setPinned(true)
+        await store.refreshIfNeeded()
+
+        #expect(
+            fake.requestedURLs.isEmpty,
+            "Pinned store should skip network on refreshIfNeeded")
+    }
+
+    @Test
+    func forceRefreshBypassesPin() async {
+        let fake = FakeBackgroundFetcher()
+        let (store, _) = makeStore(client: fake)
+
+        fake.stubbedData[Self.randomEndpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
+
+        await store.setPinned(true)
+        await store.forceRefresh()
+
+        #expect(
+            fake.requestedURLs.contains(Self.randomEndpoint),
+            "forceRefresh should fetch randomEndpoint even when pinned")
+    }
+
+    @Test
+    func unpinTriggersRefreshWhenStale() async throws {
+        let fake = FakeBackgroundFetcher()
+        let (store, directory) = makeStore(client: fake)
+        try FileManager.default.createDirectory(
+            at: directory, withIntermediateDirectories: true)
+
+        // Seed a stale sidecar.
+        let staleDate = Date().addingTimeInterval(-25 * 3600)
+        try sidecarJSON(fetchedAt: staleDate)
+            .write(to: store.metadataURL, options: .atomic)
+        try BackgroundTestFixtures.jpegData
+            .write(to: store.imageURL, options: .atomic)
+        store.loadStoredImage()
+
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
+
+        // Pin, then unpin.
+        await store.setPinned(true)
+        #expect(store.isPinned)
+        await store.setPinned(false)
+
+        #expect(!store.isPinned)
+        #expect(
+            fake.requestedURLs.contains(Self.endpoint),
+            "Unpinning a stale store should trigger refreshIfNeeded")
+    }
+
+    @Test
+    func unpinDoesNotRefreshWhenFresh() async throws {
+        let fake = FakeBackgroundFetcher()
+        let (store, directory) = makeStore(client: fake)
+        try FileManager.default.createDirectory(
+            at: directory, withIntermediateDirectories: true)
+
+        // Seed a fresh sidecar.
+        let freshDate = Date().addingTimeInterval(-1 * 3600)
+        try sidecarJSON(fetchedAt: freshDate)
+            .write(to: store.metadataURL, options: .atomic)
+        try BackgroundTestFixtures.jpegData
+            .write(to: store.imageURL, options: .atomic)
+        store.loadStoredImage()
+
+        // Stub to confirm endpoint is NOT called.
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
+
+        await store.setPinned(true)
+        await store.setPinned(false)
+
+        #expect(
+            fake.requestedURLs.isEmpty,
+            "Unpinning a fresh store should not trigger a fetch")
+    }
+
+    @Test
+    func unpinOnlyTriggersOnTrueToFalseTransition() async throws {
+        let fake = FakeBackgroundFetcher()
+        let (store, directory) = makeStore(client: fake)
+        try FileManager.default.createDirectory(
+            at: directory, withIntermediateDirectories: true)
+
+        // Seed a stale sidecar.
+        let staleDate = Date().addingTimeInterval(-25 * 3600)
+        try sidecarJSON(fetchedAt: staleDate)
+            .write(to: store.metadataURL, options: .atomic)
+        try BackgroundTestFixtures.jpegData
+            .write(to: store.imageURL, options: .atomic)
+        store.loadStoredImage()
+
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
+
+        // Already unpinned (default) — calling setPinned(false) should be a no-op.
+        await store.setPinned(false)
+
+        #expect(
+            fake.requestedURLs.isEmpty,
+            "setPinned(false) on already-unpinned store should not fetch")
+    }
+
     // MARK: Private
 
     private final class FakeBackgroundFetcher: BackgroundImageFetching, @unchecked Sendable {

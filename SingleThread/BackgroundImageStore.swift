@@ -75,6 +75,11 @@ final class BackgroundImageStore {
     /// `ProgressView` and disables it to prevent double-fetch.
     private(set) var isRefreshing = false
 
+    /// When true, `refreshIfNeeded` treats the wallpaper as perpetually fresh.
+    /// Manual `forceRefresh` is unaffected. Set by the view layer from the
+    /// `@AppStorage("backgroundPinned")` preference.
+    private(set) var isPinned = false
+
     var imageURL: URL {
         directory.appendingPathComponent("background.jpg")
     }
@@ -90,6 +95,7 @@ final class BackgroundImageStore {
     /// on any error, log and keep prior state.
     func refreshIfNeeded(maxAge: TimeInterval = BackgroundImageStore.defaultMaxAge) async {
         loadStoredImage()
+        guard !isPinned else { return } // pinned stores keep the current photo
         guard !isFresh(maxAge: maxAge) else { return }
         do {
             try await fetchAndPersist(from: Self.endpoint)
@@ -113,6 +119,33 @@ final class BackgroundImageStore {
         } catch {
             Self.logger.error("Background force refresh failed: \(error.localizedDescription)")
         }
+    }
+
+    /// Updates the pin state. When transitioning from pinned → unpinned,
+    /// immediately checks freshness and refetches if the photo is stale.
+    func setPinned(_ pinned: Bool) async {
+        let wasPinned = isPinned
+        isPinned = pinned
+        if !pinned, wasPinned {
+            await refreshIfNeeded()
+        }
+    }
+
+    /// Missing/corrupt sidecar ⇒ treated as "no valid stored image".
+    func loadStoredImage() {
+        guard let metadataData = try? Data(contentsOf: metadataURL),
+              let metadata = try? decodeMetadata(from: metadataData),
+              let data = try? Data(contentsOf: imageURL),
+              isDecodableImage(data)
+        else {
+            imageData = nil
+            photographer = nil
+            photographerURL = nil
+            return
+        }
+        imageData = data
+        photographer = metadata.photographer
+        photographerURL = metadata.photographerURL.flatMap(URL.init)
     }
 
     // MARK: Private
@@ -156,23 +189,6 @@ final class BackgroundImageStore {
         imageData = data
         photographer = payload.photographer
         photographerURL = payload.photographerURL
-    }
-
-    /// Missing/corrupt sidecar ⇒ treated as "no valid stored image".
-    private func loadStoredImage() {
-        guard let metadataData = try? Data(contentsOf: metadataURL),
-              let metadata = try? decodeMetadata(from: metadataData),
-              let data = try? Data(contentsOf: imageURL),
-              isDecodableImage(data)
-        else {
-            imageData = nil
-            photographer = nil
-            photographerURL = nil
-            return
-        }
-        imageData = data
-        photographer = metadata.photographer
-        photographerURL = metadata.photographerURL.flatMap(URL.init)
     }
 
     private func isFresh(maxAge: TimeInterval) -> Bool {

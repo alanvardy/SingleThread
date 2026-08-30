@@ -221,7 +221,7 @@ func loadStoredImage() { … }
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes (all 12 existing + 5 new `BackgroundImageStoreTests`)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes (all 12 existing + 5 new `BackgroundImageStoreTests`)
 
 #### Manual
 - [ ] None — all behavior is covered by unit tests with injected fakes. No UI wiring yet.
