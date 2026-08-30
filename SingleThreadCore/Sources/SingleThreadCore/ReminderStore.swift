@@ -20,7 +20,9 @@ public final class ReminderStore {
         skippedIDs: Set<String> = [],
         authorizationStatus: EKAuthorizationStatus = .notDetermined,
         excludedListTitles: Set<String> = [],
-        hasHidden: Bool = false) {
+        hasHidden: Bool = false,
+        completionCounter: CompletionCounterStore = CompletionCounterStore(),
+        entitlementStore: EntitlementStore = EntitlementStore()) {
         self.eventStore = eventStore
         self.skipStore = skipStore
         self.excludeStore = excludeStore
@@ -30,6 +32,8 @@ public final class ReminderStore {
         self.authorizationStatus = authorizationStatus
         self.excludedListTitles = excludedListTitles
         self.hasHidden = hasHidden
+        self.completionCounter = completionCounter
+        self.entitlementStore = entitlementStore
     }
 
     // MARK: Public
@@ -109,6 +113,12 @@ public final class ReminderStore {
         !reminders.isEmpty && visibleReminders.isEmpty
     }
 
+    /// `true` when mutations are allowed: either the user is entitled (purchased
+    /// the IAP) or has not yet hit the free-tier completion cap (100).
+    public var canMutate: Bool {
+        entitlementStore.isEntitled || completionCounter.count < 100
+    }
+
     /// Returns `true` when `allIncomplete` contains a reminder absent from
     /// `shown` (by `calendarItemIdentifier`) — i.e. the current in-window view
     /// is hiding at least one incomplete reminder.
@@ -143,6 +153,7 @@ public final class ReminderStore {
     /// such as the completion glow.
     @discardableResult
     public func completeReminder(identifier: String) async -> Bool {
+        guard canMutate else { return false }
         #if os(watchOS)
             let removed = reminders.contains { $0.calendarItemIdentifier == identifier }
             reminders.removeAll { $0.calendarItemIdentifier == identifier }
@@ -157,6 +168,7 @@ public final class ReminderStore {
             do {
                 reminder.isCompleted = true
                 try eventStore.save(reminder, commit: true)
+                completionCounter.increment()
                 try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
                 await reload()
                 return true
@@ -179,6 +191,7 @@ public final class ReminderStore {
     /// On watchOS (where EventKit is read-only): removes it locally and relays the
     /// deletion to the iPhone via `onDeleteReminder`.
     public func deleteReminder(identifier: String) async {
+        guard canMutate else { return }
         #if os(watchOS)
             reminders.removeAll { $0.calendarItemIdentifier == identifier }
             onDeleteReminder?(identifier)
@@ -230,6 +243,7 @@ public final class ReminderStore {
     }
 
     public func skipCurrentReminder() {
+        guard canMutate else { return }
         guard let reminder = visibleReminders.first else { return }
         let updated = updatedSkipSet(afterSkipping: reminder.calendarItemIdentifier)
         Task {
@@ -255,6 +269,7 @@ public final class ReminderStore {
     /// interactive path is unsafe there.
     @discardableResult
     public func skipCurrentReminderImmediately() -> Bool {
+        guard canMutate else { return false }
         guard let reminder = visibleReminders.first else { return false }
         let updated = updatedSkipSet(afterSkipping: reminder.calendarItemIdentifier)
         applySkipSet(updated)
@@ -340,6 +355,14 @@ public final class ReminderStore {
     }
 
     // MARK: Internal
+
+    /// Tracks the lifetime completion count; incremented once per successful
+    /// EventKit save in `completeReminder` (iOS branch only).
+    let completionCounter: CompletionCounterStore
+
+    /// Publishes whether the user has purchased the unlock IAP. Read by
+    /// `canMutate` to gate Complete/Skip/Delete after the free tier cap.
+    let entitlementStore: EntitlementStore
 
     /// Requests full access to reminders, updating `authorizationStatus` and
     /// reloading on success. Extracted from `start()` for testability.
