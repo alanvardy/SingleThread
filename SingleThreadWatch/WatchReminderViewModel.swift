@@ -1,3 +1,4 @@
+import EventKit
 import SingleThreadCore
 import SwiftUI
 
@@ -41,16 +42,43 @@ final class WatchReminderViewModel {
     var isRefreshing = false
     var isShowingRefreshConfirmation = false
 
+    /// When `true`, the completion glow is playing out and the card should
+    /// stay visible as a "ghost" even though the store is already empty.
+    var isShowingCompletionTransition = false
+
+    /// Snapshot of the reminder that was on screen when Complete was tapped.
+    /// Rendered during the transition so the card doesn't vanish mid-glow.
+    var transitionReminder: EKReminder?
+
+    /// Extra hold time beyond `completionGlow.duration` before the ghost card
+    /// is cleared. Test-configurable so unit tests can run near-instantly.
+    var completionTransitionBuffer: TimeInterval = 0.5
+
     func task() async {
         await store.start()
     }
 
-    /// Completes the visible reminder and triggers the glow on success.
-    /// The view routes its Complete button through here so the success-only
-    /// glow gates on the store's actual completion result.
+    /// Completes the visible reminder, captures a snapshot for the ghost card,
+    /// and triggers the glow. Holds the card visible for the full glow + buffer
+    /// before relinquishing to the empty-state branch.
     func completeCurrentReminder() async {
-        if await store.completeCurrentReminder(), showCompletionGlowState.isEnabled {
+        guard !isShowingCompletionTransition else { return }
+        transitionReminder = store.visibleReminders.first
+        if await store.completeCurrentReminder(),
+           showCompletionGlowState.isEnabled {
+            isShowingCompletionTransition = true
             completionGlow.trigger()
+            let delay = completionGlow.duration + completionTransitionBuffer
+            Task { [weak self] in
+                try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+                guard let self else { return }
+                if store.visibleReminders.isEmpty {
+                    isShowingCompletionTransition = false
+                    transitionReminder = nil
+                }
+            }
+        } else {
+            transitionReminder = nil
         }
     }
 
