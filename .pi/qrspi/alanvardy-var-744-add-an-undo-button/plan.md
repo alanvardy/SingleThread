@@ -578,8 +578,8 @@ Inside the `#if os(iOS)` block that already gates the other iOS-only onChange li
 
 ### Verification
 #### Automated
-- [ ] `swiftformat SingleThread/ && swiftlint lint --strict` passes
-- [ ] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` succeeds
+- [x] `swiftformat SingleThread/ && swiftlint lint --strict` passes
+- [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` succeeds
 
 #### Manual
 - [ ] Launch app, complete a reminder (via swipe or action button), confirm undo button appears top-left

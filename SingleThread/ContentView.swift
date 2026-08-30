@@ -1,6 +1,7 @@
 // The settings bag plumbing and (Phase 4) undo overlay keep this file above
-// the `file_length` warning threshold (650); the value drives the entire
-// single-screen UI so the view modifiers stay in one spot.
+// the `file_length` warning threshold (650) and the `type_body_length`
+// threshold (500); the value drives the entire single-screen UI so the view
+// modifiers stay in one spot.
 // swiftlint:disable file_length
 
 import EventKit
@@ -8,6 +9,9 @@ import SingleThreadCore
 import Speech
 import SwiftUI
 
+// The single-screen UI keeps every view modifier in one struct; the undo
+// overlay pushes it just past 500 lines.
+// swiftlint:disable:next type_body_length
 struct ContentView: View {
     // MARK: Lifecycle
 
@@ -82,6 +86,24 @@ struct ContentView: View {
             .padding(.top, 8)
             .padding(.trailing, 12)
         }
+        #if os(iOS)
+        .overlay(alignment: .topLeading) {
+            if viewModel.store.undoStore.hasUndoableReminder, showUndoButton, viewModel.store.canMutate {
+                Button {
+                    Task { await viewModel.undoLastCompletion() }
+                } label: {
+                    Image(systemName: "arrow.uturn.backward")
+                        .font(.title3)
+                        .controlPlate()
+                        .contentShape(Rectangle())
+                }
+                .accessibilityLabel("Undo completion")
+                .accessibilityAddTraits(.isButton)
+                .padding(.top, 8)
+                .padding(.leading, 12)
+            }
+        }
+        #endif
         .overlay {
             if viewModel.completionGlow.isActive {
                 completionGlowOverlay

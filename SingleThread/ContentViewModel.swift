@@ -119,6 +119,12 @@ final class ContentViewModel {
         await store.deleteCurrentReminder()
     }
 
+    /// Forwards to ``ReminderStore/undoLastCompletion()``.
+    /// No glow trigger — the reappearing reminder is its own feedback.
+    func undoLastCompletion() async {
+        await store.undoLastCompletion()
+    }
+
     func reload(clearSkipped: Bool = false) async {
         await store.reload(clearSkipped: clearSkipped)
     }
