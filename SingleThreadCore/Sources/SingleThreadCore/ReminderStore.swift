@@ -97,9 +97,11 @@ public final class ReminderStore {
     /// `canMutate` to gate Complete/Skip/Delete after the free tier cap.
     public let entitlementStore: EntitlementStore
 
-    /// Transient undo store — holds the most-recently completed reminder
-    /// so the user can revert it. iOS-only; not persisted.
-    public let undoStore = UndoStore()
+    #if !os(watchOS)
+        /// Transient undo store — holds the most-recently completed reminder
+        /// so the user can revert it. iOS-only; not persisted.
+        public let undoStore = UndoStore()
+    #endif
 
     /// When `true`, `reload()` fetches with a nil/nil date predicate and keeps
     /// undated reminders plus dated reminders still inside the current window.
@@ -218,6 +220,7 @@ public final class ReminderStore {
                 return true
             } catch {
                 Self.logger.error("Failed to undo completion: \(error.localizedDescription, privacy: .public)")
+                undoStore.clear()
                 return false
             }
         }
