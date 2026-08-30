@@ -30,6 +30,7 @@ final class WatchAppViewModel {
         showAlarmsState = ShowAlarmsState()
         showListState = ShowListState()
         showCompletionGlowState = ShowCompletionGlowState()
+        entitlementState = EntitlementState()
 
         // --ui-testing-glow-disabled: pre-disable the state so the disabled-flow
         // watch UI test doesn't need a settings screen. --ui-testing-glow:
@@ -59,6 +60,7 @@ final class WatchAppViewModel {
     let showAlarmsState: ShowAlarmsState
     let showListState: ShowListState
     let showCompletionGlowState: ShowCompletionGlowState
+    let entitlementState: EntitlementState
 
     /// True when the `--ui-testing-glow` launch argument is present (watch
     /// completion-glow UI tests). The seam extends the glow duration to 2 s so
@@ -76,7 +78,8 @@ final class WatchAppViewModel {
         showRecurrenceState: showRecurrenceState,
         showAlarmsState: showAlarmsState,
         showListState: showListState,
-        showCompletionGlowState: showCompletionGlowState)
+        showCompletionGlowState: showCompletionGlowState,
+        entitlementState: entitlementState)
 
     // MARK: Private
 
@@ -137,8 +140,10 @@ final class WatchAppViewModel {
             showAlarmsStore: ShowAlarmsPreference(defaults: .standard),
             showListStore: ShowListPreference(defaults: .standard),
             showCompletionGlowStore: ShowCompletionGlowPreference(defaults: .standard),
+            completionCounter: CompletionCounterStore(defaults: .standard),
+            entitlementStore: EntitlementStore(),
             sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false,
-            sendsShowCompletionGlow: false)
+            sendsShowCompletionGlow: false, sendsEntitled: false)
         service.onShowUndatedRemindersReceived = { [weak store] value in
             Task {
                 store?.showsUndatedReminders = value
@@ -154,6 +159,13 @@ final class WatchAppViewModel {
         wireStateReceiveHooks(service)
         service.onSortOptionReceived = { [weak store] option in
             Task { @MainActor in store?.setSortOption(option) }
+        }
+        // A phone-side completion-count push lands and becomes the watch's local
+        // counter so `store.canMutate` gates on the phone's real lifetime count.
+        // `.standard` on watchOS is what `AppGroup.defaults` falls back to, and
+        // the watch's `ReminderStore` counter reads it through the default store.
+        service.onCompletionCountReceived = { count in
+            UserDefaults.standard.set(count, forKey: "completionCount")
         }
         // A phone-side exclusion toggle arrives and re-filters this watch's live list.
         // Same write-before-activate invariant as shared onShowUndatedRemindersReceived.
@@ -193,6 +205,10 @@ final class WatchAppViewModel {
         }
         service.onShowCompletionGlowReceived = { [weak showCompletionGlowState] value in
             Task { @MainActor in showCompletionGlowState?.apply(value) }
+        }
+        let entitlementState = entitlementState
+        service.onEntitlementReceived = { [weak entitlementState] value in
+            Task { @MainActor in entitlementState?.apply(value) }
         }
     }
 

@@ -89,6 +89,14 @@ public final class ReminderStore {
     /// layer to push the combined sync context to the watch.
     public var onShowUndatedRemindersChanged: ((Bool) -> Void)?
 
+    /// Tracks the lifetime completion count; incremented once per successful
+    /// EventKit save in `completeReminder` (iOS branch only).
+    public let completionCounter: CompletionCounterStore
+
+    /// Publishes whether the user has purchased the unlock IAP. Read by
+    /// `canMutate` to gate Complete/Skip/Delete after the free tier cap.
+    public let entitlementStore: EntitlementStore
+
     /// When `true`, `reload()` fetches with a nil/nil date predicate and keeps
     /// undated reminders plus dated reminders still inside the current window.
     /// Each surface sets this before its own `reload()` (phone from the Settings
@@ -355,14 +363,6 @@ public final class ReminderStore {
     }
 
     // MARK: Internal
-
-    /// Tracks the lifetime completion count; incremented once per successful
-    /// EventKit save in `completeReminder` (iOS branch only).
-    let completionCounter: CompletionCounterStore
-
-    /// Publishes whether the user has purchased the unlock IAP. Read by
-    /// `canMutate` to gate Complete/Skip/Delete after the free tier cap.
-    let entitlementStore: EntitlementStore
 
     /// Requests full access to reminders, updating `authorizationStatus` and
     /// reloading on success. Extracted from `start()` for testability.

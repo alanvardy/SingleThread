@@ -6,7 +6,7 @@
 
     // MARK: - Fake session for testing
 
-    private final class FakeSession: SkipSyncSession {
+    final class FakeSession: SkipSyncSession {
         var activated = false
         var lastContext: [String: Any]?
         var lastMessage: [String: Any]?

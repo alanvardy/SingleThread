@@ -32,7 +32,9 @@ final class AppViewModel {
                     showRecurrenceStore: ShowRecurrencePreference(),
                     showAlarmsStore: ShowAlarmsPreference(),
                     showCompletionGlowStore: ShowCompletionGlowPreference(),
-                    sendsShowDate: true)
+                    entitlementStore: store.entitlementStore,
+                    sendsShowDate: true,
+                    sendsEntitled: true)
                 // Assign the handler before activating: the service documents a
                 // write-once-before-activate invariant, and a completion message
                 // delivered right after activation must not observe a nil (or an
@@ -80,6 +82,7 @@ final class AppViewModel {
         // so syncService.pushAll() fires without duplicating @AppStorage keys.
         #if os(iOS)
             setupSyncObservation()
+            setupEntitlementObservation()
         #endif
     }
 
@@ -174,6 +177,21 @@ final class AppViewModel {
     }
 
     #if os(iOS)
+        /// Re-registers observation on the shared entitlement store so every
+        /// `isEntitled` change pushes a fresh snapshot to the watch. This SDK's
+        /// `withObservationTracking` returns `Void`, so re-registration happens
+        /// by calling this helper again from the onChange callback.
+        private func setupEntitlementObservation() {
+            withObservationTracking {
+                _ = store.entitlementStore.isEntitled
+            } onChange: { [weak self] in
+                Task { @MainActor in
+                    self?.syncService?.pushAll()
+                    self?.setupEntitlementObservation()
+                }
+            }
+        }
+
         /// Observes `AppGroup.defaults` for showDate/showRecurrence/showAlarms
         /// changes and pushes a fresh snapshot to a paired watch. The token is
         /// stored so observation lives as long as the VM; NotificationCenter
