@@ -59,8 +59,9 @@ final class WatchReminderViewModel {
     }
 
     /// Completes the visible reminder, captures a snapshot for the ghost card,
-    /// and triggers the glow. Holds the card visible for the full glow + buffer
-    /// before relinquishing to the empty-state branch.
+    /// and triggers the glow. Holds the card visible for the full glow + buffer,
+    /// then relinquishes to the normal state branches — the next reminder (if
+    /// any) or the empty/done state.
     func completeCurrentReminder() async {
         guard !isShowingCompletionTransition else { return }
         transitionReminder = store.visibleReminders.first
@@ -72,10 +73,14 @@ final class WatchReminderViewModel {
             Task { [weak self] in
                 try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
                 guard let self else { return }
-                if store.visibleReminders.isEmpty {
-                    isShowingCompletionTransition = false
-                    transitionReminder = nil
-                }
+                // Clear unconditionally: the store already reflects the
+                // completion (next reminder or empty), so the normal branches
+                // render the correct state once the glow has faded. Gating on
+                // `visibleReminders.isEmpty` would keep the ghost card — and its
+                // dead buttons — stuck on screen whenever another reminder
+                // survived the completion.
+                isShowingCompletionTransition = false
+                transitionReminder = nil
             }
         } else {
             transitionReminder = nil

@@ -236,15 +236,19 @@ func transitionFlagClearsAfterDelay() async {
 }
 ```
 
-**Test 7 — `transitionFlagStaysSetIfStoreRepopulated`**:
+**Test 7 — `transitionFlagClearsAfterDelayEvenWithNextReminder`** (revised post-implementation):
 
 ```swift
 @Test
-func transitionFlagStaysSetIfStoreRepopulated() async {
+func transitionFlagClearsAfterDelayEvenWithNextReminder() async {
+    // Two reminders: completing the first must NOT leave the ghost card
+    // stuck on screen. After the glow + buffer delay the transition clears
+    // and the surviving second reminder becomes the visible one, so the
+    // user can keep completing without the app going unresponsive.
     let store = ReminderStore(
         eventStore: InMemoryEventStore(),
         loadsReminders: false,
-        reminders: [watchReminder()],
+        reminders: [watchReminder(), watchReminder()],
         skippedIDs: [],
         authorizationStatus: .fullAccess)
     let viewModel = WatchReminderViewModel(
@@ -258,18 +262,16 @@ func transitionFlagStaysSetIfStoreRepopulated() async {
     viewModel.completionTransitionBuffer = 0.01
     await viewModel.completeCurrentReminder()
     #expect(viewModel.isShowingCompletionTransition)
-    // Inject a new reminder before the delay elapses.
-    let newReminder = watchReminder()
-    newReminder.title = "New reminder"
-    store.reminders.append(newReminder)
-    try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 s > 0.05 + 0.01
-    // Flag stays set because visibleReminders is no longer empty.
-    #expect(viewModel.isShowingCompletionTransition)
     #expect(viewModel.transitionReminder != nil)
+    try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 s > 0.05 + 0.01
+    // The transition always ends after the glow; the next reminder is ready.
+    #expect(!viewModel.isShowingCompletionTransition)
+    #expect(viewModel.transitionReminder == nil)
+    #expect(store.visibleReminders.count == 1)
 }
 ```
 
-**Note**: Test 7 accesses `store.reminders.append(...)` directly. `ReminderStore.reminders` is `public private(set) var` — verify it's settable from `@testable import SingleThreadWatch`. If the property access level prevents direct mutation from the test target, use an alternative approach: create a second `ReminderStore` with a reminder pre-populated and replace the view model's store reference, or add a test-only helper. The structure's intent is to test the store-check-before-clearing guard.
+> **Post-implementation revision**: the original Test 7 asserted the transition flag *stays set* whenever another reminder survived the completion (gating the clear on `store.visibleReminders.isEmpty`). That guard was wrong — completing any reminder that isn't the very last one left the ghost card — and its dead buttons — stuck on screen forever (`completeCurrentReminder` re-entry guarded, Skip finds no visible reminder), making the app unresponsive. The fix clears the transition unconditionally after the glow + buffer, and the normal branches render the next reminder, All Done, or No Reminders. Test 7 was rewritten to prove the transition clears and the next reminder becomes visible.
 
 ### Verification
 
