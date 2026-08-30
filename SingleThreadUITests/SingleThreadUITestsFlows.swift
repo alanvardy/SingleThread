@@ -244,6 +244,60 @@ final class SingleThreadUITestsFlows: XCTestCase {
             "Background-off should persist across relaunch")
     }
 
+    // MARK: - Pin wallpaper toggle
+
+    @MainActor
+    func testPinWallpaperTogglePersistsAcrossRelaunch() {
+        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+        app.buttons["Settings"].tap()
+
+        // Navigate into the Background sub-view.
+        XCTAssertTrue(app.staticTexts["Background"].waitForExistence(timeout: 3))
+        app.staticTexts["Background"].tap()
+
+        let pinToggle = app.switches["Pin wallpaper"]
+        XCTAssertTrue(pinToggle.waitForExistence(timeout: 3))
+        XCTAssertEqual(pinToggle.value as? String, "0", "Pin wallpaper should default to off")
+
+        // Flip on.
+        XCTAssertTrue(flipToggle(pinToggle, target: "1"))
+
+        // Back-navigate → Done → terminate.
+        app.navigationBars.buttons.firstMatch.tap()
+        app.buttons["Done"].tap()
+        app.terminate()
+
+        // Relaunch with --ui-testing to avoid resetPersistedState() wipe.
+        let relaunched = XCUIApplication()
+        relaunched.launchArguments = ["--ui-testing"]
+        relaunched.launch()
+        relaunched.buttons["Settings"].tap()
+        relaunched.staticTexts["Background"].tap()
+        let persistedToggle = relaunched.switches["Pin wallpaper"]
+        XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
+        XCTAssertEqual(
+            persistedToggle.value as? String, "1",
+            "Pin wallpaper on should persist across relaunch")
+
+        // Flip back off and verify it persists as off (not a one-way latch).
+        XCTAssertTrue(flipToggle(persistedToggle, target: "0"))
+        relaunched.navigationBars.buttons.firstMatch.tap()
+        relaunched.buttons["Done"].tap()
+        relaunched.terminate()
+
+        let thirdLaunch = XCUIApplication()
+        thirdLaunch.launchArguments = ["--ui-testing"]
+        thirdLaunch.launch()
+        thirdLaunch.buttons["Settings"].tap()
+        thirdLaunch.staticTexts["Background"].tap()
+        let offToggle = thirdLaunch.switches["Pin wallpaper"]
+        XCTAssertTrue(offToggle.waitForExistence(timeout: 5))
+        XCTAssertEqual(
+            offToggle.value as? String, "0",
+            "Pin wallpaper off should persist across relaunch")
+    }
+
     // MARK: - Background refresh
 
     @MainActor

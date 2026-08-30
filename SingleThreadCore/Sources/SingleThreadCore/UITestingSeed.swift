@@ -70,6 +70,8 @@ public struct UITestingSeed {
         "showSwipePrompt",
         "showUndoButton",
         "backgroundEnabled",
+        "backgroundFadePercent",
+        "backgroundPinned",
         "allowsLandscape",
         "textSize",
         "appearanceMode"

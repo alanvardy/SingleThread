@@ -550,9 +550,9 @@ func testPinWallpaperTogglePersistsAcrossRelaunch() {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` passes for `testPinWallpaperTogglePersistsAcrossRelaunch`
-- [ ] Existing UI test `testBackgroundToggleHidesAndPersistsAcrossRelaunch` still passes (no regression from `persistedKeys` changes)
-- [ ] Full gate: `./scripts/test.sh` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` passes for `testPinWallpaperTogglePersistsAcrossRelaunch`
+- [x] Existing UI test `testBackgroundToggleHidesAndPersistsAcrossRelaunch` still passes (no regression from `persistedKeys` changes)
+- [x] Full gate: `./scripts/test.sh` passes
 
 #### Manual
 - [ ] None — the UI test covers the full cross-relaunch flow.
