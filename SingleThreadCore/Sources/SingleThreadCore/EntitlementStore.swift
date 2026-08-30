@@ -22,9 +22,12 @@ public final class EntitlementStore {
         }
     }
 
-    /// Test-only initializer that sets `isEntitled` without starting the
-    /// `Transaction.updates` observation loop. Not visible in release.
-    init(testingWithEntitled entitled: Bool) {
+    /// Test/UI-test seam: sets `isEntitled` directly without starting the
+    /// `Transaction.updates` observation loop. Used by the `--seed` launch-arg
+    /// wiring in the app target (a separate module from this package, so the
+    /// initializer must be public) and by unit tests. `isEntitled` defaults to
+    /// false in production, so this seam only changes behavior under testing.
+    public init(testingWithEntitled entitled: Bool) {
         isEntitled = entitled
         observationTask = nil
     }

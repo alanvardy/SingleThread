@@ -113,6 +113,7 @@ struct ContentView: View {
                     backgroundImage: viewModel.backgroundImage,
                     availableLists: viewModel.store.availableLists,
                     excludedLists: excludedListsBinding,
+                    entitlementStore: viewModel.store.entitlementStore,
                     viewModel: SettingsViewModel())
                     // The bag is a plain in-memory holder; write each changed
                     // value back to the @AppStorage-backed property so settings
@@ -135,6 +136,11 @@ struct ContentView: View {
                     .onChange(of: bag.showAlarms) { _, new in showAlarms = new }
                     .onChange(of: bag.showCompletionGlow) { _, new in showCompletionGlow = new }
             }
+        }
+        .sheet(isPresented: $isShowingPurchase) {
+            PurchaseSheet(
+                isPresented: $isShowingPurchase,
+                entitlementStore: viewModel.store.entitlementStore)
         }
     }
 
@@ -193,6 +199,10 @@ struct ContentView: View {
     private var showCompletionGlow = true
 
     @State private var isShowingSettings = false
+
+    /// Drives the freemium upgrade-prompt sheet (shown only when the free tier
+    /// cap is exhausted and the user has not purchased the unlock IAP).
+    @State private var isShowingPurchase = false
 
     /// Stable bag of settings bindings for the currently presented sheet.
     /// Recreated when the sheet opens so it reflects the latest persisted
@@ -421,7 +431,9 @@ struct ContentView: View {
                 recordingIndicator
             } else if viewModel.dictation.canDictate, showMicrophoneButton {
                 #if os(iOS)
-                    if viewModel.showsActionButtons {
+                    if !viewModel.store.canMutate {
+                        upgradePrompt
+                    } else if viewModel.showsActionButtons {
                         actionCluster
                     } else {
                         micButton
@@ -465,6 +477,11 @@ struct ContentView: View {
                 micButton
                 skipButton
             }
+        }
+
+        /// Shown when the free tier is gated (cap exhausted, no purchase).
+        private var upgradePrompt: some View {
+            UpgradePromptButton(isPresented: $isShowingPurchase)
         }
     #endif
 

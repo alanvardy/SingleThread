@@ -12,7 +12,9 @@ import Foundation
 ///     {"title":"Call mom","priority":1}
 ///   ],
 ///   "calendars": ["Groceries"],
-///   "excludedLists": ["Work"]
+///   "excludedLists": ["Work"],
+///   "completionCount": 3,      // optional, defaults to 0
+///   "isEntitled": true          // optional, defaults to false
 /// }
 /// ```
 public struct UITestingSeed {
@@ -21,6 +23,8 @@ public struct UITestingSeed {
     public let reminders: [EKReminder]
     public let calendars: [EKCalendar]
     public let excludedListTitles: Set<String>
+    public let completionCount: Int
+    public let isEntitled: Bool
 
     /// Reads an optional `--seed '<json>'` launch argument and decodes it.
     /// Returns `nil` when the argument is absent or malformed.
@@ -84,6 +88,8 @@ private struct SeedPayload: Codable {
         reminders = try container.decode([ReminderSeed].self, forKey: .reminders)
         calendars = try container.decodeIfPresent([String].self, forKey: .calendars) ?? []
         excludedLists = try container.decodeIfPresent([String].self, forKey: .excludedLists) ?? []
+        completionCount = try container.decodeIfPresent(Int.self, forKey: .completionCount) ?? 0
+        isEntitled = try container.decodeIfPresent(Bool.self, forKey: .isEntitled) ?? false
     }
 
     // MARK: Internal
@@ -97,6 +103,8 @@ private struct SeedPayload: Codable {
     var reminders: [ReminderSeed]
     var calendars: [String] = []
     var excludedLists: [String] = []
+    var completionCount: Int = 0
+    var isEntitled: Bool = false
 
     func materialize() -> UITestingSeed {
         let eventStore = EKEventStore()
@@ -119,7 +127,9 @@ private struct SeedPayload: Codable {
         return UITestingSeed(
             reminders: createdReminders,
             calendars: createdCalendars,
-            excludedListTitles: Set(excludedLists))
+            excludedListTitles: Set(excludedLists),
+            completionCount: completionCount,
+            isEntitled: isEntitled)
     }
 
     // MARK: Private
@@ -129,5 +139,6 @@ private struct SeedPayload: Codable {
     private enum CodingKeys: String, CodingKey {
         case reminders, calendars
         case excludedLists
+        case completionCount, isEntitled
     }
 }

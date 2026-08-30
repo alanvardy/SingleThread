@@ -31,11 +31,12 @@ struct SettingsViewTests {
             bindings: SettingsBindings(),
             backgroundImage: BackgroundImageStore(),
             availableLists: [],
-            excludedLists: .constant([]))
+            excludedLists: .constant([]),
+            entitlementStore: EntitlementStore())
         let bodyDescription = String(describing: view.body)
 
         let expectedLabels = [
-            "Interface", "Reminder", "Filtering & Sorting", "Background", "Privacy", "About"
+            "Interface", "Reminder", "Filtering & Sorting", "Background", "Unlock", "Privacy", "About"
         ]
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))

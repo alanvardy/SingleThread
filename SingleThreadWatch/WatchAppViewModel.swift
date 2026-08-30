@@ -18,6 +18,14 @@ final class WatchAppViewModel {
             ReminderStore(loadsReminders: true)
         }
         self.store = store
+        // --ui-testing-gated: seed the local completion counter at the cap so
+        // `store.canMutate` is false and the freemium upgrade prompt renders.
+        // The watch store's counter reads `AppGroup.defaults` (`UserDefaults
+        // (suiteName:) ?? .standard`), so the seeded count must land in that
+        // suite (it falls back to `.standard` where no App Group is registered).
+        if arguments.contains("--ui-testing-gated") {
+            AppGroup.defaults.set(100, forKey: "completionCount")
+        }
         // Restore the last-received sort (persisted to .standard on receive) so the
         // watch shows the correct order even before the next context push arrives.
         store.sortOption = SortOptionStore().load()
@@ -162,10 +170,10 @@ final class WatchAppViewModel {
         }
         // A phone-side completion-count push lands and becomes the watch's local
         // counter so `store.canMutate` gates on the phone's real lifetime count.
-        // `.standard` on watchOS is what `AppGroup.defaults` falls back to, and
-        // the watch's `ReminderStore` counter reads it through the default store.
+        // The store's counter reads `AppGroup.defaults`, so the received count is
+        // persisted there (falling back to `.standard` when no App Group exists).
         service.onCompletionCountReceived = { count in
-            UserDefaults.standard.set(count, forKey: "completionCount")
+            AppGroup.defaults.set(count, forKey: "completionCount")
         }
         // A phone-side exclusion toggle arrives and re-filters this watch's live list.
         // Same write-before-activate invariant as shared onShowUndatedRemindersReceived.

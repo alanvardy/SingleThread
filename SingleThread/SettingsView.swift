@@ -16,11 +16,13 @@ struct SettingsView: View {
         backgroundImage: BackgroundImageStore,
         availableLists: [String],
         excludedLists: Binding<Set<String>>,
+        entitlementStore: EntitlementStore = EntitlementStore(),
         viewModel: SettingsViewModel = SettingsViewModel()) {
         self.bindings = bindings
         self.viewModel = viewModel
         self.backgroundImage = backgroundImage
         self.availableLists = availableLists
+        self.entitlementStore = entitlementStore
         _excludedLists = excludedLists
     }
 
@@ -78,6 +80,16 @@ struct SettingsView: View {
                     } label: {
                         Label("Background", systemImage: "photo.on.rectangle")
                     }
+                    NavigationLink {
+                        PurchaseSettingsView(entitlementStore: entitlementStore)
+                    } label: {
+                        Label(
+                            entitlementStore.isEntitled ? "Manage Purchase" : "Unlock",
+                            systemImage: entitlementStore.isEntitled ? "checkmark.seal" : "lock.open")
+                    }
+                    .accessibilityLabel(
+                        entitlementStore.isEntitled ? "Manage Purchase" : "Unlock")
+                    .accessibilityAddTraits(.isButton)
                 }
 
                 Section {
@@ -119,6 +131,7 @@ struct SettingsView: View {
     private let viewModel: SettingsViewModel
     private let backgroundImage: BackgroundImageStore
     private let availableLists: [String]
+    private let entitlementStore: EntitlementStore
 }
 
 // MARK: - Previews

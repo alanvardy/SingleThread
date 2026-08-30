@@ -124,6 +124,22 @@ struct WatchReminderView: View {
         }
     }
 
+    /// Shown in place of the Complete/Skip buttons when the free-tier cap is
+    /// exhausted on the phone and the entitlement flag has not synced. The watch
+    /// itself has no StoreKit surface, so the user upgrades on the iPhone.
+    private var upgradeOniPhonePrompt: some View {
+        VStack(spacing: 4) {
+            Image(systemName: "lock.fill")
+                .font(.headline)
+                .accessibilityHidden(true)
+            Text("Upgrade on\nyour iPhone")
+                .font(.caption2)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
     private var allDoneState: some View {
         VStack(spacing: 6) {
             Text("All Done")
@@ -189,7 +205,11 @@ struct WatchReminderView: View {
                 }
             }
 
-            actionButtons
+            if !viewModel.store.canMutate, !viewModel.entitlementState.isEnabled {
+                upgradeOniPhonePrompt
+            } else {
+                actionButtons
+            }
         }
         .padding()
     }
