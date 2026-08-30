@@ -34,11 +34,14 @@ import os
             showAlarmsStore: ShowAlarmsPreference = ShowAlarmsPreference(),
             showListStore: ShowListPreference = ShowListPreference(),
             showCompletionGlowStore: ShowCompletionGlowPreference = ShowCompletionGlowPreference(),
+            completionCounter: CompletionCounterStore = CompletionCounterStore(),
+            entitlementStore: EntitlementStore? = nil,
             sendsShowDate: Bool = true,
             sendsShowRecurrence: Bool = true,
             sendsShowAlarms: Bool = true,
             sendsShowList: Bool = true,
-            sendsShowCompletionGlow: Bool = true) {
+            sendsShowCompletionGlow: Bool = true,
+            sendsEntitled: Bool = true) {
             self.session = session
             self.skipStore = skipStore
             self.excludeStore = excludeStore
@@ -49,11 +52,17 @@ import os
             self.showAlarmsStore = showAlarmsStore
             self.showListStore = showListStore
             self.showCompletionGlowStore = showCompletionGlowStore
+            self.completionCounter = completionCounter
+            // `EntitlementStore()` is main-actor isolated, so it cannot be a
+            // default argument to this nonisolated init; every call site runs on
+            // the main actor, so creating it lazily via `assumeIsolated` is safe.
+            self.entitlementStore = entitlementStore ?? MainActor.assumeIsolated { EntitlementStore() }
             self.sendsShowDate = sendsShowDate
             self.sendsShowRecurrence = sendsShowRecurrence
             self.sendsShowAlarms = sendsShowAlarms
             self.sendsShowList = sendsShowList
             self.sendsShowCompletionGlow = sendsShowCompletionGlow
+            self.sendsEntitled = sendsEntitled
             super.init()
         }
 
@@ -114,6 +123,18 @@ import os
         /// `onShowDateReceived`.
         public nonisolated(unsafe) var onShowCompletionGlowReceived: ((Bool) -> Void)?
 
+        /// Hook fired on the counterpart when the "isEntitled" flag arrives in
+        /// an application context. Passes the received value. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onShowCompletionGlowReceived`.
+        public nonisolated(unsafe) var onEntitlementReceived: ((Bool) -> Void)?
+
+        /// Hook fired on the counterpart when the lifetime completion count
+        /// arrives in an application context. Passes the received count. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onShowCompletionGlowReceived`.
+        public nonisolated(unsafe) var onCompletionCountReceived: ((Int) -> Void)?
+
         /// Hook fired on the counterpart when the skipped-reminder identifier array
         /// arrives in an application context. Passes the received IDs. Fired **after**
         /// the skip store is persisted, so a watch-side handler can simply reload.
@@ -149,7 +170,8 @@ import os
                     PayloadKey.skippedReminderIdentifiers: skipStore.load(),
                     PayloadKey.excludedListTitles: excludeStore.load(),
                     PayloadKey.showUndatedReminders: showUndatedStore.load(),
-                    PayloadKey.sortOption: sortStore.load().rawValue
+                    PayloadKey.sortOption: sortStore.load().rawValue,
+                    PayloadKey.completionCount: completionCounter.count
                 ]
                 if sendsShowDate {
                     context[PayloadKey.showDate] = showDateStore.isEnabled
@@ -165,6 +187,17 @@ import os
                 }
                 if sendsShowCompletionGlow {
                     context[PayloadKey.showCompletionGlow] = showCompletionGlowStore.isEnabled
+                }
+                if sendsEntitled {
+                    // Safe: every `pushAll()` call site (AppViewModel and
+                    // WatchAppViewModel hooks, plus the @MainActor test suite)
+                    // runs on the main actor, where `isEntitled` is isolated.
+                    // `EntitlementStore` is main-actor-isolated (implicitly
+                    // Sendable), so a local snapshot avoids sending `self`.
+                    let entitlement = entitlementStore
+                    context[PayloadKey.entitled] = MainActor.assumeIsolated {
+                        entitlement.isEntitled
+                    }
                 }
                 try session.updateApplicationContext(context)
             } catch {
@@ -244,6 +277,7 @@ import os
             static let showAlarms = "showAlarms"
             static let showList = "showList"
             static let showCompletionGlow = "showCompletionGlow"
+            static let completionCount = "completionCount"
             static let entitled = "isEntitled"
         }
 
@@ -259,11 +293,14 @@ import os
         private let showAlarmsStore: ShowAlarmsPreference
         private let showListStore: ShowListPreference
         private let showCompletionGlowStore: ShowCompletionGlowPreference
+        private let completionCounter: CompletionCounterStore
+        private let entitlementStore: EntitlementStore
         private let sendsShowDate: Bool
         private let sendsShowRecurrence: Bool
         private let sendsShowAlarms: Bool
         private let sendsShowList: Bool
         private let sendsShowCompletionGlow: Bool
+        private let sendsEntitled: Bool
 
         /// Single receive path: decode → persist → notify for each present key;
         /// absent keys are no-ops. Handlers are snapshotted before invocation because
@@ -322,6 +359,21 @@ import os
                 showCompletionGlowStore.set(showCompletionGlow)
                 let handler = onShowCompletionGlowReceived
                 handler?(showCompletionGlow)
+            }
+            applyFreemium(context: context)
+        }
+
+        /// Decodes the freemium keys (entitlement flag + completion count). Kept
+        /// in its own method so `apply(context:)` stays within SwiftLint's
+        /// 50-line function-body limit.
+        private func applyFreemium(context: [String: Any]) {
+            if let entitled = context[PayloadKey.entitled] as? Bool {
+                let handler = onEntitlementReceived
+                handler?(entitled)
+            }
+            if let count = context[PayloadKey.completionCount] as? Int {
+                let handler = onCompletionCountReceived
+                handler?(count)
             }
         }
     }

@@ -1219,14 +1219,44 @@ public final class EntitlementState {
 
 #### Automated
 
-- [ ] `./scripts/test.sh` passes — extended `SkippedReminderSyncServiceTests` +
+- [x] `./scripts/test.sh` passes — extended `SkippedReminderSyncServiceTests` +
   `EntitlementState` tests all green
-- [ ] `make lint` passes
-- [ ] `make format` applies without changes
+- [x] `make lint` passes
+- [x] `make format` applies without changes
 
 #### Manual
 
 - [ ] No manual verification needed — fully tested
+
+### Implementation Notes (Phase 5, as built)
+
+- The sync-service init accepts `entitlementStore: EntitlementStore? = nil` and
+  lazily creates `EntitlementStore()` inside the (nonisolated) init body via
+  `MainActor.assumeIsolated`. `EntitlementStore()` is main-actor isolated and
+  cannot be a default argument to this nonisolated init (Swift 6 error
+  "main actor-isolated default value in a nonisolated context"); every call site
+  runs on the main actor, so the lazy creation is safe.
+- `pushAll()` reads `isEntitled` through `MainActor.assumeIsolated` (via a local
+  snapshot of the implicitly-Sendable `EntitlementStore` to avoid sending
+  `self`). Safe because every call site is main-actor-isolated: `AppViewModel`
+  and `WatchAppViewModel` hooks plus the `@MainActor` test suite.
+- `AppViewModel.setupEntitlementObservation()` re-registers `withObservationTracking`
+  by re-calling itself from the onChange callback: this SDK's
+  `withObservationTracking` returns `Void`, so the plan's `entitlementToken` is
+  unnecessary.
+- `EntitlementState` lives in `SingleThreadCore` (per the plan's Decision) so
+  the iOS unit-test bundle can cover it; it is `@MainActor @Observable` with an
+  explicit `public init()` (a public class's implicit init is internal, which
+  blocked the watch target).
+- `completionCount` sync (plan's "update Phase 5 accordingly" block at lines
+  ~1680) is implemented here: always sent on `pushAll`, decoded in
+  `apply(context:)`, and written to `.standard` on watch receive so
+  `store.canMutate` gates on the phone's real count.
+- `ReminderStore.completionCounter`/`entitlementStore` became `public` (they had
+  been internal) so the app target can reach `store.entitlementStore`.
+- Periphery (deferred): 3 warnings — `EntitlementStore.sync()`, its `logger`,
+  and the assign-only `WatchReminderViewModel.entitlementState` — all consumed
+  by Phase 6 UI wiring.
 
 ---
 
