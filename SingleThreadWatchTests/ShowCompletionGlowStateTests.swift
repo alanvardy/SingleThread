@@ -121,4 +121,172 @@ struct ShowCompletionGlowStateTests {
         await viewModel.completeCurrentReminder()
         #expect(viewModel.completionGlow.isActive)
     }
+
+    // MARK: - Completion transition
+
+    @Test
+    func transitionFlagStartsFalse() {
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [watchReminder()],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let viewModel = WatchReminderViewModel(
+            store: store,
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: ShowCompletionGlowState(),
+            entitlementState: EntitlementState())
+        #expect(!viewModel.isShowingCompletionTransition)
+        #expect(viewModel.transitionReminder == nil)
+    }
+
+    @Test
+    func transitionFlagSetOnSuccessfulComplete() async {
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [watchReminder()],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let viewModel = WatchReminderViewModel(
+            store: store,
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: ShowCompletionGlowState(),
+            entitlementState: EntitlementState())
+        await viewModel.completeCurrentReminder()
+        #expect(viewModel.isShowingCompletionTransition)
+        #expect(viewModel.transitionReminder != nil)
+    }
+
+    @Test
+    func transitionFlagNotSetWhenGlowDisabled() async {
+        let glowState = ShowCompletionGlowState()
+        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
+        glowState.apply(false)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [watchReminder()],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let viewModel = WatchReminderViewModel(
+            store: store,
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: glowState,
+            entitlementState: EntitlementState())
+        await viewModel.completeCurrentReminder()
+        #expect(!viewModel.isShowingCompletionTransition)
+        #expect(viewModel.transitionReminder == nil)
+    }
+
+    @Test
+    func transitionFlagNotSetWhenNothingToComplete() async {
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let viewModel = WatchReminderViewModel(
+            store: store,
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: ShowCompletionGlowState(),
+            entitlementState: EntitlementState())
+        await viewModel.completeCurrentReminder()
+        #expect(!viewModel.isShowingCompletionTransition)
+        #expect(viewModel.transitionReminder == nil)
+    }
+
+    @Test
+    func doubleTapIsNoOp() async {
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [watchReminder()],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let viewModel = WatchReminderViewModel(
+            store: store,
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: ShowCompletionGlowState(),
+            entitlementState: EntitlementState())
+        await viewModel.completeCurrentReminder()
+        #expect(viewModel.isShowingCompletionTransition)
+        // Second call while transition is active exits immediately.
+        let wasActive = viewModel.completionGlow.isActive
+        await viewModel.completeCurrentReminder()
+        #expect(wasActive == viewModel.completionGlow.isActive, "Glow should not re-trigger on double-tap")
+    }
+
+    @Test
+    func transitionFlagClearsAfterDelay() async {
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [watchReminder()],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let viewModel = WatchReminderViewModel(
+            store: store,
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: ShowCompletionGlowState(),
+            entitlementState: EntitlementState())
+        viewModel.completionGlow.duration = 0.05
+        viewModel.completionTransitionBuffer = 0.01
+        await viewModel.completeCurrentReminder()
+        #expect(viewModel.isShowingCompletionTransition)
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 s > 0.05 + 0.01
+        #expect(!viewModel.isShowingCompletionTransition)
+        #expect(viewModel.transitionReminder == nil)
+    }
+
+    @Test
+    func transitionFlagStaysSetIfStoreRepopulated() async {
+        // Two reminders: completing the first empties the visible list only after
+        // the first is removed; the surviving second reminder keeps
+        // `visibleReminders` non-empty, so the clear guard never runs even after
+        // the glow + buffer delay elapses. (Direct `store.reminders.append(...)`
+        // is unavailable — `ReminderStore.reminders` is `public private(set)`.)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [watchReminder(), watchReminder()],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let viewModel = WatchReminderViewModel(
+            store: store,
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: ShowCompletionGlowState(),
+            entitlementState: EntitlementState())
+        viewModel.completionGlow.duration = 0.05
+        viewModel.completionTransitionBuffer = 0.01
+        await viewModel.completeCurrentReminder()
+        #expect(viewModel.isShowingCompletionTransition)
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 s > 0.05 + 0.01
+        // Flag stays set because visibleReminders is no longer empty.
+        #expect(viewModel.isShowingCompletionTransition)
+        #expect(viewModel.transitionReminder != nil)
+    }
 }
