@@ -26,6 +26,14 @@ struct SettingsViewTests {
     }
 
     @Test
+    func settingsBindingsCarriesShowUndoButton() {
+        let bag = SettingsBindings()
+        #expect(bag.showUndoButton) // default enabled
+        let off = SettingsBindings(showUndoButton: false)
+        #expect(!off.showUndoButton) // explicit false round-trips
+    }
+
+    @Test
     func settingsViewContainsNavigationLinkLabels() {
         let view = SettingsView(
             bindings: SettingsBindings(),
@@ -54,6 +62,7 @@ struct SettingsViewTests {
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
                 showSwipePrompt: .constant(true),
+                showUndoButton: .constant(true),
                 viewModel: SettingsViewModel())
         #else
             let view = InterfaceSettingsView(
@@ -68,7 +77,7 @@ struct SettingsViewTests {
             "Appearance", "Text Size", "Show microphone"
         ]
         #if os(iOS)
-            expectedLabels += ["Allow landscape", "Show action buttons", "Show swipe prompt"]
+            expectedLabels += ["Allow landscape", "Show action buttons", "Show swipe prompt", "Show undo button"]
         #endif
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))

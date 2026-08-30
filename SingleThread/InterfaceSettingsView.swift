@@ -24,6 +24,10 @@ struct InterfaceSettingsView: View {
         @Binding var showSwipePrompt: Bool
     #endif
 
+    #if os(iOS)
+        @Binding var showUndoButton: Bool
+    #endif
+
     let viewModel: SettingsViewModel
 
     var body: some View {
@@ -58,6 +62,9 @@ struct InterfaceSettingsView: View {
                 Toggle(isOn: $showSwipePrompt) {
                     Label("Show swipe prompt", systemImage: "arrow.left.arrow.right")
                 }
+                Toggle(isOn: $showUndoButton) {
+                    Label("Show undo button", systemImage: "arrow.uturn.backward")
+                }
             #endif
         }
         .navigationTitle("Interface")
@@ -76,6 +83,7 @@ struct InterfaceSettingsView: View {
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
                 showSwipePrompt: .constant(true),
+                showUndoButton: .constant(true),
                 viewModel: SettingsViewModel())
         #else
             InterfaceSettingsView(

@@ -41,6 +41,7 @@ struct SettingsView: View {
                                 showMicrophoneButton: $bindings.showMicrophoneButton,
                                 enableActionButtons: $bindings.enableActionButtons,
                                 showSwipePrompt: $bindings.showSwipePrompt,
+                                showUndoButton: $bindings.showUndoButton,
                                 viewModel: viewModel)
                         #else
                             InterfaceSettingsView(

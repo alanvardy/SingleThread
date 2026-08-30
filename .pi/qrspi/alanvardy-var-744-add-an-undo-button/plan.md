@@ -522,9 +522,9 @@ Inside the `#if os(iOS)` block that already gates the other iOS-only onChange li
 
 ### Verification
 #### Automated
-- [ ] `swiftformat SingleThread/ SingleThreadTests/ SingleThreadCore/ && swiftlint lint --strict` passes
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests` passes
-- [ ] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` succeeds (catches `#if` mismatch)
+- [x] `swiftformat SingleThread/ SingleThreadTests/ SingleThreadCore/ && swiftlint lint --strict` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests/SettingsViewTests` passes
+- [x] `xcodebuild build -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug` succeeds (catches `#if` mismatch)
 
 #### Manual
 - [ ] Open Settings → Interface, verify "Show undo button" toggle appears and defaults ON
