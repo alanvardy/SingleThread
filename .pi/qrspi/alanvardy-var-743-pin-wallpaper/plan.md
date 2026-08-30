@@ -437,8 +437,8 @@ func backgroundSettingsViewContainsExpectedRows() async {
 ### Verification
 
 #### Automated
-- [ ] Build compiles: `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build`
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes — all `BackgroundImageStoreTests` (17 total) + all `SettingsViewTests` (including the 2 new pin toggle tests and the updated `backgroundSettingsViewContainsExpectedRows`)
+- [x] Build compiles: `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -configuration Debug build`
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadTests` passes — all `BackgroundImageStoreTests` (17 total) + all `SettingsViewTests` (including the 2 new pin toggle tests and the updated `backgroundSettingsViewContainsExpectedRows`)
 
 #### Manual
 - [ ] Launch app in simulator, open Settings → Background — "Pin wallpaper" toggle visible in its own Section between the fade picker and refresh button

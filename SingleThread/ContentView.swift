@@ -113,7 +113,11 @@ struct ContentView: View {
             reduceMotion ? nil : .easeInOut(duration: 0.4),
             value: viewModel.completionGlow.isActive)
         .task {
+            await viewModel.backgroundImage.setPinned(backgroundPinned)
             await viewModel.task(showUndatedReminders: showUndatedReminders)
+        }
+        .onChange(of: backgroundPinned) { _, newValue in
+            setBackgroundPinned(newValue)
         }
         .onChange(of: showUndatedReminders) { _, newValue in
             viewModel.handleShowUndatedReminders(newValue)
@@ -156,6 +160,7 @@ struct ContentView: View {
                     .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
                     .onChange(of: bag.backgroundEnabled) { _, new in backgroundEnabled = new }
                     .onChange(of: bag.backgroundFadePercent) { _, new in backgroundFadePercent = new }
+                    .onChange(of: bag.backgroundPinned) { _, new in backgroundPinned = new }
                     .onChange(of: bag.showUndatedReminders) { _, new in showUndatedReminders = new }
                     .onChange(of: bag.sortOption) { _, new in sortOption = new }
                     .onChange(of: bag.showDate) { _, new in showDate = new }
@@ -195,6 +200,9 @@ struct ContentView: View {
 
     @AppStorage("backgroundFadePercent", store: .standard)
     private var backgroundFadePercent = BackgroundFade.defaultValue
+
+    @AppStorage("backgroundPinned", store: .standard)
+    private var backgroundPinned = false
 
     #if os(iOS)
         @AppStorage("enableActionButtons")
@@ -563,6 +571,12 @@ struct ContentView: View {
             .accessibilityLabel(feedback.accessibilityLabel)
     }
 
+    /// Dispatches the async pin-state change off the sync modifier closure.
+    /// Extracted so the long `body` modifier chain still type-checks.
+    private func setBackgroundPinned(_ pinned: Bool) {
+        Task { await viewModel.backgroundImage.setPinned(pinned) }
+    }
+
     /// Builds a fresh bindings bag from the current `@AppStorage`-backed
     /// preference values.
     @MainActor
@@ -578,6 +592,7 @@ struct ContentView: View {
                 showMicrophoneButton: showMicrophoneButton,
                 backgroundEnabled: backgroundEnabled,
                 backgroundFadePercent: backgroundFadePercent,
+                backgroundPinned: backgroundPinned,
                 showUndatedReminders: showUndatedReminders,
                 sortOption: sortOption,
                 showDate: showDate,
@@ -592,6 +607,7 @@ struct ContentView: View {
                 showMicrophoneButton: showMicrophoneButton,
                 backgroundEnabled: backgroundEnabled,
                 backgroundFadePercent: backgroundFadePercent,
+                backgroundPinned: backgroundPinned,
                 showUndatedReminders: showUndatedReminders,
                 sortOption: sortOption,
                 showDate: showDate,

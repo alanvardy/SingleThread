@@ -126,13 +126,44 @@ struct SettingsViewTests {
         let view = BackgroundSettingsView(
             backgroundEnabled: .constant(true),
             backgroundFadePercent: .constant(50),
+            backgroundPinned: .constant(false),
             backgroundImage: store)
         let bodyDescription = String(describing: view.body)
 
-        let expectedLabels = ["Background", "Background Fade", "Unsplash"]
+        let expectedLabels = ["Background", "Background Fade", "Pin wallpaper", "Unsplash"]
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
         }
+    }
+
+    @Test
+    func backgroundSettingsViewContainsPinToggle() async {
+        let store = await makeSeededStore()
+        let view = BackgroundSettingsView(
+            backgroundEnabled: .constant(true),
+            backgroundFadePercent: .constant(50),
+            backgroundPinned: .constant(false),
+            backgroundImage: store)
+        let bodyDescription = String(describing: view.body)
+
+        #expect(
+            bodyDescription.contains("Pin wallpaper"),
+            "Background settings should contain Pin wallpaper toggle when background is enabled")
+    }
+
+    @Test
+    func pinToggleHiddenWhenBackgroundDisabled() async {
+        let store = await makeSeededStore()
+        let view = BackgroundSettingsView(
+            backgroundEnabled: .constant(false),
+            backgroundFadePercent: .constant(50),
+            backgroundPinned: .constant(false),
+            backgroundImage: store)
+        let bodyDescription = String(describing: view.body)
+
+        #expect(
+            !bodyDescription.contains("Pin wallpaper"),
+            "Pin wallpaper toggle should be hidden when background is disabled")
     }
 
     @Test

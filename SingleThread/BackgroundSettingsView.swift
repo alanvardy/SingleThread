@@ -9,6 +9,8 @@ struct BackgroundSettingsView: View {
 
     @Binding var backgroundFadePercent: Int
 
+    @Binding var backgroundPinned: Bool
+
     var backgroundImage: BackgroundImageStore
 
     var body: some View {
@@ -19,6 +21,13 @@ struct BackgroundSettingsView: View {
             Picker("Background Fade", selection: $backgroundFadePercent) {
                 ForEach(BackgroundFade.allValues, id: \.self) { percent in
                     Text("\(percent)%").tag(percent)
+                }
+            }
+            if backgroundEnabled {
+                Section {
+                    Toggle(isOn: $backgroundPinned) {
+                        Label("Pin wallpaper", systemImage: "pin")
+                    }
                 }
             }
             Section {
@@ -59,6 +68,7 @@ struct BackgroundSettingsView: View {
         BackgroundSettingsView(
             backgroundEnabled: .constant(true),
             backgroundFadePercent: .constant(50),
+            backgroundPinned: .constant(false),
             backgroundImage: BackgroundImageStore())
     }
 }

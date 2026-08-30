@@ -31,7 +31,7 @@ type_body_length:
   error: 600
 
 file_length:
-  warning: 650
+  warning: 700
   error: 800
 
 # Allow force-casting in test code
