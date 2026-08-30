@@ -260,12 +260,11 @@ struct ShowCompletionGlowStateTests {
     }
 
     @Test
-    func transitionFlagStaysSetIfStoreRepopulated() async {
-        // Two reminders: completing the first empties the visible list only after
-        // the first is removed; the surviving second reminder keeps
-        // `visibleReminders` non-empty, so the clear guard never runs even after
-        // the glow + buffer delay elapses. (Direct `store.reminders.append(...)`
-        // is unavailable — `ReminderStore.reminders` is `public private(set)`.)
+    func transitionFlagClearsAfterDelayEvenWithNextReminder() async {
+        // Two reminders: completing the first must NOT leave the ghost card
+        // stuck on screen. After the glow + buffer delay the transition clears
+        // and the surviving second reminder becomes the visible one, so the
+        // user can keep completing without the app going unresponsive.
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
@@ -284,9 +283,11 @@ struct ShowCompletionGlowStateTests {
         viewModel.completionTransitionBuffer = 0.01
         await viewModel.completeCurrentReminder()
         #expect(viewModel.isShowingCompletionTransition)
-        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 s > 0.05 + 0.01
-        // Flag stays set because visibleReminders is no longer empty.
-        #expect(viewModel.isShowingCompletionTransition)
         #expect(viewModel.transitionReminder != nil)
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 s > 0.05 + 0.01
+        // The transition always ends after the glow; the next reminder is ready.
+        #expect(!viewModel.isShowingCompletionTransition)
+        #expect(viewModel.transitionReminder == nil)
+        #expect(store.visibleReminders.count == 1)
     }
 }

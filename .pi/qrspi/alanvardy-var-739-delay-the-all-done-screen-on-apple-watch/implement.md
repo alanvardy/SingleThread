@@ -11,6 +11,7 @@ glow has finished.
 | 1     | `ba77212` | Completion transition state & logic in `WatchReminderViewModel` — adds `isShowingCompletionTransition`, `transitionReminder`, `completionTransitionBuffer`; reworks `completeCurrentReminder()` to snapshot the card, hold it for `glow.duration + buffer`, and only clear it if the store is still empty. Adds 7 unit tests to `ShowCompletionGlowStateTests`. |
 | 2     | `5ecbe5c` | Ghost-card branch in `WatchReminderView` — `reminderContent` renders `transitionReminder` first while the transition flag is set, so the card persists under the glow overlay. |
 | 3     | `1f183b6` | Post-completion timing UI test — `testCompleteHoldsCardDuringGlow` asserts the card persists during the glow and the `No Reminders` state appears afterwards. |
+| fix   | *(see git log)* | Bug fix: completing any reminder that wasn't the very last one left the ghost card — and its dead buttons — stuck on screen forever (the clear guard gated on `store.visibleReminders.isEmpty`). The transition now clears unconditionally after the glow + buffer; tests updated (`transitionFlagClearsAfterDelayEvenWithNextReminder`). |
 
 ## Automated Checks
 
