@@ -183,6 +183,26 @@ private final class FakeEventStore: EventKitStoring {
         }
 
         @Test
+        func undoLastCompletionSaveErrorClearsUndoStore() async {
+            let reminder = makeReminder(title: "Task")
+            let fake = FakeEventStore(fetchResult: [reminder])
+            let store = testStore(eventStore: fake)
+            await store.reload()
+
+            // Complete first (succeeds, stashes in undoStore).
+            let completed = await store.completeReminder(identifier: reminder.calendarItemIdentifier)
+            #expect(completed)
+            #expect(store.undoStore.hasUndoableReminder)
+
+            // Now make save throw so undoLastCompletion fails.
+            fake.saveShouldThrow = true
+            let undone = await store.undoLastCompletion()
+            #expect(!undone)
+            // Undo store must be cleared even on error so the button disappears.
+            #expect(!store.undoStore.hasUndoableReminder)
+        }
+
+        @Test
         func addReminderSavesAndReturnsTrue() async {
             let fake = FakeEventStore()
             let store = testStore(eventStore: fake)
