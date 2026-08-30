@@ -674,11 +674,11 @@ Inside the `#if os(iOS)` block that already gates the other iOS-only onChange li
 
 ### Verification
 #### Automated
-- [ ] `swiftformat SingleThreadUITests/ && swiftlint lint --strict` passes
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` passes (includes existing accessibility audit + three new undo tests)
+- [x] `swiftformat SingleThreadUITests/ && swiftlint lint --strict` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests` passes (includes existing accessibility audit + three new undo tests)
 
 #### Manual
-- [ ] Run `./scripts/test.sh` — full gate must be green
+- [x] Run `./scripts/test.sh` — full gate must be green
 
 ---
 

@@ -8,6 +8,9 @@
 //  which backs the app with an in-memory EventKit store so complete/delete/skip
 //  mutate deterministically without touching a real EKEventStore.
 //
+// Kept above the `file_length` warning threshold (650) by the end-to-end
+// user-flow tests (Complete/Skip/Delete/Undo/Settings/Background/Composition).
+// swiftlint:disable file_length
 
 import XCTest
 
@@ -513,6 +516,80 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(
             app.buttons["Dismiss swipe prompt"].waitForExistence(timeout: 3),
             "Prompt should reappear after re-enabling in Settings")
+    }
+
+    // MARK: - Undo
+
+    @MainActor
+    func testUndoButtonAppearsAfterCompleteAndUndoRemovesReminder() {
+        let seed = #"{"reminders":[{"title":"Buy groceries"}]}"#
+        let app = launchApp(seedJSON: seed)
+
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        // Complete the reminder via action button.
+        let completeButton = app.buttons["Complete reminder"]
+        XCTAssertTrue(completeButton.waitForExistence(timeout: 3))
+        completeButton.tap()
+
+        // Undo button should appear after completion.
+        let undoButton = app.buttons["Undo completion"]
+        XCTAssertTrue(undoButton.waitForExistence(timeout: 3), "Undo button should appear after completing a reminder")
+
+        // Tap undo.
+        undoButton.tap()
+
+        // Reminder should reappear.
+        XCTAssertTrue(
+            app.staticTexts["Buy groceries"].waitForExistence(timeout: 3),
+            "Reminder should reappear after undo")
+
+        // Undo button should disappear.
+        XCTAssertFalse(undoButton.exists, "Undo button should disappear after undoing")
+    }
+
+    @MainActor
+    func testUndoButtonHiddenWhenToggleOff() {
+        let seed = #"{"reminders":[{"title":"Buy groceries"}]}"#
+        let app = launchApp(seedJSON: seed)
+
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        // Complete the reminder to make undo button appear.
+        let completeButton = app.buttons["Complete reminder"]
+        XCTAssertTrue(completeButton.waitForExistence(timeout: 3))
+        completeButton.tap()
+
+        let undoButton = app.buttons["Undo completion"]
+        XCTAssertTrue(undoButton.waitForExistence(timeout: 3))
+
+        // Open settings, navigate to Interface, flip showUndoButton off.
+        app.buttons["Settings"].tap()
+        XCTAssertTrue(app.staticTexts["Interface"].waitForExistence(timeout: 3))
+        app.staticTexts["Interface"].tap()
+
+        let showUndoToggle = app.switches["Show undo button"]
+        XCTAssertTrue(showUndoToggle.waitForExistence(timeout: 3))
+        let flipped = flipToggle(showUndoToggle, target: "0")
+        XCTAssertTrue(flipped, "Show undo button toggle should be off")
+
+        // The Done button lives on the settings root, so pop back to it first.
+        app.navigationBars.buttons.firstMatch.tap()
+        app.buttons["Done"].tap()
+
+        // Undo button should be gone.
+        XCTAssertFalse(undoButton.exists, "Undo button should be hidden when toggle is off")
+    }
+
+    @MainActor
+    func testUndoButtonDoesNotAppearWithoutCompletion() {
+        let seed = #"{"reminders":[{"title":"Buy groceries"}]}"#
+        let app = launchApp(seedJSON: seed)
+
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        // Undo button should not exist on fresh launch.
+        XCTAssertFalse(app.buttons["Undo completion"].exists, "Undo button should not appear without a completion")
     }
 
     // MARK: - Freemium gate
