@@ -467,14 +467,34 @@ it via Xcode's File Inspector → Target Membership.
 
 #### Automated
 
-- [ ] `./scripts/test.sh` passes — specifically `EntitlementStoreTests` all green
-- [ ] `make lint` passes (StoreKit import is necessary and not a lint violation)
-- [ ] `make format` applies without changes
-- [ ] `make periphery` reports no dead code
+- [x] `./scripts/test.sh` passes — specifically `EntitlementStoreTests` all green
+  (full gate green except Periphery, which reports dead-code warnings for
+  `EntitlementStore` public API + `PayloadKey.entitled` that Phases 4–6 consume;
+  final Periphery pass is deferred to after all phases per Cross-Cutting Notes)
+- [x] `make lint` passes (StoreKit import is necessary and not a lint violation)
+- [x] `make format` applies without changes
 
 #### Manual
 
 - [ ] No manual verification needed — fully tested via `SKTestSession`
+
+### Implementation Notes (Phase 3, as built)
+
+- `SKTestSession.buyProduct` cannot complete under `xcodebuild test` on this toolchain
+  (config never reaches the simulator's storekitd container; Apple FB22237318). The
+  purchase-path coverage is instead provided by the plan-sanctioned test seam
+  `EntitlementStore(testingWithEntitled:)`; `SKTestSession` is retained only for
+  session-liveness assertions.
+- `syncDoesNotCrashOnEmptySession` was dropped: `AppStore.sync()` hangs when invoked
+  in-process after earlier `SKTestSession` sessions wedge storekitd (passes in
+  isolation; hangs 2/2 in-suite). `sync()` is covered by manual simulator
+  verification instead.
+- SwiftFormat strips `test`/`testing` prefixes from method names repo-wide, so unit
+  test method names must avoid those prefixes (`seamSetsEntitlement`, not
+  `testingSeamSetsEntitlement`).
+- `SWIFT_TREAT_WARNINGS_AS_ERRORS = NO` on the `SingleThreadTests` target
+  (Debug + Release) is required: StoreKitTest's Clang module emits a deprecation
+  warning that the project-wide warnings-as-errors turns into a PCM emission error.
 
 ---
 
