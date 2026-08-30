@@ -563,7 +563,7 @@ func testPinWallpaperTogglePersistsAcrossRelaunch() {
 
 After all three phases are complete:
 
-- [ ] `./scripts/test.sh` passes — format, lint, build, Periphery, unit tests, UI tests
+- [x] `./scripts/test.sh` passes — format, lint, build, Periphery, unit tests, UI tests
 
 ---
 
