@@ -53,6 +53,15 @@ struct SettingsView: View {
                     } label: {
                         Label("Interface", systemImage: "paintpalette")
                     }
+                    #if os(iOS)
+                        NavigationLink {
+                            NotificationsSettingsView(
+                                notificationsEnabled: $bindings.notificationsEnabled,
+                                notificationIntervalHours: $bindings.notificationIntervalHours)
+                        } label: {
+                            Label("Notifications", systemImage: "bell.badge")
+                        }
+                    #endif
                     NavigationLink {
                         ReminderSettingsView(
                             showDate: $bindings.showDate,
