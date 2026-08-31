@@ -728,8 +728,8 @@ No additional file changes. The Phase 4 test is additive verification.
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes (format → lint → build → periphery → unit tests → UI tests)
-- [ ] Specifically: `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/NotificationsUITests` passes
+- [x] `./scripts/test.sh` passes (format → lint → build → periphery → unit tests → UI tests)
+- [x] Specifically: `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/NotificationsUITests` passes
 
 #### Manual
 - [ ] Run through the full flow manually: enable toggle → change interval → background → verify OS notification center → foreground → verify cleared
