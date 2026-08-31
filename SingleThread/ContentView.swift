@@ -14,8 +14,11 @@ import SwiftUI
 struct ContentView: View {
     // MARK: Lifecycle
 
-    init(viewModel: ContentViewModel) {
+    init(viewModel: ContentViewModel, appViewModel: AppViewModel? = nil) {
         self.viewModel = viewModel
+        #if os(iOS)
+            self.appViewModel = appViewModel
+        #endif
     }
 
     /// Pre-populates state for canvas previews.
@@ -28,6 +31,9 @@ struct ContentView: View {
             store: ReminderStore(eventStore: eventStore, loadsReminders: loadsReminders),
             backgroundImage: backgroundImage,
             speechTranscriber: speechTranscriber ?? ReminderDictation())
+        #if os(iOS)
+            appViewModel = nil
+        #endif
     }
 
     /// Pre-populates state for canvas previews.
@@ -51,6 +57,9 @@ struct ContentView: View {
                 hasHidden: hasHidden),
             backgroundImage: backgroundImage,
             speechTranscriber: speechTranscriber ?? ReminderDictation())
+        #if os(iOS)
+            appViewModel = nil
+        #endif
     }
 
     // MARK: Internal
@@ -108,9 +117,19 @@ struct ContentView: View {
                 completionGlowOverlay
             }
         }
+        .overlay(alignment: .topLeading) {
+            #if os(iOS)
+                notificationStatusOverlay
+            #endif
+        }
         .animation(
             reduceMotion ? nil : .easeInOut(duration: 0.4),
             value: viewModel.completionGlow.isActive)
+        #if os(iOS)
+        .onChange(of: scenePhase) { _, phase in
+            handleScenePhaseChange(phase)
+        }
+        #endif
         .task {
             await viewModel.backgroundImage.setPinned(backgroundPinned)
             await viewModel.task(showUndatedReminders: showUndatedReminders)
@@ -127,6 +146,11 @@ struct ContentView: View {
         .onChange(of: appearanceMode) { _, newValue in
             viewModel.handleAppearanceMode(newValue)
         }
+        #if os(iOS)
+        .onChange(of: notificationsEnabled) { _, newValue in
+            handleNotificationsEnabledChange(newValue)
+        }
+        #endif
         .modifier(TextSizeModifier(textSize: textSize))
         .onChange(of: isShowingSettings) { _, showing in
             // Nil the bag on dismiss so a fresh one is created next open.
@@ -144,7 +168,6 @@ struct ContentView: View {
                 isPresented: $isShowingPurchase,
                 entitlementStore: viewModel.store.entitlementStore)
         }
-    }
 
     // MARK: Private
 
@@ -231,7 +254,14 @@ struct ContentView: View {
     @Environment(\.accessibilityReduceMotion)
     private var reduceMotion
 
+    @Environment(\.scenePhase)
+    private var scenePhase
+
     private let viewModel: ContentViewModel
+
+    #if os(iOS)
+        private let appViewModel: AppViewModel?
+    #endif
 
     private var excludedListsBinding: Binding<Set<String>> {
         Binding(
@@ -644,6 +674,61 @@ struct ContentView: View {
         #endif
     }
 }
+
+// MARK: - Notifications (iOS)
+
+// Notification scheduling handlers and the UI-test seam overlay. Kept in a
+// separate extension so `ContentView`'s own body stays within SwiftLint's
+// `type_body_length` budget.
+#if os(iOS)
+    private extension ContentView {
+        /// True only for the notifications scheduling UI test; exposes the pending /
+        /// last-schedule status strings to the accessibility tree in that mode so an
+        /// XCUITest can assert the app's real pending-notification state.
+        var isNotificationsUITesting: Bool {
+            ProcessInfo.processInfo.arguments.contains("--ui-testing-notifications")
+        }
+
+        /// UI-test seam: renders the pending/last-schedule notification status
+        /// strings so an XCUITest can read the app's real pending state. Tiny and
+        /// pass-through; exposed to the accessibility tree only under
+        /// `--ui-testing-notifications`.
+        var notificationStatusOverlay: some View {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(appViewModel?.pendingSummary ?? "unset")
+                    .accessibilityIdentifier("pendingStatus")
+                Text(appViewModel?.lastScheduleSummary ?? "unset")
+                    .accessibilityIdentifier("lastScheduleStatus")
+            }
+            .font(.system(size: 1))
+            .allowsHitTesting(false)
+            .accessibilityHidden(!isNotificationsUITesting)
+        }
+
+        /// Routes scene-phase transitions into the notification engine: schedule on
+        /// background, cancel on foreground. No-op on non-iOS platforms (the feature
+        /// is iOS-only).
+        func handleScenePhaseChange(_ phase: ScenePhase) {
+            guard let appViewModel else { return }
+            switch phase {
+            case .background:
+                Task { await appViewModel.scheduleNotificationIfNeeded() }
+            case .active:
+                Task { await appViewModel.cancelNotifications() }
+            default:
+                break
+            }
+        }
+
+        /// Requests notification authorization the first time the user flips the
+        /// enable toggle ON. A no-op once the status is already determined.
+        func handleNotificationsEnabledChange(_ newValue: Bool) {
+            if newValue {
+                Task { await appViewModel?.requestNotificationPermissionIfNeeded() }
+            }
+        }
+    }
+#endif
 
 // MARK: - Preview Helpers
 

@@ -18,7 +18,7 @@ struct SingleThreadApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(viewModel: viewModel.contentViewModel)
+            ContentView(viewModel: viewModel.contentViewModel, appViewModel: viewModel)
         }
     }
 

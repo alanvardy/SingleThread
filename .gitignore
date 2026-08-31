@@ -2,6 +2,7 @@
 xcuserdata/
 *.xcuserdatad
 DerivedData/
+DerivedDataPhase3/
 *.xcuserstate
 *.xcscmblueprint
 *.xccheckout
