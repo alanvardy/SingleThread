@@ -93,7 +93,7 @@ final class NotificationSchedulingUITests: XCTestCase {
         XCTAssertTrue(
             lastSchedule?.contains("count=1") == true,
             "Exactly one notification scheduled, got: \(lastSchedule ?? "nil")")
-        XCTAssertTrue(lastSchedule?.contains("id=com.alanvardy.SingleThread.idle-reminder") == true)
+        XCTAssertTrue(lastSchedule?.contains("id=app.alanvardy.SingleThread.idle-reminder") == true)
         XCTAssertTrue(lastSchedule?.contains("body=You have 2 reminders waiting — open SingleThread!") == true)
         // 48h default interval.
         XCTAssertTrue(
