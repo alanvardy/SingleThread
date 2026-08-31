@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 
 final class NotificationsUITests: XCTestCase {
@@ -163,3 +164,4 @@ final class NotificationsUITests: XCTestCase {
         try app.performAccessibilityAudit(for: [.sufficientElementDescription, .trait])
     }
 }
+#endif
