@@ -3,6 +3,7 @@ import SingleThreadCore
 import SwiftUI
 #if os(iOS)
     import EventKit
+    import UserNotifications
     import WatchConnectivity
 #endif
 #if os(iOS) || os(macOS)
@@ -93,6 +94,75 @@ final class AppViewModel {
     let usesInMemoryStore: Bool
     #if os(iOS)
         private(set) var syncService: SkippedReminderSyncService?
+    #endif
+
+    #if os(iOS)
+        /// Current pending notification requests, rendered as a stable status
+        /// string ONLY under the UI-test flag (see below). Updated on the
+        /// schedule (before guards, then after add) and cancel paths.
+        private(set) var pendingSummary: String?
+
+        /// What was most recently SCHEDULED (survives cancel / foreground).
+        /// Present only if a request was actually added this cycle.
+        private(set) var lastScheduleSummary: String?
+
+        /// Schedules a single local notification if the feature is enabled and
+        /// reminders are pending. Always removes existing requests first so only
+        /// one notification is ever scheduled.
+        func scheduleNotificationIfNeeded() async {
+            await refreshPendingSummary()
+            guard UserDefaults.standard.bool(forKey: "notificationsEnabled") else { return }
+            let count = store.visibleReminders.count
+            guard count > 0 || store.hasHidden else { return }
+
+            let intervalHours = UserDefaults.standard.integer(forKey: "notificationIntervalHours")
+            let effectiveHours = intervalHours > 0 ? intervalHours : 48
+
+            let center = UNUserNotificationCenter.current()
+            center.removeAllPendingNotificationRequests()
+
+            let content = UNMutableNotificationContent()
+            content.title = "SingleThread"
+            content.body = "You have \(count) reminders waiting — open SingleThread!"
+            content.sound = .default
+
+            let trigger = UNTimeIntervalNotificationTrigger(
+                timeInterval: Double(effectiveHours * 3600),
+                repeats: false)
+
+            let request = UNNotificationRequest(
+                identifier: "com.alanvardy.SingleThread.idle-reminder",
+                content: content,
+                trigger: trigger)
+
+            do {
+                try await center.add(request)
+                lastScheduleSummary = Self.summary(requests: [request])
+            } catch {
+                // Silently skip — the user won't get reminded this cycle.
+                // The next background transition will retry.
+                lastScheduleSummary = nil
+            }
+        }
+
+        /// Cancels all pending local notifications and refreshes the seam.
+        func cancelNotifications() async {
+            UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+            await refreshPendingSummary()
+        }
+
+        /// Requests notification authorization (.alert + .badge).
+        /// No-op if already determined (granted or denied).
+        func requestNotificationPermissionIfNeeded() async {
+            let center = UNUserNotificationCenter.current()
+            let settings = await center.notificationSettings()
+            switch settings.authorizationStatus {
+            case .notDetermined:
+                _ = try? await center.requestAuthorization(options: [.alert, .badge])
+            default:
+                break
+            }
+        }
     #endif
 
     /// The root view model. Rebuilt on demand so the view always reflects the
@@ -199,6 +269,26 @@ final class AppViewModel {
         }
         return store
     }
+
+    #if os(iOS)
+        /// Refreshes `pendingSummary` from the notification center, but only
+        /// when the UI-test seam flag is present so production never incurs the
+        /// query or exposes the status.
+        private func refreshPendingSummary() async {
+            guard ProcessInfo.processInfo.arguments.contains("--ui-testing-notifications") else { return }
+            let requests = await UNUserNotificationCenter.current().pendingNotificationRequests()
+            pendingSummary = Self.summary(requests: requests)
+        }
+
+        /// Renders a pending-notification snapshot as a stable, newline-free
+        /// key=value status string for the UI-test seam.
+        private static func summary(requests: [UNNotificationRequest]) -> String {
+            guard let first = requests.first else { return "count=0" }
+            let interval = (first.trigger as? UNTimeIntervalNotificationTrigger)
+                .map { Int($0.timeInterval.rounded()) } ?? -1
+            return "count=\(requests.count)\nid=\(first.identifier)\nbody=\(first.content.body)\ninterval=\(interval)"
+        }
+    #endif
 
     #if os(iOS)
         /// Re-registers observation on the shared entitlement store so every

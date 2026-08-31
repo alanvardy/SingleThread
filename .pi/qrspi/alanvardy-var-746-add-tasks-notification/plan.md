@@ -592,9 +592,9 @@ v1 inlining is fine.
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/NotificationSchedulingUITests` passes
-- [ ] `make build` passes (new `import UserNotifications` auto-links framework)
-- [ ] `make lint` passes (no unused import — `UserNotifications` is consumed by `AppViewModel` methods)
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/NotificationSchedulingUITests` passes
+- [x] `make build` passes (new `import UserNotifications` auto-links framework)
+- [x] `make lint` passes (no unused import — `UserNotifications` is consumed by `AppViewModel` methods)
 
 #### Manual
 - [ ] Launch app with real reminders → Settings → Notifications → toggle ON
