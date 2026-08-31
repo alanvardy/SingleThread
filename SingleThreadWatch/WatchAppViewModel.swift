@@ -99,6 +99,16 @@ final class WatchAppViewModel {
         reminder.title = "Buy groceries"
         reminder.priority = 5
         reminder.notes = "Don't forget the milk"
+        // `--ui-testing-priority <n>` overrides the sample reminder's priority so a
+        // watch UI test can assert the rendered priority marker. Parsed before the
+        // excluded-list loop below (which returns early) so the override is not
+        // silently dropped when combined with an excluded-list flag. Absent the
+        // flag, the reminder keeps the default `5` (medium).
+        if let index = arguments.firstIndex(of: "--ui-testing-priority"),
+           index + 1 < arguments.count,
+           let priority = Int(arguments[index + 1]) {
+            reminder.priority = priority
+        }
         // `--ui-testing-excluded-list "<list>"` gives the sample reminder a calendar
         // of that title and pre-populates the store's exclusion set, so an XCTest
         // can assert a list's current card is suppressed (the store's live exclusion
@@ -122,14 +132,6 @@ final class WatchAppViewModel {
                 skippedIDs: [],
                 authorizationStatus: .fullAccess,
                 excludedListTitles: flag == "--ui-testing-excluded-list" ? [list] : [])
-        }
-        // `--ui-testing-priority <n>` overrides the sample reminder's priority so a
-        // watch UI test can assert the rendered priority marker. Absent the flag,
-        // the reminder keeps the default `5` (medium).
-        if let index = arguments.firstIndex(of: "--ui-testing-priority"),
-           index + 1 < arguments.count,
-           let priority = Int(arguments[index + 1]) {
-            reminder.priority = priority
         }
         let inMemoryStore = InMemoryEventStore(reminders: [reminder])
         return ReminderStore(
