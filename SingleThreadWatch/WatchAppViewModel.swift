@@ -123,6 +123,14 @@ final class WatchAppViewModel {
                 authorizationStatus: .fullAccess,
                 excludedListTitles: flag == "--ui-testing-excluded-list" ? [list] : [])
         }
+        // `--ui-testing-priority <n>` overrides the sample reminder's priority so a
+        // watch UI test can assert the rendered priority marker. Absent the flag,
+        // the reminder keeps the default `5` (medium).
+        if let index = arguments.firstIndex(of: "--ui-testing-priority"),
+           index + 1 < arguments.count,
+           let priority = Int(arguments[index + 1]) {
+            reminder.priority = priority
+        }
         let inMemoryStore = InMemoryEventStore(reminders: [reminder])
         return ReminderStore(
             eventStore: inMemoryStore,
