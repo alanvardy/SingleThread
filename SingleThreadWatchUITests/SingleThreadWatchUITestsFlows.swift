@@ -22,6 +22,20 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
     }
 
     @MainActor
+    func testPriorityMarkerRendersForMidRangeValue() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-priority", "7"]
+        app.launch()
+
+        // The marker Text renders "!" but carries the accessibility label
+        // "Low priority" (level.displayName + " priority"), so UI tests match
+        // the marker element by that label.
+        XCTAssertTrue(
+            app.staticTexts["Low priority"].waitForExistence(timeout: 5),
+            "Priority-7 reminder should render the low-priority marker")
+    }
+
+    @MainActor
     func testExcludedListDoesNotRenderReminder() {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing", "--ui-testing-excluded-list", "Work"]

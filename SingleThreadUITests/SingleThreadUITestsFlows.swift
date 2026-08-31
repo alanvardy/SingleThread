@@ -73,6 +73,19 @@ final class SingleThreadUITestsFlows: XCTestCase {
     }
 
     @MainActor
+    func testPriorityMarkerRendersForMidRangeValue() {
+        let seed = #"{"reminders":[{"title":"Urgent item","priority":3}]}"#
+        let app = launchApp(seedJSON: seed)
+
+        // The marker Text renders "!!!" but carries the accessibility label
+        // "High priority" (level.displayName + " priority"), so UI tests match
+        // the marker element by that label.
+        XCTAssertTrue(
+            app.staticTexts["High priority"].waitForExistence(timeout: 5),
+            "Priority-3 reminder should render the high-priority marker")
+    }
+
+    @MainActor
     func testSkipAllShowsAllDoneState() {
         let app = launchApp(seedJSON: #"{"reminders":[{"title":"Only one"}]}"#)
 

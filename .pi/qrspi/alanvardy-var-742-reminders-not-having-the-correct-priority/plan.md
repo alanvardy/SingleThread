@@ -345,9 +345,9 @@ func testPriorityMarkerRendersForMidRangeValue() {
 
 ### Verification
 #### Automated
-- [ ] `make ui-test SIM='platform=iOS Simulator,name=iPhone 17'` — all iOS UI tests pass, including `testPriorityMarkerRendersForMidRangeValue`
-- [ ] `make ui-test SIM='platform=iOS Simulator,name=iPad (A16)'` — same
-- [ ] Watch UI tests in CI (or locally if watch simulator is available)
+- [x] `make ui-test SIM='platform=iOS Simulator,name=iPhone 17'` — all iOS UI tests pass, including `testPriorityMarkerRendersForMidRangeValue`
+- [x] `make ui-test SIM='platform=iOS Simulator,name=iPad (A16)'` — same
+- [x] Watch UI tests in CI (or locally if watch simulator is available)
 
 #### Manual
 - [ ] Run iOS UI tests and confirm the `"!!!"` marker appears on screen during `testPriorityMarkerRendersForMidRangeValue`
