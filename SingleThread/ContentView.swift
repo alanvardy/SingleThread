@@ -3,7 +3,6 @@
 // threshold (500); the value drives the entire single-screen UI so the view
 // modifiers stay in one spot.
 // swiftlint:disable file_length
-
 import EventKit
 import SingleThreadCore
 import Speech
@@ -138,37 +137,7 @@ struct ContentView: View {
             }
         }
         .sheet(isPresented: $isShowingSettings) {
-            if let bag = settingsBag {
-                SettingsView(
-                    bindings: bag,
-                    backgroundImage: viewModel.backgroundImage,
-                    availableLists: viewModel.store.availableLists,
-                    excludedLists: excludedListsBinding,
-                    entitlementStore: viewModel.store.entitlementStore,
-                    viewModel: SettingsViewModel())
-                    // The bag is a plain in-memory holder; write each changed
-                    // value back to the @AppStorage-backed property so settings
-                    // survive relaunch (mirrors the old direct-bind behavior).
-                    .onChange(of: bag.appearanceMode) { _, new in appearanceMode = new }
-                    .onChange(of: bag.textSize) { _, new in textSize = new }
-                #if os(iOS)
-                    .onChange(of: bag.allowsLandscape) { _, new in allowsLandscape = new }
-                    .onChange(of: bag.enableActionButtons) { _, new in enableActionButtons = new }
-                    .onChange(of: bag.showSwipePrompt) { _, new in showSwipePrompt = new }
-                    .onChange(of: bag.showUndoButton) { _, new in showUndoButton = new }
-                #endif
-                    .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
-                    .onChange(of: bag.backgroundEnabled) { _, new in backgroundEnabled = new }
-                    .onChange(of: bag.backgroundFadePercent) { _, new in backgroundFadePercent = new }
-                    .onChange(of: bag.backgroundPinned) { _, new in backgroundPinned = new }
-                    .onChange(of: bag.showUndatedReminders) { _, new in showUndatedReminders = new }
-                    .onChange(of: bag.sortOption) { _, new in sortOption = new }
-                    .onChange(of: bag.showDate) { _, new in showDate = new }
-                    .onChange(of: bag.showList) { _, new in showList = new }
-                    .onChange(of: bag.showRecurrence) { _, new in showRecurrence = new }
-                    .onChange(of: bag.showAlarms) { _, new in showAlarms = new }
-                    .onChange(of: bag.showCompletionGlow) { _, new in showCompletionGlow = new }
-            }
+            settingsSheetContent
         }
         .sheet(isPresented: $isShowingPurchase) {
             PurchaseSheet(
@@ -217,8 +186,13 @@ struct ContentView: View {
     #if os(iOS)
         @AppStorage("showUndoButton")
         private var showUndoButton = true
-    #endif
 
+        @AppStorage("notificationsEnabled")
+        private var notificationsEnabled = false
+
+        @AppStorage("notificationIntervalHours")
+        private var notificationIntervalHours = 48
+    #endif
     @AppStorage("showUndatedReminders", store: AppGroup.defaults)
     private var showUndatedReminders = false
 
@@ -564,6 +538,56 @@ struct ContentView: View {
             .transition(.opacity)
     }
 
+    /// The Settings sheet body: `SettingsView` wrapped in the bag → @AppStorage
+    /// write-back chain. Lives in its own functions so the long `.onChange`
+    /// chain has its own type-check budget instead of blowing up `body`'s
+    /// single expression.
+    @ViewBuilder private var settingsSheetContent: some View {
+        if let bag = settingsBag {
+            settingsSheetWritebacks(bag)
+        }
+    }
+
+    /// Builds the Settings sheet content. The write-back chain is split into
+    /// staged values so each expression stays within the compiler's type-check
+    /// budget (a single 17-modifier chain does not).
+    private func settingsSheetWritebacks(_ bag: SettingsBindings) -> some View {
+        let withAppearance = SettingsView(
+            bindings: bag,
+            backgroundImage: viewModel.backgroundImage,
+            availableLists: viewModel.store.availableLists,
+            excludedLists: excludedListsBinding,
+            entitlementStore: viewModel.store.entitlementStore,
+            viewModel: SettingsViewModel())
+            // The bag is a plain in-memory holder; write each changed value
+            // back to the @AppStorage-backed property so settings survive
+            // relaunch (mirrors the old direct-bind behavior).
+            .onChange(of: bag.appearanceMode) { _, new in appearanceMode = new }
+            .onChange(of: bag.textSize) { _, new in textSize = new }
+        #if os(iOS)
+            let withIOSPreferences = withAppearance
+                .onChange(of: bag.allowsLandscape) { _, new in allowsLandscape = new }
+                .onChange(of: bag.enableActionButtons) { _, new in enableActionButtons = new }
+                .onChange(of: bag.showSwipePrompt) { _, new in showSwipePrompt = new }
+                .onChange(of: bag.showUndoButton) { _, new in showUndoButton = new }
+                .onChange(of: bag.notificationsEnabled) { _, new in notificationsEnabled = new }
+                .onChange(of: bag.notificationIntervalHours) { _, new in notificationIntervalHours = new }
+        #else
+            let withIOSPreferences = withAppearance
+        #endif
+        return withIOSPreferences
+            .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
+            .onChange(of: bag.backgroundEnabled) { _, new in backgroundEnabled = new }
+            .onChange(of: bag.backgroundFadePercent) { _, new in backgroundFadePercent = new }
+            .onChange(of: bag.showUndatedReminders) { _, new in showUndatedReminders = new }
+            .onChange(of: bag.sortOption) { _, new in sortOption = new }
+            .onChange(of: bag.showDate) { _, new in showDate = new }
+            .onChange(of: bag.showList) { _, new in showList = new }
+            .onChange(of: bag.showRecurrence) { _, new in showRecurrence = new }
+            .onChange(of: bag.showAlarms) { _, new in showAlarms = new }
+            .onChange(of: bag.showCompletionGlow) { _, new in showCompletionGlow = new }
+    }
+
     private func creationFeedbackView(for feedback: CreationFeedback) -> some View {
         Image(systemName: feedback.systemImage)
             .font(.title2)
@@ -589,6 +613,8 @@ struct ContentView: View {
                 enableActionButtons: enableActionButtons,
                 showSwipePrompt: showSwipePrompt,
                 showUndoButton: showUndoButton,
+                notificationsEnabled: notificationsEnabled,
+                notificationIntervalHours: notificationIntervalHours,
                 showMicrophoneButton: showMicrophoneButton,
                 backgroundEnabled: backgroundEnabled,
                 backgroundFadePercent: backgroundFadePercent,

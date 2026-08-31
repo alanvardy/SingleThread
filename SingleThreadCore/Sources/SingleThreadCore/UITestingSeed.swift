@@ -74,7 +74,9 @@ public struct UITestingSeed {
         "backgroundPinned",
         "allowsLandscape",
         "textSize",
-        "appearanceMode"
+        "appearanceMode",
+        "notificationsEnabled",
+        "notificationIntervalHours"
     ]
 }
 

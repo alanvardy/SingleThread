@@ -24,6 +24,8 @@ final class SettingsBindings {
         enableActionButtons: Bool = false,
         showSwipePrompt: Bool = true,
         showUndoButton: Bool = true,
+        notificationsEnabled: Bool = false,
+        notificationIntervalHours: Int = 48,
         showMicrophoneButton: Bool = true,
         backgroundEnabled: Bool = true,
         backgroundFadePercent: Int = 50,
@@ -41,6 +43,8 @@ final class SettingsBindings {
         self.enableActionButtons = enableActionButtons
         self.showSwipePrompt = showSwipePrompt
         self.showUndoButton = showUndoButton
+        self.notificationsEnabled = notificationsEnabled
+        self.notificationIntervalHours = notificationIntervalHours
         self.showMicrophoneButton = showMicrophoneButton
         self.backgroundEnabled = backgroundEnabled
         self.backgroundFadePercent = backgroundFadePercent
@@ -62,6 +66,8 @@ final class SettingsBindings {
     var enableActionButtons: Bool
     var showSwipePrompt: Bool
     var showUndoButton: Bool
+    var notificationsEnabled: Bool
+    var notificationIntervalHours: Int
     var showMicrophoneButton: Bool
     var backgroundEnabled: Bool
     var backgroundFadePercent: Int
