@@ -49,9 +49,9 @@ public nonisolated enum ReminderPriority {
     /// Resolves the reminder's numeric priority into a display level.
     public static func level(for priority: Int) -> Level? {
         switch priority {
-        case 1: .high
+        case 1 ... 4: .high
         case 5: .medium
-        case 9: .low
+        case 6 ... 9: .low
         default: nil
         }
     }

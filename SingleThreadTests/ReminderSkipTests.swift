@@ -102,6 +102,23 @@ struct ReminderPriorityTests {
     }
 
     @Test
+    func levelMapsHighForBoundary() {
+        #expect(ReminderPriority.level(for: 2) == .high)
+        #expect(ReminderPriority.level(for: 4) == .high)
+    }
+
+    @Test
+    func levelMapsLowForMidLowPriority() {
+        #expect(ReminderPriority.level(for: 6) == .low)
+        #expect(ReminderPriority.level(for: 7) == .low)
+    }
+
+    @Test
+    func levelMapsLowForBoundary() {
+        #expect(ReminderPriority.level(for: 8) == .low)
+    }
+
+    @Test
     func levelMapsMediumPriority() {
         #expect(ReminderPriority.level(for: 5) == .medium)
     }
@@ -117,8 +134,8 @@ struct ReminderPriorityTests {
     }
 
     @Test
-    func levelIsNilForUnknownPriority() {
-        #expect(ReminderPriority.level(for: 3) == nil)
+    func levelMapsHighForMidHighPriority() {
+        #expect(ReminderPriority.level(for: 3) == .high)
     }
 
     @Test
