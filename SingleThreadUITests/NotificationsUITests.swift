@@ -121,7 +121,7 @@ final class NotificationsUITests: XCTestCase {
             lastSchedule?.contains("count=1") == true,
             "Exactly one notification scheduled, got: \(lastSchedule ?? "nil")")
         XCTAssertTrue(
-            lastSchedule?.contains("id=com.alanvardy.SingleThread.idle-reminder") == true,
+            lastSchedule?.contains("id=app.alanvardy.SingleThread.idle-reminder") == true,
             "Stable identifier missing, got: \(lastSchedule ?? "nil")")
         XCTAssertTrue(
             lastSchedule?.contains("body=You have 2 reminders waiting — open SingleThread!") == true,

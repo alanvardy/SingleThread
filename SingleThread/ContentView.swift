@@ -128,48 +128,49 @@ struct ContentView: View {
             reduceMotion ? nil : .easeInOut(duration: 0.4),
             value: viewModel.completionGlow.isActive)
         #if os(iOS)
-        .onChange(of: scenePhase) { _, phase in
-            handleScenePhaseChange(phase)
-        }
-        #endif
-        .task {
-            await viewModel.backgroundImage.setPinned(backgroundPinned)
-            await viewModel.task(showUndatedReminders: showUndatedReminders)
-        }
-        .onChange(of: backgroundPinned) { _, newValue in
-            setBackgroundPinned(newValue)
-        }
-        .onChange(of: showUndatedReminders) { _, newValue in
-            viewModel.handleShowUndatedReminders(newValue)
-        }
-        .onChange(of: sortOption) { _, newValue in
-            viewModel.handleSortOption(newValue)
-        }
-        .onChange(of: appearanceMode) { _, newValue in
-            viewModel.handleAppearanceMode(newValue)
-        }
-        #if os(iOS)
-        .onChange(of: notificationsEnabled) { _, newValue in
-            handleNotificationsEnabledChange(newValue)
-        }
-        #endif
-        .modifier(TextSizeModifier(textSize: textSize))
-        .onChange(of: isShowingSettings) { _, showing in
-            // Nil the bag on dismiss so a fresh one is created next open.
-            // The bag is built in the gear-button action before the flag
-            // flips, so it is never nil when the sheet first renders.
-            if !showing {
-                settingsBag = nil
+            .onChange(of: scenePhase) { _, phase in
+                handleScenePhaseChange(phase)
             }
-        }
-        .sheet(isPresented: $isShowingSettings) {
-            settingsSheetContent
-        }
-        .sheet(isPresented: $isShowingPurchase) {
-            PurchaseSheet(
-                isPresented: $isShowingPurchase,
-                entitlementStore: viewModel.store.entitlementStore)
-        }
+        #endif
+            .task {
+                await viewModel.backgroundImage.setPinned(backgroundPinned)
+                await viewModel.task(showUndatedReminders: showUndatedReminders)
+            }
+            .onChange(of: backgroundPinned) { _, newValue in
+                setBackgroundPinned(newValue)
+            }
+            .onChange(of: showUndatedReminders) { _, newValue in
+                viewModel.handleShowUndatedReminders(newValue)
+            }
+            .onChange(of: sortOption) { _, newValue in
+                viewModel.handleSortOption(newValue)
+            }
+            .onChange(of: appearanceMode) { _, newValue in
+                viewModel.handleAppearanceMode(newValue)
+            }
+        #if os(iOS)
+            .onChange(of: notificationsEnabled) { _, newValue in
+                handleNotificationsEnabledChange(newValue)
+            }
+        #endif
+            .modifier(TextSizeModifier(textSize: textSize))
+            .onChange(of: isShowingSettings) { _, showing in
+                // Nil the bag on dismiss so a fresh one is created next open.
+                // The bag is built in the gear-button action before the flag
+                // flips, so it is never nil when the sheet first renders.
+                if !showing {
+                    settingsBag = nil
+                }
+            }
+            .sheet(isPresented: $isShowingSettings) {
+                settingsSheetContent
+            }
+            .sheet(isPresented: $isShowingPurchase) {
+                PurchaseSheet(
+                    isPresented: $isShowingPurchase,
+                    entitlementStore: viewModel.store.entitlementStore)
+            }
+    }
 
     // MARK: Private
 
@@ -212,10 +213,10 @@ struct ContentView: View {
         @AppStorage("showUndoButton")
         private var showUndoButton = true
 
-        @AppStorage("notificationsEnabled")
+        @AppStorage(AppViewModel.NotificationKeys.enabled)
         private var notificationsEnabled = false
 
-        @AppStorage("notificationIntervalHours")
+        @AppStorage(AppViewModel.NotificationKeys.intervalHours)
         private var notificationIntervalHours = 48
     #endif
     @AppStorage("showUndatedReminders", store: AppGroup.defaults)
@@ -724,10 +725,12 @@ struct ContentView: View {
         }
 
         /// Requests notification authorization the first time the user flips the
-        /// enable toggle ON. A no-op once the status is already determined.
+        /// enable toggle ON, and cancels all pending requests when flipped OFF.
         func handleNotificationsEnabledChange(_ newValue: Bool) {
             if newValue {
                 Task { await appViewModel?.requestNotificationPermissionIfNeeded() }
+            } else {
+                Task { await appViewModel?.cancelNotifications() }
             }
         }
     }

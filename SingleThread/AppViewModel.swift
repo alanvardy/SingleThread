@@ -89,17 +89,21 @@ final class AppViewModel {
 
     // MARK: Internal
 
-    let store: ReminderStore
-    let backgroundImage: BackgroundImageStore
-    let usesInMemoryStore: Bool
     #if os(iOS)
-        private(set) var syncService: SkippedReminderSyncService?
-    #endif
+        /// Notification-preference UserDefaults keys, shared between
+        /// AppViewModel reads and the @AppStorage declarations in ContentView.
+        enum NotificationKeys {
+            static let enabled = "notificationsEnabled"
+            static let intervalHours = "notificationIntervalHours"
+        }
 
-    #if os(iOS)
+        /// The single pending notification-request identifier — stable across
+        /// schedules so each cycle replaces the previous one.
+        static let idleReminderIdentifier = "app.alanvardy.SingleThread.idle-reminder"
+
         /// Current pending notification requests, rendered as a stable status
         /// string ONLY under the UI-test flag (see below). Updated on the
-        /// schedule (before guards, then after add) and cancel paths.
+        /// schedule (before guards and after add) and cancel paths.
         private(set) var pendingSummary: String?
 
         /// What was most recently SCHEDULED (survives cancel / foreground).
@@ -107,19 +111,24 @@ final class AppViewModel {
         private(set) var lastScheduleSummary: String?
 
         /// Schedules a single local notification if the feature is enabled and
-        /// reminders are pending. Always removes existing requests first so only
+        /// reminders are pending. Always removes existing requests first
+        /// (including stale requests from a previous schedule cycle), so only
         /// one notification is ever scheduled.
         func scheduleNotificationIfNeeded() async {
             await refreshPendingSummary()
-            guard UserDefaults.standard.bool(forKey: "notificationsEnabled") else { return }
+
+            // Always clear stale requests before checking whether to schedule
+            // new ones — a previous schedule left a pending request that will
+            // fire unless we cancel it now.
+            let center = UNUserNotificationCenter.current()
+            center.removeAllPendingNotificationRequests()
+
+            guard UserDefaults.standard.bool(forKey: NotificationKeys.enabled) else { return }
             let count = store.visibleReminders.count
             guard count > 0 || store.hasHidden else { return }
 
-            let intervalHours = UserDefaults.standard.integer(forKey: "notificationIntervalHours")
+            let intervalHours = UserDefaults.standard.integer(forKey: NotificationKeys.intervalHours)
             let effectiveHours = intervalHours > 0 ? intervalHours : 48
-
-            let center = UNUserNotificationCenter.current()
-            center.removeAllPendingNotificationRequests()
 
             let content = UNMutableNotificationContent()
             content.title = "SingleThread"
@@ -131,12 +140,13 @@ final class AppViewModel {
                 repeats: false)
 
             let request = UNNotificationRequest(
-                identifier: "com.alanvardy.SingleThread.idle-reminder",
+                identifier: Self.idleReminderIdentifier,
                 content: content,
                 trigger: trigger)
 
             do {
                 try await center.add(request)
+                await refreshPendingSummary()
                 lastScheduleSummary = Self.summary(requests: [request])
             } catch {
                 // Silently skip — the user won't get reminded this cycle.
@@ -153,16 +163,36 @@ final class AppViewModel {
 
         /// Requests notification authorization (.alert + .badge).
         /// No-op if already determined (granted or denied).
+        ///
+        /// When authorization is denied by the user (or the request throws),
+        /// flips `notificationsEnabled` back to `false` so the UI toggle
+        /// reflects reality — notifications can never fire under `.denied`.
         func requestNotificationPermissionIfNeeded() async {
             let center = UNUserNotificationCenter.current()
             let settings = await center.notificationSettings()
             switch settings.authorizationStatus {
             case .notDetermined:
-                _ = try? await center.requestAuthorization(options: [.alert, .badge])
+                let granted: Bool
+                do {
+                    granted = try await center.requestAuthorization(options: [.alert, .badge])
+                } catch {
+                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
+                    return
+                }
+                if !granted {
+                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
+                }
             default:
                 break
             }
         }
+    #endif
+
+    let store: ReminderStore
+    let backgroundImage: BackgroundImageStore
+    let usesInMemoryStore: Bool
+    #if os(iOS)
+        private(set) var syncService: SkippedReminderSyncService?
     #endif
 
     /// The root view model. Rebuilt on demand so the view always reflects the
@@ -280,8 +310,8 @@ final class AppViewModel {
             pendingSummary = Self.summary(requests: requests)
         }
 
-        /// Renders a pending-notification snapshot as a stable, newline-free
-        /// key=value status string for the UI-test seam.
+        /// Renders a pending-notification snapshot as a stable key=value
+        /// status string for the UI-test seam.
         private static func summary(requests: [UNNotificationRequest]) -> String {
             guard let first = requests.first else { return "count=0" }
             let interval = (first.trigger as? UNTimeIntervalNotificationTrigger)
