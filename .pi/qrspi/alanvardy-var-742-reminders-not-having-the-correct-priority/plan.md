@@ -154,8 +154,8 @@ func mapsLowMarkerForPriority8() {
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` — unit tests pass (Phase 1 + Phase 2 tests all green)
-- [ ] `make lint` passes
+- [x] `./scripts/test.sh` — unit tests pass (Phase 1 + Phase 2 tests all green)
+- [x] `make lint` passes
 
 #### Manual
 - [ ] Build to physical device: `xcodebuild -scheme SingleThread -destination 'platform=iOS,name=<device>' -configuration Debug build`
