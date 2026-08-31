@@ -372,9 +372,9 @@ The file returns to its pre-Phase-2 shape. No other changes.
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` — full gate green: format, lint, build, Periphery, unit tests, UI tests
-- [ ] `make lint` passes — no unused import warning
-- [ ] `make periphery` passes — no dead code detected (`os_log` removed, no stale symbols)
+- [x] `./scripts/test.sh` — full gate green: format, lint, build, Periphery, unit tests, UI tests
+- [x] `make lint` passes — no unused import warning
+- [x] `make periphery` passes — no dead code detected (`os_log` removed, no stale symbols)
 
 #### Manual
 - [ ] Confirm `grep -r "os_log" SingleThreadCore/` returns no results (instrumentation fully removed)

@@ -1,6 +1,5 @@
 import EventKit
 import Foundation
-import os
 
 /// Display-ready fields for a single reminder, decoupled from `EKReminder`.
 /// Used by the widget timeline entry and unit tests.
@@ -14,13 +13,6 @@ public struct ReminderDisplay: Equatable, Sendable {
         notes = ReminderNotesFormatter.format(reminder.notes)
         dueDate = reminder.dueDateComponents?.date
         priorityMarker = ReminderPriority.marker(for: reminder.priority)
-        if ![0, 1, 5, 9].contains(reminder.priority) {
-            os_log(
-                .debug,
-                "ReminderDisplay: non-standard priority %d for reminder %{public}@",
-                reminder.priority,
-                reminder.calendarItemIdentifier)
-        }
         listName = reminder.calendar?.title
         hasRecurrence = reminder.hasRecurrenceRules
         recurrenceSummary = ReminderRecurrenceFormatter.format(reminder.recurrenceRules)
