@@ -65,6 +65,34 @@ struct ReminderDisplayTests {
     }
 
     @Test
+    func mapsHighMarkerForPriority2() {
+        let reminder = makeReminder(title: "P2")
+        reminder.priority = 2
+        #expect(ReminderDisplay(reminder: reminder).priorityMarker == "!!!")
+    }
+
+    @Test
+    func mapsHighMarkerForPriority4() {
+        let reminder = makeReminder(title: "P4")
+        reminder.priority = 4
+        #expect(ReminderDisplay(reminder: reminder).priorityMarker == "!!!")
+    }
+
+    @Test
+    func mapsLowMarkerForPriority6() {
+        let reminder = makeReminder(title: "P6")
+        reminder.priority = 6
+        #expect(ReminderDisplay(reminder: reminder).priorityMarker == "!")
+    }
+
+    @Test
+    func mapsLowMarkerForPriority8() {
+        let reminder = makeReminder(title: "P8")
+        reminder.priority = 8
+        #expect(ReminderDisplay(reminder: reminder).priorityMarker == "!")
+    }
+
+    @Test
     func mapsListNameFromCalendarTitle() {
         // Construction only — never saved through EventKit.
         let store = EKEventStore()
