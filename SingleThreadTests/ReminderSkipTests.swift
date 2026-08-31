@@ -157,6 +157,28 @@ struct ReminderPriorityTests {
     func markerIsEmptyWhenNoPriority() {
         #expect(ReminderPriority.marker(for: 0).isEmpty)
     }
+
+    @Test
+    func rankIsZeroForHighBoundary() {
+        #expect(ReminderPriority.rank(for: 4) == 0)
+        #expect(ReminderPriority.rank(for: 1) == 0)
+    }
+
+    @Test
+    func rankIsTwoForLowBoundary() {
+        #expect(ReminderPriority.rank(for: 6) == 2)
+        #expect(ReminderPriority.rank(for: 9) == 2)
+    }
+
+    @Test
+    func rankIsOneForMediumPriority() {
+        #expect(ReminderPriority.rank(for: 5) == 1)
+    }
+
+    @Test
+    func rankIsNilForNoPriority() {
+        #expect(ReminderPriority.rank(for: 0) == nil)
+    }
 }
 
 // MARK: - ReminderNotesFormatter

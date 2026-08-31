@@ -26,10 +26,10 @@ public nonisolated enum ReminderSkipLogic {
 
 /// Maps EKReminder priority values to a display level and an exclamation marker.
 ///
-/// EventKit uses the standard CalDAV priority scheme: `0` = none, `1` = high,
-/// `5` = medium, `9` = low.
+/// EventKit exposes the RFC 5545 priority range: `0` = none, `1...4` = high,
+/// `5` = medium, `6...9` = low. Values outside `0...9` resolve to no priority.
 public nonisolated enum ReminderPriority {
-    public enum Level: Equatable, Sendable {
+    public enum Level: CaseIterable, Equatable, Sendable {
         case high
         case medium
         case low
@@ -44,9 +44,19 @@ public nonisolated enum ReminderPriority {
             case .low: "Low"
             }
         }
+
+        /// Exclamation-marker prefix rendered for this level.
+        public var marker: String {
+            switch self {
+            case .high: "!!!"
+            case .medium: "!!"
+            case .low: "!"
+            }
+        }
     }
 
-    /// Resolves the reminder's numeric priority into a display level.
+    /// Resolves the reminder's numeric priority into a display level: `1...4`
+    /// high, `5` medium, `6...9` low, and `nil` for `0` or out-of-range values.
     public static func level(for priority: Int) -> Level? {
         switch priority {
         case 1 ... 4: .high
@@ -58,23 +68,13 @@ public nonisolated enum ReminderPriority {
 
     /// Resolves a priority marker (`!!!`, `!!`, `!`) back to its display level.
     public static func level(forMarker marker: String) -> Level? {
-        switch marker {
-        case "!!!": .high
-        case "!!": .medium
-        case "!": .low
-        default: nil
-        }
+        Level.allCases.first { $0.marker == marker }
     }
 
-    /// Returns the exclamation-marker prefix: `!!!` high, `!!` medium, `!` low,
-    /// or empty when there is no priority.
+    /// Returns the exclamation-marker prefix for the given priority, or empty
+    /// when there is no priority.
     public static func marker(for priority: Int) -> String {
-        switch level(for: priority) {
-        case .high: "!!!"
-        case .medium: "!!"
-        case .low: "!"
-        case nil: ""
-        }
+        level(for: priority)?.marker ?? ""
     }
 
     /// Ordinal used for sorting, lower sorts first. High (0) before medium (1)
