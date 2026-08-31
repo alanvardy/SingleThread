@@ -91,14 +91,23 @@ final class BackgroundImageStore {
     /// Loads stored bytes into observable state, then refetches over the
     /// network when the sidecar is missing/corrupt/stale. Called from
     /// ContentView's `.task`; rendering is never gated on the network result.
+    /// A pinned store skips the refetch — except when no image is stored yet,
+    /// so pinning a blank state never blocks the first photo from loading.
     /// Failure convention: persist to disk FIRST, then flip observable state;
     /// on any error, log and keep prior state.
     func refreshIfNeeded(maxAge: TimeInterval = BackgroundImageStore.defaultMaxAge) async {
         loadStoredImage()
-        guard !isPinned else { return } // pinned stores keep the current photo
+        guard !isPinned || imageData == nil else { return }
         guard !isFresh(maxAge: maxAge) else { return }
+        guard !isFetching else { return }
+        isFetching = true
+        defer { isFetching = false }
         do {
-            try await fetchAndPersist(from: Self.endpoint)
+            let wallpaper = try await fetchWallpaper(from: Self.endpoint)
+            // Re-check after the network suspension: a re-pin while the fetch was
+            // in flight must not commit a new photo over the pinned one.
+            guard !isPinned || imageData == nil else { return }
+            try commit(wallpaper)
         } catch {
             Self.logger.error("Background refresh failed: \(error.localizedDescription)")
         }
@@ -111,11 +120,16 @@ final class BackgroundImageStore {
     /// the button can show progress. On any error it keeps the prior photo and
     /// attribution.
     func forceRefresh() async {
-        guard !isRefreshing else { return }
+        guard !isRefreshing, !isFetching else { return }
         isRefreshing = true
-        defer { isRefreshing = false }
+        isFetching = true
+        defer {
+            isRefreshing = false
+            isFetching = false
+        }
         do {
-            try await fetchAndPersist(from: Self.randomEndpoint)
+            let wallpaper = try await fetchWallpaper(from: Self.randomEndpoint)
+            try commit(wallpaper)
         } catch {
             Self.logger.error("Background force refresh failed: \(error.localizedDescription)")
         }
@@ -150,6 +164,14 @@ final class BackgroundImageStore {
 
     // MARK: Private
 
+    /// A decoded, validated wallpaper ready to persist. Purely a value — no
+    /// observable state — so callers can re-check pin state after the fetch.
+    private struct FetchedWallpaper {
+        let data: Data
+        let photographer: String
+        let photographerURL: URL?
+    }
+
     /// A stored wallpaper is considered fresh for 24 hours before the network
     /// is consulted again.
     private static let defaultMaxAge: TimeInterval = 86400
@@ -171,24 +193,36 @@ final class BackgroundImageStore {
     private let client: any BackgroundImageFetching
     private let directory: URL
 
-    /// Fetches the Unsplash payload and photo from the given endpoint, validates
-    /// it as a decodable image, persists both files atomically, then flips the
-    /// observable state. Callers must be MainActor-isolated; the actual network
-    /// I/O suspends off the main thread.
-    private func fetchAndPersist(from endpoint: URL) async throws {
+    /// Single-flight guard across `refreshIfNeeded` and `forceRefresh` so an
+    /// automatic refresh never interleaves with a manual one at their awaits.
+    private var isFetching = false
+
+    /// Fetches the Unsplash payload and photo from the given endpoint and
+    /// validates it as a decodable image. Mutates nothing: the actual network
+    /// I/O suspends off the main thread and returns a plain value.
+    private func fetchWallpaper(from endpoint: URL) async throws -> FetchedWallpaper {
         let payloadData = try await client.fetchData(from: endpoint)
         let decoder = JSONDecoder()
         let payload = try decoder.decode(UnsplashPayload.self, from: payloadData)
         let data = try await client.fetchData(from: payload.url)
         guard isDecodableImage(data) else { throw URLError(.cannotDecodeContentData) }
-        let metadata = BackgroundMetadata(
+        return FetchedWallpaper(
+            data: data,
             photographer: payload.photographer,
-            photographerURL: payload.photographerURL?.absoluteString,
+            photographerURL: payload.photographerURL)
+    }
+
+    /// Persists both files atomically, then flips the observable state.
+    /// Disk before state keeps the displayed photo and attribution consistent.
+    private func commit(_ wallpaper: FetchedWallpaper) throws {
+        let metadata = BackgroundMetadata(
+            photographer: wallpaper.photographer,
+            photographerURL: wallpaper.photographerURL?.absoluteString,
             fetchedAt: Date())
-        try persist(imageData: data, metadata: metadata) // disk before state
-        imageData = data
-        photographer = payload.photographer
-        photographerURL = payload.photographerURL
+        try persist(imageData: wallpaper.data, metadata: metadata) // disk before state
+        imageData = wallpaper.data
+        photographer = wallpaper.photographer
+        photographerURL = wallpaper.photographerURL
     }
 
     private func isFresh(maxAge: TimeInterval) -> Bool {

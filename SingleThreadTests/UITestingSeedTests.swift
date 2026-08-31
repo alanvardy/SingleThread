@@ -96,4 +96,18 @@ struct UITestingSeedTests {
         UITestingSeed.resetPersistedState()
         #expect(UserDefaults.standard.object(forKey: "showSwipePrompt") == nil)
     }
+
+    @Test
+    func resetPersistedStateClearsBackgroundFadePercent() {
+        UserDefaults.standard.set(30, forKey: "backgroundFadePercent")
+        UITestingSeed.resetPersistedState()
+        #expect(UserDefaults.standard.object(forKey: "backgroundFadePercent") == nil)
+    }
+
+    @Test
+    func resetPersistedStateClearsBackgroundPinned() {
+        UserDefaults.standard.set(true, forKey: "backgroundPinned")
+        UITestingSeed.resetPersistedState()
+        #expect(UserDefaults.standard.object(forKey: "backgroundPinned") == nil)
+    }
 }

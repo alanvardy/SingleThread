@@ -264,7 +264,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(flipToggle(pinToggle, target: "1"))
 
         // Back-navigate → Done → terminate.
-        app.navigationBars.buttons.firstMatch.tap()
+        app.navigationBars.buttons["Settings"].tap()
         app.buttons["Done"].tap()
         app.terminate()
 
@@ -272,7 +272,9 @@ final class SingleThreadUITestsFlows: XCTestCase {
         let relaunched = XCUIApplication()
         relaunched.launchArguments = ["--ui-testing"]
         relaunched.launch()
+        XCTAssertTrue(relaunched.buttons["Settings"].waitForExistence(timeout: 5))
         relaunched.buttons["Settings"].tap()
+        XCTAssertTrue(relaunched.staticTexts["Background"].waitForExistence(timeout: 3))
         relaunched.staticTexts["Background"].tap()
         let persistedToggle = relaunched.switches["Pin wallpaper"]
         XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
@@ -282,14 +284,16 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
         // Flip back off and verify it persists as off (not a one-way latch).
         XCTAssertTrue(flipToggle(persistedToggle, target: "0"))
-        relaunched.navigationBars.buttons.firstMatch.tap()
+        relaunched.navigationBars.buttons["Settings"].tap()
         relaunched.buttons["Done"].tap()
         relaunched.terminate()
 
         let thirdLaunch = XCUIApplication()
         thirdLaunch.launchArguments = ["--ui-testing"]
         thirdLaunch.launch()
+        XCTAssertTrue(thirdLaunch.buttons["Settings"].waitForExistence(timeout: 5))
         thirdLaunch.buttons["Settings"].tap()
+        XCTAssertTrue(thirdLaunch.staticTexts["Background"].waitForExistence(timeout: 3))
         thirdLaunch.staticTexts["Background"].tap()
         let offToggle = thirdLaunch.switches["Pin wallpaper"]
         XCTAssertTrue(offToggle.waitForExistence(timeout: 5))
