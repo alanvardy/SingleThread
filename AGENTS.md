@@ -21,16 +21,12 @@
   `Busy`/`RequestDenied` runner-launch failures: prune stale
   `~/Library/Developer/XCTestDevices`, shutdown sims (`xcrun simctl shutdown
   all`), and kill orphaned `xcodebuild`/`xctest` processes before retrying.
-- **Build**:
-  ```bash
-  xcodebuild -scheme SingleThread \
-    -destination 'platform=iOS Simulator,name=iPhone 17' \
-    -configuration Debug build
-  ```
-- **Tests** (destination as above): `-only-testing:SingleThreadTests` (Swift
-  Testing), `-only-testing:SingleThreadUITests` (XCTest, a11y audit); or use
-  `make build` / `make test` / `make ui-test` / `make periphery` / `make lint`
-  / `make format`.
+- **Build & tests via `make`**: `make build` / `make test` / `make
+  ui-test` / `make periphery` / `make lint` / `make format`; pin a
+  destination with `SIM=`. For targeted suites:
+  `xcodebuild -only-testing:SingleThreadTests` (Swift Testing) /
+  `-only-testing:SingleThreadUITests` (XCTest, a11y audit) with the
+  destination pinned per above.
 - **Debug builds only**: `DEBUG_INFORMATION_FORMAT = dwarf` keeps incremental
   builds fast. Release builds switch to `dwarf-with-dsym`.
 - **After code changes**, run the full CI check locally: `./scripts/test.sh`
@@ -62,6 +58,16 @@
   seams.
 - Previews and tests inject a pre-populated `ReminderStore` (or use
   `loadsReminders: false`) instead of a real `EKEventStore`.
+
+## Purchases (StoreKit)
+
+- The premium product ID is a single source of truth:
+  `EntitlementStore.unlockProductID` — never hard-code the id elsewhere,
+  and keep `Products.storekit` plus the scheme's
+  `StoreKitConfigurationFileReference` in sync with it.
+- Real-device testing requires a sandbox tester account (App Store Connect)
+  and the signed Paid Applications Agreement; otherwise the store shows
+  nothing to tap.
 
 ## Project Layout
 
@@ -150,6 +156,9 @@ SingleThread/                  # git root
 - If a feature genuinely can't be UI-tested (e.g. dictation/speech, which is
   handled by unit tests only), say so explicitly in the PR rather than silently
   skipping it.
+- Conflict-laden rebases are NOT resolution-edited mid-review: stop, and
+  resolve (`git checkout --theirs` / manual continue) in a separate scoped
+  fix commit before review resumes.
 
 ## Dead Code Detection (Periphery)
 
@@ -162,6 +171,8 @@ SingleThread/                  # git root
   SwiftLint `accessibility_label_for_image` / `accessibility_trait_for_button`.
 - Local audit runs extra strictness categories (`.hitRegion`, `.dynamicType`)
   beyond CI's — a local hit-region failure can be local-only, not a CI break.
+- Caption-sized SwiftUI buttons need `.padding` on the label — a
+  `.frame(minHeight: 44)` does not expand the accessibility label frame.
 
 ## Compiler Warnings
 
