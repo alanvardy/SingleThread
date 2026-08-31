@@ -1,3 +1,4 @@
+#if os(iOS)
 import XCTest
 
 final class NotificationSchedulingUITests: XCTestCase {
@@ -166,3 +167,4 @@ final class NotificationSchedulingUITests: XCTestCase {
             "No pending notification with no reminders, got: \(pending ?? "nil")")
     }
 }
+#endif
