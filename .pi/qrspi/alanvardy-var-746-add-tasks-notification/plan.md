@@ -103,8 +103,8 @@ of the array is also fine and avoids accidental reorder bugs.
 ### Verification
 
 #### Automated
-- [ ] `make build` passes (clean compile, no new warnings)
-- [ ] `make format && make lint` passes (no style/lint violations)
+- [x] `make build` passes (clean compile, no new warnings)
+- [x] `make format && make lint` passes (no style/lint violations)
 
 #### Manual
 - [ ] Launch app on iOS simulator, set breakpoint in `makeSettingsBag()`,
