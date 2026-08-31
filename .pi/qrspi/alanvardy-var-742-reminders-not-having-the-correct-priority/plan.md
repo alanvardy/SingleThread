@@ -277,9 +277,9 @@ func skipCurrentReminderDiscardedAfterClearSkipped() async {
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` — unit tests pass, including the new race-condition test
-- [ ] `make lint` passes
-- [ ] Existing gate tests in `ReminderStoreGateTests` continue to pass (skip with gating, skip without gating)
+- [x] `./scripts/test.sh` — unit tests pass, including the new race-condition test
+- [x] `make lint` passes
+- [x] Existing gate tests in `ReminderStoreGateTests` continue to pass (skip with gating, skip without gating)
 
 #### Manual
 - [ ] iOS: Open app, skip a reminder, immediately pull-to-refresh with `clearSkipped`. The un-skipped reminder stays visible — it is NOT re-hidden by the stale skip Task. Repeat 3–5 times to confirm the race window is reliably closed.

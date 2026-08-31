@@ -318,6 +318,24 @@ struct ReminderStoreTests {
         #expect(Bool(true))
     }
 
+    @Test
+    func skipCurrentReminderDiscardedAfterClearSkipped() async {
+        let rem = makeReminder(title: "A")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [rem]),
+            loadsReminders: true,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+
+        store.skipCurrentReminder()
+        await store.reload(clearSkipped: true)
+        // Wait for the skip Task to complete its 200 ms sleep + apply.
+        try? await Task.sleep(nanoseconds: 400_000_000)
+
+        #expect(store.skippedIDs.isEmpty)
+    }
+
     // MARK: - completeCurrentReminder
 
     @Test
