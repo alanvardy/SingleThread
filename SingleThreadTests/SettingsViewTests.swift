@@ -152,7 +152,7 @@ struct SettingsViewTests {
     }
 
     @Test
-    func pinToggleHiddenWhenBackgroundDisabled() async {
+    func pinToggleVisibleWhenBackgroundDisabled() async {
         let store = await makeSeededStore()
         let view = BackgroundSettingsView(
             backgroundEnabled: .constant(false),
@@ -162,8 +162,8 @@ struct SettingsViewTests {
         let bodyDescription = String(describing: view.body)
 
         #expect(
-            !bodyDescription.contains("Pin wallpaper"),
-            "Pin wallpaper toggle should be hidden when background is disabled")
+            bodyDescription.contains("Pin wallpaper"),
+            "Pin wallpaper toggle should stay visible when background is disabled")
     }
 
     @Test

@@ -276,6 +276,63 @@ struct BackgroundImageStoreTests {
         #expect(
             fake.requestedURLs.isEmpty,
             "Pinned store should skip network on refreshIfNeeded")
+        #expect(store.imageData == BackgroundTestFixtures.jpegData)
+        #expect(store.photographer == "Old")
+    }
+
+    @Test
+    func pinnedStoreWithNoImageStillFetches() async {
+        let fake = FakeBackgroundFetcher()
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
+        let (store, _) = makeStore(client: fake)
+
+        await store.setPinned(true)
+        #expect(store.imageData == nil)
+        await store.refreshIfNeeded(maxAge: 3600)
+
+        #expect(store.imageData == BackgroundTestFixtures.jpegData)
+        #expect(store.photographer == "NEOM")
+        #expect(
+            fake.requestedURLs.contains(Self.endpoint),
+            "A pinned store with no stored image should still fetch")
+    }
+
+    @Test
+    func repinDuringFetchDoesNotCommit() async throws {
+        let fetcher = GatedBackgroundFetcher(endpointURL: Self.endpoint)
+        fetcher.endpointData = payloadJSON()
+        fetcher.imageData = BackgroundTestFixtures.jpegData
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+        let store = BackgroundImageStore(client: fetcher, directory: directory)
+        try FileManager.default.createDirectory(
+            at: directory, withIntermediateDirectories: true)
+
+        // Seed a stale sidecar so the unpin-triggered refresh actually fetches.
+        let staleDate = Date().addingTimeInterval(-25 * 3600)
+        try sidecarJSON(fetchedAt: staleDate)
+            .write(to: store.metadataURL, options: .atomic)
+        try BackgroundTestFixtures.jpegData
+            .write(to: store.imageURL, options: .atomic)
+        store.loadStoredImage()
+        #expect(store.photographer == "Old")
+
+        // Pin, then unpin; the unpin fetch is parked at the gate.
+        await store.setPinned(true)
+        let unpinTask = Task { await store.setPinned(false) }
+        await fetcher.gate.waitUntilHit()
+
+        // Re-pin while the fetch is suspended: the commit must be dropped.
+        await store.setPinned(true)
+        await fetcher.gate.open()
+        await unpinTask.value
+
+        #expect(store.isPinned)
+        #expect(
+            store.photographer == "Old",
+            "re-pinning during a fetch must not commit the new photo")
+        #expect(store.imageData == BackgroundTestFixtures.jpegData)
     }
 
     @Test

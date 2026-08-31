@@ -1,9 +1,11 @@
 import SingleThreadCore // periphery:ignore
 import SwiftUI
 
-/// Background preferences: toggle, fade percentage, and refreshing the wallpaper.
-/// Takes only the bindings it needs plus the live `BackgroundImageStore`, whose
-/// photo/attribution drives the refresh button's progress feedback.
+/// Background preferences: toggle, fade percentage, pin, and refreshing the
+/// wallpaper. Takes only the bindings it needs plus the live
+/// `BackgroundImageStore`, whose photo/attribution drives the refresh button's
+/// progress feedback. The pin toggle stays visible even when Background is off
+/// so the pin state is never hidden.
 struct BackgroundSettingsView: View {
     @Binding var backgroundEnabled: Bool
 
@@ -23,11 +25,9 @@ struct BackgroundSettingsView: View {
                     Text("\(percent)%").tag(percent)
                 }
             }
-            if backgroundEnabled {
-                Section {
-                    Toggle(isOn: $backgroundPinned) {
-                        Label("Pin wallpaper", systemImage: "pin")
-                    }
+            Section {
+                Toggle(isOn: $backgroundPinned) {
+                    Label("Pin wallpaper", systemImage: "pin")
                 }
             }
             Section {
