@@ -287,9 +287,10 @@ public final class ReminderStore {
         guard canMutate else { return }
         guard let reminder = visibleReminders.first else { return }
         let updated = updatedSkipSet(afterSkipping: reminder.calendarItemIdentifier)
+        let capturedGeneration = skipGeneration
         Task {
             try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
-            applySkipSet(updated)
+            applySkipSet(updated, generation: capturedGeneration)
         }
     }
 
@@ -359,9 +360,7 @@ public final class ReminderStore {
                 .filter { !$0.isEmpty })
             .sorted()
         if clearSkipped {
-            skippedIDs = []
-            skipStore.save([])
-            onSkipSetChanged?([])
+            clearSkippedState()
         } else {
             let resolved = ReminderSkipLogic.resolve(
                 fetched: shown.map(\.calendarItemIdentifier),
@@ -425,6 +424,10 @@ public final class ReminderStore {
     private let skipStore: SkippedReminderStore
     private let excludeStore: ExcludedListStore
 
+    /// Increments whenever the skipped set is cleared, invalidating any
+    /// in-flight skip task captured before the clear.
+    private var skipGeneration: Int = 0
+
     /// Computes the skip list that results from skipping `identifier`, pruning
     /// stale IDs against the currently-fetched reminders.
     private func updatedSkipSet(afterSkipping identifier: String) -> [String] {
@@ -434,8 +437,22 @@ public final class ReminderStore {
             skipped: Array(skippedIDs))
     }
 
+    /// Clears the skipped set, bumping the generation so any in-flight skip task
+    /// captured before the clear is discarded when it wakes up.
+    private func clearSkippedState() {
+        skipGeneration &+= 1
+        skippedIDs = []
+        skipStore.save([])
+        onSkipSetChanged?([])
+    }
+
     /// Applies a new skip list to in-memory state, persistence, and hooks.
-    private func applySkipSet(_ updated: [String]) {
+    /// When `generation` is provided and no longer matches, the apply is
+    /// discarded — a clear-skipped raced ahead of the in-flight skip task.
+    private func applySkipSet(_ updated: [String], generation: Int? = nil) {
+        if let generation, generation != skipGeneration {
+            return
+        }
         skippedIDs = Set(updated)
         skipStore.save(updated)
         onSkipSetChanged?(updated)
