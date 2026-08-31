@@ -249,9 +249,9 @@ final class NotificationsSettingsUITests: XCTestCase {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/NotificationsSettingsUITests` passes (toggle + picker render)
-- [ ] `make build` passes (new file compiles, macOS target ignores the new `#if os(iOS)` NavigationLink)
-- [ ] `make format && make lint` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -only-testing:SingleThreadUITests/NotificationsSettingsUITests` passes (toggle + picker render)
+- [x] `make build` passes (new file compiles, macOS target ignores the new `#if os(iOS)` NavigationLink)
+- [x] `make format && make lint` passes
 
 #### Manual
 - [ ] Launch app → gear → tap "Notifications" → see toggle OFF and picker at "48 hours"
