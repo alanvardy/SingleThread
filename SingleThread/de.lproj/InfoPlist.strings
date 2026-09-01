@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "SingleThread benötigt Mikrofonzugriff, um deine Stimme für Erinnerungen aufzunehmen.";
+"NSRemindersUsageDescription" = "SingleThread benötigt Zugriff, um deine Erinnerungen anzuzeigen.";
+"NSSpeechRecognitionUsageDescription" = "SingleThread verwendet Spracherkennung, um Erinnerungen aus deiner Stimme zu erstellen.";
+"CFBundleDisplayName" = "SingleThread";

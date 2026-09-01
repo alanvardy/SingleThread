@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "SingleThread 需要使用麦克风权限来录制您的语音以创建提醒。";
+"NSRemindersUsageDescription" = "SingleThread 需要访问权限以显示您的提醒。";
+"NSSpeechRecognitionUsageDescription" = "SingleThread 使用语音识别功能，通过您的语音创建提醒。";
+"CFBundleDisplayName" = "SingleThread";

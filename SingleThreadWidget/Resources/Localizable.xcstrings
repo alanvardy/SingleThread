@@ -1,0 +1,39 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Next Thing" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Next Thing" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下一件事" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Lo siguiente" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "次のやること" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nächste Aufgabe" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "À faire ensuite" } }
+      }
+    },
+    "Open SingleThread to enable access." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Open SingleThread to enable access." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "打开 SingleThread 以启用访问权限。" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Abre SingleThread para activar el acceso." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread を開いてアクセスを有効にしてください。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Öffne SingleThread, um den Zugriff zu aktivieren." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Ouvrez SingleThread pour activer l'accès." } }
+      }
+    },
+    "Your next reminder, with Complete and Skip." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your next reminder, with Complete and Skip." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "您的下一条提醒，支持完成和跳过。" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tu próximo recordatorio, con Completar y Omitir." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "次のリマインダー。完了とスキップに対応。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Deine nächste Erinnerung, mit Fertig und Überspringen." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre prochain rappel, avec Terminer et Passer." } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

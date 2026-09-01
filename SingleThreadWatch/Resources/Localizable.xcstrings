@@ -1,0 +1,50 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "Enable Reminders access in Settings" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable Reminders access in Settings" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在设置中启用提醒访问权限" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activa el acceso a Recordatorios en Ajustes" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "設定でリマインダーへのアクセスを有効にしてください" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktiviere den Erinnerungen-Zugriff in den Einstellungen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activez l'accès aux rappels dans Réglages" } }
+      }
+    },
+    "Refresh" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "刷新" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Actualizar" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "更新" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktualisieren" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Actualiser" } }
+      }
+    },
+    "Reminder" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reminder" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "提醒" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Recordatorio" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダー" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerung" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rappel" } }
+      }
+    },
+    "Upgrade on\nyour iPhone" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Upgrade on\nyour iPhone" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在 iPhone 上\n升级" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mejora en tu\niPhone" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "iPhone で\nアップグレード" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Auf deinem iPhone\nupgraden" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Améliorez sur\nton iPhone" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

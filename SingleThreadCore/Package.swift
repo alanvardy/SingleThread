@@ -12,5 +12,7 @@ let package = Package(
         .library(name: "SingleThreadCore", targets: ["SingleThreadCore"])
     ],
     targets: [
-        .target(name: "SingleThreadCore")
+        .target(
+            name: "SingleThreadCore",
+            resources: [.process("Resources")])
     ])
