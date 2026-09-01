@@ -58,21 +58,30 @@ final class ContentViewModel {
     static func emptyStateCopy(hasHidden: Bool) -> EmptyStateCopy {
         if hasHidden {
             return EmptyStateCopy(
-                title: "Nothing due",
+                title: String(localized: "Nothing due", table: "Localizable", bundle: .main),
                 systemImage: "calendar",
-                description: "Only today's and overdue reminders show here — pull to refresh.")
+                description: String(
+                    localized: "Only today's and overdue reminders show here — pull to refresh.",
+                    table: "Localizable",
+                    bundle: .main))
         }
         return EmptyStateCopy(
-            title: "No Reminders",
+            title: SharedStrings.noReminders,
             systemImage: "checklist",
-            description: "You don't have any reminders yet.")
+            description: String(
+                localized: "You don't have any reminders yet.",
+                table: "Localizable",
+                bundle: .main))
     }
 
     static func allDoneStateCopy() -> EmptyStateCopy {
         EmptyStateCopy(
-            title: "All Done",
+            title: SharedStrings.allDone,
             systemImage: "checkmark.circle",
-            description: "Pull to refresh to see all your reminders again.")
+            description: String(
+                localized: "Pull to refresh to see all your reminders again.",
+                table: "Localizable",
+                bundle: .main))
     }
 
     // MARK: - Task / onChange reactions

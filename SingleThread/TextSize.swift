@@ -39,11 +39,11 @@ enum TextSize: String, CaseIterable {
     /// Human-readable label shown in the text-size picker.
     var title: String {
         switch self {
-        case .system: "System"
-        case .small: "Small"
-        case .medium: "Medium"
-        case .large: "Large"
-        case .extraLarge: "Extra Large"
+        case .system: String(localized: "System", table: "Localizable", bundle: .main)
+        case .small: String(localized: "Small", table: "Localizable", bundle: .main)
+        case .medium: String(localized: "Medium", table: "Localizable", bundle: .main)
+        case .large: String(localized: "Large", table: "Localizable", bundle: .main)
+        case .extraLarge: String(localized: "Extra Large", table: "Localizable", bundle: .main)
         }
     }
 }

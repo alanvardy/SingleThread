@@ -1,3 +1,4 @@
+import SingleThreadCore
 import SwiftUI
 
 /// Display preferences for reminder content: show date, show list,
@@ -24,9 +25,9 @@ struct ReminderSettingsView: View {
             }
             .accessibilityIdentifier("showDateToggle")
             #if os(iOS) || os(macOS)
-            .onChange(of: showDate) { _, _ in
-                viewModel.showPreferenceChanged()
-            }
+                .onChange(of: showDate) { _, _ in
+                    viewModel.showPreferenceChanged()
+                }
             #endif
             Toggle(isOn: $showList) {
                 Label("Show list", systemImage: "list.bullet")
@@ -37,21 +38,21 @@ struct ReminderSettingsView: View {
             }
             .accessibilityIdentifier("showRecurrenceToggle")
             #if os(iOS) || os(macOS)
-            .onChange(of: showRecurrence) { _, _ in
-                viewModel.showPreferenceChanged()
-            }
+                .onChange(of: showRecurrence) { _, _ in
+                    viewModel.showPreferenceChanged()
+                }
             #endif
             Toggle(isOn: $showAlarms) {
                 Label("Reminder alerts", systemImage: "bell")
             }
             .accessibilityIdentifier("showAlarmsToggle")
             #if os(iOS) || os(macOS)
-            .onChange(of: showAlarms) { _, _ in
-                viewModel.showPreferenceChanged()
-            }
+                .onChange(of: showAlarms) { _, _ in
+                    viewModel.showPreferenceChanged()
+                }
             #endif
             Toggle(isOn: $showCompletionGlow) {
-                Label("Completion glow", systemImage: "sparkles")
+                Label(SharedStrings.completionGlow, systemImage: "sparkles")
             }
             .accessibilityIdentifier("showCompletionGlowToggle")
         }

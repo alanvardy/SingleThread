@@ -98,7 +98,7 @@ struct ReminderCardView: View {
                     Text(display.priorityMarker)
                         .font(.title)
                         .foregroundStyle(priorityColor(level))
-                        .accessibilityLabel("\(level.displayName) priority")
+                        .accessibilityLabel(SharedStrings.priorityAccessibilityLabel(level.displayName))
                         .accessibilityIdentifier("priorityMarker")
                 }
                 Text(display.titleAttributed)
@@ -115,7 +115,7 @@ struct ReminderCardView: View {
                     HStack(spacing: 4) {
                         Image(systemName: "repeat")
                             .accessibilityHidden(true)
-                        Text(display.recurrenceSummary ?? "Repeats")
+                        Text(display.recurrenceSummary ?? SharedStrings.repeats)
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -132,7 +132,7 @@ struct ReminderCardView: View {
 
             if showAlarms, display.hasAlarms {
                 Image(systemName: "bell")
-                    .accessibilityLabel("Has alarm")
+                    .accessibilityLabel(String(localized: "Has alarm", table: "Localizable", bundle: .main))
                     .accessibilityIdentifier("alarmLabel")
                     .font(.caption)
                     .foregroundStyle(.secondary)

@@ -209,10 +209,20 @@ enum DictationError: Error, LocalizedError, Sendable {
 
     var errorDescription: String? {
         switch self {
-        case .alreadyRecording: "Already recording."
-        case .recognizerUnavailable: "Speech recognition is not available."
-        case .microphoneDenied: "Microphone access was denied."
-        case .noSpeechDetected: "No speech was detected."
+        case .alreadyRecording:
+            String(localized: "Already recording.", table: "Localizable", bundle: .main)
+        case .recognizerUnavailable:
+            String(
+                localized: "Speech recognition is not available.",
+                table: "Localizable",
+                bundle: .main)
+        case .microphoneDenied:
+            String(
+                localized: "Microphone access was denied.",
+                table: "Localizable",
+                bundle: .main)
+        case .noSpeechDetected:
+            String(localized: "No speech was detected.", table: "Localizable", bundle: .main)
         }
     }
 }

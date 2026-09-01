@@ -296,38 +296,38 @@ struct ContentView: View {
                 Button {
                     Task { await viewModel.completeCurrentReminder() }
                 } label: {
-                    Label("Complete", systemImage: "checkmark.circle.fill")
+                    Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
                         .labelStyle(.iconOnly)
                         .font(.title)
                 }
                 .tint(.green)
                 .keyboardShortcut("c", modifiers: [])
-                .accessibilityLabel("Complete reminder")
+                .accessibilityLabel(SharedStrings.completeReminderAccessibility)
                 .accessibilityIdentifier("completeButton")
                 .accessibilityAddTraits(.isButton)
 
                 Button {
                     viewModel.skipCurrentReminder()
                 } label: {
-                    Label("Skip", systemImage: "circle.slash")
+                    Label(SharedStrings.skipAction, systemImage: "circle.slash")
                         .labelStyle(.iconOnly)
                         .font(.title)
                 }
                 .tint(.orange)
                 .keyboardShortcut("s", modifiers: [])
-                .accessibilityLabel("Skip reminder")
+                .accessibilityLabel(SharedStrings.skipReminderAccessibility)
                 .accessibilityIdentifier("skipButton")
                 .accessibilityAddTraits(.isButton)
 
                 Button {
                     Task { await viewModel.deleteCurrentReminder() }
                 } label: {
-                    Label("Delete", systemImage: "trash")
+                    Label(SharedStrings.deleteAction, systemImage: "trash")
                         .labelStyle(.iconOnly)
                         .font(.title)
                 }
                 .tint(.red)
-                .accessibilityLabel("Delete reminder")
+                .accessibilityLabel(SharedStrings.deleteReminderAccessibility)
                 .accessibilityIdentifier("deleteButton")
                 .accessibilityAddTraits(.isButton)
             }
@@ -338,12 +338,12 @@ struct ContentView: View {
     @ViewBuilder private var authGatedContent: some View {
         switch viewModel.store.authorizationStatus {
         case .notDetermined:
-            ProgressView("Requesting access…")
+            ProgressView(SharedStrings.requestingAccess)
         case .fullAccess:
             reminderList
         default:
             ContentUnavailableView(
-                "Reminders Access",
+                SharedStrings.remindersAccess,
                 systemImage: "lock.shield",
                 description: Text("Enable access in Settings to see your reminders."))
         }
@@ -417,7 +417,7 @@ struct ContentView: View {
                                     Button {
                                         Task { await viewModel.deleteCurrentReminder() }
                                     } label: {
-                                        Label("Delete", systemImage: "trash")
+                                        Label(SharedStrings.deleteAction, systemImage: "trash")
                                     }
                                     .accessibilityIdentifier("deleteButton")
                                     .tint(.red)
@@ -427,7 +427,7 @@ struct ContentView: View {
                                     Button {
                                         Task { await viewModel.completeCurrentReminder() }
                                     } label: {
-                                        Label("Complete", systemImage: "checkmark.circle.fill")
+                                        Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
                                     }
                                     .tint(.green)
                                 }
@@ -435,7 +435,7 @@ struct ContentView: View {
                                     Button {
                                         viewModel.skipCurrentReminder()
                                     } label: {
-                                        Label("Skip", systemImage: "circle.slash")
+                                        Label(SharedStrings.skipAction, systemImage: "circle.slash")
                                     }
                                     .tint(.orange)
                                 }
@@ -505,11 +505,11 @@ struct ContentView: View {
             Button {
                 Task { await viewModel.completeCurrentReminder() }
             } label: {
-                Label("Complete", systemImage: "checkmark.circle.fill")
+                Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
                     .labelStyle(.iconOnly)
                     .controlPlate()
             }
-            .accessibilityLabel("Complete reminder")
+            .accessibilityLabel(SharedStrings.completeReminderAccessibility)
             .accessibilityIdentifier("completeButton")
             .accessibilityAddTraits(.isButton)
         }
@@ -518,11 +518,11 @@ struct ContentView: View {
             Button {
                 viewModel.skipCurrentReminder()
             } label: {
-                Label("Skip", systemImage: "circle.slash")
+                Label(SharedStrings.skipAction, systemImage: "circle.slash")
                     .labelStyle(.iconOnly)
                     .controlPlate()
             }
-            .accessibilityLabel("Skip reminder")
+            .accessibilityLabel(SharedStrings.skipReminderAccessibility)
             .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
         }
@@ -577,7 +577,7 @@ struct ContentView: View {
             .accessibilityHidden(!isGlowUITesting)
             .accessibilityElement(children: .ignore)
             .accessibilityIdentifier("completionGlowOverlay")
-            .accessibilityLabel("Completion glow")
+            .accessibilityLabel(SharedStrings.completionGlow)
             .transition(.opacity)
     }
 

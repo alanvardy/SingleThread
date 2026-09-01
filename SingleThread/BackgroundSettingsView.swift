@@ -46,17 +46,21 @@ struct BackgroundSettingsView: View {
                     }
                 }
                 .disabled(backgroundImage.isRefreshing)
-                .accessibilityValue(backgroundImage.isRefreshing ? "Refreshing" : "")
+                .accessibilityValue(
+                    backgroundImage.isRefreshing
+                        ? String(localized: "Refreshing", table: "Localizable", bundle: .main)
+                        : "")
                 .accessibilityIdentifier("refreshWallpaperButton")
             }
             Section {} footer: {
                 if let photographer = backgroundImage.photographer {
+                    let credit = String(
+                        localized: "Photo by \(photographer) on Unsplash",
+                        table: "Localizable", bundle: .main)
                     if let url = backgroundImage.photographerURL {
-                        Link(
-                            "Photo by \(photographer) on Unsplash",
-                            destination: url)
+                        Link(credit, destination: url)
                     } else {
-                        Text("Photo by \(photographer) on Unsplash")
+                        Text(credit)
                     }
                 }
             }
