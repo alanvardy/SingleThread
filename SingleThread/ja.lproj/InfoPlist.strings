@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "SingleThread はリマインダー作成のため、音声を録音するマイクへのアクセスが必要です。";
+"NSRemindersUsageDescription" = "SingleThread はリマインダーを表示するためにアクセスが必要です。";
+"NSSpeechRecognitionUsageDescription" = "SingleThread は音声認識を使用して、音声からリマインダーを作成します。";
+"CFBundleDisplayName" = "SingleThread";

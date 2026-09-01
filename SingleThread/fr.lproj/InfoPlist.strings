@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "SingleThread a besoin de l'accès au microphone pour capturer votre voix pour les rappels.";
+"NSRemindersUsageDescription" = "SingleThread a besoin d'accéder à vos rappels pour les afficher.";
+"NSSpeechRecognitionUsageDescription" = "SingleThread utilise la reconnaissance vocale pour créer des rappels à partir de votre voix.";
+"CFBundleDisplayName" = "SingleThread";

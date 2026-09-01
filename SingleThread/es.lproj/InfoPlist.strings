@@ -1,0 +1,4 @@
+"NSMicrophoneUsageDescription" = "SingleThread necesita acceso al micrófono para capturar tu voz para los recordatorios.";
+"NSRemindersUsageDescription" = "SingleThread necesita acceso para mostrar tus recordatorios.";
+"NSSpeechRecognitionUsageDescription" = "SingleThread usa reconocimiento de voz para crear recordatorios a partir de tu voz.";
+"CFBundleDisplayName" = "SingleThread";
