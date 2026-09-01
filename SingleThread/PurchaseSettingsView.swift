@@ -46,6 +46,7 @@ struct PurchaseSettingsView: View {
                             Spacer()
                         }
                     }
+                    .accessibilityIdentifier("restorePurchasesButton")
                 } footer: {
                     Text("If you've already purchased Unlock on another device, restore it here.")
                 }
@@ -189,6 +190,7 @@ struct UpgradePromptButton: View {
         .buttonStyle(.plain)
         .padding(.horizontal, 24)
         .accessibilityLabel("Upgrade to unlock unlimited completions")
+        .accessibilityIdentifier("upgradeButton")
         .accessibilityAddTraits(.isButton)
     }
 }

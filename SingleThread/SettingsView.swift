@@ -53,6 +53,7 @@ struct SettingsView: View {
                     } label: {
                         Label("Interface", systemImage: "paintpalette")
                     }
+                    .accessibilityIdentifier("settingsInterfaceRow")
                     #if os(iOS)
                         NavigationLink {
                             NotificationsSettingsView(
@@ -61,6 +62,7 @@ struct SettingsView: View {
                         } label: {
                             Label("Notifications", systemImage: "bell.badge")
                         }
+                        .accessibilityIdentifier("settingsNotificationsRow")
                     #endif
                     NavigationLink {
                         ReminderSettingsView(
@@ -73,6 +75,7 @@ struct SettingsView: View {
                     } label: {
                         Label("Reminder", systemImage: "bell.badge")
                     }
+                    .accessibilityIdentifier("settingsReminderRow")
                     NavigationLink {
                         FilterSortSettingsView(
                             sortOption: $bindings.sortOption,
@@ -82,6 +85,7 @@ struct SettingsView: View {
                     } label: {
                         Label("Filtering & Sorting", systemImage: "line.3.horizontal.decrease")
                     }
+                    .accessibilityIdentifier("settingsFilterSortRow")
                     NavigationLink {
                         BackgroundSettingsView(
                             backgroundEnabled: $bindings.backgroundEnabled,
@@ -91,6 +95,7 @@ struct SettingsView: View {
                     } label: {
                         Label("Background", systemImage: "photo.on.rectangle")
                     }
+                    .accessibilityIdentifier("settingsBackgroundRow")
                     NavigationLink {
                         PurchaseSettingsView(entitlementStore: entitlementStore)
                     } label: {
@@ -100,6 +105,7 @@ struct SettingsView: View {
                     }
                     .accessibilityLabel(
                         entitlementStore.isEntitled ? "Manage Purchase" : "Unlock")
+                    .accessibilityIdentifier("settingsPurchaseRow")
                     .accessibilityAddTraits(.isButton)
                 }
 
@@ -109,12 +115,14 @@ struct SettingsView: View {
                     } label: {
                         Label("Privacy Policy", systemImage: "hand.raised")
                     }
+                    .accessibilityIdentifier("settingsPrivacyRow")
                     NavigationLink {
                         AboutView()
                     } label: {
                         Label("About", systemImage: "info.circle")
                     }
                     .accessibilityLabel("About")
+                    .accessibilityIdentifier("settingsAboutRow")
                     .accessibilityAddTraits(.isButton)
                 }
             }
@@ -124,6 +132,7 @@ struct SettingsView: View {
                     Button("Done") {
                         dismiss()
                     }
+                    .accessibilityIdentifier("settingsDoneButton")
                 }
             }
         }

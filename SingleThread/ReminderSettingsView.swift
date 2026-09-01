@@ -22,6 +22,7 @@ struct ReminderSettingsView: View {
             Toggle(isOn: $showDate) {
                 Label("Show date", systemImage: "calendar")
             }
+            .accessibilityIdentifier("showDateToggle")
             #if os(iOS) || os(macOS)
             .onChange(of: showDate) { _, _ in
                 viewModel.showPreferenceChanged()
@@ -30,9 +31,11 @@ struct ReminderSettingsView: View {
             Toggle(isOn: $showList) {
                 Label("Show list", systemImage: "list.bullet")
             }
+            .accessibilityIdentifier("showListToggle")
             Toggle(isOn: $showRecurrence) {
                 Label("Recurrence indicator", systemImage: "repeat")
             }
+            .accessibilityIdentifier("showRecurrenceToggle")
             #if os(iOS) || os(macOS)
             .onChange(of: showRecurrence) { _, _ in
                 viewModel.showPreferenceChanged()
@@ -41,6 +44,7 @@ struct ReminderSettingsView: View {
             Toggle(isOn: $showAlarms) {
                 Label("Reminder alerts", systemImage: "bell")
             }
+            .accessibilityIdentifier("showAlarmsToggle")
             #if os(iOS) || os(macOS)
             .onChange(of: showAlarms) { _, _ in
                 viewModel.showPreferenceChanged()
@@ -49,6 +53,7 @@ struct ReminderSettingsView: View {
             Toggle(isOn: $showCompletionGlow) {
                 Label("Completion glow", systemImage: "sparkles")
             }
+            .accessibilityIdentifier("showCompletionGlowToggle")
         }
         .navigationTitle("Reminder")
     }

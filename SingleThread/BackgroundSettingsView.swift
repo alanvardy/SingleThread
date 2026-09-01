@@ -20,15 +20,18 @@ struct BackgroundSettingsView: View {
             Toggle(isOn: $backgroundEnabled) {
                 Label("Background", systemImage: "photo")
             }
+            .accessibilityIdentifier("backgroundToggle")
             Picker("Background Fade", selection: $backgroundFadePercent) {
                 ForEach(BackgroundFade.allValues, id: \.self) { percent in
                     Text("\(percent)%").tag(percent)
                 }
             }
+            .accessibilityIdentifier("backgroundFadePicker")
             Section {
                 Toggle(isOn: $backgroundPinned) {
                     Label("Pin wallpaper", systemImage: "pin")
                 }
+                .accessibilityIdentifier("pinWallpaperToggle")
             }
             Section {
                 Button {
@@ -44,6 +47,7 @@ struct BackgroundSettingsView: View {
                 }
                 .disabled(backgroundImage.isRefreshing)
                 .accessibilityValue(backgroundImage.isRefreshing ? "Refreshing" : "")
+                .accessibilityIdentifier("refreshWallpaperButton")
             }
             Section {} footer: {
                 if let photographer = backgroundImage.photographer {

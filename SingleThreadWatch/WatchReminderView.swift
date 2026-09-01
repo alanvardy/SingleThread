@@ -113,6 +113,7 @@ struct WatchReminderView: View {
             }
             .tint(.green)
             .accessibilityLabel("Complete reminder")
+            .accessibilityIdentifier("completeButton")
             .accessibilityAddTraits(.isButton)
 
             Button {
@@ -123,6 +124,7 @@ struct WatchReminderView: View {
             }
             .tint(.orange)
             .accessibilityLabel("Skip reminder")
+            .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
         }
     }
@@ -139,6 +141,7 @@ struct WatchReminderView: View {
                 .font(.caption2)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(.secondary)
+                .accessibilityIdentifier("upgradePrompt")
         }
         .frame(maxWidth: .infinity)
     }
@@ -147,6 +150,7 @@ struct WatchReminderView: View {
         VStack(spacing: 6) {
             Text("All Done")
                 .font(.headline)
+                .accessibilityIdentifier("emptyStateTitle")
             refreshButton
         }
     }
@@ -155,6 +159,7 @@ struct WatchReminderView: View {
         VStack(spacing: 6) {
             Text("No Reminders")
                 .foregroundStyle(.secondary)
+                .accessibilityIdentifier("emptyStateTitle")
             Text(viewModel.store.hasHidden ? "Nothing due right now" : "No reminders yet")
                 .font(.caption2)
                 .foregroundStyle(.secondary)
@@ -184,6 +189,7 @@ struct WatchReminderView: View {
             Task { await viewModel.refresh(clearSkipped: viewModel.store.allSkipped) }
         }
         .disabled(viewModel.isRefreshing)
+        .accessibilityIdentifier("refreshButton")
     }
 
     /// The reminder is always scrollable so long titles and notes are never cut off.
@@ -202,10 +208,12 @@ struct WatchReminderView: View {
                 Button("Refresh") {
                     Task { await viewModel.refresh(clearSkipped: viewModel.store.allSkipped) }
                 }
+                .accessibilityIdentifier("refreshButton")
 
                 Button("Delete", role: .destructive) {
                     Task { await viewModel.store.deleteCurrentReminder() }
                 }
+                .accessibilityIdentifier("deleteButton")
             }
 
             if !viewModel.store.canMutate, !viewModel.entitlementState.isEnabled {
@@ -225,6 +233,7 @@ struct WatchReminderView: View {
                         .font(.headline)
                         .foregroundStyle(priorityColor(level))
                         .accessibilityLabel("\(level.displayName) priority")
+                        .accessibilityIdentifier("priorityMarker")
                 }
                 Text(display.titleAttributed)
                     .font(.headline)

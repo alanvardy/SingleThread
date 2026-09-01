@@ -164,6 +164,7 @@ struct NextThingWidgetView: View {
             .tint(.green)
             .buttonStyle(.bordered)
             .accessibilityLabel("Complete reminder")
+            .accessibilityIdentifier("completeButton")
 
             Button(intent: SkipReminderIntent()) {
                 Label("Skip", systemImage: "circle.slash")
@@ -172,6 +173,7 @@ struct NextThingWidgetView: View {
             .tint(.orange)
             .buttonStyle(.bordered)
             .accessibilityLabel("Skip reminder")
+            .accessibilityIdentifier("skipButton")
         }
     }
 
@@ -184,6 +186,7 @@ struct NextThingWidgetView: View {
             Text(title)
                 .font(.headline)
                 .multilineTextAlignment(.center)
+                .accessibilityIdentifier("emptyStateTitle")
             if let message {
                 Text(message)
                     .font(.caption2)
@@ -201,6 +204,7 @@ struct NextThingWidgetView: View {
                     Text(display.priorityMarker)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("priorityMarker")
                 }
                 Text(display.titleAttributed)
                     .font(.headline)
@@ -220,11 +224,13 @@ struct NextThingWidgetView: View {
                 Label(display.recurrenceSummary ?? "Repeats", systemImage: "repeat")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("recurrenceLabel")
             }
             if entry.showsAlarms, display.hasAlarms {
                 Label("Alert", systemImage: "bell")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("alertLabel")
             }
             if let notesAttr = display.notesAttributed {
                 Text(notesAttr)
