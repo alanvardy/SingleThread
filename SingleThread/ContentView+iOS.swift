@@ -1,4 +1,3 @@
-import SingleThreadCore
 import SwiftUI
 
 // MARK: - Notifications (iOS)
