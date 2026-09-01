@@ -33,12 +33,18 @@ final class DictationViewModel {
         if speechTranscriber.authorizationStatus == .notDetermined {
             let status = await speechTranscriber.requestAuthorization()
             guard status == .authorized else {
-                dictationError = "Speech recognition access is required."
+                dictationError = String(
+                    localized: "Speech recognition access is required.",
+                    table: "Localizable",
+                    bundle: .main)
                 return
             }
         }
         guard speechTranscriber.authorizationStatus == .authorized else {
-            dictationError = "Speech recognition access was denied."
+            dictationError = String(
+                localized: "Speech recognition access was denied.",
+                table: "Localizable",
+                bundle: .main)
             return
         }
         isDictating = true

@@ -26,8 +26,8 @@ enum CreationFeedback {
 
     var accessibilityLabel: String {
         switch self {
-        case .success: "Task created"
-        case .failure: "Task creation failed"
+        case .success: String(localized: "Task created", table: "Localizable", bundle: .main)
+        case .failure: String(localized: "Task creation failed", table: "Localizable", bundle: .main)
         }
     }
 }

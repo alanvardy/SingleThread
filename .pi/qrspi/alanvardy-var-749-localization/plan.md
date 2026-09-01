@@ -679,10 +679,10 @@ and the `accessibilityValue` `"Refreshing"` becomes `String(localized: "Refreshi
 ### Verification
 
 #### Automated
-- [ ] `make test` passes — updated unit suites green under en locale.
-- [ ] `make build` succeeds.
-- [ ] `make ui-test` passes — notification body seam and all flows still match en output.
-- [ ] `make lint` passes (`swiftformat --lint` + `swiftlint lint --strict`).
+- [x] `make test` passes — updated unit suites green under en locale.
+- [x] `make build` succeeds.
+- [x] `make ui-test` passes — notification body seam and all flows still match en output.
+- [x] `make lint` passes (`swiftformat --lint` + `swiftlint lint --strict`).
 
 #### Manual
 - [ ] Launch the app in the simulator and click through Settings → every sub-screen, the About screen, the swipe prompt, the dictation error path, and the upgrade prompt — all still read natural English (no raw keys, no missing strings).

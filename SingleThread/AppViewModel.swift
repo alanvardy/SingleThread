@@ -131,8 +131,11 @@ final class AppViewModel {
             let effectiveHours = intervalHours > 0 ? intervalHours : 48
 
             let content = UNMutableNotificationContent()
-            content.title = "SingleThread"
-            content.body = "You have \(count) reminders waiting — open SingleThread!"
+            content.title = String(localized: "SingleThread", table: "Localizable", bundle: .main)
+            content.body = String(
+                localized: "You have \(count) reminders waiting — open SingleThread!",
+                table: "Localizable",
+                bundle: .main)
             content.sound = .default
 
             let trigger = UNTimeIntervalNotificationTrigger(

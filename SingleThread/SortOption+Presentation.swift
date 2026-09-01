@@ -9,9 +9,9 @@ extension SortOption {
     /// Human-readable label shown in the settings picker.
     var title: String {
         switch self {
-        case .priority: "Priority"
-        case .dueDate: "Due Date"
-        case .title: "Title"
+        case .priority: String(localized: "Priority", table: "Localizable", bundle: .main)
+        case .dueDate: String(localized: "Due Date", table: "Localizable", bundle: .main)
+        case .title: String(localized: "Title", table: "Localizable", bundle: .main)
         }
     }
 
