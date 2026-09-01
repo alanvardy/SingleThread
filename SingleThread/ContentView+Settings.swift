@@ -33,6 +33,7 @@ extension ContentView {
             .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
             .onChange(of: bag.backgroundEnabled) { _, new in backgroundEnabled = new }
             .onChange(of: bag.backgroundFadePercent) { _, new in backgroundFadePercent = new }
+            .onChange(of: bag.backgroundPinned) { _, new in backgroundPinned = new }
             .onChange(of: bag.showUndatedReminders) { _, new in showUndatedReminders = new }
             .onChange(of: bag.sortOption) { _, new in sortOption = new }
             .onChange(of: bag.showDate) { _, new in showDate = new }

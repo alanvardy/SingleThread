@@ -94,8 +94,11 @@ public final class InMemoryEventStore: EventKitStoring {
 
         /// A single `EKEventStore` kept alive to back all `EKReminder`
         /// instances created by `makeReminder`. The backing store must
-        /// outlive the reminders to avoid a SIGTRAP crash on iOS.
-        private let storeForReminderCreation = EKEventStore()
+        /// outlive the reminders to avoid a SIGTRAP crash on iOS. One process-
+        /// wide store is shared instead of one-per-instance so the test host
+        /// never exceeds EventKit's per-process connection cap
+        /// (`EKCADErrorDomain Code=1021`). Construction only — never saved.
+        private let storeForReminderCreation = sharedStore
 
         public func makeReminder(
             title: String,
@@ -115,6 +118,12 @@ public final class InMemoryEventStore: EventKitStoring {
     #endif
 
     // MARK: Private
+
+    /// Process-wide scratch store backing every `makeReminder` result so the
+    /// unit/UI-test host opens exactly one EventKit connection instead of one
+    /// per `InMemoryEventStore` instance. Kept at file scope so it outlives
+    /// every store instance (reminders hold a weak reference to it).
+    private static let sharedStore = EKEventStore()
 
     private let calendars: [EKCalendar]
     /// Only consumed by `makeReminder` (gated behind `#if !os(watchOS)`);

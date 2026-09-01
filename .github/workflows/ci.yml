@@ -63,11 +63,18 @@ jobs:
             -showBuildTimingSummary
 
       - name: Unit tests
-        timeout-minutes: 20
+        timeout-minutes: 35
         run: |
+          # Disable parallel test simulator clones: on GitHub's virtualized macOS
+          # runners the iOS clone connection can time out and EventKit/EKReminder
+          # test teardowns crash with SIGTRAP under clone contention. A single
+          # concurrent destination avoids that race.
           xcodebuild -scheme SingleThread \
             -destination "$SIM" \
             -derivedDataPath "$DERIVED_DATA" \
+            -maximum-test-execution-time-allowance 900 \
+            -parallel-testing-enabled NO \
+            -maximum-concurrent-test-simulator-destinations 1 \
             test-without-building \
             -only-testing:SingleThreadTests \
             -resultBundlePath TestResults.xcresult
