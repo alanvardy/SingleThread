@@ -142,7 +142,10 @@ struct NextThingWidgetView: View {
             messageView(
                 title: SharedStrings.remindersAccess,
                 systemImage: "lock.shield",
-                message: "Open SingleThread to enable access.")
+                message: String(
+                    localized: "Open SingleThread to enable access.",
+                    table: "Localizable",
+                    bundle: .main))
         case let .empty(hasHidden):
             messageView(
                 title: SharedStrings.noReminders,

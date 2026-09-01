@@ -16,13 +16,16 @@ extension Bundle {
     /// test runner. Xcode names Swift-package resource bundles
     /// `<PackageName>_<TargetName>.bundle` and embeds them in the app bundle;
     /// the tests cannot use the package-only `Bundle.module`.
+    ///
+    /// Fails loudly rather than falling back to `.main`: a silent fallback would
+    /// let key-equal-value assertions pass with a missing resource bundle, masking
+    /// a packaging regression.
     static var core: Bundle {
-        if let url = main.url(
+        guard let url = main.url(
             forResource: "SingleThreadCore_SingleThreadCore",
-            withExtension: "bundle"),
-            let core = Self(url: url) {
-            return core
+            withExtension: "bundle"), let core = Self(url: url) else {
+            preconditionFailure("SingleThreadCore_SingleThreadCore.bundle is not embedded in the test host")
         }
-        return .main
+        return core
     }
 }
