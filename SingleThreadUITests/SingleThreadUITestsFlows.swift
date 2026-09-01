@@ -50,6 +50,15 @@ final class SingleThreadUITestsFlows: XCTestCase {
             "Empty seeded store should render the No Reminders empty state")
     }
 
+    @MainActor
+    func testNothingDueShowsWhenRemindersHidden() {
+        let app = launchApp(seedJSON: #"{"reminders":[],"hasHidden":true}"#)
+
+        XCTAssertTrue(
+            app.staticTexts["Nothing due"].waitForExistence(timeout: 5),
+            "With hasHidden seeded true and no reminders, 'Nothing due' should appear")
+    }
+
     // MARK: - Skip
 
     @MainActor
