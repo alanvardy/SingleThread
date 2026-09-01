@@ -319,6 +319,44 @@ struct ReminderStoreTests {
     }
 
     @Test
+    func skipCurrentReminderRefetchesAndDropsCompletedReminder() async {
+        let remA = makeReminder(title: "A", priority: 1)
+        let remB = makeReminder(title: "B", priority: 9)
+        remB.isCompleted = true // "completed on another device"
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [remA, remB]),
+            loadsReminders: true,
+            reminders: [remA, remB],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+
+        store.skipCurrentReminder() // skip A (sorts first)
+        try? await Task.sleep(nanoseconds: 400_000_000) // > 200 ms settle + reload
+
+        #expect(store.skippedIDs.contains(remA.calendarItemIdentifier))
+        #expect(!store.reminders.contains { $0 === remB }) // B dropped by refetch
+    }
+
+    @Test
+    func skipCurrentReminderRefetchKeepsSkippedReminder() async {
+        let remA = makeReminder(title: "A", priority: 1)
+        let remB = makeReminder(title: "B", priority: 9)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [remA, remB]),
+            loadsReminders: true,
+            reminders: [remA, remB],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+
+        store.skipCurrentReminder()
+        try? await Task.sleep(nanoseconds: 400_000_000)
+
+        #expect(store.skippedIDs.contains(remA.calendarItemIdentifier))
+        #expect(store.reminders.contains { $0 === remB }) // incomplete → still fetched
+        #expect(store.visibleReminders.map(\.title) == ["B"]) // A hidden by skip only
+    }
+
+    @Test
     func skipCurrentReminderDiscardedAfterClearSkipped() async {
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
@@ -334,6 +372,7 @@ struct ReminderStoreTests {
         try? await Task.sleep(nanoseconds: 400_000_000)
 
         #expect(store.skippedIDs.isEmpty)
+        #expect(store.visibleReminders.count == 1) // reminder visible again — skip not re-applied
     }
 
     // MARK: - completeCurrentReminder

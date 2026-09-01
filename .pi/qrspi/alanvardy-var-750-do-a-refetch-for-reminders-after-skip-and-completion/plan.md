@@ -552,8 +552,8 @@ Extend the existing `skipCurrentReminderDiscardedAfterClearSkipped` (currently a
 ### Verification
 
 #### Automated
-- [ ] `make test` green; new `skipCurrentReminderRefetches*` cases pass; `skipCurrentReminderDiscardedAfterClearSkipped` still green
-- [ ] Targeted: `xcodebuild -scheme SingleThread -destination '$(SIM)' -derivedDataPath DerivedData test -only-testing:SingleThreadTests/ReminderStoreTests`
+- [x] `make test` green; new `skipCurrentReminderRefetches*` cases pass; `skipCurrentReminderDiscardedAfterClearSkipped` still green
+- [x] Targeted: `xcodebuild -scheme SingleThread -destination '$(SIM)' -derivedDataPath DerivedData test -only-testing:SingleThreadTests/ReminderStoreTests`
 
 #### Manual
 - [ ] In the iOS simulator: seed two reminders, complete one on the "other device" (via the Complete swipe), then skip the remaining one — the completed card must not reappear after the skip's background refetch.
