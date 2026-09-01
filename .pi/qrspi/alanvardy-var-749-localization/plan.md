@@ -336,9 +336,9 @@ Button { Task { await viewModel.completeCurrentReminder() } } label: {
 ### Verification
 
 #### Automated
-- [ ] `make ui-test` passes — zero changes to existing assertions (identifiers don't affect `staticTexts["…"]`/`buttons["…"]` lookups or `performAccessibilityAudit`).
-- [ ] `make watch-ui-test` passes unchanged.
-- [ ] `make test` passes unchanged (unit tests unaffected).
+- [x] `make ui-test` passes — zero changes to existing assertions (identifiers don't affect `staticTexts["…"]`/`buttons["…"]` lookups or `performAccessibilityAudit`).
+- [x] `make watch-ui-test` passes unchanged.
+- [x] `make test` passes unchanged (unit tests unaffected).
 
 #### Manual
 - [ ] In the iOS simulator (`make simverify`), run the app with VoiceOver: every button/row still reads its English a11y label; no element lost its label to the identifier.
