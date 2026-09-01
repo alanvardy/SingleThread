@@ -128,7 +128,7 @@ Delete everything from the `// MARK: - Preview Helpers` comment through the fina
 ### Verification
 #### Automated
 - [x] `SIM='…' make build` succeeds
-- [ ] `SIM='…' ./scripts/test.sh --unit-only` passes (guards: `SingleThreadTests.swift:15,26` and `MicrophoneToggleTests.swift:39,66,83,99` instantiate `ContentView` and must still compile/pass)
+- [x] `SIM='…' ./scripts/test.sh --unit-only` passes (guards: `SingleThreadTests.swift:15,26` and `MicrophoneToggleTests.swift:39,66,83,99` instantiate `ContentView` and must still compile/pass)
 - [x] `make lint` returns 0 (SwiftFormat + `swiftlint lint --strict`)
 
 #### Manual
