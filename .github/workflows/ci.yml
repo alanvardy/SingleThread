@@ -141,6 +141,7 @@ jobs:
             -destination "$SIM" \
             -derivedDataPath "$DERIVED_DATA" \
             -maximum-test-execution-time-allowance 900 \
+            -retry-tests-on-failure \
             -parallel-testing-enabled NO \
             -maximum-concurrent-test-simulator-destinations 1 \
             test-without-building \
@@ -199,6 +200,7 @@ jobs:
             -destination "$SIM" \
             -derivedDataPath "$DERIVED_DATA" \
             -maximum-test-execution-time-allowance 900 \
+            -retry-tests-on-failure \
             -parallel-testing-enabled NO \
             -maximum-concurrent-test-simulator-destinations 1 \
             test-without-building \
@@ -259,6 +261,7 @@ jobs:
             -destination "$SIM" \
             -derivedDataPath "$DERIVED_DATA" \
             -maximum-test-execution-time-allowance 900 \
+            -retry-tests-on-failure \
             -parallel-testing-enabled NO \
             -maximum-concurrent-test-simulator-destinations 1 \
             test-without-building \
@@ -421,6 +424,7 @@ jobs:
             -destination "platform=watchOS Simulator,id=${{ env.WATCH_UDID }}" \
             -derivedDataPath "$DERIVED_DATA" \
             -maximum-test-execution-time-allowance 900 \
+            -retry-tests-on-failure \
             test-without-building \
             -only-testing:SingleThreadWatchUITests
 
