@@ -99,6 +99,7 @@ struct ReminderCardView: View {
                         .font(.title)
                         .foregroundStyle(priorityColor(level))
                         .accessibilityLabel("\(level.displayName) priority")
+                        .accessibilityIdentifier("priorityMarker")
                 }
                 Text(display.titleAttributed)
                     .font(.title)
@@ -108,6 +109,7 @@ struct ReminderCardView: View {
                     Text(due, style: .date)
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("dueDateText")
                 }
                 if showRecurrence, display.hasRecurrence {
                     HStack(spacing: 4) {
@@ -117,6 +119,7 @@ struct ReminderCardView: View {
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("recurrenceLabel")
                 }
             }
 
@@ -124,11 +127,13 @@ struct ReminderCardView: View {
                 Text(listName)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("listNameText")
             }
 
             if showAlarms, display.hasAlarms {
                 Image(systemName: "bell")
                     .accessibilityLabel("Has alarm")
+                    .accessibilityIdentifier("alarmLabel")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -137,6 +142,7 @@ struct ReminderCardView: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .lineLimit(3)
+                    .accessibilityIdentifier("notesText")
             }
         }
         // Combine the card's text into a single accessible element. VoiceOver then
@@ -189,6 +195,7 @@ struct ReminderCardView: View {
             .padding(.vertical, 8)
             .contentShape(Rectangle())
             .accessibilityLabel("Dismiss swipe prompt")
+            .accessibilityIdentifier("swipePromptDismissButton")
         }
         .frame(maxWidth: .infinity)
         .padding(12)

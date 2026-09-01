@@ -90,6 +90,7 @@ struct ContentView: View {
                     .contentShape(Rectangle())
             }
             .accessibilityLabel("Settings")
+            .accessibilityIdentifier("settingsButton")
             .accessibilityAddTraits(.isButton)
             .padding(.top, 8)
             .padding(.trailing, 12)
@@ -106,6 +107,7 @@ struct ContentView: View {
                         .contentShape(Rectangle())
                 }
                 .accessibilityLabel("Undo completion")
+                .accessibilityIdentifier("undoButton")
                 .accessibilityAddTraits(.isButton)
                 .padding(.top, 8)
                 .padding(.leading, 12)
@@ -301,6 +303,7 @@ struct ContentView: View {
                 .tint(.green)
                 .keyboardShortcut("c", modifiers: [])
                 .accessibilityLabel("Complete reminder")
+                .accessibilityIdentifier("completeButton")
                 .accessibilityAddTraits(.isButton)
 
                 Button {
@@ -313,6 +316,7 @@ struct ContentView: View {
                 .tint(.orange)
                 .keyboardShortcut("s", modifiers: [])
                 .accessibilityLabel("Skip reminder")
+                .accessibilityIdentifier("skipButton")
                 .accessibilityAddTraits(.isButton)
 
                 Button {
@@ -324,6 +328,7 @@ struct ContentView: View {
                 }
                 .tint(.red)
                 .accessibilityLabel("Delete reminder")
+                .accessibilityIdentifier("deleteButton")
                 .accessibilityAddTraits(.isButton)
             }
             .padding(.bottom, 8)
@@ -414,6 +419,7 @@ struct ContentView: View {
                                     } label: {
                                         Label("Delete", systemImage: "trash")
                                     }
+                                    .accessibilityIdentifier("deleteButton")
                                     .tint(.red)
                                 }
                             #endif
@@ -504,6 +510,7 @@ struct ContentView: View {
                     .controlPlate()
             }
             .accessibilityLabel("Complete reminder")
+            .accessibilityIdentifier("completeButton")
             .accessibilityAddTraits(.isButton)
         }
 
@@ -516,6 +523,7 @@ struct ContentView: View {
                     .controlPlate()
             }
             .accessibilityLabel("Skip reminder")
+            .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
         }
 
@@ -544,6 +552,7 @@ struct ContentView: View {
                 .controlPlate()
         }
         .accessibilityLabel("Dictate reminder")
+        .accessibilityIdentifier("dictateButton")
         .accessibilityAddTraits(.isButton)
     }
 
@@ -553,6 +562,7 @@ struct ContentView: View {
             .controlPlate(fill: .red, glyph: .white)
             .symbolEffect(.pulse, options: .repeating)
             .accessibilityLabel("Recording")
+            .accessibilityIdentifier("recordingIndicator")
     }
 
     /// Decorative full-screen green flash shown after a successful completion.
@@ -760,8 +770,10 @@ private struct EmptyStateCard: View {
                 .accessibilityHidden(true)
             Text(copy.title)
                 .font(.title2.bold())
+                .accessibilityIdentifier("emptyStateTitle")
             Text(copy.description)
                 .font(.callout)
+                .accessibilityIdentifier("emptyStateDescription")
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: maxWidth)
