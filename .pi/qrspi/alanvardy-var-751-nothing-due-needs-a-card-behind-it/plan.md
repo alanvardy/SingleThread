@@ -286,7 +286,7 @@ returns title `"Nothing due"` → `ContentUnavailableView` renders it.
 
 #### Automated
 - [ ] `make ui-test` passes — the new test and all existing UI tests green
-- [ ] `make lint` passes
+- [x] `make lint` passes
 - [ ] [ ] Full gate: `./scripts/test.sh` passes (unit + UI + lint + format + periphery)
 
 #### Manual
