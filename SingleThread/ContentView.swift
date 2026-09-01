@@ -7,9 +7,8 @@ import SingleThreadCore
 import Speech
 import SwiftUI
 
-// The single-screen UI keeps every view modifier in one struct; the undo
-// overlay pushes it just past 500 lines.
-// swiftlint:disable:next type_body_length
+/// The single-screen UI keeps every view modifier in one struct; the undo
+/// overlay pushes it just past 500 lines.
 struct ContentView: View {
     // MARK: Lifecycle
 
@@ -63,9 +62,82 @@ struct ContentView: View {
 
     // MARK: Internal
 
+    // MARK: - Creation Feedback
+
+    @AppStorage("appearanceMode")
+    var appearanceMode = AppearanceMode.system
+
+    @AppStorage("textSize")
+    var textSize = TextSize.system
+
+    #if os(iOS)
+        @AppStorage("allowsLandscape")
+        var allowsLandscape = true
+    #endif
+
+    @AppStorage("showMicrophoneButton")
+    var showMicrophoneButton = true
+
+    @AppStorage("backgroundEnabled", store: .standard)
+    var backgroundEnabled = true
+
+    @AppStorage("backgroundFadePercent", store: .standard)
+    var backgroundFadePercent = BackgroundFade.defaultValue
+
+    @AppStorage("backgroundPinned", store: .standard)
+    var backgroundPinned = false
+
+    #if os(iOS)
+        @AppStorage("enableActionButtons")
+        var enableActionButtons = false
+    #endif
+
+    #if os(iOS)
+        @AppStorage("showSwipePrompt")
+        var showSwipePrompt = true
+    #endif
+
+    #if os(iOS)
+        @AppStorage("showUndoButton")
+        var showUndoButton = true
+
+        @AppStorage(AppViewModel.NotificationKeys.enabled)
+        var notificationsEnabled = false
+
+        @AppStorage(AppViewModel.NotificationKeys.intervalHours)
+        var notificationIntervalHours = 48
+    #endif
+    @AppStorage("showUndatedReminders", store: AppGroup.defaults)
+    var showUndatedReminders = false
+
+    @AppStorage(SortOption.defaultsKey, store: AppGroup.defaults)
+    var sortOption = SortOption.priority
+
+    @AppStorage("showDate", store: AppGroup.defaults)
+    var showDate = true
+
+    @AppStorage("showList", store: AppGroup.defaults)
+    var showList = false
+
+    @AppStorage("showRecurrence", store: AppGroup.defaults)
+    var showRecurrence = true
+    @AppStorage("showAlarms", store: AppGroup.defaults)
+    var showAlarms = true
+
+    @AppStorage("showCompletionGlow", store: AppGroup.defaults)
+    var showCompletionGlow = true
+
     #if os(iOS)
         let appViewModel: AppViewModel?
     #endif
+
+    let viewModel: ContentViewModel
+
+    var excludedListsBinding: Binding<Set<String>> {
+        Binding(
+            get: { viewModel.store.excludedListTitles },
+            set: { viewModel.setExcludedListTitles($0) })
+    }
 
     var body: some View {
         ZStack {
@@ -179,71 +251,6 @@ struct ContentView: View {
 
     // MARK: Private
 
-    // MARK: - Creation Feedback
-
-    @AppStorage("appearanceMode")
-    private var appearanceMode = AppearanceMode.system
-
-    @AppStorage("textSize")
-    private var textSize = TextSize.system
-
-    #if os(iOS)
-        @AppStorage("allowsLandscape")
-        private var allowsLandscape = true
-    #endif
-
-    @AppStorage("showMicrophoneButton")
-    private var showMicrophoneButton = true
-
-    @AppStorage("backgroundEnabled", store: .standard)
-    private var backgroundEnabled = true
-
-    @AppStorage("backgroundFadePercent", store: .standard)
-    private var backgroundFadePercent = BackgroundFade.defaultValue
-
-    @AppStorage("backgroundPinned", store: .standard)
-    private var backgroundPinned = false
-
-    #if os(iOS)
-        @AppStorage("enableActionButtons")
-        private var enableActionButtons = false
-    #endif
-
-    #if os(iOS)
-        @AppStorage("showSwipePrompt")
-        private var showSwipePrompt = true
-    #endif
-
-    #if os(iOS)
-        @AppStorage("showUndoButton")
-        private var showUndoButton = true
-
-        @AppStorage(AppViewModel.NotificationKeys.enabled)
-        private var notificationsEnabled = false
-
-        @AppStorage(AppViewModel.NotificationKeys.intervalHours)
-        private var notificationIntervalHours = 48
-    #endif
-    @AppStorage("showUndatedReminders", store: AppGroup.defaults)
-    private var showUndatedReminders = false
-
-    @AppStorage(SortOption.defaultsKey, store: AppGroup.defaults)
-    private var sortOption = SortOption.priority
-
-    @AppStorage("showDate", store: AppGroup.defaults)
-    private var showDate = true
-
-    @AppStorage("showList", store: AppGroup.defaults)
-    private var showList = false
-
-    @AppStorage("showRecurrence", store: AppGroup.defaults)
-    private var showRecurrence = true
-    @AppStorage("showAlarms", store: AppGroup.defaults)
-    private var showAlarms = true
-
-    @AppStorage("showCompletionGlow", store: AppGroup.defaults)
-    private var showCompletionGlow = true
-
     @State private var isShowingSettings = false
 
     /// Drives the freemium upgrade-prompt sheet (shown only when the free tier
@@ -264,14 +271,6 @@ struct ContentView: View {
 
     @Environment(\.scenePhase)
     private var scenePhase
-
-    private let viewModel: ContentViewModel
-
-    private var excludedListsBinding: Binding<Set<String>> {
-        Binding(
-            get: { viewModel.store.excludedListTitles },
-            set: { viewModel.setExcludedListTitles($0) })
-    }
 
     /// True only for the completion-glow UI test; production always hides the
     /// overlay from accessibility (unchanged behavior for real users).
@@ -591,47 +590,6 @@ struct ContentView: View {
         }
     }
 
-    /// Builds the Settings sheet content. The write-back chain is split into
-    /// staged values so each expression stays within the compiler's type-check
-    /// budget (a single 17-modifier chain does not).
-    private func settingsSheetWritebacks(_ bag: SettingsBindings) -> some View {
-        let withAppearance = SettingsView(
-            bindings: bag,
-            backgroundImage: viewModel.backgroundImage,
-            availableLists: viewModel.store.availableLists,
-            excludedLists: excludedListsBinding,
-            entitlementStore: viewModel.store.entitlementStore,
-            viewModel: SettingsViewModel())
-            // The bag is a plain in-memory holder; write each changed value
-            // back to the @AppStorage-backed property so settings survive
-            // relaunch (mirrors the old direct-bind behavior).
-            .onChange(of: bag.appearanceMode) { _, new in appearanceMode = new }
-            .onChange(of: bag.textSize) { _, new in textSize = new }
-        #if os(iOS)
-            let withIOSPreferences = withAppearance
-                .onChange(of: bag.allowsLandscape) { _, new in allowsLandscape = new }
-                .onChange(of: bag.enableActionButtons) { _, new in enableActionButtons = new }
-                .onChange(of: bag.showSwipePrompt) { _, new in showSwipePrompt = new }
-                .onChange(of: bag.showUndoButton) { _, new in showUndoButton = new }
-                .onChange(of: bag.notificationsEnabled) { _, new in notificationsEnabled = new }
-                .onChange(of: bag.notificationIntervalHours) { _, new in notificationIntervalHours = new }
-        #else
-            let withIOSPreferences = withAppearance
-        #endif
-        return withIOSPreferences
-            .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
-            .onChange(of: bag.backgroundEnabled) { _, new in backgroundEnabled = new }
-            .onChange(of: bag.backgroundFadePercent) { _, new in backgroundFadePercent = new }
-            .onChange(of: bag.backgroundPinned) { _, new in backgroundPinned = new }
-            .onChange(of: bag.showUndatedReminders) { _, new in showUndatedReminders = new }
-            .onChange(of: bag.sortOption) { _, new in sortOption = new }
-            .onChange(of: bag.showDate) { _, new in showDate = new }
-            .onChange(of: bag.showList) { _, new in showList = new }
-            .onChange(of: bag.showRecurrence) { _, new in showRecurrence = new }
-            .onChange(of: bag.showAlarms) { _, new in showAlarms = new }
-            .onChange(of: bag.showCompletionGlow) { _, new in showCompletionGlow = new }
-    }
-
     private func creationFeedbackView(for feedback: CreationFeedback) -> some View {
         Image(systemName: feedback.systemImage)
             .font(.title2)
@@ -643,49 +601,6 @@ struct ContentView: View {
     /// Extracted so the long `body` modifier chain still type-checks.
     private func setBackgroundPinned(_ pinned: Bool) {
         Task { await viewModel.backgroundImage.setPinned(pinned) }
-    }
-
-    /// Builds a fresh bindings bag from the current `@AppStorage`-backed
-    /// preference values.
-    @MainActor
-    private func makeSettingsBag() -> SettingsBindings {
-        #if os(iOS)
-            SettingsBindings(
-                appearanceMode: appearanceMode,
-                textSize: textSize,
-                allowsLandscape: allowsLandscape,
-                enableActionButtons: enableActionButtons,
-                showSwipePrompt: showSwipePrompt,
-                showUndoButton: showUndoButton,
-                notificationsEnabled: notificationsEnabled,
-                notificationIntervalHours: notificationIntervalHours,
-                showMicrophoneButton: showMicrophoneButton,
-                backgroundEnabled: backgroundEnabled,
-                backgroundFadePercent: backgroundFadePercent,
-                backgroundPinned: backgroundPinned,
-                showUndatedReminders: showUndatedReminders,
-                sortOption: sortOption,
-                showDate: showDate,
-                showList: showList,
-                showRecurrence: showRecurrence,
-                showAlarms: showAlarms,
-                showCompletionGlow: showCompletionGlow)
-        #else
-            SettingsBindings(
-                appearanceMode: appearanceMode,
-                textSize: textSize,
-                showMicrophoneButton: showMicrophoneButton,
-                backgroundEnabled: backgroundEnabled,
-                backgroundFadePercent: backgroundFadePercent,
-                backgroundPinned: backgroundPinned,
-                showUndatedReminders: showUndatedReminders,
-                sortOption: sortOption,
-                showDate: showDate,
-                showList: showList,
-                showRecurrence: showRecurrence,
-                showAlarms: showAlarms,
-                showCompletionGlow: showCompletionGlow)
-        #endif
     }
 }
 
