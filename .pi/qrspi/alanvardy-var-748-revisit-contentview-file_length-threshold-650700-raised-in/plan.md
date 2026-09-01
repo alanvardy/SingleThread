@@ -442,8 +442,8 @@ struct ContentView: View {
 
 ### Verification
 #### Automated
-- [ ] `make lint` returns 0 — `swiftlint lint --strict` reports **0 violations across all 136 files** with **no** size disables on `ContentView`
-- [ ] Full CI-identical gate `SIM='…' ./scripts/test.sh` passes (format, lint, build, watch build, Periphery, unit + UI + watch UI + macOS build/tests)
+- [x] `make lint` returns 0 — `swiftlint lint --strict` reports **0 violations across all 136 files** with **no** size disables on `ContentView` (verified: 0 violations, 0 serious in **139 files** at the restored 650 threshold)
+- [ ] Full CI-identical gate `SIM='…' ./scripts/test.sh` passes (format, lint, build, watch build, Periphery, unit + UI + watch UI + macOS build/tests) — **every stage green EXCEPT one pre-existing, out-of-scope failure**: `SingleThreadUITestsFlows.testPinWallpaperTogglePersistsAcrossRelaunch` (Pin wallpaper 0 ≠ 1) = the plan-declared pre-existing `backgroundPinned` missing bag write-back bug; moves are verbatim and main CI flows jobs fail on the same path. Left unchecked pending user decision (fix in a separate scoped commit or accept).
 
 #### Manual
 - [ ] `grep -n "swiftlint:disable" SingleThread/ContentView.swift` returns nothing (both directives gone)

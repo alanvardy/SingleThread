@@ -1,14 +1,12 @@
-// The settings bag plumbing and (Phase 4) undo overlay keep this file above
-// the `file_length` warning threshold (650) and the `type_body_length`
-// threshold (500); the value drives the entire single-screen UI so the view
-// modifiers stay in one spot.
+// The single-screen UI concentrates its view modifiers in this struct, with
+// non-view plumbing (settings bag, iOS notifications) and canvas previews
+// decomposed into sibling `ContentView+*.swift` extension files so this file
+// stays under the `file_length` (650) and `type_body_length` (500) thresholds.
 import EventKit
 import SingleThreadCore
 import Speech
 import SwiftUI
 
-/// The single-screen UI keeps every view modifier in one struct; the undo
-/// overlay pushes it just past 500 lines.
 struct ContentView: View {
     // MARK: Lifecycle
 
