@@ -25,11 +25,11 @@ final class ActionButtonsUITests: XCTestCase {
         app.launchArguments = ["--ui-testing"]
         app.launch()
 
-        let complete = app.buttons["Complete reminder"]
+        let complete = app.buttons["completeButton"]
         XCTAssertTrue(
             complete.waitForExistence(timeout: 5),
             "Complete button should be present beside the mic")
-        let skip = app.buttons["Skip reminder"]
+        let skip = app.buttons["skipButton"]
         XCTAssertTrue(
             skip.waitForExistence(timeout: 5),
             "Skip button should be present beside the mic")
@@ -38,7 +38,7 @@ final class ActionButtonsUITests: XCTestCase {
         // which lands on the allSkipped "All Done" branch (bottom bar disappears).
         skip.tap()
         XCTAssertTrue(
-            app.staticTexts["All Done"].waitForExistence(timeout: 5),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "Skipping should advance the displayed card to the All Done state")
     }
 
@@ -48,11 +48,11 @@ final class ActionButtonsUITests: XCTestCase {
         app.launchArguments = ["--ui-testing"]
         app.launch()
 
-        let complete = app.buttons["Complete reminder"]
+        let complete = app.buttons["completeButton"]
         XCTAssertTrue(
             complete.waitForExistence(timeout: 5),
             "Complete button should exist before auditing")
-        let skip = app.buttons["Skip reminder"]
+        let skip = app.buttons["skipButton"]
         XCTAssertTrue(
             skip.waitForExistence(timeout: 5),
             "Skip button should exist before auditing")

@@ -50,7 +50,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         let app = launchApp(seedJSON: #"{"reminders":[]}"#)
 
         XCTAssertTrue(
-            app.staticTexts["No Reminders"].waitForExistence(timeout: 5),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "Empty seeded store should render the No Reminders empty state")
     }
 
@@ -94,7 +94,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         // "High priority" (level.displayName + " priority"), so UI tests match
         // the marker element by that label.
         XCTAssertTrue(
-            app.staticTexts["High priority"].waitForExistence(timeout: 5),
+            app.staticTexts["priorityMarker"].waitForExistence(timeout: 5),
             "Priority-3 reminder should render the high-priority marker")
     }
 
@@ -109,7 +109,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         skip.tap()
 
         XCTAssertTrue(
-            app.staticTexts["All Done"].waitForExistence(timeout: 5),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "Skipping the only reminder should show the All Done state")
     }
 
@@ -172,7 +172,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         complete.tap()
 
         XCTAssertTrue(
-            app.staticTexts["No Reminders"].waitForExistence(timeout: 5),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "Completing the only reminder should empty the list")
     }
 
@@ -185,12 +185,12 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         app.staticTexts["Buy groceries"].press(forDuration: 1.0)
 
-        let delete = app.buttons["Delete"]
+        let delete = app.buttons["deleteButton"]
         XCTAssertTrue(delete.waitForExistence(timeout: 3), "Long-press should reveal the Delete context action")
         delete.tap()
 
         XCTAssertTrue(
-            app.staticTexts["No Reminders"].waitForExistence(timeout: 5),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "Deleting the only reminder should empty the list")
     }
 
@@ -201,28 +201,28 @@ final class SingleThreadUITestsFlows: XCTestCase {
         let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
 
         // Navigate into the Interface sub-view.
-        XCTAssertTrue(app.staticTexts["Interface"].waitForExistence(timeout: 3), "Settings should show Interface")
-        app.staticTexts["Interface"].tap()
+        XCTAssertTrue(app.buttons["settingsInterfaceRow"].waitForExistence(timeout: 3))
+        app.buttons["settingsInterfaceRow"].tap()
         XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["Text Size"].waitForExistence(timeout: 2))
 
         // Back to root, then into Reminder.
         app.navigationBars.buttons.firstMatch.tap()
-        app.staticTexts["Reminder"].tap()
+        app.buttons["settingsReminderRow"].tap()
         XCTAssertTrue(app.staticTexts["Show date"].waitForExistence(timeout: 2))
 
         // Back to root, then into Filtering & Sorting.
         app.navigationBars.buttons.firstMatch.tap()
-        app.staticTexts["Filtering & Sorting"].tap()
+        app.buttons["settingsFilterSortRow"].tap()
         XCTAssertTrue(app.staticTexts["Sort By"].waitForExistence(timeout: 2))
         XCTAssertTrue(app.staticTexts["Excluded Lists"].waitForExistence(timeout: 2))
 
         // Back to root, then into Privacy.
         app.navigationBars.buttons.firstMatch.tap()
-        app.staticTexts["Privacy Policy"].tap()
+        app.buttons["settingsPrivacyRow"].tap()
         XCTAssertTrue(
             app.navigationBars["Privacy Policy"].waitForExistence(timeout: 2),
             "Privacy screen should be pushed with its own navigation title")
@@ -238,10 +238,10 @@ final class SingleThreadUITestsFlows: XCTestCase {
         let app = launchApp(seedJSON: #"{"reminders":[]}"#)
 
         XCTAssertTrue(app.staticTexts.firstMatch.waitForExistence(timeout: 5))
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
 
         // The About row sits at the bottom of the Settings List; scroll if needed.
-        let about = app.buttons["About"]
+        let about = app.buttons["settingsAboutRow"]
         if !about.waitForExistence(timeout: 2) {
             app.swipeUp()
         }
@@ -272,19 +272,19 @@ final class SingleThreadUITestsFlows: XCTestCase {
     func testBackgroundToggleHidesAndPersistsAcrossRelaunch() {
         let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
 
         // Navigate into the Background sub-view.
-        XCTAssertTrue(app.staticTexts["Background"].waitForExistence(timeout: 3), "Settings should show Background")
-        app.staticTexts["Background"].tap()
-        let toggle = app.switches["Background"]
+        XCTAssertTrue(app.buttons["settingsBackgroundRow"].waitForExistence(timeout: 3))
+        app.buttons["settingsBackgroundRow"].tap()
+        let toggle = app.switches["backgroundToggle"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 3))
         XCTAssertEqual(toggle.value as? String, "1", "Background should default to on")
         XCTAssertTrue(flipToggle(toggle), "Tapping should hide the background")
 
         // The done button lives on the settings root, so pop back to it first.
         app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["Done"].tap()
+        app.buttons["settingsDoneButton"].tap()
         app.terminate()
 
         // A relaunch with `--seed` would call `resetPersistedState()` and wipe
@@ -293,9 +293,9 @@ final class SingleThreadUITestsFlows: XCTestCase {
         let relaunched = XCUIApplication()
         relaunched.launchArguments = ["--ui-testing"]
         relaunched.launch()
-        relaunched.buttons["Settings"].tap()
-        relaunched.staticTexts["Background"].tap()
-        let persistedToggle = relaunched.switches["Background"]
+        relaunched.buttons["settingsButton"].tap()
+        relaunched.buttons["settingsBackgroundRow"].tap()
+        let persistedToggle = relaunched.switches["backgroundToggle"]
         XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
         XCTAssertEqual(
             persistedToggle.value as? String, "0",
@@ -308,13 +308,13 @@ final class SingleThreadUITestsFlows: XCTestCase {
     func testPinWallpaperTogglePersistsAcrossRelaunch() {
         let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
 
         // Navigate into the Background sub-view.
-        XCTAssertTrue(app.staticTexts["Background"].waitForExistence(timeout: 3))
-        app.staticTexts["Background"].tap()
+        XCTAssertTrue(app.buttons["settingsBackgroundRow"].waitForExistence(timeout: 3))
+        app.buttons["settingsBackgroundRow"].tap()
 
-        let pinToggle = app.switches["Pin wallpaper"]
+        let pinToggle = app.switches["pinWallpaperToggle"]
         XCTAssertTrue(pinToggle.waitForExistence(timeout: 3))
         XCTAssertEqual(pinToggle.value as? String, "0", "Pin wallpaper should default to off")
 
@@ -323,18 +323,18 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
         // Back-navigate → Done → terminate.
         app.navigationBars.buttons["Settings"].tap()
-        app.buttons["Done"].tap()
+        app.buttons["settingsDoneButton"].tap()
         app.terminate()
 
         // Relaunch with --ui-testing to avoid resetPersistedState() wipe.
         let relaunched = XCUIApplication()
         relaunched.launchArguments = ["--ui-testing"]
         relaunched.launch()
-        XCTAssertTrue(relaunched.buttons["Settings"].waitForExistence(timeout: 5))
-        relaunched.buttons["Settings"].tap()
-        XCTAssertTrue(relaunched.staticTexts["Background"].waitForExistence(timeout: 3))
-        relaunched.staticTexts["Background"].tap()
-        let persistedToggle = relaunched.switches["Pin wallpaper"]
+        XCTAssertTrue(relaunched.buttons["settingsButton"].waitForExistence(timeout: 5))
+        relaunched.buttons["settingsButton"].tap()
+        XCTAssertTrue(relaunched.buttons["settingsBackgroundRow"].waitForExistence(timeout: 3))
+        relaunched.buttons["settingsBackgroundRow"].tap()
+        let persistedToggle = relaunched.switches["pinWallpaperToggle"]
         XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
         XCTAssertEqual(
             persistedToggle.value as? String, "1",
@@ -343,17 +343,17 @@ final class SingleThreadUITestsFlows: XCTestCase {
         // Flip back off and verify it persists as off (not a one-way latch).
         XCTAssertTrue(flipToggle(persistedToggle, target: "0"))
         relaunched.navigationBars.buttons["Settings"].tap()
-        relaunched.buttons["Done"].tap()
+        relaunched.buttons["settingsDoneButton"].tap()
         relaunched.terminate()
 
         let thirdLaunch = XCUIApplication()
         thirdLaunch.launchArguments = ["--ui-testing"]
         thirdLaunch.launch()
-        XCTAssertTrue(thirdLaunch.buttons["Settings"].waitForExistence(timeout: 5))
-        thirdLaunch.buttons["Settings"].tap()
-        XCTAssertTrue(thirdLaunch.staticTexts["Background"].waitForExistence(timeout: 3))
-        thirdLaunch.staticTexts["Background"].tap()
-        let offToggle = thirdLaunch.switches["Pin wallpaper"]
+        XCTAssertTrue(thirdLaunch.buttons["settingsButton"].waitForExistence(timeout: 5))
+        thirdLaunch.buttons["settingsButton"].tap()
+        XCTAssertTrue(thirdLaunch.buttons["settingsBackgroundRow"].waitForExistence(timeout: 3))
+        thirdLaunch.buttons["settingsBackgroundRow"].tap()
+        let offToggle = thirdLaunch.switches["pinWallpaperToggle"]
         XCTAssertTrue(offToggle.waitForExistence(timeout: 5))
         XCTAssertEqual(
             offToggle.value as? String, "0",
@@ -366,13 +366,13 @@ final class SingleThreadUITestsFlows: XCTestCase {
     func testBackgroundRefreshButtonExists() {
         let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
 
         // Navigate into the Background sub-view.
-        XCTAssertTrue(app.staticTexts["Background"].waitForExistence(timeout: 3), "Settings should show Background")
-        app.staticTexts["Background"].tap()
+        XCTAssertTrue(app.buttons["settingsBackgroundRow"].waitForExistence(timeout: 3))
+        app.buttons["settingsBackgroundRow"].tap()
 
-        let refreshButton = app.buttons["Refresh wallpaper"]
+        let refreshButton = app.buttons["refreshWallpaperButton"]
         XCTAssertTrue(refreshButton.waitForExistence(timeout: 3), "Background settings should show the refresh button")
         XCTAssertTrue(refreshButton.isHittable)
 
@@ -426,24 +426,24 @@ final class SingleThreadUITestsFlows: XCTestCase {
         app.buttons["Settings"].tap()
 
         // Navigate into the Reminder sub-view.
-        XCTAssertTrue(app.staticTexts["Reminder"].waitForExistence(timeout: 3), "Settings should show Reminder")
-        app.staticTexts["Reminder"].tap()
-        let toggle = app.switches["Show list"]
+        XCTAssertTrue(app.staticTexts["Reminder"].waitForExistence(timeout: 3))
+        app.buttons["settingsReminderRow"].tap()
+        let toggle = app.switches["showListToggle"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 3))
         XCTAssertEqual(toggle.value as? String, "0", "Show list should default to off")
         XCTAssertTrue(flipToggle(toggle, target: "1"), "Tapping should enable Show list")
 
         // The done button lives on the settings root, so pop back to it first.
         app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["Done"].tap()
+        app.buttons["settingsDoneButton"].tap()
         app.terminate()
 
         let relaunched = XCUIApplication()
         relaunched.launchArguments = ["--ui-testing"]
         relaunched.launch()
-        relaunched.buttons["Settings"].tap()
-        relaunched.staticTexts["Reminder"].tap()
-        let persistedToggle = relaunched.switches["Show list"]
+        relaunched.buttons["settingsButton"].tap()
+        relaunched.buttons["settingsReminderRow"].tap()
+        let persistedToggle = relaunched.switches["showListToggle"]
         XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
         XCTAssertEqual(
             persistedToggle.value as? String, "1",
@@ -479,25 +479,25 @@ final class SingleThreadUITestsFlows: XCTestCase {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing", "--reset-glow-preference"]
         app.launch()
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
 
         XCTAssertTrue(app.staticTexts["Reminder"].waitForExistence(timeout: 3))
-        app.staticTexts["Reminder"].tap()
-        let toggle = app.switches["Completion glow"]
+        app.buttons["settingsReminderRow"].tap()
+        let toggle = app.switches["showCompletionGlowToggle"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 3))
         XCTAssertEqual(toggle.value as? String, "1", "Completion glow should default to on")
         XCTAssertTrue(flipToggle(toggle, target: "0"), "Tapping should disable the glow")
 
         app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["Done"].tap()
+        app.buttons["settingsDoneButton"].tap()
         app.terminate()
 
         let relaunched = XCUIApplication()
         relaunched.launchArguments = ["--ui-testing"]
         relaunched.launch()
-        relaunched.buttons["Settings"].tap()
-        relaunched.staticTexts["Reminder"].tap()
-        let persistedToggle = relaunched.switches["Completion glow"]
+        relaunched.buttons["settingsButton"].tap()
+        relaunched.buttons["settingsReminderRow"].tap()
+        let persistedToggle = relaunched.switches["showCompletionGlowToggle"]
         XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
         XCTAssertEqual(persistedToggle.value as? String, "0", "Completion-glow-off should persist across relaunch")
     }
@@ -510,21 +510,21 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
         // Disable the glow, then complete the only reminder.
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
         XCTAssertTrue(app.staticTexts["Reminder"].waitForExistence(timeout: 3))
-        app.staticTexts["Reminder"].tap()
-        let toggle = app.switches["Completion glow"]
+        app.buttons["settingsReminderRow"].tap()
+        let toggle = app.switches["showCompletionGlowToggle"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 3))
         XCTAssertTrue(flipToggle(toggle, target: "0"), "Tapping should disable the glow")
         app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["Done"].tap()
+        app.buttons["settingsDoneButton"].tap()
 
         app.staticTexts["Buy groceries"].swipeRight()
         let complete = app.buttons["Complete"]
         XCTAssertTrue(complete.waitForExistence(timeout: 3))
         complete.tap()
 
-        XCTAssertTrue(app.staticTexts["No Reminders"].waitForExistence(timeout: 5), "Completing should empty the list")
+        XCTAssertTrue(app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5), "Completing should empty the list")
         // The overlay must never appear once the preference is off.
         XCTAssertFalse(app.otherElements["completionGlowOverlay"].exists, "Glow should be suppressed when disabled")
     }
@@ -657,12 +657,12 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
         // Complete the reminder via action button.
-        let completeButton = app.buttons["Complete reminder"]
+        let completeButton = app.buttons["completeButton"]
         XCTAssertTrue(completeButton.waitForExistence(timeout: 3))
         completeButton.tap()
 
         // Undo button should appear after completion.
-        let undoButton = app.buttons["Undo completion"]
+        let undoButton = app.buttons["undoButton"]
         XCTAssertTrue(undoButton.waitForExistence(timeout: 3), "Undo button should appear after completing a reminder")
 
         // Tap undo.
@@ -685,26 +685,26 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
         // Complete the reminder to make undo button appear.
-        let completeButton = app.buttons["Complete reminder"]
+        let completeButton = app.buttons["completeButton"]
         XCTAssertTrue(completeButton.waitForExistence(timeout: 3))
         completeButton.tap()
 
-        let undoButton = app.buttons["Undo completion"]
+        let undoButton = app.buttons["undoButton"]
         XCTAssertTrue(undoButton.waitForExistence(timeout: 3))
 
         // Open settings, navigate to Interface, flip showUndoButton off.
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
         XCTAssertTrue(app.staticTexts["Interface"].waitForExistence(timeout: 3))
-        app.staticTexts["Interface"].tap()
+        app.buttons["settingsInterfaceRow"].tap()
 
-        let showUndoToggle = app.switches["Show undo button"]
+        let showUndoToggle = app.switches["showUndoButtonToggle"]
         XCTAssertTrue(showUndoToggle.waitForExistence(timeout: 3))
         let flipped = flipToggle(showUndoToggle, target: "0")
         XCTAssertTrue(flipped, "Show undo button toggle should be off")
 
         // The Done button lives on the settings root, so pop back to it first.
         app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["Done"].tap()
+        app.buttons["settingsDoneButton"].tap()
 
         // Undo button should be gone.
         XCTAssertFalse(undoButton.exists, "Undo button should be hidden when toggle is off")
@@ -718,7 +718,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
         // Undo button should not exist on fresh launch.
-        XCTAssertFalse(app.buttons["Undo completion"].exists, "Undo button should not appear without a completion")
+        XCTAssertFalse(app.buttons["undoButton"].exists, "Undo button should not appear without a completion")
     }
 
     // MARK: - Freemium gate
@@ -729,7 +729,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         let app = launchApp(seedJSON: seed)
 
         // The upgrade prompt should appear instead of action buttons.
-        let upgradeButton = app.buttons["Upgrade to unlock unlimited completions"]
+        let upgradeButton = app.buttons["upgradeButton"]
         XCTAssertTrue(
             upgradeButton.waitForExistence(timeout: 5),
             "Upgrade prompt should appear when gated")
@@ -751,7 +751,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         let app = launchApp(seedJSON: seed)
 
         // Action buttons should appear because the user is entitled.
-        let completeButton = app.buttons["Complete reminder"]
+        let completeButton = app.buttons["completeButton"]
         XCTAssertTrue(
             completeButton.waitForExistence(timeout: 5),
             "Complete button should appear when entitled even at cap")
@@ -763,10 +763,10 @@ final class SingleThreadUITestsFlows: XCTestCase {
         let app = launchApp(seedJSON: seed)
 
         // Open settings.
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
 
         // The Purchase/Unlock row should be visible.
-        let unlockRow = app.buttons["Unlock"]
+        let unlockRow = app.buttons["settingsPurchaseRow"]
         XCTAssertTrue(
             unlockRow.waitForExistence(timeout: 3),
             "Settings should have an Unlock row")
@@ -778,10 +778,10 @@ final class SingleThreadUITestsFlows: XCTestCase {
         let app = launchApp(seedJSON: seed)
 
         // Tap the upgrade prompt.
-        app.buttons["Upgrade to unlock unlimited completions"].tap()
+        app.buttons["upgradeButton"].tap()
 
         // The purchase sheet has a Restore Purchases button.
-        let restoreButton = app.buttons["Restore Purchases"]
+        let restoreButton = app.buttons["restorePurchasesButton"]
         XCTAssertTrue(
             restoreButton.waitForExistence(timeout: 3),
             "Purchase sheet should have a Restore Purchases button")
