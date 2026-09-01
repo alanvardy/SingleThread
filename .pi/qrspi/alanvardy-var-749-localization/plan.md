@@ -731,10 +731,10 @@ Watch unit tests assert fixture data only (no app copy) — verify none break; a
 ### Verification
 
 #### Automated
-- [ ] `make watch-build` succeeds.
-- [ ] `make build` succeeds (widget + app + embed).
-- [ ] `make watch-test` passes.
-- [ ] `make watch-ui-test` passes under en locale.
+- [x] `make watch-build` succeeds.
+- [x] `make build` succeeds (widget + app + embed).
+- [x] `make watch-test` passes.
+- [x] `make watch-ui-test` passes under en locale.
 
 #### Manual
 - [ ] Add the widget to the simulator home screen: gallery name/description, empty state, and a seeded reminder render correctly.

@@ -118,8 +118,11 @@ struct NextThingWidget: Widget {
             NextThingWidgetView(entry: entry)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
-        .configurationDisplayName("Next Thing")
-        .description("Your next reminder, with Complete and Skip.")
+        .configurationDisplayName(
+            LocalizedStringResource("Next Thing", table: "Localizable", bundle: .main))
+        .description(
+            LocalizedStringResource("Your next reminder, with Complete and Skip.",
+                                    table: "Localizable", bundle: .main))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }
@@ -135,17 +138,17 @@ struct NextThingWidgetView: View {
         switch entry.state {
         case .noAccess:
             messageView(
-                title: "Reminders Access",
+                title: SharedStrings.remindersAccess,
                 systemImage: "lock.shield",
                 message: "Open SingleThread to enable access.")
         case let .empty(hasHidden):
             messageView(
-                title: "No Reminders",
+                title: SharedStrings.noReminders,
                 systemImage: "checklist",
-                message: hasHidden ? "Nothing due right now" : "No reminders yet")
+                message: hasHidden ? SharedStrings.nothingDueRightNow : SharedStrings.noRemindersYet)
         case .allDone:
             messageView(
-                title: "All Done",
+                title: SharedStrings.allDone,
                 systemImage: "checkmark.circle",
                 message: nil)
         case let .reminder(display):
@@ -158,21 +161,21 @@ struct NextThingWidgetView: View {
     private var actionButtons: some View {
         HStack(spacing: 12) {
             Button(intent: CompleteReminderIntent()) {
-                Label("Complete", systemImage: "checkmark.circle.fill")
+                Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
                     .labelStyle(.iconOnly)
             }
             .tint(.green)
             .buttonStyle(.bordered)
-            .accessibilityLabel("Complete reminder")
+            .accessibilityLabel(SharedStrings.completeReminderAccessibility)
             .accessibilityIdentifier("completeButton")
 
             Button(intent: SkipReminderIntent()) {
-                Label("Skip", systemImage: "circle.slash")
+                Label(SharedStrings.skipAction, systemImage: "circle.slash")
                     .labelStyle(.iconOnly)
             }
             .tint(.orange)
             .buttonStyle(.bordered)
-            .accessibilityLabel("Skip reminder")
+            .accessibilityLabel(SharedStrings.skipReminderAccessibility)
             .accessibilityIdentifier("skipButton")
         }
     }
@@ -221,13 +224,13 @@ struct NextThingWidgetView: View {
                     .foregroundStyle(.secondary)
             }
             if entry.showsRecurrence, display.hasRecurrence {
-                Label(display.recurrenceSummary ?? "Repeats", systemImage: "repeat")
+                Label(display.recurrenceSummary ?? SharedStrings.repeats, systemImage: "repeat")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("recurrenceLabel")
             }
             if entry.showsAlarms, display.hasAlarms {
-                Label("Alert", systemImage: "bell")
+                Label(SharedStrings.alert, systemImage: "bell")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("alertLabel")
