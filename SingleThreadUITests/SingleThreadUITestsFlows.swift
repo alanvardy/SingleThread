@@ -125,9 +125,11 @@ final class SingleThreadUITestsFlows: XCTestCase {
     func testSkipWithCrossDeviceCompletionShowsOnlyRemainingReminder() {
         // Three reminders: "CrossDevice" is completed (simulating the other
         // device), "ToSkip" is skipped (triggering the new background refetch),
-        // "Remaining" is the only one left visible.
+        // "Remaining" is the only one left visible. Priorities must fall in
+        // distinct rank buckets (1–4 high, 5 medium, 6–9 low) or the sort's
+        // title tie-break can reorder them.
         // swiftlint:disable:next line_length
-        let seed = #"{"reminders":[{"title":"CrossDevice","priority":1},{"title":"ToSkip","priority":2},{"title":"Remaining","priority":3}]}"#
+        let seed = #"{"reminders":[{"title":"CrossDevice","priority":1},{"title":"ToSkip","priority":5},{"title":"Remaining","priority":9}]}"#
         let app = launchApp(seedJSON: seed)
 
         // 1. Complete "CrossDevice" (simulates a cross-device completion).
