@@ -442,8 +442,8 @@ struct ReloadPendingCompletionTests {
 ### Verification
 
 #### Automated
-- [ ] `make test` green with the four new `reload*` cases passing
-- [ ] Targeted: `xcodebuild -scheme SingleThread -destination '$(SIM)' -derivedDataPath DerivedData test -only-testing:SingleThreadTests/ReminderStoreTests`
+- [x] `make test` green with the four new `reload*` cases passing
+- [x] Targeted: `xcodebuild -scheme SingleThread -destination '$(SIM)' -derivedDataPath DerivedData test -only-testing:SingleThreadTests/ReminderStoreTests`
 
 #### Manual
 - [ ] After `reload()`, assert the invariant holds by inspection of the new tests (no UI change at this stage).
