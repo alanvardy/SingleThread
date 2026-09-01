@@ -285,9 +285,9 @@ returns title `"Nothing due"` → `ContentUnavailableView` renders it.
 ### Verification
 
 #### Automated
-- [ ] `make ui-test` passes — the new test and all existing UI tests green
+- [x] `make ui-test` passes — the new test and all existing UI tests green
 - [x] `make lint` passes
-- [ ] [ ] Full gate: `./scripts/test.sh` passes (unit + UI + lint + format + periphery)
+- [ ] [ ] Full gate: `./scripts/test.sh` passes (unit + UI + lint + format + periphery) — blocked on Phase 4's `make ui-test`; unblocked by the pre-existing pin-wallpaper fix (`fix: persist Pin wallpaper toggle across relaunch`, 539264b)
 
 #### Manual
 - [ ] None — the UI test is the verification.
