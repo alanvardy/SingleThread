@@ -178,11 +178,105 @@ struct MicrophoneToggleTests {
         #expect(fake.refreshCallCount == 0)
     }
 
+    @Test
+    func explanatoryLabelAppearsWhenSpeechDeniedAndToggleOn() {
+        let defaultsKey = "showMicrophoneButton"
+        UserDefaults.standard.set(true, forKey: defaultsKey)
+        defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
+
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let view = ContentView(loadsReminders: false, speechTranscriber: fake)
+
+        // `String(describing: view.body)` can't reach this label: ContentView's
+        // deeply nested body description elides Text storage. The `bottomBar`
+        // VStack itself is shallow enough to serialize (same depth as AboutView).
+        #expect(String(describing: view.bottomBar).contains("Speech recognition is unavailable."))
+    }
+
+    @Test
+    func explanatoryLabelAppearsWhenSpeechRestrictedAndToggleOn() {
+        let defaultsKey = "showMicrophoneButton"
+        UserDefaults.standard.set(true, forKey: defaultsKey)
+        defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
+
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .restricted)
+        let view = ContentView(loadsReminders: false, speechTranscriber: fake)
+
+        #expect(String(describing: view.bottomBar).contains("Speech recognition is unavailable."))
+    }
+
+    @Test
+    func explanatoryLabelAbsentWhenToggleOff() {
+        let defaultsKey = "showMicrophoneButton"
+        UserDefaults.standard.set(false, forKey: defaultsKey)
+        defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
+
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let view = ContentView(loadsReminders: false, speechTranscriber: fake)
+
+        #expect(!String(describing: view.bottomBar).contains("Speech recognition is unavailable."))
+    }
+
+    @Test
+    func explanatoryLabelAbsentWhenNotDetermined() {
+        let defaultsKey = "showMicrophoneButton"
+        UserDefaults.standard.set(true, forKey: defaultsKey)
+        defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
+
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .notDetermined)
+        let view = ContentView(loadsReminders: false, speechTranscriber: fake)
+
+        #expect(!String(describing: view.bottomBar).contains("Speech recognition is unavailable."))
+    }
+
+    @Test
+    func explanatoryLabelContainsSettingsButtonOnIOS() {
+        let defaultsKey = "showMicrophoneButton"
+        UserDefaults.standard.set(true, forKey: defaultsKey)
+        defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
+
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let view = ContentView(loadsReminders: false, speechTranscriber: fake)
+
+        #expect(String(describing: view.bottomBar).contains("Open Settings"))
+    }
+
+    @Test
+    func explanatoryLabelRendersBelowErrorTextWhenBothPresent() {
+        let defaultsKey = "showMicrophoneButton"
+        UserDefaults.standard.set(true, forKey: defaultsKey)
+        defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
+
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let contentViewModel = makeContentViewModel(fake)
+        contentViewModel.dictation.dictationError = "some error"
+        let view = ContentView(viewModel: contentViewModel)
+
+        let bodyDescription = String(describing: view.bottomBar)
+        #expect(bodyDescription.contains("some error"))
+        #expect(bodyDescription.contains("Speech recognition is unavailable."))
+
+        let errorRange = bodyDescription.range(of: "some error")
+        let explanationRange = bodyDescription.range(of: "Speech recognition is unavailable.")
+        #expect(errorRange != nil)
+        #expect(explanationRange != nil)
+        if let errorRange, let explanationRange {
+            #expect(errorRange.lowerBound < explanationRange.lowerBound)
+        }
+    }
+
     // MARK: Private
 
     private func makeViewModel(_ fake: MicToggleFakeTranscriber) -> DictationViewModel {
         DictationViewModel(
             speechTranscriber: fake,
             store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false))
+    }
+
+    private func makeContentViewModel(_ fake: MicToggleFakeTranscriber) -> ContentViewModel {
+        ContentViewModel(
+            store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: fake)
     }
 }

@@ -2,6 +2,13 @@
 // non-view plumbing (settings bag, iOS notifications) and canvas previews
 // decomposed into sibling `ContentView+*.swift` extension files so this file
 // stays under the `file_length` (650) and `type_body_length` (500) thresholds.
+// The scene-phase wiring and the explanatory bottom bar (VAR-747) push the
+// file back over 650 lines; the value drives the whole single-screen UI so
+// its modifiers stay in this one spot.
+// swiftlint:disable file_length
+#if os(iOS)
+    import UIKit
+#endif
 import EventKit
 import SingleThreadCore
 import Speech
@@ -453,48 +460,6 @@ struct ContentView: View {
         }
     }
 
-    private var bottomBar: some View {
-        VStack(spacing: 8) {
-            #if os(macOS)
-                if viewModel.store.visibleReminders.first != nil {
-                    actionButtons
-                }
-            #endif
-            if let error = viewModel.dictation.dictationError {
-                Text(error)
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal)
-            }
-            if let feedback = viewModel.dictation.creationFeedback {
-                creationFeedbackView(for: feedback)
-            } else if viewModel.dictation.isDictating {
-                if !viewModel.dictation.dictationText.isEmpty {
-                    Text(viewModel.dictation.dictationText)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-                recordingIndicator
-            } else if viewModel.dictation.canDictate, showMicrophoneButton {
-                #if os(iOS)
-                    if !viewModel.store.canMutate {
-                        upgradePrompt
-                    } else if viewModel.showsActionButtons {
-                        actionCluster
-                    } else {
-                        micButton
-                    }
-                #else
-                    micButton
-                #endif
-            }
-        }
-        .padding(.bottom, 16)
-    }
-
     #if os(iOS)
         private var completeButton: some View {
             Button {
@@ -678,5 +643,69 @@ extension ContentView {
         default:
             break
         }
+    }
+}
+
+// MARK: - Bottom Bar
+
+extension ContentView {
+    var bottomBar: some View {
+        VStack(spacing: 8) {
+            #if os(macOS)
+                if viewModel.store.visibleReminders.first != nil {
+                    actionButtons
+                }
+            #endif
+            if let error = viewModel.dictation.dictationError {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal)
+            }
+            if let feedback = viewModel.dictation.creationFeedback {
+                creationFeedbackView(for: feedback)
+            } else if viewModel.dictation.isDictating {
+                if !viewModel.dictation.dictationText.isEmpty {
+                    Text(viewModel.dictation.dictationText)
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+                recordingIndicator
+            } else if viewModel.dictation.canDictate, showMicrophoneButton {
+                #if os(iOS)
+                    if !viewModel.store.canMutate {
+                        upgradePrompt
+                    } else if viewModel.showsActionButtons {
+                        actionCluster
+                    } else {
+                        micButton
+                    }
+                #else
+                    micButton
+                #endif
+            } else if !viewModel.dictation.canDictate,
+                      viewModel.dictation.authorizationStatus != .notDetermined,
+                      showMicrophoneButton {
+                VStack(spacing: 4) {
+                    Text("Speech recognition is unavailable.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                    #if os(iOS)
+                        Button("Open Settings") {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        }
+                        .font(.caption)
+                    #endif
+                }
+                .padding(.horizontal)
+            }
+        }
+        .padding(.bottom, 16)
     }
 }
