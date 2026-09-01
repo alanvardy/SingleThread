@@ -210,10 +210,9 @@ struct WatchReminderView: View {
                 }
                 .accessibilityIdentifier("refreshButton")
 
-                Button("Delete", role: .destructive) {
+                Button(SharedStrings.deleteAction, role: .destructive) {
                     Task { await viewModel.store.deleteCurrentReminder() }
                 }
-                .accessibilityLabel(SharedStrings.deleteAction)
                 .accessibilityIdentifier("deleteButton")
             }
 
