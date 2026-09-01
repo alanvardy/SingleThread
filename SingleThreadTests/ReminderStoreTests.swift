@@ -644,6 +644,147 @@ struct ReminderStoreTests {
     }
 #endif
 
+// MARK: - reload pending + defensive filter
+
+/// Returns every seeded reminder verbatim — including completed ones — so the
+/// defensive `!isCompleted` filter in `reload()` can be exercised (unlike
+/// `InMemoryEventStore`, which filters `!isCompleted` before it reaches the store).
+@MainActor
+private final class CompletedReturningEventStore: EventKitStoring {
+    // MARK: Lifecycle
+
+    init(fetchResult: [EKReminder]) {
+        self.fetchResult = fetchResult
+    }
+
+    // MARK: Internal
+
+    let fetchResult: [EKReminder]
+
+    func authorizationStatus(for _: EKEntityType) -> EKAuthorizationStatus {
+        .fullAccess
+    }
+
+    func calendars(for _: EKEntityType) -> [EKCalendar] {
+        []
+    }
+
+    func requestFullAccessToReminders() async throws -> Bool {
+        true
+    }
+
+    func predicateForIncompleteReminders(
+        withDueDateStarting _: Date?,
+        ending _: Date?,
+        calendars _: [EKCalendar]?) -> NSPredicate {
+        NSPredicate(value: true)
+    }
+
+    @discardableResult
+    func fetchReminders(matching _: NSPredicate, completion: @escaping ([EKReminder]?) -> Void) -> Any {
+        completion(fetchResult)
+        return ()
+    }
+
+    #if !os(watchOS)
+        func refreshSourcesIfNecessary() {}
+        func save(_: EKReminder, commit _: Bool) throws {}
+        func remove(_: EKReminder, commit _: Bool) throws {}
+        func makeReminder(
+            title _: String,
+            notes _: String?,
+            dueDate _: DateComponents?,
+            recurrenceRule _: EKRecurrenceRule?) -> EKReminder {
+            EKReminder(eventStore: sharedTestEventStore)
+        }
+    #endif
+}
+
+@MainActor
+@Suite(.serialized)
+struct ReloadPendingCompletionTests {
+    // MARK: Internal
+
+    @Test
+    func reloadFiltersPendingCompletions() async {
+        let key = "pending-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        let remA = makeReminder(title: "A")
+        let remB = makeReminder(title: "B")
+        pendingStore(key: key).save([remB.calendarItemIdentifier])
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [remA, remB]),
+            pendingCompletionStore: pendingStore(key: key),
+            loadsReminders: true,
+            reminders: [remA, remB],
+            authorizationStatus: .fullAccess)
+
+        await store.reload()
+
+        #expect(store.reminders.map(\.title) == ["A"]) // B pending → hidden
+    }
+
+    @Test
+    func reloadPrunesStalePendingCompletions() async {
+        let key = "pending-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        let remA = makeReminder(title: "A")
+        pendingStore(key: key).save(["stale-id"]) // id no longer in the fetch
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [remA]),
+            pendingCompletionStore: pendingStore(key: key),
+            loadsReminders: true,
+            reminders: [remA],
+            authorizationStatus: .fullAccess)
+
+        await store.reload()
+
+        #expect(store.reminders.map(\.title) == ["A"]) // not pending → visible
+        #expect(pendingStore(key: key).load().isEmpty) // stale-id pruned from set + persisted
+    }
+
+    @Test
+    func reloadKeepsPendingWhenStillFetched() async {
+        let key = "pending-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        let remA = makeReminder(title: "A")
+        let remB = makeReminder(title: "B")
+        pendingStore(key: key).save([remB.calendarItemIdentifier])
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [remA, remB]),
+            pendingCompletionStore: pendingStore(key: key),
+            loadsReminders: true,
+            reminders: [remA, remB],
+            authorizationStatus: .fullAccess)
+
+        await store.reload()
+
+        #expect(store.reminders.map(\.title) == ["A"]) // still hidden
+        #expect(pendingStore(key: key).load() == [remB.calendarItemIdentifier]) // still incomplete → stays
+    }
+
+    @Test
+    func reloadDefensivelyDropsCompletedReminder() async {
+        let completed = makeReminder(title: "Done")
+        completed.isCompleted = true
+        let fake = CompletedReturningEventStore(fetchResult: [completed])
+        let store = ReminderStore(
+            eventStore: fake,
+            pendingCompletionStore: pendingStore(key: "pending-\(UUID().uuidString)"),
+            loadsReminders: true)
+
+        await store.reload()
+
+        #expect(store.reminders.isEmpty)
+    }
+
+    // MARK: Private
+
+    private func pendingStore(key: String) -> PendingCompletionStore {
+        PendingCompletionStore(defaults: .standard, key: key)
+    }
+}
+
 // MARK: - makeReminder test seam
 
 #if !os(watchOS)

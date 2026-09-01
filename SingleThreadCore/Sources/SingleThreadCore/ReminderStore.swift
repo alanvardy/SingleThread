@@ -14,10 +14,12 @@ public final class ReminderStore {
     public init(
         eventStore: any EventKitStoring = EKEventStore(),
         skipStore: SkippedReminderStore = SkippedReminderStore(),
+        pendingCompletionStore: PendingCompletionStore = PendingCompletionStore(),
         excludeStore: ExcludedListStore = ExcludedListStore(),
         loadsReminders: Bool = true,
         reminders: [EKReminder] = [],
         skippedIDs: Set<String> = [],
+        pendingCompletions: Set<String> = [],
         authorizationStatus: EKAuthorizationStatus = .notDetermined,
         excludedListTitles: Set<String> = [],
         hasHidden: Bool = false,
@@ -25,10 +27,12 @@ public final class ReminderStore {
         entitlementStore: EntitlementStore = EntitlementStore()) {
         self.eventStore = eventStore
         self.skipStore = skipStore
+        self.pendingCompletionStore = pendingCompletionStore
         self.excludeStore = excludeStore
         self.loadsReminders = loadsReminders
         self.reminders = reminders
         self.skippedIDs = skippedIDs
+        self.pendingCompletions = pendingCompletions
         self.authorizationStatus = authorizationStatus
         self.excludedListTitles = excludedListTitles
         self.hasHidden = hasHidden
@@ -318,7 +322,7 @@ public final class ReminderStore {
         return true
     }
 
-    public func reload(clearSkipped: Bool = false) async {
+    public func reload(clearSkipped: Bool = false) async { // swiftlint:disable:this function_body_length
         guard loadsReminders else { return }
         #if !os(watchOS)
             eventStore.refreshSourcesIfNecessary()
@@ -337,7 +341,7 @@ public final class ReminderStore {
             ending: endDate,
             calendars: nil)
         let fetched: [EKReminder] = await fetchReminders(matching: predicate)
-        let shown = showsUndatedReminders
+        var shown = showsUndatedReminders
             ? fetched.filter { ReminderDateFilter.isInCurrentWindow($0.dueDateComponents?.date) }
             : fetched
         if showsUndatedReminders {
@@ -353,6 +357,12 @@ public final class ReminderStore {
             let allIncomplete: [EKReminder] = await fetchReminders(matching: broadPredicate)
             hasHidden = Self.hasHiddenFor(shown: shown, allIncomplete: allIncomplete)
         }
+        // Pending completions (watch-relayed) hide their reminder until the
+        // phone processes them; the defensive filter guarantees the invariant
+        // that `reminders` never contains a completed reminder.
+        pendingCompletions = pendingCompletionStore.load()
+        shown = PendingCompletionLogic.filtering(fetched: shown, pending: pendingCompletions)
+        shown = PendingCompletionLogic.removingCompleted(shown)
         reminders = shown
         availableLists = Set(
             eventStore.calendars(for: .reminder)
@@ -371,6 +381,15 @@ public final class ReminderStore {
             // reminder, for example) drop cleanly from UserDefaults too, keeping
             // the on-disk skip store consistent with in-memory `skippedIDs`.
             skipStore.save(resolved)
+        }
+        // Prune pending IDs no longer present in the fetch — the phone has
+        // processed the relay and the reminder is now genuinely completed.
+        let pruned = PendingCompletionLogic.pruned(
+            pending: pendingCompletions,
+            fetchedIdentifiers: Set(fetched.map(\.calendarItemIdentifier)))
+        if pruned != pendingCompletions {
+            pendingCompletions = pruned
+            pendingCompletionStore.save(pruned)
         }
         onRemindersChanged?()
     }
@@ -422,7 +441,12 @@ public final class ReminderStore {
 
     private let eventStore: any EventKitStoring
     private let skipStore: SkippedReminderStore
+    private let pendingCompletionStore: PendingCompletionStore
     private let excludeStore: ExcludedListStore
+
+    /// Watch-completed identifiers awaiting the phone's relay. Loaded/pruned
+    /// inside `reload()`; mutated by the watchOS `completeReminder` branch.
+    private var pendingCompletions: Set<String> = []
 
     /// Increments whenever the skipped set is cleared, invalidating any
     /// in-flight skip task captured before the clear.
