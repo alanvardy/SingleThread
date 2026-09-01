@@ -242,9 +242,9 @@ The moved members read `appViewModel?.pendingSummary` / `lastScheduleSummary`. C
 
 ### Verification
 #### Automated
-- [ ] `SIM='…' make build` succeeds
-- [ ] `SIM='…' ./scripts/test.sh --unit-only` passes
-- [ ] `make lint` returns 0
+- [x] `SIM='…' make build` succeeds
+- [x] `SIM='…' ./scripts/test.sh --unit-only` passes
+- [x] `make lint` returns 0
 
 #### Manual
 - [ ] `wc -l SingleThread/ContentView.swift` ≈ 687
@@ -414,7 +414,7 @@ file_length:
 **File**: `SingleThread/ContentView.swift`
 **Action**: modify
 
-- Delete line 5 `// swiftlint:disable file_length`.
+- Delete line 5 `// swiftlint:disable file_length` (already removed in Phase 2 — the file sat below the 700 warning threshold after the notifications split, so the directive was superfluous and broke `superfluous_disable_command`).
 - Delete the stale block above the struct (`// The single-screen UI keeps every view modifier in one struct; the undo` / `// overlay pushes it just past 500 lines.`) and line 13 `// swiftlint:disable:next type_body_length`.
 - Rewrite the header (lines 1–4) so it no longer claims the file sits *above* the thresholds:
 
