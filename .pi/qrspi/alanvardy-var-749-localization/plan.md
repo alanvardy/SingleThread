@@ -818,7 +818,7 @@ Add tests:
 - [x] `make ui-test` — all 8 iOS UI files green on identifiers.
 - [x] `make watch-ui-test` — both watch UI files green.
 - [x] `make periphery` — zero dead code (catalogs/resources don't register as dead; `SharedStrings` members are all referenced).
-- [ ] `./scripts/test.sh` — full CI-identical gate (format, lint, build, Periphery, unit + UI + watch UI, macOS build/test) passes.
+- [x] `./scripts/test.sh` — full CI-identical gate (format, lint, build, Periphery, unit + UI + watch UI, macOS build/test) passes.
 
 #### Manual
 - [ ] Set the simulator language to `Deutsch` (Settings → General → Language & Region → German), relaunch, and spot-check: settings rows, empty state, action buttons, About, and the widget all render German; usage-description strings appear in German when triggering Reminders/mic permission.
