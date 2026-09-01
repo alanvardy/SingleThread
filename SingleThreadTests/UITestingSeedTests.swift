@@ -60,6 +60,28 @@ struct UITestingSeedTests {
     }
 
     @Test
+    func parsesHasHidden() {
+        let args = [
+            "--seed",
+            #"{"reminders":[],"hasHidden":true}"#
+        ]
+        let seed = UITestingSeed.fromLaunchArguments(args)
+
+        #expect(seed?.hasHidden == true)
+    }
+
+    @Test
+    func hasHiddenDefaultsWhenAbsent() {
+        let args = [
+            "--seed",
+            #"{"reminders":[]}"#
+        ]
+        let seed = UITestingSeed.fromLaunchArguments(args)
+
+        #expect(seed?.hasHidden == false)
+    }
+
+    @Test
     func returnsNilWhenSeedAbsentOrMalformed() {
         #expect(UITestingSeed.fromLaunchArguments([]) == nil)
         #expect(UITestingSeed.fromLaunchArguments(["--seed"]) == nil)

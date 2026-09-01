@@ -77,12 +77,13 @@ import Testing
             #expect(ReminderCardView.plateFill(for: .dark) == Color.black)
         }
 
-        /// The empty-state plate's corner radius must match the card plate (10pt)
-        /// so they share visual rhythm. The rendered shape can't be asserted
-        /// headlessly — tests assert this decision instead.
+        /// The shared content-plate corner radius is 10pt so the card plate,
+        /// empty-state plate, and swipe-prompt box share visual rhythm. The
+        /// rendered shape can't be asserted headlessly — tests assert this
+        /// decision instead.
         @Test
-        func emptyStateCornerRadiusMatchesCardPlate() {
-            #expect(ReminderCardView.emptyStateCornerRadius == 10)
+        func plateCornerRadiusIsTenPoints() {
+            #expect(ReminderCardView.plateCornerRadius == 10)
         }
 
         // MARK: Private
