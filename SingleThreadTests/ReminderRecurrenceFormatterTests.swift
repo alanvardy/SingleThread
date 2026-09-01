@@ -26,6 +26,12 @@ struct ReminderRecurrenceFormatterTests {
     }
 
     @Test
+    func recurrenceUsesPluralAwareLookup() {
+        let rule = EKRecurrenceRule(recurrenceWith: .daily, interval: 2, end: nil)
+        #expect(ReminderRecurrenceFormatter.format([rule]) == "Every 2 days")
+    }
+
+    @Test
     func weeklySingle() {
         let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
         #expect(ReminderRecurrenceFormatter.format([rule]) == "Weekly")

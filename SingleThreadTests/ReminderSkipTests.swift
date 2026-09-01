@@ -154,6 +154,13 @@ struct ReminderPriorityTests {
     }
 
     @Test
+    func displayNameLocalizes() {
+        #expect(ReminderPriority.Level.high.displayName == "High")
+        #expect(ReminderPriority.Level.medium.displayName == "Medium")
+        #expect(ReminderPriority.Level.low.displayName == "Low")
+    }
+
+    @Test
     func markerIsEmptyWhenNoPriority() {
         #expect(ReminderPriority.marker(for: 0).isEmpty)
     }
