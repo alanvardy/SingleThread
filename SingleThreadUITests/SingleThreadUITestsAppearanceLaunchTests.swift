@@ -62,13 +62,13 @@ final class SingleThreadUITestsAppearanceLaunchTests: XCTestCase {
         app.launchArguments = ["--no-reminders"]
         app.launch()
 
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
         // The appearance picker now lives inside the Interface sub-menu.
-        XCTAssertTrue(app.staticTexts["Interface"].waitForExistence(timeout: 3), "Settings should show Interface")
-        app.staticTexts["Interface"].tap()
-        let appearancePicker = app.buttons
-            .matching(NSPredicate(format: "label == %@", "Appearance"))
-            .firstMatch
+        XCTAssertTrue(
+            app.buttons["settingsInterfaceRow"].waitForExistence(timeout: 3),
+            "Settings should show Interface")
+        app.buttons["settingsInterfaceRow"].tap()
+        let appearancePicker = app.buttons["appearancePicker"].firstMatch
         XCTAssertTrue(
             appearancePicker.waitForExistence(timeout: 2),
             "Settings sheet should present the appearance picker (label Appearance)")
@@ -96,13 +96,13 @@ final class SingleThreadUITestsAppearanceLaunchTests: XCTestCase {
         app.launchArguments = ["--no-reminders"]
         app.launch()
 
-        app.buttons["Settings"].tap()
+        app.buttons["settingsButton"].tap()
         // The appearance picker now lives inside the Interface sub-menu.
-        XCTAssertTrue(app.staticTexts["Interface"].waitForExistence(timeout: 3), "Settings should show Interface")
-        app.staticTexts["Interface"].tap()
-        let appearancePicker = app.buttons
-            .matching(NSPredicate(format: "label == %@", "Appearance"))
-            .firstMatch
+        XCTAssertTrue(
+            app.buttons["settingsInterfaceRow"].waitForExistence(timeout: 3),
+            "Settings should show Interface")
+        app.buttons["settingsInterfaceRow"].tap()
+        let appearancePicker = app.buttons["appearancePicker"].firstMatch
         XCTAssertTrue(
             appearancePicker.waitForExistence(timeout: 2),
             "Settings sheet should present the appearance picker (label Appearance)")

@@ -31,7 +31,7 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         // "Low priority" (level.displayName + " priority"), so UI tests match
         // the marker element by that label.
         XCTAssertTrue(
-            app.staticTexts["Low priority"].waitForExistence(timeout: 5),
+            app.staticTexts["priorityMarker"].waitForExistence(timeout: 5),
             "Priority-7 reminder should render the low-priority marker")
     }
 
@@ -48,7 +48,7 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
             app.staticTexts["Buy groceries"].waitForExistence(timeout: 3),
             "Excluded list should suppress the reminder card")
         XCTAssertTrue(
-            app.staticTexts["All Done"].waitForExistence(timeout: 5),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "With the only reminder excluded, the All Done state should show")
     }
 
@@ -66,7 +66,7 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
             "Seeded card should render before the exclusion context arrives")
         // …then the live receive path filters it without an app relaunch.
         XCTAssertTrue(
-            app.staticTexts["All Done"].waitForExistence(timeout: 10),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 10),
             "Receiving an exclusion context should hide the card live")
     }
 
@@ -77,12 +77,12 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         let app = launchApp()
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
-        let complete = app.buttons["Complete reminder"]
+        let complete = app.buttons["completeButton"]
         XCTAssertTrue(complete.waitForExistence(timeout: 3), "Complete button should be present")
         complete.tap()
 
         XCTAssertTrue(
-            app.staticTexts["No Reminders"].waitForExistence(timeout: 5),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "Completing the only reminder should show the No Reminders state")
     }
 
@@ -93,12 +93,12 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         let app = launchApp()
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
-        let skip = app.buttons["Skip reminder"]
+        let skip = app.buttons["skipButton"]
         XCTAssertTrue(skip.waitForExistence(timeout: 3), "Skip button should be present")
         skip.tap()
 
         XCTAssertTrue(
-            app.staticTexts["All Done"].waitForExistence(timeout: 5),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "Skipping the only reminder should show the All Done state")
     }
 
@@ -110,13 +110,14 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
         // Tapping the card reveals the confirmation dialog with a Delete action.
+        // watchOS dialog actions expose their label, not the identifier.
         app.staticTexts["Buy groceries"].tap()
         let delete = app.buttons["Delete"]
         XCTAssertTrue(delete.waitForExistence(timeout: 3), "Long-press dialog should show Delete")
         delete.tap()
 
         XCTAssertTrue(
-            app.staticTexts["No Reminders"].waitForExistence(timeout: 5),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "Deleting the only reminder should show the No Reminders state")
     }
 
@@ -129,13 +130,13 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
 
         // Complete the only reminder to reach the No Reminders state, which
         // presents a Refresh button.
-        let complete = app.buttons["Complete reminder"]
+        let complete = app.buttons["completeButton"]
         XCTAssertTrue(complete.waitForExistence(timeout: 3))
         complete.tap()
 
-        XCTAssertTrue(app.staticTexts["No Reminders"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5))
         XCTAssertTrue(
-            app.buttons["Refresh"].waitForExistence(timeout: 3),
+            app.buttons["refreshButton"].waitForExistence(timeout: 3),
             "No Reminders state should offer a Refresh button")
     }
 
@@ -152,12 +153,12 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         XCTAssertTrue(
             app.staticTexts["Buy groceries"].waitForExistence(timeout: 5),
             "Seeded card should render before the gate check")
-        let upgradeText = app.staticTexts["Upgrade on\nyour iPhone"]
+        let upgradeText = app.staticTexts["upgradePrompt"]
         XCTAssertTrue(
             upgradeText.waitForExistence(timeout: 5),
             "Watch should show upgrade prompt when gated")
         XCTAssertFalse(
-            app.buttons["Complete reminder"].exists,
+            app.buttons["completeButton"].exists,
             "Action buttons should be replaced by the upgrade prompt")
     }
 
@@ -168,12 +169,12 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         app.launch()
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
-        let complete = app.buttons["Complete reminder"]
+        let complete = app.buttons["completeButton"]
         XCTAssertTrue(complete.waitForExistence(timeout: 3))
         complete.tap()
 
         XCTAssertTrue(
-            app.staticTexts["No Reminders"].waitForExistence(timeout: 5),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "Completing should empty the list")
         XCTAssertFalse(
             app.otherElements["completionGlowOverlay"].exists,
@@ -187,7 +188,7 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         app.launch()
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
-        let complete = app.buttons["Complete reminder"]
+        let complete = app.buttons["completeButton"]
         XCTAssertTrue(complete.waitForExistence(timeout: 3))
         complete.tap()
 
@@ -205,7 +206,7 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         app.launch()
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
-        let complete = app.buttons["Complete reminder"]
+        let complete = app.buttons["completeButton"]
         XCTAssertTrue(complete.waitForExistence(timeout: 3))
         complete.tap()
 
@@ -227,7 +228,7 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
         // After the full delay (2.0 + 0.5 = 2.5 s), the empty state must appear.
         // Generous timeout accounts for CI executor variance.
         XCTAssertTrue(
-            app.staticTexts["No Reminders"].waitForExistence(timeout: 8),
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 8),
             "After the glow fades, the No Reminders state should appear")
     }
 

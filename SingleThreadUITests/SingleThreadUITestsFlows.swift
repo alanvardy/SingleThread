@@ -524,7 +524,9 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(complete.waitForExistence(timeout: 3))
         complete.tap()
 
-        XCTAssertTrue(app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5), "Completing should empty the list")
+        XCTAssertTrue(
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
+            "Completing should empty the list")
         // The overlay must never appear once the preference is off.
         XCTAssertFalse(app.otherElements["completionGlowOverlay"].exists, "Glow should be suppressed when disabled")
     }

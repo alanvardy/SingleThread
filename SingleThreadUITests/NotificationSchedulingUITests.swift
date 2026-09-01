@@ -21,11 +21,11 @@ final class NotificationSchedulingUITests: XCTestCase {
     /// tapped (a direct tap on the Form row is swallowed by SwiftUI).
     @MainActor
     private func enableNotifications(_ app: XCUIApplication) {
-        app.buttons["Settings"].tap()
-        XCTAssertTrue(app.staticTexts["Notifications"].waitForExistence(timeout: 3))
-        app.staticTexts["Notifications"].tap()
+        app.buttons["settingsButton"].tap()
+        XCTAssertTrue(app.buttons["settingsNotificationsRow"].waitForExistence(timeout: 3))
+        app.buttons["settingsNotificationsRow"].tap()
 
-        let toggle = app.switches["Enable reminder notifications"]
+        let toggle = app.switches["notificationsEnabledToggle"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 3))
         XCTAssertTrue(flipToggle(toggle, target: "1"), "Notifications should flip ON")
         usleep(500_000)
@@ -37,7 +37,7 @@ final class NotificationSchedulingUITests: XCTestCase {
         }
 
         app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["Done"].tap()
+        app.buttons["settingsDoneButton"].tap()
     }
 
     /// SwiftUI Form rows expose a nested switch control; tapping the outer row
@@ -150,7 +150,7 @@ final class NotificationSchedulingUITests: XCTestCase {
     func testNoScheduleWhenNoReminders() async throws {
         let app = launchApp(seedJSON: #"{"reminders":[]}"#)
 
-        XCTAssertTrue(app.staticTexts["No Reminders"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5))
         enableNotifications(app)
 
         try await backgroundAndForeground(app)

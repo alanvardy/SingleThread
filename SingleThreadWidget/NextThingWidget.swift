@@ -121,8 +121,10 @@ struct NextThingWidget: Widget {
         .configurationDisplayName(
             LocalizedStringResource("Next Thing", table: "Localizable", bundle: .main))
         .description(
-            LocalizedStringResource("Your next reminder, with Complete and Skip.",
-                                    table: "Localizable", bundle: .main))
+            LocalizedStringResource(
+                "Your next reminder, with Complete and Skip.",
+                table: "Localizable",
+                bundle: .main))
         .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
     }
 }

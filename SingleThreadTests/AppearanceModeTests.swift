@@ -97,9 +97,9 @@ struct AppearanceModeTests {
 
     @Test
     func titlesAreHumanReadable() {
-        #expect(AppearanceMode.system.title == "System")
-        #expect(AppearanceMode.light.title == "Light")
-        #expect(AppearanceMode.dark.title == "Dark")
+        #expect(AppearanceMode.system.title == String.en("System", bundle: .main))
+        #expect(AppearanceMode.light.title == String.en("Light", bundle: .main))
+        #expect(AppearanceMode.dark.title == String.en("Dark", bundle: .main))
     }
 
     // MARK: Private

@@ -20,7 +20,10 @@ struct ReminderIntentsTests {
 
     @Test
     func completeIntentHasTitle() {
-        #expect(String(localized: CompleteReminderIntent.title) == "Complete Reminder")
+        // The intent titles resolve through `.main` (the widget/app bundle's
+        // catalog); the Core catalog doesn't hold the AppIntent keys.
+        #expect(String(localized: CompleteReminderIntent.title)
+            == String.en("Complete Reminder", bundle: .main))
     }
 
     // MARK: SkipReminderIntent
@@ -38,6 +41,7 @@ struct ReminderIntentsTests {
 
     @Test
     func skipIntentHasTitle() {
-        #expect(String(localized: SkipReminderIntent.title) == "Skip Reminder")
+        #expect(String(localized: SkipReminderIntent.title)
+            == String.en("Skip Reminder", bundle: .main))
     }
 }

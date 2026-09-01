@@ -33,23 +33,28 @@ struct SingleThreadTests {
     @Test
     func contentViewEmptyStatesShowDistinctCopy() {
         let emptyCopy = ContentViewModel.emptyStateCopy(hasHidden: false)
-        #expect(emptyCopy.title == "No Reminders")
+        #expect(emptyCopy.title == String.en("No Reminders", bundle: .core))
         #expect(emptyCopy.systemImage == "checklist")
-        #expect(emptyCopy.description == "You don't have any reminders yet.")
+        #expect(emptyCopy.description == String.en(
+            "You don't have any reminders yet.", bundle: .main, table: "Localizable"))
 
         let nothingDueCopy = ContentViewModel.emptyStateCopy(hasHidden: true)
-        #expect(nothingDueCopy.title == "Nothing due")
+        #expect(nothingDueCopy.title == String.en("Nothing due", bundle: .main))
         #expect(nothingDueCopy.systemImage == "calendar")
-        #expect(nothingDueCopy.description == "Only today's and overdue reminders show here — pull to refresh.")
+        #expect(nothingDueCopy.description == String.en(
+            "Only today's and overdue reminders show here — pull to refresh.",
+            bundle: .main, table: "Localizable"))
         #expect(emptyCopy.title != nothingDueCopy.title)
     }
 
     @Test
     func contentViewAllDoneShowsAllDoneCopy() {
         let allDoneCopy = ContentViewModel.allDoneStateCopy()
-        #expect(allDoneCopy.title == "All Done")
+        #expect(allDoneCopy.title == String.en("All Done", bundle: .core))
         #expect(allDoneCopy.systemImage == "checkmark.circle")
-        #expect(allDoneCopy.description == "Pull to refresh to see all your reminders again.")
+        #expect(allDoneCopy.description == String.en(
+            "Pull to refresh to see all your reminders again.",
+            bundle: .main, table: "Localizable"))
     }
 }
 

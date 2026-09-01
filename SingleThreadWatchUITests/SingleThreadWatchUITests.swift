@@ -17,6 +17,9 @@ final class SingleThreadWatchUITests: XCTestCase {
         XCTAssertTrue(title.waitForExistence(timeout: 5), "Reminder card should be displayed")
         title.tap()
 
+        // watchOS confirmation-dialog actions expose their label, not the
+        // SwiftUI accessibility identifier (see Flows delete test), so match by
+        // the dialog button's "Refresh" label here.
         let refresh = app.buttons["Refresh"]
         XCTAssertTrue(
             refresh.waitForExistence(timeout: 5),

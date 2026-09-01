@@ -16,7 +16,9 @@ struct AppInfoTests {
         #expect(info.marketingVersion == "1.0")
         #expect(info.buildNumber == "1")
         #expect(info.displayName == "SingleThread")
-        #expect(info.versionDescription == "Version 1.0 (1)")
+        #expect(info.versionDescription == String.en(
+            "Version \(info.marketingVersion!) (\(info.buildNumber!))",
+            bundle: .core))
     }
 
     @Test
@@ -37,7 +39,9 @@ struct AppInfoTests {
 
         #expect(info.marketingVersion == "1.0")
         #expect(info.buildNumber == nil)
-        #expect(info.versionDescription == "Version 1.0")
+        #expect(info.versionDescription == String.en(
+            "Version \(info.marketingVersion!)",
+            bundle: .core))
     }
 
     @Test

@@ -41,12 +41,11 @@ final class NotificationsUITests: XCTestCase {
     }
 
     /// The menu-style picker button's label combines the title and the current
-    /// value (e.g. "Remind after, 48 hours"), so match with a prefix predicate.
+    /// value (e.g. "Remind after, 48 hours"). The picker has the
+    /// `notificationIntervalPicker` accessibility identifier.
     @MainActor
     private func remindAfterPicker(_ app: XCUIApplication) -> XCUIElement {
-        app.buttons
-            .matching(NSPredicate(format: "label BEGINSWITH %@", "Remind after"))
-            .firstMatch
+        app.buttons["notificationIntervalPicker"].firstMatch
     }
 
     /// Reads an app-side seam status element's label. The UI-test runner cannot
@@ -70,11 +69,11 @@ final class NotificationsUITests: XCTestCase {
     /// appears), switches the interval to 24 hours, and returns to the main screen.
     @MainActor
     private func configureNotifications(_ app: XCUIApplication) {
-        app.buttons["Settings"].tap()
-        XCTAssertTrue(app.staticTexts["Notifications"].waitForExistence(timeout: 3))
-        app.staticTexts["Notifications"].tap()
+        app.buttons["settingsButton"].tap()
+        XCTAssertTrue(app.buttons["settingsNotificationsRow"].waitForExistence(timeout: 3))
+        app.buttons["settingsNotificationsRow"].tap()
 
-        let toggle = app.switches["Enable reminder notifications"]
+        let toggle = app.switches["notificationsEnabledToggle"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 3))
         XCTAssertEqual(toggle.value as? String, "0", "Notifications should default to off")
         let picker = remindAfterPicker(app)
@@ -94,7 +93,7 @@ final class NotificationsUITests: XCTestCase {
         app.buttons["24 hours"].tap()
 
         app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["Done"].tap()
+        app.buttons["settingsDoneButton"].tap()
     }
 
     @MainActor
@@ -138,11 +137,11 @@ final class NotificationsUITests: XCTestCase {
             "Pending should be cancelled on foreground, got: \(pending ?? "nil")")
 
         // 10. Re-open Settings → Notifications to verify persistence.
-        app.buttons["Settings"].tap()
-        XCTAssertTrue(app.staticTexts["Notifications"].waitForExistence(timeout: 3))
-        app.staticTexts["Notifications"].tap()
+        app.buttons["settingsButton"].tap()
+        XCTAssertTrue(app.buttons["settingsNotificationsRow"].waitForExistence(timeout: 3))
+        app.buttons["settingsNotificationsRow"].tap()
 
-        let persistedToggle = app.switches["Enable reminder notifications"]
+        let persistedToggle = app.switches["notificationsEnabledToggle"]
         XCTAssertTrue(persistedToggle.waitForExistence(timeout: 3))
         XCTAssertEqual(persistedToggle.value as? String, "1", "Toggle should still be ON")
 
@@ -158,8 +157,8 @@ final class NotificationsUITests: XCTestCase {
         let app = launchApp(seedJSON: #"{"reminders":[{"title":"Test"}]}"#)
         XCTAssertTrue(app.staticTexts["Test"].waitForExistence(timeout: 5))
 
-        app.buttons["Settings"].tap()
-        app.staticTexts["Notifications"].tap()
+        app.buttons["settingsButton"].tap()
+        app.buttons["settingsNotificationsRow"].tap()
 
         try app.performAccessibilityAudit(for: [.sufficientElementDescription, .trait])
     }
