@@ -155,9 +155,9 @@ struct ReminderPriorityTests {
 
     @Test
     func displayNameLocalizes() {
-        #expect(ReminderPriority.Level.high.displayName == "High")
-        #expect(ReminderPriority.Level.medium.displayName == "Medium")
-        #expect(ReminderPriority.Level.low.displayName == "Low")
+        #expect(ReminderPriority.Level.high.displayName == String.en("High", bundle: .core))
+        #expect(ReminderPriority.Level.medium.displayName == String.en("Medium", bundle: .core))
+        #expect(ReminderPriority.Level.low.displayName == String.en("Low", bundle: .core))
     }
 
     @Test

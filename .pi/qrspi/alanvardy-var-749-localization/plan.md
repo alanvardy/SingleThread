@@ -813,11 +813,11 @@ Add tests:
 ### Verification
 
 #### Automated
-- [ ] `make format` then `make lint` clean.
-- [ ] `make test` — all unit suites green under pinned `en`.
-- [ ] `make ui-test` — all 8 iOS UI files green on identifiers.
-- [ ] `make watch-ui-test` — both watch UI files green.
-- [ ] `make periphery` — zero dead code (catalogs/resources don't register as dead; `SharedStrings` members are all referenced).
+- [x] `make format` then `make lint` clean.
+- [x] `make test` — all unit suites green under pinned `en`.
+- [x] `make ui-test` — all 8 iOS UI files green on identifiers.
+- [x] `make watch-ui-test` — both watch UI files green.
+- [x] `make periphery` — zero dead code (catalogs/resources don't register as dead; `SharedStrings` members are all referenced).
 - [ ] `./scripts/test.sh` — full CI-identical gate (format, lint, build, Periphery, unit + UI + watch UI, macOS build/test) passes.
 
 #### Manual

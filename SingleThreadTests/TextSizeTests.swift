@@ -36,10 +36,10 @@ struct TextSizeTests {
 
     @Test
     func titlesAreHumanReadable() {
-        #expect(TextSize.system.title == "System")
-        #expect(TextSize.small.title == "Small")
-        #expect(TextSize.medium.title == "Medium")
-        #expect(TextSize.large.title == "Large")
-        #expect(TextSize.extraLarge.title == "Extra Large")
+        #expect(TextSize.system.title == String.en("System", bundle: .main))
+        #expect(TextSize.small.title == String.en("Small", bundle: .main))
+        #expect(TextSize.medium.title == String.en("Medium", bundle: .main))
+        #expect(TextSize.large.title == String.en("Large", bundle: .main))
+        #expect(TextSize.extraLarge.title == String.en("Extra Large", bundle: .main))
     }
 }

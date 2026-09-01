@@ -2,9 +2,12 @@ import Foundation
 import Testing
 
 /// Validates the string-catalog and InfoPlist.strings resource layer that
-/// Phase 1 of the localization effort ships:
+/// the localization effort ships:
 ///
 /// - every `.xcstrings` catalog parses and has non-empty English values;
+/// - every key resolves a non-empty value in *all six* supported languages;
+/// - count-based `%lld` keys carry `variations.plural` with the CLDR-mandated
+///   categories in each locale;
 /// - every target's `InfoPlist.strings` has the required keys in all six
 ///   supported languages.
 ///
@@ -54,6 +57,70 @@ struct LocalizationTests {
         }
     }
 
+    /// Every catalog key resolves a non-empty value in *all six* supported
+    /// languages — either directly via `stringUnit.value` or across plural
+    /// variations for the `%lld` keys.
+    @Test
+    func catalogsHaveAllSixLanguages() throws {
+        for (name, url) in Self.catalogs {
+            let data = try Data(contentsOf: url)
+            let root = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+            let strings = try #require(root["strings"] as? [String: Any])
+            for (key, value) in strings {
+                let entry = try #require(value as? [String: Any], "\(name)/\(key) malformed")
+                let localizations = try #require(entry["localizations"] as? [String: Any])
+                for language in Self.languages {
+                    let loc = try #require(
+                        localizations[language] as? [String: Any],
+                        "\(name)/\(key) missing \(language)")
+                    #expect(
+                        Self.hasNonEmptyValue(loc),
+                        "\(name)/\(key) has empty \(language) value")
+                }
+            }
+        }
+    }
+
+    /// The `%lld` plural keys carry `variations.plural` in every locale, with a
+    /// `one` variant in locales whose CLDR rules distinguish singular/plural
+    /// (en/es/de/fr) and `other`-only in zh-Hans/ja.
+    @Test
+    func pluralKeysCarryPluralVariationsInAllLanguages() throws {
+        for (catalogName, keys) in Self.pluralKeys {
+            let data = try Data(contentsOf: Self.catalogURL(for: catalogName))
+            let root = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+            let strings = try #require(root["strings"] as? [String: Any])
+            for key in keys {
+                let entry = try #require(
+                    strings[key] as? [String: Any],
+                    "\(catalogName)/\(key) missing")
+                let localizations = try #require(
+                    entry["localizations"] as? [String: Any],
+                    "\(catalogName)/\(key) has no localizations")
+                for language in Self.languages {
+                    let loc = try #require(
+                        localizations[language] as? [String: Any],
+                        "\(key) missing \(language)")
+                    let variations = try #require(
+                        loc["variations"] as? [String: Any],
+                        "\(key)/\(language) missing variations")
+                    let plural = try #require(
+                        variations["plural"] as? [String: Any],
+                        "\(key)/\(language) missing plural")
+                    let categories = plural.keys
+                    #expect(
+                        categories.contains("other"),
+                        "\(key)/\(language) should have an other variant, got \(categories)")
+                    if Self.pluralLocales.contains(language) {
+                        #expect(
+                            categories.contains("one"),
+                            "\(key)/\(language) should have a one variant, got \(categories)")
+                    }
+                }
+            }
+        }
+    }
+
     @Test
     func infoPlistStringsHaveRequiredKeysPerLanguage() throws {
         for (target, keys) in Self.infoPlistTargets {
@@ -74,6 +141,21 @@ struct LocalizationTests {
     }
 
     // MARK: Private
+
+    /// Locales whose CLDR plural rules distinguish a singular `one` category
+    /// from plural `other` for the count-based `%lld` keys.
+    private static let pluralLocales = ["en", "es", "de", "fr"]
+
+    /// The count-based keys that must carry `variations.plural`.
+    private static let pluralKeys: [(name: String, keys: [String])] = [
+        ("Core", [
+            "Every %lld days",
+            "Every %lld weeks",
+            "Every %lld months",
+            "Every %lld years"
+        ]),
+        ("App", ["You have %lld reminders waiting — open SingleThread!"])
+    ]
 
     private static let repoRoot = URL(fileURLWithPath: #filePath)
         .deletingLastPathComponent() // SingleThreadTests/
@@ -99,6 +181,51 @@ struct LocalizationTests {
         ("Watch", ["NSRemindersFullAccessUsageDescription", "CFBundleDisplayName"]),
         ("Widget", ["NSRemindersFullAccessUsageDescription", "CFBundleDisplayName"])
     ]
+
+    /// True when the localization entry carries a non-empty translated value,
+    /// either directly (`stringUnit`) or across all plural variations.
+    private static func hasNonEmptyValue(_ loc: [String: Any]) -> Bool {
+        if let unit = loc["stringUnit"] as? [String: Any] {
+            if let value = unit["value"] as? String {
+                return !value.isEmpty
+            }
+        }
+        if let variations = loc["variations"] as? [String: Any] {
+            if let plural = variations["plural"] as? [String: Any] {
+                if plural.isEmpty {
+                    return false
+                }
+                for (_, variation) in plural {
+                    if let variant = variation as? [String: Any] {
+                        if let unit = variant["stringUnit"] as? [String: Any] {
+                            if let value = unit["value"] as? String {
+                                if value.isEmpty {
+                                    return false
+                                }
+                            } else {
+                                return false
+                            }
+                        } else {
+                            return false
+                        }
+                    } else {
+                        return false
+                    }
+                }
+                return true
+            }
+        }
+        return false
+    }
+
+    private static func catalogURL(for name: String) -> URL {
+        switch name {
+        case "Core", "App", "Watch", "Widget":
+            catalogs.first { $0.name == name }?.url ?? repoRoot
+        default:
+            repoRoot
+        }
+    }
 
     // MARK: - Helpers
 

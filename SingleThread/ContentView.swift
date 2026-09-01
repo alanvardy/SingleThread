@@ -419,6 +419,7 @@ struct ContentView: View {
                                     } label: {
                                         Label(SharedStrings.deleteAction, systemImage: "trash")
                                     }
+                                    .accessibilityLabel(SharedStrings.deleteReminderAccessibility)
                                     .accessibilityIdentifier("deleteButton")
                                     .tint(.red)
                                 }

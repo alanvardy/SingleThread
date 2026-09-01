@@ -23,9 +23,9 @@ struct SortOptionTests {
 
     @Test
     func presentationTitlesAreHumanReadable() {
-        #expect(SortOption.priority.title == "Priority")
-        #expect(SortOption.dueDate.title == "Due Date")
-        #expect(SortOption.title.title == "Title")
+        #expect(SortOption.priority.title == String.en("Priority", bundle: .main))
+        #expect(SortOption.dueDate.title == String.en("Due Date", bundle: .main))
+        #expect(SortOption.title.title == String.en("Title", bundle: .main))
     }
 
     @Test
