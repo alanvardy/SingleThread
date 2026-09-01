@@ -178,9 +178,13 @@ public final class ReminderStore {
             if removed {
                 // Track before the fire-and-forget relay so a reload before the
                 // phone processes it cannot resurrect (or double-complete) this
-                // reminder. Pruned by `reload()` once the phone catches up.
+                // reminder. Hydrate from disk first so a completion never
+                // overwrites pending IDs persisted by an earlier session; the
+                // store's 5-minute expiry also drops any relay that was silently
+                // lost. Pruned by `reload()` once the phone catches up.
+                pendingCompletions = pendingCompletionStore.load()
                 pendingCompletions.insert(identifier)
-                pendingCompletionStore.save(pendingCompletions)
+                pendingCompletionStore.record(identifier)
                 onCompleteReminder?(identifier)
             }
             return removed
@@ -331,7 +335,11 @@ public final class ReminderStore {
         return true
     }
 
-    public func reload(clearSkipped: Bool = false) async { // swiftlint:disable:this function_body_length
+    /// Refetches reminders from EventKit and reconciles all derived state:
+    /// the visible `reminders` array, hidden/skip/excluded sets, and the
+    /// watch-relayed pending-completion set. When `clearSkipped` is set, the
+    /// skipped set is cleared instead of re-resolved.
+    public func reload(clearSkipped: Bool = false) async {
         guard loadsReminders else { return }
         #if !os(watchOS)
             eventStore.refreshSourcesIfNecessary()
@@ -367,39 +375,22 @@ public final class ReminderStore {
             hasHidden = Self.hasHiddenFor(shown: shown, allIncomplete: allIncomplete)
         }
         // Pending completions (watch-relayed) hide their reminder until the
-        // phone processes them; the defensive filter guarantees the invariant
-        // that `reminders` never contains a completed reminder.
-        pendingCompletions = pendingCompletionStore.load()
-        shown = PendingCompletionLogic.filtering(fetched: shown, pending: pendingCompletions)
-        shown = PendingCompletionLogic.removingCompleted(shown)
+        // phone processes them; the defensive drop guarantees the invariant
+        // that `reminders` never contains a completed reminder. No-op on iOS,
+        // where the device-local set is always empty.
+        shown = applyingPendingCompletionFilter(to: shown)
         reminders = shown
         availableLists = Set(
             eventStore.calendars(for: .reminder)
                 .map(\.title)
                 .filter { !$0.isEmpty })
             .sorted()
-        if clearSkipped {
-            clearSkippedState()
-        } else {
-            let resolved = ReminderSkipLogic.resolve(
-                fetched: shown.map(\.calendarItemIdentifier),
-                skipped: skipStore.load())
-            skippedIDs = Set(resolved)
-            excludedListTitles = Set(excludeStore.load())
-            // Persist the pruned list so stale IDs (a deleted-while-skipped
-            // reminder, for example) drop cleanly from UserDefaults too, keeping
-            // the on-disk skip store consistent with in-memory `skippedIDs`.
-            skipStore.save(resolved)
-        }
+        // Reconcile the skip/excluded state from the visible reminders
+        // (clearing everything instead when requested).
+        reconcileSkipState(clearSkipped: clearSkipped, visibleShown: shown)
         // Prune pending IDs no longer present in the fetch — the phone has
         // processed the relay and the reminder is now genuinely completed.
-        let pruned = PendingCompletionLogic.pruned(
-            pending: pendingCompletions,
-            fetchedIdentifiers: Set(fetched.map(\.calendarItemIdentifier)))
-        if pruned != pendingCompletions {
-            pendingCompletions = pruned
-            pendingCompletionStore.save(pruned)
-        }
+        prunePendingCompletions(fetched: fetched)
         onRemindersChanged?()
     }
 
@@ -509,5 +500,49 @@ public final class ReminderStore {
                 }
             }
         }
+    }
+
+    /// Loads the device-local pending-completion set and applies it to `shown`:
+    /// hides reminders whose completion the watch relayed but the phone has not
+    /// yet processed, then drops any completed reminder that slipped the
+    /// incomplete predicate (the "never show a completed card" invariant).
+    private func applyingPendingCompletionFilter(to shown: [EKReminder]) -> [EKReminder] {
+        pendingCompletions = pendingCompletionStore.load()
+        let filtered = PendingCompletionLogic.filtering(fetched: shown, pending: pendingCompletions)
+        return PendingCompletionLogic.removingCompleted(filtered)
+    }
+
+    /// Removes pending IDs the phone has since completed (no longer present in
+    /// the fetched incomplete set) and persists the remainder. An empty fetch
+    /// is skipped — a transient empty EventKit result must not wipe the whole
+    /// set and resurrect every still-incomplete relayed reminder
+    /// (double-completion + a second counter increment).
+    private func prunePendingCompletions(fetched: [EKReminder]) {
+        guard !fetched.isEmpty else { return }
+        let pruned = PendingCompletionLogic.pruned(
+            pending: pendingCompletions,
+            fetchedIdentifiers: Set(fetched.map(\.calendarItemIdentifier)))
+        if pruned != pendingCompletions {
+            pendingCompletions = pruned
+            pendingCompletionStore.save(pruned)
+        }
+    }
+
+    /// Reconciles the in-memory skip and excluded-list sets against the
+    /// still-visible reminders and persists the pruned skip list so stale IDs
+    /// (a deleted-while-skipped reminder, for example) drop cleanly from
+    /// UserDefaults too, keeping the on-disk skip store consistent with
+    /// in-memory `skippedIDs`.
+    private func reconcileSkipState(clearSkipped: Bool, visibleShown: [EKReminder]) {
+        if clearSkipped {
+            clearSkippedState()
+            return
+        }
+        let resolved = ReminderSkipLogic.resolve(
+            fetched: visibleShown.map(\.calendarItemIdentifier),
+            skipped: skipStore.load())
+        skippedIDs = Set(resolved)
+        excludedListTitles = Set(excludeStore.load())
+        skipStore.save(resolved)
     }
 }

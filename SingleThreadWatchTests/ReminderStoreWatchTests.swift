@@ -85,6 +85,26 @@ struct ReminderStoreWatchTests {
         #expect(pendingStore(key: key).load().isEmpty)
     }
 
+    @Test
+    func completeReminderPreservesPriorPendingEntries() async {
+        let key = "watch-pending-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        pendingStore(key: key).record("prior-id")
+        let rem = watchReminder("A")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            pendingCompletionStore: pendingStore(key: key),
+            loadsReminders: false,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+
+        _ = await store.completeReminder(identifier: rem.calendarItemIdentifier)
+
+        #expect(pendingStore(key: key).load().contains(rem.calendarItemIdentifier))
+        #expect(pendingStore(key: key).load().contains("prior-id"))
+    }
+
     // MARK: Private
 
     private func pendingStore(key: String) -> PendingCompletionStore {

@@ -2,6 +2,10 @@ import EventKit
 @testable import SingleThreadCore
 import Testing
 
+@MainActor private let sharedPendingTestEventStore = EKEventStore()
+
+// MARK: - Tests
+
 @MainActor
 struct PendingCompletionLogicTests {
     // MARK: Internal
@@ -42,8 +46,8 @@ struct PendingCompletionLogicTests {
     // MARK: Private
 
     private func reminder(_ title: String, completed: Bool = false) -> EKReminder {
-        let store = InMemoryEventStore()
-        let rem = store.makeReminder(title: title, notes: nil, dueDate: nil, recurrenceRule: nil)
+        let rem = EKReminder(eventStore: sharedPendingTestEventStore)
+        rem.title = title
         rem.isCompleted = completed
         return rem
     }
