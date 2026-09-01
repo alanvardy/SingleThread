@@ -215,8 +215,8 @@ struct PendingCompletionLogicTests {
 ### Verification
 
 #### Automated
-- [ ] `make test` green
-- [ ] Targeted: `xcodebuild -scheme SingleThread -destination '$(SIM)' -derivedDataPath DerivedData test -only-testing:SingleThreadTests/PendingCompletionLogicTests`
+- [x] `make test` green
+- [x] Targeted: `xcodebuild -scheme SingleThread -destination '$(SIM)' -derivedDataPath DerivedData test -only-testing:SingleThreadTests/PendingCompletionLogicTests`
 
 #### Manual
 - [ ] No manual step — pure logic, fully unit-covered.
