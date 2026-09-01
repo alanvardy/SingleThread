@@ -31,21 +31,6 @@ import SwiftUI
             .accessibilityHidden(!isNotificationsUITesting)
         }
 
-        /// Routes scene-phase transitions into the notification engine: schedule on
-        /// background, cancel on foreground. No-op on non-iOS platforms (the feature
-        /// is iOS-only).
-        func handleScenePhaseChange(_ phase: ScenePhase) {
-            guard let appViewModel else { return }
-            switch phase {
-            case .background:
-                Task { await appViewModel.scheduleNotificationIfNeeded() }
-            case .active:
-                Task { await appViewModel.cancelNotifications() }
-            default:
-                break
-            }
-        }
-
         /// Requests notification authorization the first time the user flips the
         /// enable toggle ON, and cancels all pending requests when flipped OFF.
         func handleNotificationsEnabledChange(_ newValue: Bool) {

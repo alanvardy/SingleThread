@@ -320,8 +320,8 @@ func foregroundActiveDoesNotAffectBackgroundBehavior() {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' -configuration Debug test -only-testing:SingleThreadTests/MicrophoneToggleTests` passes (6 tests now)
-- [ ] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' -configuration Debug build` passes (macOS compile path: method is no longer `#if os(iOS)`)
+- [x] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' -configuration Debug test -only-testing:SingleThreadTests/MicrophoneToggleTests` passes (6 tests now)
+- [x] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' -configuration Debug build` passes (macOS compile path: method is no longer `#if os(iOS)`)
 
 #### Manual
 - [ ] macOS target still compiles: `xcodebuild -scheme SingleThread -destination 'platform=macOS' -configuration Debug CODE_SIGNING_ALLOWED=NO build` passes

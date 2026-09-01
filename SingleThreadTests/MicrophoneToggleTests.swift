@@ -1,6 +1,7 @@
 @testable import SingleThread
 import SingleThreadCore
 import Speech
+import SwiftUI
 import Testing
 
 // MARK: - Fake transcriber for microphone toggle tests
@@ -142,6 +143,39 @@ struct MicrophoneToggleTests {
         viewModel.refreshAuthorizationStatus()
 
         #expect(fake.refreshCallCount == 1)
+    }
+
+    @Test
+    func foregroundActiveRefreshesAuthorizationStatus() {
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let view = ContentView(loadsReminders: false, speechTranscriber: fake)
+
+        view.handleScenePhaseChange(.active)
+
+        #expect(fake.refreshCallCount == 1)
+    }
+
+    @Test
+    func canDictateReflectsStatusAfterForegroundRefresh() {
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let viewModel = makeViewModel(fake)
+        #expect(viewModel.canDictate)
+
+        // Simulate the user denying speech access in Settings while backgrounded.
+        fake.liveStatus = .denied
+        viewModel.refreshAuthorizationStatus()
+
+        #expect(!viewModel.canDictate)
+    }
+
+    @Test
+    func foregroundActiveDoesNotAffectBackgroundBehavior() {
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let view = ContentView(loadsReminders: false, speechTranscriber: fake)
+
+        view.handleScenePhaseChange(.background)
+
+        #expect(fake.refreshCallCount == 0)
     }
 
     // MARK: Private

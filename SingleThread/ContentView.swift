@@ -202,49 +202,47 @@ struct ContentView: View {
         .animation(
             reduceMotion ? nil : .easeInOut(duration: 0.4),
             value: viewModel.completionGlow.isActive)
+        .onChange(of: scenePhase) { _, phase in
+            handleScenePhaseChange(phase)
+        }
+        .task {
+            await viewModel.backgroundImage.setPinned(backgroundPinned)
+            await viewModel.task(showUndatedReminders: showUndatedReminders)
+        }
+        .onChange(of: backgroundPinned) { _, newValue in
+            setBackgroundPinned(newValue)
+        }
+        .onChange(of: showUndatedReminders) { _, newValue in
+            viewModel.handleShowUndatedReminders(newValue)
+        }
+        .onChange(of: sortOption) { _, newValue in
+            viewModel.handleSortOption(newValue)
+        }
+        .onChange(of: appearanceMode) { _, newValue in
+            viewModel.handleAppearanceMode(newValue)
+        }
         #if os(iOS)
-            .onChange(of: scenePhase) { _, phase in
-                handleScenePhaseChange(phase)
-            }
+        .onChange(of: notificationsEnabled) { _, newValue in
+            handleNotificationsEnabledChange(newValue)
+        }
         #endif
-            .task {
-                await viewModel.backgroundImage.setPinned(backgroundPinned)
-                await viewModel.task(showUndatedReminders: showUndatedReminders)
+        .modifier(TextSizeModifier(textSize: textSize))
+        .onChange(of: isShowingSettings) { _, showing in
+            // Nil the bag on dismiss so a fresh one is created next open.
+            // The bag is built in the gear-button action before the flag
+            // flips, so it is never nil when the sheet first renders.
+            if !showing {
+                settingsBag = nil
             }
-            .onChange(of: backgroundPinned) { _, newValue in
-                setBackgroundPinned(newValue)
-            }
-            .onChange(of: showUndatedReminders) { _, newValue in
-                viewModel.handleShowUndatedReminders(newValue)
-            }
-            .onChange(of: sortOption) { _, newValue in
-                viewModel.handleSortOption(newValue)
-            }
-            .onChange(of: appearanceMode) { _, newValue in
-                viewModel.handleAppearanceMode(newValue)
-            }
-        #if os(iOS)
-            .onChange(of: notificationsEnabled) { _, newValue in
-                handleNotificationsEnabledChange(newValue)
-            }
-        #endif
-            .modifier(TextSizeModifier(textSize: textSize))
-            .onChange(of: isShowingSettings) { _, showing in
-                // Nil the bag on dismiss so a fresh one is created next open.
-                // The bag is built in the gear-button action before the flag
-                // flips, so it is never nil when the sheet first renders.
-                if !showing {
-                    settingsBag = nil
-                }
-            }
-            .sheet(isPresented: $isShowingSettings) {
-                settingsSheetContent
-            }
-            .sheet(isPresented: $isShowingPurchase) {
-                PurchaseSheet(
-                    isPresented: $isShowingPurchase,
-                    entitlementStore: viewModel.store.entitlementStore)
-            }
+        }
+        .sheet(isPresented: $isShowingSettings) {
+            settingsSheetContent
+        }
+        .sheet(isPresented: $isShowingPurchase) {
+            PurchaseSheet(
+                isPresented: $isShowingPurchase,
+                entitlementStore: viewModel.store.entitlementStore)
+        }
     }
 
     // MARK: Private
@@ -653,4 +651,32 @@ private struct EmptyStateCard: View {
 
     @Environment(\.colorScheme)
     private var colorScheme
+}
+
+// MARK: - Scene Phase (all platforms)
+
+extension ContentView {
+    /// Routes scene-phase transitions: schedule notifications on background
+    /// (iOS only), cancel on foreground (iOS only), and re-read speech
+    /// authorization on foreground so a permission change in Settings takes
+    /// effect without a force-quit.
+    func handleScenePhaseChange(_ phase: ScenePhase) {
+        switch phase {
+        case .background:
+            #if os(iOS)
+                if let appViewModel {
+                    Task { await appViewModel.scheduleNotificationIfNeeded() }
+                }
+            #endif
+        case .active:
+            #if os(iOS)
+                if let appViewModel {
+                    Task { await appViewModel.cancelNotifications() }
+                }
+            #endif
+            viewModel.dictation.refreshAuthorizationStatus()
+        default:
+            break
+        }
+    }
 }
