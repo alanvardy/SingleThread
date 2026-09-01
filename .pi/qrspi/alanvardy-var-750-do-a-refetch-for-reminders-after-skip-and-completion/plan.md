@@ -112,8 +112,8 @@ struct PendingCompletionStoreTests {
 ### Verification
 
 #### Automated
-- [ ] `make test` green (full iOS unit gate)
-- [ ] Targeted: `xcodebuild -scheme SingleThread -destination '$(SIM)' -derivedDataPath DerivedData test -only-testing:SingleThreadTests/PendingCompletionStoreTests` (pin destination `,OS=<ver>` or `,id=<UDID>` per AGENTS.md — name-only hangs)
+- [x] `make test` green (full iOS unit gate)
+- [x] Targeted: `xcodebuild -scheme SingleThread -destination '$(SIM)' -derivedDataPath DerivedData test -only-testing:SingleThreadTests/PendingCompletionStoreTests` (pin destination `,OS=<ver>` or `,id=<UDID>` per AGENTS.md — name-only hangs)
 
 #### Manual
 - [ ] No manual step — persistence is exercised end-to-end by Stages 5–6.
