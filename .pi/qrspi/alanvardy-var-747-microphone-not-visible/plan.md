@@ -503,8 +503,8 @@ settable `var` on `DictationViewModel`. Both are reachable via
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' -configuration Debug test -only-testing:SingleThreadTests/MicrophoneToggleTests` passes (12 tests total)
-- [ ] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' -configuration Debug build` passes
+- [x] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' -configuration Debug test -only-testing:SingleThreadTests/MicrophoneToggleTests` passes (12 tests total)
+- [x] `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.2' -configuration Debug build` passes
 
 #### Manual
 - [ ] `make format` applies clean (no phantom diffs on a second run)
