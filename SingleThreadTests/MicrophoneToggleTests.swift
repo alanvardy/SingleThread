@@ -229,17 +229,19 @@ struct MicrophoneToggleTests {
         #expect(!String(describing: view.bottomBar).contains("Speech recognition is unavailable."))
     }
 
-    @Test
-    func explanatoryLabelContainsSettingsButtonOnIOS() {
-        let defaultsKey = "showMicrophoneButton"
-        UserDefaults.standard.set(true, forKey: defaultsKey)
-        defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
+    #if os(iOS)
+        @Test
+        func explanatoryLabelContainsSettingsButtonOnIOS() {
+            let defaultsKey = "showMicrophoneButton"
+            UserDefaults.standard.set(true, forKey: defaultsKey)
+            defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
 
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
-        let view = ContentView(loadsReminders: false, speechTranscriber: fake)
+            let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+            let view = ContentView(loadsReminders: false, speechTranscriber: fake)
 
-        #expect(String(describing: view.bottomBar).contains("Open Settings"))
-    }
+            #expect(String(describing: view.bottomBar).contains("Open Settings"))
+        }
+    #endif
 
     @Test
     func explanatoryLabelRendersBelowErrorTextWhenBothPresent() {
