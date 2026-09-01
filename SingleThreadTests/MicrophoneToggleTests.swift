@@ -11,14 +11,26 @@ private final class MicToggleFakeTranscriber: SpeechTranscribing {
 
     init(authorizationStatus: SFSpeechRecognizerAuthorizationStatus = .authorized) {
         self.authorizationStatus = authorizationStatus
+        liveStatus = authorizationStatus
     }
 
     // MARK: Internal
 
     private(set) var authorizationStatus: SFSpeechRecognizerAuthorizationStatus
 
+    /// The status `refreshAuthorizationStatus()` re-reads — the test mutates
+    /// this to simulate a Settings change while the app is backgrounded.
+    var liveStatus: SFSpeechRecognizerAuthorizationStatus
+
+    private(set) var refreshCallCount = 0
+
     func requestAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
         authorizationStatus
+    }
+
+    func refreshAuthorizationStatus() {
+        refreshCallCount += 1
+        authorizationStatus = liveStatus
     }
 
     func transcribe(
@@ -100,6 +112,36 @@ struct MicrophoneToggleTests {
         // Verify that creating the view with toggle on does not crash.
         let bodyDescription = String(describing: view.body)
         #expect(!bodyDescription.isEmpty)
+    }
+
+    @Test
+    func showMicrophoneButtonDefaultIsRegistered() {
+        let defaultsKey = "showMicrophoneButton"
+        UserDefaults.standard.removeObject(forKey: defaultsKey)
+
+        _ = AppViewModel(arguments: [])
+
+        #expect(UserDefaults.standard.bool(forKey: defaultsKey))
+        UserDefaults.standard.removeObject(forKey: defaultsKey)
+    }
+
+    @Test
+    func authorizationStatusPassthroughMatchesTranscriber() {
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let viewModel = makeViewModel(fake)
+
+        #expect(viewModel.authorizationStatus == .denied)
+    }
+
+    @Test
+    func refreshAuthorizationStatusCallsThroughToTranscriber() {
+        let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let viewModel = makeViewModel(fake)
+
+        #expect(fake.refreshCallCount == 0)
+        viewModel.refreshAuthorizationStatus()
+
+        #expect(fake.refreshCallCount == 1)
     }
 
     // MARK: Private

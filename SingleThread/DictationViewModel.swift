@@ -29,6 +29,18 @@ final class DictationViewModel {
             || speechTranscriber.authorizationStatus == .notDetermined
     }
 
+    /// The transcriber's current authorization status. Exposed so the view can
+    /// distinguish denied/restricted (show an explanation) from notDetermined
+    /// (mic still visible — permission is requested lazily on first tap).
+    var authorizationStatus: SFSpeechRecognizerAuthorizationStatus {
+        speechTranscriber.authorizationStatus
+    }
+
+    /// Re-reads the speech authorization status from the underlying transcriber.
+    func refreshAuthorizationStatus() {
+        speechTranscriber.refreshAuthorizationStatus()
+    }
+
     func startDictation() async {
         if speechTranscriber.authorizationStatus == .notDetermined {
             let status = await speechTranscriber.requestAuthorization()

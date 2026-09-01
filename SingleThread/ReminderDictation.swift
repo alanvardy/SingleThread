@@ -11,8 +11,15 @@ protocol SpeechTranscribing: AnyObject {
     var authorizationStatus: SFSpeechRecognizerAuthorizationStatus { get }
 
     func requestAuthorization() async -> SFSpeechRecognizerAuthorizationStatus
+    func refreshAuthorizationStatus()
     func transcribe(
         onPartialResult: @escaping @MainActor (String) -> Void) async throws -> String
+}
+
+extension SpeechTranscribing {
+    /// Default no-op for test fakes that never hold a stale snapshot.
+    /// ``ReminderDictation`` overrides this to refresh its cached value.
+    func refreshAuthorizationStatus() {}
 }
 
 // MARK: - ReminderDictation
@@ -50,6 +57,13 @@ final class ReminderDictation: SpeechTranscribing {
         }
         authorizationStatus = status
         return status
+    }
+
+    /// Re-reads the speech authorization status from the system so a permission
+    /// change made in Settings while the app was backgrounded is reflected on
+    /// foreground without a force-quit.
+    func refreshAuthorizationStatus() {
+        authorizationStatus = SFSpeechRecognizer.authorizationStatus()
     }
 
     /// Starts recording, listens for speech, and returns the final transcription.

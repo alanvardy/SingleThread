@@ -23,6 +23,7 @@ final class AppViewModel {
         self.store = store
         usesInMemoryStore = usesInMemory
         store.sortOption = SortOptionStore().load()
+        Self.registerDefaults()
 
         #if os(iOS)
             if WCSession.isSupported(), !usesInMemoryStore {
@@ -88,6 +89,13 @@ final class AppViewModel {
     }
 
     // MARK: Internal
+
+    /// Registers fallback `UserDefaults` values for keys whose offline default is
+    /// not `false`. `@AppStorage` initializers are invisible to raw
+    /// `bool(forKey:)` reads, so registration removes the silent divergence.
+    static func registerDefaults() {
+        UserDefaults.standard.register(defaults: ["showMicrophoneButton": true])
+    }
 
     #if os(iOS)
         /// Notification-preference UserDefaults keys, shared between
