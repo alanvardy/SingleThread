@@ -404,6 +404,7 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             build-for-testing \
             -only-testing:SingleThreadWatchUITests \
+            -only-testing:SingleThreadWatchTests \
             -showBuildTimingSummary
 
       - name: Watch UI tests
@@ -415,3 +416,12 @@ jobs:
             -maximum-test-execution-time-allowance 900 \
             test-without-building \
             -only-testing:SingleThreadWatchUITests
+
+      - name: Watch unit tests
+        timeout-minutes: 20
+        run: |
+          xcodebuild -scheme SingleThreadWatch \
+            -destination "platform=watchOS Simulator,id=${{ env.WATCH_UDID }}" \
+            -derivedDataPath "$DERIVED_DATA" \
+            test-without-building \
+            -only-testing:SingleThreadWatchTests

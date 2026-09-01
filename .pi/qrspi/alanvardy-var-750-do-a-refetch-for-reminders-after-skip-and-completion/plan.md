@@ -738,9 +738,9 @@ No pbxproj or scheme changes — `SingleThreadWatchTests` is already a `Testable
 ### Verification
 
 #### Automated
-- [ ] `make watch-test` green (targeted `-only-testing:SingleThreadWatchTests`)
-- [ ] `make test` still green (Core package compiles for iOS unchanged)
-- [ ] CI watch job now executes `SingleThreadWatchTests` (verify via `./scripts/test.sh` full run or `make check`)
+- [x] `make watch-test` green (targeted `-only-testing:SingleThreadWatchTests`)
+- [x] `make test` still green (Core package compiles for iOS unchanged)
+- [x] CI watch job now executes `SingleThreadWatchTests` (verify via `./scripts/test.sh` full run or `make check`)
 
 #### Manual
 - [ ] On a paired watch + phone: complete a reminder on the watch, immediately pull-refresh the watch before the phone processes the relay — the completed reminder must not reappear.
