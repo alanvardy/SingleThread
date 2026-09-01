@@ -164,12 +164,12 @@ verify_deployment_target
 # ── Full pipeline ──────────────────────────────────────────────────────────────
 if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
     echo "==> Formatting…"
-    swiftformat SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/ SingleThreadWatchUITests/
+    swiftformat SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/ SingleThreadWatchUITests/ SingleThreadWatchTests/
     swiftlint --fix
 
     echo ""
     echo "==> SwiftFormat check…"
-    swiftformat --lint SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/ SingleThreadWatchUITests/
+    swiftformat --lint SingleThread/ SingleThreadCore/ SingleThreadWatch/ SingleThreadWidget/ SingleThreadTests/ SingleThreadUITests/ SingleThreadWatchUITests/ SingleThreadWatchTests/
 
     echo ""
     echo "==> SwiftLint…"

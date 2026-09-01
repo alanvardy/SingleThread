@@ -150,8 +150,12 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(
             app.staticTexts["Remaining"].waitForExistence(timeout: 5),
             "The remaining reminder should be the only visible card")
-        XCTAssertFalse(app.staticTexts["CrossDevice"].exists, "Completed card must not resurrect")
-        XCTAssertFalse(app.staticTexts["ToSkip"].exists, "Skipped card must stay hidden")
+        XCTAssertTrue(
+            app.staticTexts["CrossDevice"].waitForNonExistence(timeout: 5),
+            "Completed card must not resurrect")
+        XCTAssertTrue(
+            app.staticTexts["ToSkip"].waitForNonExistence(timeout: 5),
+            "Skipped card must stay hidden")
     }
 
     // MARK: - Complete

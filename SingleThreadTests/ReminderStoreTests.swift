@@ -803,13 +803,33 @@ struct ReloadPendingCompletionTests {
     }
 
     @Test
+    func reloadWithEmptyFetchPreservesPendingCompletions() async {
+        let key = "pending-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        let seeded = "still-pending-id"
+        pendingStore(key: key).record(seeded)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: []),
+            pendingCompletionStore: pendingStore(key: key),
+            loadsReminders: true,
+            reminders: [],
+            authorizationStatus: .fullAccess)
+
+        await store.reload()
+
+        #expect(pendingStore(key: key).load() == [seeded]) // not wiped by empty fetch
+    }
+
+    @Test
     func reloadDefensivelyDropsCompletedReminder() async {
         let completed = makeReminder(title: "Done")
         completed.isCompleted = true
         let fake = CompletedReturningEventStore(fetchResult: [completed])
+        let key = "pending-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
         let store = ReminderStore(
             eventStore: fake,
-            pendingCompletionStore: pendingStore(key: "pending-\(UUID().uuidString)"),
+            pendingCompletionStore: pendingStore(key: key),
             loadsReminders: true)
 
         await store.reload()
