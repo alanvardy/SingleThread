@@ -15,6 +15,7 @@ import Foundation
 ///   "excludedLists": ["Work"],
 ///   "completionCount": 3,      // optional, defaults to 0
 ///   "isEntitled": true          // optional, defaults to false
+///   "hasHidden": true           // optional, defaults to false
 /// }
 /// ```
 public struct UITestingSeed {
@@ -25,6 +26,7 @@ public struct UITestingSeed {
     public let excludedListTitles: Set<String>
     public let completionCount: Int
     public let isEntitled: Bool
+    public let hasHidden: Bool
 
     /// Reads an optional `--seed '<json>'` launch argument and decodes it.
     /// Returns `nil` when the argument is absent or malformed.
@@ -95,6 +97,7 @@ private struct SeedPayload: Codable {
         excludedLists = try container.decodeIfPresent([String].self, forKey: .excludedLists) ?? []
         completionCount = try container.decodeIfPresent(Int.self, forKey: .completionCount) ?? 0
         isEntitled = try container.decodeIfPresent(Bool.self, forKey: .isEntitled) ?? false
+        hasHidden = try container.decodeIfPresent(Bool.self, forKey: .hasHidden) ?? false
     }
 
     // MARK: Internal
@@ -110,6 +113,7 @@ private struct SeedPayload: Codable {
     var excludedLists: [String] = []
     var completionCount: Int = 0
     var isEntitled: Bool = false
+    var hasHidden: Bool = false
 
     func materialize() -> UITestingSeed {
         let eventStore = EKEventStore()
@@ -134,7 +138,8 @@ private struct SeedPayload: Codable {
             calendars: createdCalendars,
             excludedListTitles: Set(excludedLists),
             completionCount: completionCount,
-            isEntitled: isEntitled)
+            isEntitled: isEntitled,
+            hasHidden: hasHidden)
     }
 
     // MARK: Private
@@ -144,6 +149,6 @@ private struct SeedPayload: Codable {
     private enum CodingKeys: String, CodingKey {
         case reminders, calendars
         case excludedLists
-        case completionCount, isEntitled
+        case completionCount, isEntitled, hasHidden
     }
 }

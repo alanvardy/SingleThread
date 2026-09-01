@@ -240,9 +240,9 @@ broad fetches, so `hasHidden` would be reset to `false`.
 ### Verification
 
 #### Automated
-- [ ] `make build` succeeds (no new compiler errors in `SingleThreadCore` or `SingleThread`)
-- [ ] `make test` passes — existing seed tests (`testEmptyListShowsNoRemindersState`, `testSkipAllShowsAllDoneState`) must still pass
-- [ ] `make lint` passes
+- [x] `make build` succeeds (no new compiler errors in `SingleThreadCore` or `SingleThread`)
+- [x] `make test` passes — existing seed tests (`testEmptyListShowsNoRemindersState`, `testSkipAllShowsAllDoneState`) must still pass
+- [x] `make lint` passes
 
 #### Manual
 - [ ] None — just a test seam; no production behavior changes.
