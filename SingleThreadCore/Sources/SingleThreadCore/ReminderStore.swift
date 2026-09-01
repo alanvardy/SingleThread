@@ -294,7 +294,11 @@ public final class ReminderStore {
         let capturedGeneration = skipGeneration
         Task {
             try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
-            applySkipSet(updated, generation: capturedGeneration)
+            // Refetch only when the skip actually applied — a clear that raced
+            // ahead discards it (generation gate) so no stale refetch runs.
+            if applySkipSet(updated, generation: capturedGeneration) {
+                await reload()
+            }
         }
     }
 
@@ -473,14 +477,18 @@ public final class ReminderStore {
     /// Applies a new skip list to in-memory state, persistence, and hooks.
     /// When `generation` is provided and no longer matches, the apply is
     /// discarded — a clear-skipped raced ahead of the in-flight skip task.
-    private func applySkipSet(_ updated: [String], generation: Int? = nil) {
+    /// Returns `false` when the apply was discarded (generation mismatch) and
+    /// `true` when it was applied.
+    @discardableResult
+    private func applySkipSet(_ updated: [String], generation: Int? = nil) -> Bool {
         if let generation, generation != skipGeneration {
-            return
+            return false
         }
         skippedIDs = Set(updated)
         skipStore.save(updated)
         onSkipSetChanged?(updated)
         onRemindersChanged?()
+        return true
     }
 
     /// Bridges the EventKit completion-handler API to async/await.
