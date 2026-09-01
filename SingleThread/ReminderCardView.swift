@@ -34,10 +34,11 @@ struct ReminderCardView: View {
     /// decision instead.
     static let promptBoxFill = Color(red: 0.16, green: 0.17, blue: 0.18)
 
-    /// Shared corner radius for content plates: the card text plate and the
-    /// empty-state material plate. Extracted because the rendered shape can't be
-    /// asserted headlessly — tests assert this decision instead.
-    static let emptyStateCornerRadius: CGFloat = 10
+    /// Shared corner radius for every content plate — the card text plate, the
+    /// empty-state card plate, and the swipe-prompt box. Extracted because the
+    /// rendered shape can't be asserted headlessly — tests assert this
+    /// decision instead.
+    static let plateCornerRadius: CGFloat = 10
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -53,7 +54,7 @@ struct ReminderCardView: View {
         // metrics are unchanged.
         .padding(12)
         .background {
-            RoundedRectangle(cornerRadius: Self.emptyStateCornerRadius)
+            RoundedRectangle(cornerRadius: Self.plateCornerRadius)
                 .fill(Self.plateFill(for: colorScheme))
         }
         .padding(-12)
@@ -192,7 +193,7 @@ struct ReminderCardView: View {
         .frame(maxWidth: .infinity)
         .padding(12)
         .background {
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: Self.plateCornerRadius)
                 .fill(Self.promptBoxFill)
         }
     }
