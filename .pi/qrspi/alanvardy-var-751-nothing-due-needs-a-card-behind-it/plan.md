@@ -287,7 +287,7 @@ returns title `"Nothing due"` → `ContentUnavailableView` renders it.
 #### Automated
 - [x] `make ui-test` passes — the new test and all existing UI tests green
 - [x] `make lint` passes
-- [ ] [ ] Full gate: `./scripts/test.sh` passes (unit + UI + lint + format + periphery) — blocked on Phase 4's `make ui-test`; unblocked by the pre-existing pin-wallpaper fix (`fix: persist Pin wallpaper toggle across relaunch`, 539264b)
+- [x] [ ] Full gate: `./scripts/test.sh` passes (unit + UI + lint + format + periphery) — blocked on Phase 4's `make ui-test`; unblocked by the pre-existing pin-wallpaper fix (`fix: persist Pin wallpaper toggle across relaunch`, 539264b). Full gate now passed in Phase 5.
 
 #### Manual
 - [ ] None — the UI test is the verification.
@@ -301,9 +301,9 @@ Run the full CI-identical pipeline once.
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes (formats, lints, builds, periphery, unit tests, UI tests)
-- [ ] `make periphery` passes
-- [ ] `pr_status` shows CI green
+- [x] `./scripts/test.sh` passes (formats, lints, builds, periphery, unit tests, UI tests)
+- [x] `make periphery` passes
+- [ ] `pr_status` shows CI green — `pr_status` not available in this forked session; CI status to be confirmed by the user/6_review
 
 #### Manual
 - [ ] Screenshot "Nothing due" and "All Done" over a photo background in light + dark mode — match `docs/SimulatorManualVerification.md` slots
