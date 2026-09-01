@@ -1,1080 +1,4002 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "%lld%%" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "%lld%%" } }
-      }
-    },
-    "24 hours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "24 hours" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "24 小时" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "24 horas" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "24 時間" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "24 Stunden" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "24 heures" } }
-      }
-    },
-    "48 hours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "48 hours" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "48 小时" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "48 horas" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "48 時間" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "48 Stunden" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "48 heures" } }
-      }
-    },
-    "72 hours" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "72 hours" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "72 小时" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "72 horas" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "72 時間" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "72 Stunden" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "72 heures" } }
-      }
-    },
-    "About" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "About" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关于" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acerca de" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "このアプリについて" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Über" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "À propos" } }
-      }
-    },
-    "Already recording." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Already recording." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在录音。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ya se está grabando." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "すでに録音中です。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Es wird bereits aufgenommen." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistrement déjà en cours." } }
-      }
-    },
-    "Allow landscape" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Allow landscape" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "允许横屏" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Permitir modo horizontal" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "横向きを許可" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Querformat erlauben" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Autoriser le mode paysage" } }
-      }
-    },
-    "Appearance" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Appearance" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "外观" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Apariencia" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "外観" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Darstellung" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Apparence" } }
-      }
-    },
-    "Background" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Background" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "背景" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Fondo" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "背景" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hintergrund" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Arrière-plan" } }
-      }
-    },
-    "Background Fade" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Background Fade" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "背景淡化" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Atenuación de fondo" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "背景フェード" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hintergrund-Überblendung" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Fondu d'arrière-plan" } }
-      }
-    },
-    "Background Image" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Background Image" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "背景图片" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Imagen de fondo" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "背景画像" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hintergrundbild" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Image d'arrière-plan" } }
-      }
-    },
-    "Copyright 2026 Alan Vardy" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Copyright 2026 Alan Vardy" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "版权所有 2026 Alan Vardy" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Copyright 2026 Alan Vardy" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Copyright 2026 Alan Vardy" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Copyright 2026 Alan Vardy" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Copyright 2026 Alan Vardy" } }
-      }
-    },
-    "Could not load product. Check your internet connection and try again." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Could not load product. Check your internet connection and try again." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法加载产品。请检查网络连接后重试。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se pudo cargar el producto. Comprueba tu conexión a internet e inténtalo de nuevo." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "製品を読み込めませんでした。インターネット接続を確認して、もう一度お試しください。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Produkt konnte nicht geladen werden. Überprüfe deine Internetverbindung und versuche es erneut." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Impossible de charger le produit. Vérifiez votre connexion internet et réessayez." } }
-      }
-    },
-    "Dictate reminder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dictate reminder" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "听写提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Dictar recordatorio" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーをディクテーション" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerung diktieren" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Dicter un rappel" } }
-      }
-    },
-    "Dismiss" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dismiss" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "閉じる" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Schließen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Fermer" } }
-      }
-    },
-    "Dismiss swipe prompt" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dismiss swipe prompt" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "关闭滑动提示" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cerrar aviso de deslizamiento" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スワイプのヒントを閉じる" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wischhinweis schließen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Fermer l'aide de balayage" } }
-      }
-    },
-    "Display & Sync Preferences" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Display & Sync Preferences" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示与同步偏好" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Preferencias de visualización y sincronización" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "表示と同期の設定" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Anzeige- und Synchronisierungseinstellungen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Préférences d'affichage et de synchronisation" } }
-      }
-    },
-    "Done" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Done" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Listo" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "完了" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Fertig" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Terminé" } }
-      }
-    },
-    "Enable access in Settings to see your reminders." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable access in Settings to see your reminders." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在设置中启用访问权限以查看提醒。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activa el acceso en Ajustes para ver tus recordatorios." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーを表示するには、設定でアクセスを有効にしてください。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktiviere den Zugriff in den Einstellungen, um deine Erinnerungen zu sehen." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activez l'accès dans Réglages pour voir vos rappels." } }
-      }
-    },
-    "Enable reminder notifications" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Enable reminder notifications" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "启用提醒通知" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Activar notificaciones de recordatorios" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダー通知を有効にする" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerungsmitteilungen aktivieren" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Activer les notifications de rappels" } }
-      }
-    },
-    "Excluded Lists" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Excluded Lists" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "排除的列表" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Listas excluidas" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "除外リスト" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ausgeschlossene Listen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Listes exclues" } }
-      }
-    },
-    "Excluded lists are hidden from the reminder list." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Excluded lists are hidden from the reminder list." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "排除的列表将隐藏在提醒列表中。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Las listas excluidas se ocultan de la lista de recordatorios." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "除外リストはリマインダーリストに表示されません。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ausgeschlossene Listen werden in der Erinnerungsliste ausgeblendet." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les listes exclues sont masquées de la liste de rappels." } }
-      }
-    },
-    "Filtering & Sorting" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Filtering & Sorting" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "过滤与排序" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Filtrado y ordenación" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "フィルタと並べ替え" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Filtern und Sortieren" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Filtrage et tri" } }
-      }
-    },
-    "Has alarm" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Has alarm" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "有闹钟" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tiene alarma" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アラームあり" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hat Alarm" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "A une alarme" } }
-      }
-    },
-    "If you've already purchased Unlock on another device, restore it here." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "If you've already purchased Unlock on another device, restore it here." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "如果您已在其他设备上购买解锁，请在此恢复。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Si ya compraste Unlock en otro dispositivo, restáuralo aquí." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "他のデバイスで Unlock を購入済みの場合は、ここで復元します。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wenn du Unlock bereits auf einem anderen Gerät gekauft hast, stelle es hier wieder her." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Si vous avez déjà acheté Unlock sur un autre appareil, restaurez-le ici." } }
-      }
-    },
-    "Interface" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Interface" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "界面" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Interfaz" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "インターフェース" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Oberfläche" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Interface" } }
-      }
-    },
-    "Loading…" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Loading…" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在加载…" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cargando…" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "読み込み中…" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wird geladen…" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Chargement…" } }
-      }
-    },
-    "Made with love by a lone developer" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Made with love by a lone developer" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "由一位独立开发者倾心打造" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Hecho con amor por un desarrollador independiente" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ひとりの開発者が愛情を込めて作っています" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mit Liebe gemacht von einem unabhängigen Entwickler" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Fait avec amour par un développeur indépendant" } }
-      }
-    },
-    "Manage Purchase" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Manage Purchase" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "管理购买" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Administrar compra" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "購入を管理" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Kauf verwalten" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Gérer l'achat" } }
-      }
-    },
-    "Microphone access was denied." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Microphone access was denied." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "麦克风权限已被拒绝。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Se denegó el acceso al micrófono." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "マイクへのアクセスが拒否されました。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Der Zugriff auf das Mikrofon wurde verweigert." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "L'accès au microphone a été refusé." } }
-      }
-    },
-    "No speech was detected." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No speech was detected." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "未检测到语音。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se detectó voz." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "音声が検出されませんでした。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Es wurde keine Sprache erkannt." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucune parole détectée." } }
-      }
-    },
-    "Notifications" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Notifications" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "通知" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Notificaciones" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "通知" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mitteilungen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Notifications" } }
-      }
-    },
-    "Nothing due" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nothing due" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无到期提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nada pendiente" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "期限のものはありません" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Nichts fällig" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rien à faire" } }
-      }
-    },
-    "Only today's and overdue reminders show here — pull to refresh." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Only today's and overdue reminders show here — pull to refresh." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "这里只显示今天和过期的提醒——下拉刷新。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aquí solo se muestran los recordatorios de hoy y vencidos: tira para actualizar." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ここには今日と期限切れのリマインダーだけが表示されます。下に引いて更新してください。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hier werden nur heutige und überfällige Erinnerungen angezeigt — ziehen zum Aktualisieren." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Seuls les rappels d'aujourd'hui et en retard s'affichent ici — tirez pour actualiser." } }
-      }
-    },
-    "Photo by %@ on Unsplash" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photo by %@ on Unsplash" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "照片来自 Unsplash 的 %1$@" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Foto de %1$@ en Unsplash" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "Unsplash の %1$@ による写真" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Foto von %1$@ auf Unsplash" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Photo de %1$@ sur Unsplash" } }
-      }
-    },
-    "Pin wallpaper" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pin wallpaper" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "固定壁纸" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Fijar fondo de pantalla" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "壁紙を固定" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hintergrundbild fixieren" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Épingler le fond d'écran" } }
-      }
-    },
-    "Privacy Policy" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Privacy Policy" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "隐私政策" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Política de privacidad" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "プライバシーポリシー" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Datenschutzrichtlinie" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Politique de confidentialité" } }
-      }
-    },
-    "Product not available." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Product not available." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "产品不可用。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Producto no disponible." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "製品が利用できません。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Produkt nicht verfügbar." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Produit indisponible." } }
-      }
-    },
-    "Pull to refresh to see all your reminders again." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Pull to refresh to see all your reminders again." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "下拉刷新以再次查看所有提醒。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tira para actualizar y volver a ver todos tus recordatorios." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "下に引いて更新すると、すべてのリマインダーを再表示できます。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zum Aktualisieren ziehen, um wieder alle Erinnerungen zu sehen." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tirez pour actualiser et revoir tous vos rappels." } }
-      }
-    },
-    "Recording" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recording" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在录音" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Grabando" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "録音中" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aufnahme" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Enregistrement" } }
-      }
-    },
-    "Recurrence indicator" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recurrence indicator" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重复指示器" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Indicador de repetición" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "繰り返し表示" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wiederholungsanzeige" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Indicateur de répétition" } }
-      }
-    },
-    "Refresh wallpaper" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refresh wallpaper" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "刷新壁纸" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Actualizar fondo de pantalla" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "壁紙を更新" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hintergrundbild aktualisieren" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Actualiser le fond d'écran" } }
-      }
-    },
-    "Refreshing" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Refreshing" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在刷新" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Actualizando" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "更新中" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wird aktualisiert…" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Actualisation…" } }
-      }
-    },
-    "Remind after" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Remind after" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "之后提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Recordar después de" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "後に通知" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnern nach" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rappeler après" } }
-      }
-    },
-    "Reminder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reminder" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Recordatorio" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダー" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerung" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rappel" } }
-      }
-    },
-    "Reminder alerts" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reminder alerts" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "提醒闹钟" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Alertas de recordatorio" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーアラート" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerungsalarme" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Alertes de rappel" } }
-      }
-    },
-    "Reminders" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reminders" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Recordatorios" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダー" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerungen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rappels" } }
-      }
-    },
-    "Restore Purchases" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Restore Purchases" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "恢复购买" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Restaurar compras" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "購入を復元" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Käufe wiederherstellen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Restaurer les achats" } }
-      }
-    },
-    "Settings" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Settings" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "设置" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ajustes" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "設定" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Einstellungen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réglages" } }
-      }
-    },
-    "Show action buttons" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show action buttons" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示操作按钮" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar botones de acción" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "操作ボタンを表示" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktions-Buttons anzeigen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher les boutons d'action" } }
-      }
-    },
-    "Show date" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show date" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示日期" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar fecha" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "日付を表示" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Datum anzeigen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher la date" } }
-      }
-    },
-    "Show list" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show list" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示列表" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar lista" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リストを表示" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Liste anzeigen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher la liste" } }
-      }
-    },
-    "Show microphone" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show microphone" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示麦克风" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar micrófono" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "マイクを表示" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mikrofon anzeigen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher le microphone" } }
-      }
-    },
-    "Show swipe prompt" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show swipe prompt" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示滑动提示" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar aviso de deslizamiento" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スワイプのヒントを表示" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wischhinweis anzeigen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher l'aide de balayage" } }
-      }
-    },
-    "Show undated reminders" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show undated reminders" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示无日期提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar recordatorios sin fecha" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "日付なしのリマインダーを表示" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Terminlose Erinnerungen anzeigen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher les rappels sans date" } }
-      }
-    },
-    "Show undo button" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Show undo button" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "显示撤销按钮" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mostrar botón de deshacer" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "元に戻すボタンを表示" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Rückgängig-Button anzeigen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher le bouton Annuler" } }
-      }
-    },
-    "SingleThread" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread" } }
-      }
-    },
-    "Skipped & Excluded Lists" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Skipped & Excluded Lists" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跳过的与排除的列表" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Listas omitidas y excluidas" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スキップ済みと除外リスト" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Übersprungene und ausgeschlossene Listen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Listes ignorées et exclues" } }
-      }
-    },
-    "Sort By" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sort By" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "排序方式" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ordenar por" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "並べ替え" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Sortieren nach" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Trier par" } }
-      }
-    },
-    "Speech recognition access is required." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Speech recognition access is required." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "需要语音识别权限。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Se requiere acceso al reconocimiento de voz." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "音声認識へのアクセスが必要です。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zugriff auf die Spracherkennung ist erforderlich." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "L'accès à la reconnaissance vocale est requis." } }
-      }
-    },
-    "Speech recognition access was denied." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Speech recognition access was denied." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "语音识别权限已被拒绝。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Se denegó el acceso al reconocimiento de voz." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "音声認識へのアクセスが拒否されました。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Der Zugriff auf die Spracherkennung wurde verweigert." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "L'accès à la reconnaissance vocale a été refusé." } }
-      }
-    },
-    "Speech recognition is not available." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Speech recognition is not available." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "语音识别不可用。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "El reconocimiento de voz no está disponible." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "音声認識を利用できません。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Spracherkennung ist nicht verfügbar." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "La reconnaissance vocale n'est pas disponible." } }
-      }
-    },
-    "Swipe left to skip" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Swipe left to skip" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "左滑跳过" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Desliza a la izquierda para omitir" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "左にスワイプしてスキップ" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zum Überspringen nach links wischen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Balayez vers la gauche pour passer" } }
-      }
-    },
-    "Swipe right to complete" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Swipe right to complete" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "右滑完成" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Desliza a la derecha para completar" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "右にスワイプして完了" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zum Fertigstellen nach rechts wischen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Balayez vers la droite pour terminer" } }
-      }
-    },
-    "Task created" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Task created" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "任务已创建" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tarea creada" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "タスクを作成しました" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aufgabe erstellt" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tâche créée" } }
-      }
-    },
-    "Task creation failed" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Task creation failed" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "任务创建失败" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Error al crear la tarea" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "タスクの作成に失敗しました" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Fehler beim Erstellen der Aufgabe" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Échec de la création de la tâche" } }
-      }
-    },
-    "Text Size" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Text Size" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "文字大小" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tamaño de texto" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "テキストサイズ" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Textgröße" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Taille du texte" } }
-      }
-    },
-    "Thank you for your support! All features are unlocked." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Thank you for your support! All features are unlocked." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "感谢您的支持！所有功能已解锁。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "¡Gracias por tu apoyo! Todas las funciones están desbloqueadas." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ご支援ありがとうございます！すべての機能がロック解除されています。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Danke für deine Unterstützung! Alle Funktionen sind freigeschaltet." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Merci pour votre soutien ! Toutes les fonctionnalités sont débloquées." } }
-      }
-    },
-    "Try Again" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Try Again" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重试" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reintentar" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "再試行" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erneut versuchen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Réessayer" } }
-      }
-    },
-    "Undo completion" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Undo completion" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "撤销完成" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Deshacer completado" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "完了を元に戻す" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Fertigstellen rückgängig machen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Annuler la finalisation" } }
-      }
-    },
-    "Unlock" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unlock" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "解锁" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Desbloquear" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ロック解除" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Freischalten" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Débloquer" } }
-      }
-    },
-    "Unlock SingleThread" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Unlock SingleThread" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "解锁 SingleThread" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Desbloquear SingleThread" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread をロック解除" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread freischalten" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Débloquer SingleThread" } }
-      }
-    },
-    "Upgrade to unlimited" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Upgrade to unlimited" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "升级到无限版" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mejorar a ilimitado" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "無制限にアップグレード" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Auf unbegrenzt upgraden" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Passer à l'illimité" } }
-      }
-    },
-    "Upgrade to unlock unlimited completions" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Upgrade to unlock unlimited completions" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "升级以解锁无限次完成" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mejora para desbloquear completados ilimitados" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "無制限の完了を解除するにはアップグレード" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Upgraden, um unbegrenztes Fertigstellen freizuschalten" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Passez à l'illimité pour débloquer des complétions illimitées" } }
-      }
-    },
-    "View in Reminders" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "View in Reminders" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "在提醒中查看" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Ver en Recordatorios" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーで表示" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "In Erinnerungen anzeigen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Afficher dans Rappels" } }
-      }
-    },
-    "You don't have any reminders yet." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "You don't have any reminders yet." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "您还没有任何提醒。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aún no tienes recordatorios." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "まだリマインダーはありません。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Du hast noch keine Erinnerungen." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vous n'avez pas encore de rappels." } }
-      }
-    },
-    "You have %lld reminders waiting — open SingleThread!" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "You have %lld reminder waiting — open SingleThread!" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "You have %lld reminders waiting — open SingleThread!" } }
+  "sourceLanguage": "en",
+  "strings": {
+    "%lld%%": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
+    },
+    "24 hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 hours"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 小时"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 horas"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 時間"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 Stunden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 heures"
+          }
+        }
+      }
+    },
+    "48 hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "48 hours"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "48 小时"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "48 horas"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "48 時間"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "48 Stunden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "48 heures"
+          }
+        }
+      }
+    },
+    "72 hours": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72 hours"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72 小时"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72 horas"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72 時間"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72 Stunden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "72 heures"
+          }
+        }
+      }
+    },
+    "About": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关于"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acerca de"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "このアプリについて"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Über"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À propos"
+          }
+        }
+      }
+    },
+    "Already recording.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Already recording."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在录音。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ya se está grabando."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すでに録音中です。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wird bereits aufgenommen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement déjà en cours."
+          }
+        }
+      }
+    },
+    "Allow landscape": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow landscape"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "允许横屏"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permitir modo horizontal"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "横向きを許可"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Querformat erlauben"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser le mode paysage"
+          }
+        }
+      }
+    },
+    "Appearance": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appearance"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外观"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apariencia"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "外観"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Darstellung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apparence"
+          }
+        }
+      }
+    },
+    "Background": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "背景"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fondo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "背景"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hintergrund"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrière-plan"
+          }
+        }
+      }
+    },
+    "Background Fade": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background Fade"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "背景淡化"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Atenuación de fondo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "背景フェード"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hintergrund-Überblendung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fondu d'arrière-plan"
+          }
+        }
+      }
+    },
+    "Background Image": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Background Image"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "背景图片"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Imagen de fondo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "背景画像"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hintergrundbild"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image d'arrière-plan"
+          }
+        }
+      }
+    },
+    "Copyright 2026 Alan Vardy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright 2026 Alan Vardy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版权所有 2026 Alan Vardy"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright 2026 Alan Vardy"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright 2026 Alan Vardy"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright 2026 Alan Vardy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copyright 2026 Alan Vardy"
+          }
+        }
+      }
+    },
+    "Could not load product. Check your internet connection and try again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not load product. Check your internet connection and try again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法加载产品。请检查网络连接后重试。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudo cargar el producto. Comprueba tu conexión a internet e inténtalo de nuevo."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "製品を読み込めませんでした。インターネット接続を確認して、もう一度お試しください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Produkt konnte nicht geladen werden. Überprüfe deine Internetverbindung und versuche es erneut."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de charger le produit. Vérifiez votre connexion internet et réessayez."
+          }
+        }
+      }
+    },
+    "Dictate reminder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dictate reminder"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "听写提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dictar recordatorio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーをディクテーション"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerung diktieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dicter un rappel"
+          }
+        }
+      }
+    },
+    "Dismiss": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "閉じる"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schließen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fermer"
+          }
+        }
+      }
+    },
+    "Dismiss swipe prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss swipe prompt"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "关闭滑动提示"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cerrar aviso de deslizamiento"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スワイプのヒントを閉じる"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wischhinweis schließen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fermer l'aide de balayage"
+          }
+        }
+      }
+    },
+    "Display & Sync Preferences": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Display & Sync Preferences"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示与同步偏好"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preferencias de visualización y sincronización"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示と同期の設定"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anzeige- und Synchronisierungseinstellungen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préférences d'affichage et de synchronisation"
+          }
+        }
+      }
+    },
+    "Done": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listo"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminé"
+          }
+        }
+      }
+    },
+    "Enable access in Settings to see your reminders.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable access in Settings to see your reminders."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在设置中启用访问权限以查看提醒。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activa el acceso en Ajustes para ver tus recordatorios."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーを表示するには、設定でアクセスを有効にしてください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktiviere den Zugriff in den Einstellungen, um deine Erinnerungen zu sehen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activez l'accès dans Réglages pour voir vos rappels."
+          }
+        }
+      }
+    },
+    "Enable reminder notifications": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable reminder notifications"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用提醒通知"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activar notificaciones de recordatorios"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダー通知を有効にする"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerungsmitteilungen aktivieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer les notifications de rappels"
+          }
+        }
+      }
+    },
+    "Excluded Lists": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluded Lists"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排除的列表"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listas excluidas"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "除外リスト"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgeschlossene Listen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listes exclues"
+          }
+        }
+      }
+    },
+    "Excluded lists are hidden from the reminder list.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Excluded lists are hidden from the reminder list."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排除的列表将隐藏在提醒列表中。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las listas excluidas se ocultan de la lista de recordatorios."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "除外リストはリマインダーリストに表示されません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ausgeschlossene Listen werden in der Erinnerungsliste ausgeblendet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les listes exclues sont masquées de la liste de rappels."
+          }
+        }
+      }
+    },
+    "Filtering & Sorting": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtering & Sorting"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "过滤与排序"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtrado y ordenación"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "フィルタと並べ替え"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtern und Sortieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtrage et tri"
+          }
+        }
+      }
+    },
+    "Has alarm": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has alarm"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "有闹钟"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tiene alarma"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アラームあり"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hat Alarm"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A une alarme"
+          }
+        }
+      }
+    },
+    "If you've already purchased Unlock on another device, restore it here.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you've already purchased Unlock on another device, restore it here."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "如果您已在其他设备上购买解锁，请在此恢复。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si ya compraste Unlock en otro dispositivo, restáuralo aquí."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "他のデバイスで Unlock を購入済みの場合は、ここで復元します。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn du Unlock bereits auf einem anderen Gerät gekauft hast, stelle es hier wieder her."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Si vous avez déjà acheté Unlock sur un autre appareil, restaurez-le ici."
+          }
+        }
+      }
+    },
+    "Interface": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interface"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "界面"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interfaz"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "インターフェース"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oberfläche"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interface"
+          }
+        }
+      }
+    },
+    "Loading…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在加载…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cargando…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "読み込み中…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird geladen…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement…"
+          }
+        }
+      }
+    },
+    "Made with love by a lone developer": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Made with love by a lone developer"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "由一位独立开发者倾心打造"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hecho con amor por un desarrollador independiente"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ひとりの開発者が愛情を込めて作っています"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mit Liebe gemacht von einem unabhängigen Entwickler"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait avec amour par un développeur indépendant"
+          }
+        }
+      }
+    },
+    "Manage Purchase": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage Purchase"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "管理购买"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administrar compra"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入を管理"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kauf verwalten"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gérer l'achat"
+          }
+        }
+      }
+    },
+    "Microphone access was denied.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone access was denied."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "麦克风权限已被拒绝。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se denegó el acceso al micrófono."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "マイクへのアクセスが拒否されました。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Zugriff auf das Mikrofon wurde verweigert."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'accès au microphone a été refusé."
+          }
+        }
+      }
+    },
+    "No speech was detected.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No speech was detected."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "未检测到语音。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se detectó voz."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音声が検出されませんでした。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Es wurde keine Sprache erkannt."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune parole détectée."
+          }
+        }
+      }
+    },
+    "Notifications": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notificaciones"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "通知"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mitteilungen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notifications"
+          }
+        }
+      }
+    },
+    "Nothing due": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing due"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无到期提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada pendiente"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "期限のものはありません"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nichts fällig"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien à faire"
+          }
+        }
+      }
+    },
+    "Only today's and overdue reminders show here — pull to refresh.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only today's and overdue reminders show here — pull to refresh."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这里只显示今天和过期的提醒——下拉刷新。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aquí solo se muestran los recordatorios de hoy y vencidos: tira para actualizar."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ここには今日と期限切れのリマインダーだけが表示されます。下に引いて更新してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hier werden nur heutige und überfällige Erinnerungen angezeigt — ziehen zum Aktualisieren."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seuls les rappels d'aujourd'hui et en retard s'affichent ici — tirez pour actualiser."
+          }
+        }
+      }
+    },
+    "Photo by %@ on Unsplash": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo by %@ on Unsplash"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "照片来自 Unsplash 的 %1$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foto de %1$@ en Unsplash"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsplash の %1$@ による写真"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foto von %1$@ auf Unsplash"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Photo de %1$@ sur Unsplash"
+          }
+        }
+      }
+    },
+    "Pin wallpaper": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pin wallpaper"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "固定壁纸"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fijar fondo de pantalla"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "壁紙を固定"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hintergrundbild fixieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Épingler le fond d'écran"
+          }
+        }
+      }
+    },
+    "Privacy Policy": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy Policy"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "隐私政策"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Política de privacidad"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "プライバシーポリシー"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenschutzrichtlinie"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Politique de confidentialité"
+          }
+        }
+      }
+    },
+    "Product not available.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Product not available."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "产品不可用。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Producto no disponible."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "製品が利用できません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Produkt nicht verfügbar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Produit indisponible."
+          }
+        }
+      }
+    },
+    "Pull to refresh to see all your reminders again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pull to refresh to see all your reminders again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下拉刷新以再次查看所有提醒。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tira para actualizar y volver a ver todos tus recordatorios."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "下に引いて更新すると、すべてのリマインダーを再表示できます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Aktualisieren ziehen, um wieder alle Erinnerungen zu sehen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tirez pour actualiser et revoir tous vos rappels."
+          }
+        }
+      }
+    },
+    "Recording": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recording"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在录音"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grabando"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "録音中"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufnahme"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement"
+          }
+        }
+      }
+    },
+    "Recurrence indicator": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recurrence indicator"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重复指示器"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indicador de repetición"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繰り返し表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiederholungsanzeige"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indicateur de répétition"
+          }
+        }
+      }
+    },
+    "Refresh wallpaper": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh wallpaper"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "刷新壁纸"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizar fondo de pantalla"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "壁紙を更新"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hintergrundbild aktualisieren"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualiser le fond d'écran"
+          }
+        }
+      }
+    },
+    "Refreshing": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refreshing"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在刷新"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualizando"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新中"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wird aktualisiert…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actualisation…"
+          }
+        }
+      }
+    },
+    "Remind after": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remind after"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "之后提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordar después de"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "後に通知"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnern nach"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rappeler après"
+          }
+        }
+      }
+    },
+    "Reminder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminder"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordatorio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダー"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerung"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rappel"
+          }
+        }
+      }
+    },
+    "Reminder alerts": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminder alerts"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒闹钟"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alertas de recordatorio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーアラート"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerungsalarme"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alertes de rappel"
+          }
+        }
+      }
+    },
+    "Reminders": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recordatorios"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダー"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerungen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rappels"
+          }
+        }
+      }
+    },
+    "Restore Purchases": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Purchases"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "恢复购买"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurar compras"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "購入を復元"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Käufe wiederherstellen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurer les achats"
+          }
+        }
+      }
+    },
+    "Settings": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "设置"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajustes"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Einstellungen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages"
+          }
+        }
+      }
+    },
+    "Show action buttons": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show action buttons"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示操作按钮"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar botones de acción"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "操作ボタンを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktions-Buttons anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher les boutons d'action"
+          }
+        }
+      }
+    },
+    "Show date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show date"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示日期"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar fecha"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日付を表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datum anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher la date"
+          }
+        }
+      }
+    },
+    "Show list": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show list"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示列表"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar lista"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リストを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liste anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher la liste"
+          }
+        }
+      }
+    },
+    "Show microphone": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show microphone"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示麦克风"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar micrófono"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "マイクを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mikrofon anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher le microphone"
+          }
+        }
+      }
+    },
+    "Show swipe prompt": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show swipe prompt"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示滑动提示"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar aviso de deslizamiento"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スワイプのヒントを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wischhinweis anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher l'aide de balayage"
+          }
+        }
+      }
+    },
+    "Show undated reminders": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show undated reminders"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示无日期提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar recordatorios sin fecha"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "日付なしのリマインダーを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminlose Erinnerungen anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher les rappels sans date"
+          }
+        }
+      }
+    },
+    "Show undo button": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show undo button"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "显示撤销按钮"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mostrar botón de deshacer"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "元に戻すボタンを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rückgängig-Button anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher le bouton Annuler"
+          }
+        }
+      }
+    },
+    "SingleThread": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread"
+          }
+        }
+      }
+    },
+    "Skipped & Excluded Lists": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipped & Excluded Lists"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过的与排除的列表"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listas omitidas y excluidas"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スキップ済みと除外リスト"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übersprungene und ausgeschlossene Listen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listes ignorées et exclues"
+          }
+        }
+      }
+    },
+    "Sort By": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sort By"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排序方式"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordenar por"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "並べ替え"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sortieren nach"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trier par"
+          }
+        }
+      }
+    },
+    "Speech recognition access is required.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech recognition access is required."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "需要语音识别权限。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se requiere acceso al reconocimiento de voz."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音声認識へのアクセスが必要です。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zugriff auf die Spracherkennung ist erforderlich."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'accès à la reconnaissance vocale est requis."
+          }
+        }
+      }
+    },
+    "Speech recognition access was denied.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech recognition access was denied."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语音识别权限已被拒绝。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se denegó el acceso al reconocimiento de voz."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音声認識へのアクセスが拒否されました。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Der Zugriff auf die Spracherkennung wurde verweigert."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L'accès à la reconnaissance vocale a été refusé."
+          }
+        }
+      }
+    },
+    "Speech recognition is not available.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speech recognition is not available."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "语音识别不可用。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "El reconocimiento de voz no está disponible."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "音声認識を利用できません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spracherkennung ist nicht verfügbar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La reconnaissance vocale n'est pas disponible."
+          }
+        }
+      }
+    },
+    "Swipe left to skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe left to skip"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左滑跳过"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza a la izquierda para omitir"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左にスワイプしてスキップ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Überspringen nach links wischen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balayez vers la gauche pour passer"
+          }
+        }
+      }
+    },
+    "Swipe right to complete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swipe right to complete"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右滑完成"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza a la derecha para completar"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "右にスワイプして完了"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zum Fertigstellen nach rechts wischen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Balayez vers la droite pour terminer"
+          }
+        }
+      }
+    },
+    "Task created": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Task created"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任务已创建"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tarea creada"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タスクを作成しました"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aufgabe erstellt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tâche créée"
+          }
+        }
+      }
+    },
+    "Task creation failed": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Task creation failed"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "任务创建失败"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Error al crear la tarea"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タスクの作成に失敗しました"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fehler beim Erstellen der Aufgabe"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de la création de la tâche"
+          }
+        }
+      }
+    },
+    "Text Size": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Text Size"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "文字大小"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tamaño de texto"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "テキストサイズ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Textgröße"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taille du texte"
+          }
+        }
+      }
+    },
+    "Thank you for your support! All features are unlocked.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Thank you for your support! All features are unlocked."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "感谢您的支持！所有功能已解锁。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Gracias por tu apoyo! Todas las funciones están desbloqueadas."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ご支援ありがとうございます！すべての機能がロック解除されています。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Danke für deine Unterstützung! Alle Funktionen sind freigeschaltet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Merci pour votre soutien ! Toutes les fonctionnalités sont débloquées."
+          }
+        }
+      }
+    },
+    "Try Again": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Try Again"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重试"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reintentar"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "再試行"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erneut versuchen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réessayer"
+          }
+        }
+      }
+    },
+    "Undo completion": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undo completion"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "撤销完成"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deshacer completado"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了を元に戻す"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertigstellen rückgängig machen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler la finalisation"
+          }
+        }
+      }
+    },
+    "Unlock": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ロック解除"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Freischalten"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Débloquer"
+          }
+        }
+      }
+    },
+    "Unlock SingleThread": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock SingleThread"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "解锁 SingleThread"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desbloquear SingleThread"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread をロック解除"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread freischalten"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Débloquer SingleThread"
+          }
+        }
+      }
+    },
+    "Upgrade to unlimited": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade to unlimited"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级到无限版"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mejorar a ilimitado"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無制限にアップグレード"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auf unbegrenzt upgraden"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer à l'illimité"
+          }
+        }
+      }
+    },
+    "Upgrade to unlock unlimited completions": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade to unlock unlimited completions"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "升级以解锁无限次完成"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mejora para desbloquear completados ilimitados"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無制限の完了を解除するにはアップグレード"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgraden, um unbegrenztes Fertigstellen freizuschalten"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passez à l'illimité pour débloquer des complétions illimitées"
+          }
+        }
+      }
+    },
+    "View in Reminders": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View in Reminders"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在提醒中查看"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver en Recordatorios"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーで表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In Erinnerungen anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher dans Rappels"
+          }
+        }
+      }
+    },
+    "You don't have any reminders yet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You don't have any reminders yet."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "您还没有任何提醒。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no tienes recordatorios."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まだリマインダーはありません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Du hast noch keine Erinnerungen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous n'avez pas encore de rappels."
+          }
+        }
+      }
+    },
+    "You have %lld reminders waiting — open SingleThread!": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "You have %lld reminder waiting — open SingleThread!"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "You have %lld reminders waiting — open SingleThread!"
+                }
+              }
             }
           }
         },
-        "zh-Hans" : {
-          "variations" : {
-            "plural" : {
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "有 %lld 条提醒等待处理——打开 SingleThread！" } }
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "有 %lld 条提醒等待处理——打开 SingleThread！"
+                }
+              }
             }
           }
         },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Tienes %lld recordatorio esperando: ¡abre SingleThread!" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Tienes %lld recordatorios esperando: ¡abre SingleThread!" } }
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tienes %lld recordatorio esperando: ¡abre SingleThread!"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tienes %lld recordatorios esperando: ¡abre SingleThread!"
+                }
+              }
             }
           }
         },
-        "ja" : {
-          "variations" : {
-            "plural" : {
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld 件のリマインダーが待っています。SingleThread を開いてください！" } }
+        "ja": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 件のリマインダーが待っています。SingleThread を開いてください！"
+                }
+              }
             }
           }
         },
-        "de" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "%lld Erinnerung wartet auf dich — öffne SingleThread!" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld Erinnerungen warten auf dich — öffne SingleThread!" } }
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Erinnerung wartet auf dich — öffne SingleThread!"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld Erinnerungen warten auf dich — öffne SingleThread!"
+                }
+              }
             }
           }
         },
-        "fr" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "%lld rappel en attente — ouvrez SingleThread !" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld rappels en attente — ouvrez SingleThread !" } }
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld rappel en attente — ouvrez SingleThread !"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld rappels en attente — ouvrez SingleThread !"
+                }
+              }
             }
           }
         }
       }
     },
-    "You're all set! 🎉" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "You're all set! 🎉" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "一切准备就绪！🎉" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "¡Todo listo! 🎉" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "設定完了です！🎉" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Alles bereit! 🎉" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tout est prêt ! 🎉" } }
+    "You're all set! 🎉": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're all set! 🎉"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一切准备就绪！🎉"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Todo listo! 🎉"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "設定完了です！🎉"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles bereit! 🎉"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout est prêt ! 🎉"
+          }
+        }
       }
     },
-    "A one-time purchase unlocks unlimited completions, skips, and deletes forever." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "A one-time purchase unlocks unlimited completions, skips, and deletes forever." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "一次性购买即可永久解锁无限制的完成、跳过和删除。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Una compra única desbloquea completados, omisiones y eliminaciones ilimitados para siempre." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "一度の購入で、完了・スキップ・削除が永久に無制限になります。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Ein einmaliger Kauf schaltet unbegrenztes Fertigstellen, Überspringen und Löschen für immer frei." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Un achat unique débloque des complétions, des sauts et des suppressions illimités pour toujours." } }
+    "A one-time purchase unlocks unlimited completions, skips, and deletes forever.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A one-time purchase unlocks unlimited completions, skips, and deletes forever."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一次性购买即可永久解锁无限制的完成、跳过和删除。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Una compra única desbloquea completados, omisiones y eliminaciones ilimitados para siempre."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "一度の購入で、完了・スキップ・削除が永久に無制限になります。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ein einmaliger Kauf schaltet unbegrenztes Fertigstellen, Überspringen und Löschen für immer frei."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un achat unique débloque des complétions, des sauts et des suppressions illimités pour toujours."
+          }
+        }
       }
     },
-    "Reminders are read and written through Apple Reminders. They stay on your device or in your own iCloud account, and are never sent to the author or any third party." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reminders are read and written through Apple Reminders. They stay on your device or in your own iCloud account, and are never sent to the author or any third party." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "提醒通过 Apple 提醒事项读取和写入。它们保留在您的设备上或您自己的 iCloud 账户中，绝不会发送给作者或任何第三方。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Los recordatorios se leen y escriben a través de la app Recordatorios de Apple. Permanecen en tu dispositivo o en tu propia cuenta de iCloud y nunca se envían al autor ni a terceros." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーは Apple のリマインダーアプリを通じて読み書きされます。データはお使いのデバイスまたはご自身の iCloud アカウントにのみ保存され、開発者や第三者に送信されることはありません。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerungen werden über die Apple-Erinnerungen-App gelesen und geschrieben. Sie bleiben auf deinem Gerät oder in deinem eigenen iCloud-Konto und werden niemals an den Autor oder Dritte gesendet." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les rappels sont lus et écrits via l'app Rappels d'Apple. Ils restent sur votre appareil ou dans votre propre compte iCloud et ne sont jamais envoyés à l'auteur ni à un tiers." } }
+    "Reminders are read and written through Apple Reminders. They stay on your device or in your own iCloud account, and are never sent to the author or any third party.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders are read and written through Apple Reminders. They stay on your device or in your own iCloud account, and are never sent to the author or any third party."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒通过 Apple 提醒事项读取和写入。它们保留在您的设备上或您自己的 iCloud 账户中，绝不会发送给作者或任何第三方。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los recordatorios se leen y escriben a través de la app Recordatorios de Apple. Permanecen en tu dispositivo o en tu propia cuenta de iCloud y nunca se envían al autor ni a terceros."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーは Apple のリマインダーアプリを通じて読み書きされます。データはお使いのデバイスまたはご自身の iCloud アカウントにのみ保存され、開発者や第三者に送信されることはありません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerungen werden über die Apple-Erinnerungen-App gelesen und geschrieben. Sie bleiben auf deinem Gerät oder in deinem eigenen iCloud-Konto und werden niemals an den Autor oder Dritte gesendet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les rappels sont lus et écrits via l'app Rappels d'Apple. Ils restent sur votre appareil ou dans votre propre compte iCloud et ne sont jamais envoyés à l'auteur ni à un tiers."
+          }
+        }
       }
     },
-    "Your display and sync preferences — such as sort order, text size, and which lists are hidden — are stored on your device in shared app storage and synced to your own Apple Watch over a direct local connection, never over the internet." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your display and sync preferences — such as sort order, text size, and which lists are hidden — are stored on your device in shared app storage and synced to your own Apple Watch over a direct local connection, never over the internet." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "您的显示和同步偏好（例如排序方式、文字大小以及隐藏哪些列表）存储在设备上的共享应用存储中，并通过本地直连同步到您自己的 Apple Watch，绝不经过互联网。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tus preferencias de visualización y sincronización (como el orden de clasificación, el tamaño de texto y qué listas están ocultas) se almacenan en tu dispositivo en el almacenamiento compartido de la app y se sincronizan con tu propio Apple Watch mediante una conexión local directa, nunca por internet." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "表示と同期の設定（並べ替え順、テキストサイズ、非表示にするリストなど）は、デバイスの共有アプリストレージに保存され、自宅の Apple Watch とは直接のローカル接続で同期されます。インターネットを経由することはありません。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Deine Anzeige- und Synchronisierungseinstellungen — etwa Sortierreihenfolge, Textgröße und welche Listen ausgeblendet sind — werden auf deinem Gerät im gemeinsamen App-Speicher gespeichert und über eine direkte lokale Verbindung mit deiner eigenen Apple Watch synchronisiert, niemals über das Internet." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Vos préférences d'affichage et de synchronisation — comme l'ordre de tri, la taille du texte et les listes masquées — sont stockées sur votre appareil dans le stockage partagé de l'app et synchronisées avec votre propre Apple Watch via une connexion locale directe, jamais via internet." } }
+    "Your display and sync preferences — such as sort order, text size, and which lists are hidden — are stored on your device in shared app storage and synced to your own Apple Watch over a direct local connection, never over the internet.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your display and sync preferences — such as sort order, text size, and which lists are hidden — are stored on your device in shared app storage and synced to your own Apple Watch over a direct local connection, never over the internet."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "您的显示和同步偏好（例如排序方式、文字大小以及隐藏哪些列表）存储在设备上的共享应用存储中，并通过本地直连同步到您自己的 Apple Watch，绝不经过互联网。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tus preferencias de visualización y sincronización (como el orden de clasificación, el tamaño de texto y qué listas están ocultas) se almacenan en tu dispositivo en el almacenamiento compartido de la app y se sincronizan con tu propio Apple Watch mediante una conexión local directa, nunca por internet."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "表示と同期の設定（並べ替え順、テキストサイズ、非表示にするリストなど）は、デバイスの共有アプリストレージに保存され、自宅の Apple Watch とは直接のローカル接続で同期されます。インターネットを経由することはありません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Anzeige- und Synchronisierungseinstellungen — etwa Sortierreihenfolge, Textgröße und welche Listen ausgeblendet sind — werden auf deinem Gerät im gemeinsamen App-Speicher gespeichert und über eine direkte lokale Verbindung mit deiner eigenen Apple Watch synchronisiert, niemals über das Internet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vos préférences d'affichage et de synchronisation — comme l'ordre de tri, la taille du texte et les listes masquées — sont stockées sur votre appareil dans le stockage partagé de l'app et synchronisées avec votre propre Apple Watch via une connexion locale directe, jamais via internet."
+          }
+        }
       }
     },
-    "Skipped reminders and excluded lists are stored on your device and synced to your Apple Watch over the same direct local connection. They never leave your devices." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Skipped reminders and excluded lists are stored on your device and synced to your Apple Watch over the same direct local connection. They never leave your devices." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跳过的提醒和排除的列表存储在您的设备上，并通过相同的本地直连同步到您的 Apple Watch。它们绝不会离开您的设备。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Los recordatorios omitidos y las listas excluidas se almacenan en tu dispositivo y se sincronizan con tu Apple Watch mediante la misma conexión local directa. Nunca salen de tus dispositivos." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スキップ済みのリマインダーと除外リストはデバイスに保存され、同じ直接のローカル接続で Apple Watch と同期されます。これらのデータがデバイスの外に出ることはありません。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Übersprungene Erinnerungen und ausgeschlossene Listen werden auf deinem Gerät gespeichert und über dieselbe direkte lokale Verbindung mit deiner Apple Watch synchronisiert. Sie verlassen deine Geräte nie." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Les rappels ignorés et les listes exclues sont stockés sur votre appareil et synchronisés avec votre Apple Watch via la même connexion locale directe. Ils ne quittent jamais vos appareils." } }
+    "Skipped reminders and excluded lists are stored on your device and synced to your Apple Watch over the same direct local connection. They never leave your devices.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skipped reminders and excluded lists are stored on your device and synced to your Apple Watch over the same direct local connection. They never leave your devices."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过的提醒和排除的列表存储在您的设备上，并通过相同的本地直连同步到您的 Apple Watch。它们绝不会离开您的设备。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Los recordatorios omitidos y las listas excluidas se almacenan en tu dispositivo y se sincronizan con tu Apple Watch mediante la misma conexión local directa. Nunca salen de tus dispositivos."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スキップ済みのリマインダーと除外リストはデバイスに保存され、同じ直接のローカル接続で Apple Watch と同期されます。これらのデータがデバイスの外に出ることはありません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Übersprungene Erinnerungen und ausgeschlossene Listen werden auf deinem Gerät gespeichert und über dieselbe direkte lokale Verbindung mit deiner Apple Watch synchronisiert. Sie verlassen deine Geräte nie."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les rappels ignorés et les listes exclues sont stockés sur votre appareil et synchronisés avec votre Apple Watch via la même connexion locale directe. Ils ne quittent jamais vos appareils."
+          }
+        }
       }
     },
-    "When the background is enabled, the background url and artist information is downloaded from a proxy at vardy.cc. This is the app's only network request, and it never includes any reminder, preference, or list data. This proxy is used to store an API key for Unsplash and keep API usage reasonable." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "When the background is enabled, the background url and artist information is downloaded from a proxy at vardy.cc. This is the app's only network request, and it never includes any reminder, preference, or list data. This proxy is used to store an API key for Unsplash and keep API usage reasonable." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "启用背景后，背景图片网址和摄影师信息会从 vardy.cc 的代理服务器下载。这是应用唯一的网络请求，绝不会包含任何提醒、偏好或列表数据。该代理用于存储 Unsplash 的 API 密钥并合理控制 API 使用量。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cuando el fondo está activado, la URL del fondo y la información del artista se descargan de un proxy en vardy.cc. Esta es la única solicitud de red de la app y nunca incluye datos de recordatorios, preferencias ni listas. Este proxy se utiliza para almacenar una clave de API de Unsplash y mantener un uso razonable de la API." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "背景を有効にすると、背景画像の URL とアーティスト情報が vardy.cc のプロキシからダウンロードされます。これはアプリで唯一のネットワークリクエストであり、リマインダー、設定、リストのデータが含まれることはありません。このプロキシは Unsplash の API キーを保管し、API の利用量を適切に保つために使用されます。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wenn der Hintergrund aktiviert ist, werden die Hintergrund-URL und Künstlerinformationen von einem Proxy auf vardy.cc heruntergeladen. Dies ist die einzige Netzwerkanfrage der App, und sie enthält niemals Erinnerungs-, Einstellungs- oder Listendaten. Der Proxy speichert einen API-Schlüssel für Unsplash und hält die API-Nutzung im Rahmen." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Lorsque l'arrière-plan est activé, l'URL de l'image et les informations sur l'artiste sont téléchargées depuis un proxy sur vardy.cc. C'est la seule requête réseau de l'app, et elle ne contient jamais de données de rappels, de préférences ou de listes. Ce proxy sert à stocker une clé API pour Unsplash et à maintenir une utilisation raisonnable de l'API." } }
+    "When the background is enabled, the background url and artist information is downloaded from a proxy at vardy.cc. This is the app's only network request, and it never includes any reminder, preference, or list data. This proxy is used to store an API key for Unsplash and keep API usage reasonable.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When the background is enabled, the background url and artist information is downloaded from a proxy at vardy.cc. This is the app's only network request, and it never includes any reminder, preference, or list data. This proxy is used to store an API key for Unsplash and keep API usage reasonable."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用背景后，背景图片网址和摄影师信息会从 vardy.cc 的代理服务器下载。这是应用唯一的网络请求，绝不会包含任何提醒、偏好或列表数据。该代理用于存储 Unsplash 的 API 密钥并合理控制 API 使用量。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando el fondo está activado, la URL del fondo y la información del artista se descargan de un proxy en vardy.cc. Esta es la única solicitud de red de la app y nunca incluye datos de recordatorios, preferencias ni listas. Este proxy se utiliza para almacenar una clave de API de Unsplash y mantener un uso razonable de la API."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "背景を有効にすると、背景画像の URL とアーティスト情報が vardy.cc のプロキシからダウンロードされます。これはアプリで唯一のネットワークリクエストであり、リマインダー、設定、リストのデータが含まれることはありません。このプロキシは Unsplash の API キーを保管し、API の利用量を適切に保つために使用されます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn der Hintergrund aktiviert ist, werden die Hintergrund-URL und Künstlerinformationen von einem Proxy auf vardy.cc heruntergeladen. Dies ist die einzige Netzwerkanfrage der App, und sie enthält niemals Erinnerungs-, Einstellungs- oder Listendaten. Der Proxy speichert einen API-Schlüssel für Unsplash und hält die API-Nutzung im Rahmen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorsque l'arrière-plan est activé, l'URL de l'image et les informations sur l'artiste sont téléchargées depuis un proxy sur vardy.cc. C'est la seule requête réseau de l'app, et elle ne contient jamais de données de rappels, de préférences ou de listes. Ce proxy sert à stocker une clé API pour Unsplash et à maintenir une utilisation raisonnable de l'API."
+          }
+        }
       }
     },
-    "SingleThread has no analytics, no tracking, and no advertising." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread has no analytics, no tracking, and no advertising." } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread 没有分析、跟踪和广告功能。" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread no tiene análisis, seguimiento ni publicidad." } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread には解析、トラッキング、広告は一切ありません。" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread enthält keine Analyse, kein Tracking und keine Werbung." } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "SingleThread n'a aucune analyse, aucun suivi et aucune publicité." } }
+    "SingleThread has no analytics, no tracking, and no advertising.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread has no analytics, no tracking, and no advertising."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread 没有分析、跟踪和广告功能。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread no tiene análisis, seguimiento ni publicidad."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread には解析、トラッキング、広告は一切ありません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread enthält keine Analyse, kein Tracking und keine Werbung."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SingleThread n'a aucune analyse, aucun suivi et aucune publicité."
+          }
+        }
       }
     },
-    "System" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "System" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "系统" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sistema" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "システム" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "System" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Système" } }
+    "System": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "系统"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sistema"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "システム"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Système"
+          }
+        }
       }
     },
-    "Light" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Light" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "浅色" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Claro" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ライト" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hell" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Clair" } }
+    "Light": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Light"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "浅色"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Claro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ライト"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hell"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clair"
+          }
+        }
       }
     },
-    "Dark" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dark" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "深色" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Oscuro" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "ダーク" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Dunkel" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Sombre" } }
+    "Dark": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dark"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "深色"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oscuro"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ダーク"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dunkel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sombre"
+          }
+        }
       }
     },
-    "Small" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Small" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "小" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Pequeño" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "小" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Klein" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Petit" } }
+    "Small": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Small"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pequeño"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "小"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klein"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Petit"
+          }
+        }
       }
     },
-    "Medium" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Medium" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "中" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mediano" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "中" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mittel" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Moyen" } }
+    "Medium": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mediano"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mittel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moyen"
+          }
+        }
       }
     },
-    "Large" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Large" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "大" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Grande" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "大" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Groß" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Grand" } }
+    "Large": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Large"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grande"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "大"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groß"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grand"
+          }
+        }
       }
     },
-    "Extra Large" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Extra Large" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "特大" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Extra grande" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "特大" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Extra groß" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Très grand" } }
+    "Extra Large": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extra Large"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特大"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extra grande"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "特大"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extra groß"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Très grand"
+          }
+        }
       }
     },
-    "Priority" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Priority" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "优先级" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Prioridad" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "優先度" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Priorität" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Priorité" } }
+    "Priority": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priority"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "优先级"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prioridad"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "優先度"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priorität"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Priorité"
+          }
+        }
       }
     },
-    "Due Date" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Due Date" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "截止日期" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Fecha de vencimiento" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "期限" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Fälligkeitsdatum" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Date d'échéance" } }
+    "Due Date": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Due Date"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "截止日期"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fecha de vencimiento"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "期限"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fälligkeitsdatum"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Date d'échéance"
+          }
+        }
       }
     },
-    "Title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Title" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "标题" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Título" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "タイトル" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Titel" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Titre" } }
+    "Title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Title"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "标题"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Título"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "タイトル"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Titre"
+          }
+        }
+      }
+    },
+    "Complete Reminder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete Reminder"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completar recordatorio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーを完了"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerung fertigstellen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminer le rappel"
+          }
+        }
+      }
+    },
+    "Skip Reminder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip Reminder"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir recordatorio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーをスキップ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerung überspringen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer le rappel"
+          }
+        }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

@@ -13,13 +13,21 @@ public nonisolated enum ReminderRecurrenceFormatter {
         let interval = first.interval
         switch first.frequency {
         case .daily:
-            return interval > 1 ? "Every \(interval) days" : "Daily"
+            return interval > 1
+                ? String(localized: "Every \(interval) days", table: "Localizable", bundle: .module)
+                : String(localized: "Daily", table: "Localizable", bundle: .module)
         case .weekly:
-            return interval > 1 ? "Every \(interval) weeks" : "Weekly"
+            return interval > 1
+                ? String(localized: "Every \(interval) weeks", table: "Localizable", bundle: .module)
+                : String(localized: "Weekly", table: "Localizable", bundle: .module)
         case .monthly:
-            return interval > 1 ? "Every \(interval) months" : "Monthly"
+            return interval > 1
+                ? String(localized: "Every \(interval) months", table: "Localizable", bundle: .module)
+                : String(localized: "Monthly", table: "Localizable", bundle: .module)
         case .yearly:
-            return interval > 1 ? "Every \(interval) years" : "Yearly"
+            return interval > 1
+                ? String(localized: "Every \(interval) years", table: "Localizable", bundle: .module)
+                : String(localized: "Yearly", table: "Localizable", bundle: .module)
         @unknown default:
             return nil
         }

@@ -521,9 +521,9 @@ Existing `String(localized: …title)` assertions already exercise the new bundl
 ### Verification
 
 #### Automated
-- [ ] `make test` passes — Core unit suites (ReminderSkip, ReminderRecurrenceFormatter, AppInfo, ReminderIntents) green under the default en locale.
-- [ ] `make build` succeeds — catalog wired through `Bundle.module`.
-- [ ] `make watch-build` succeeds — proves `Bundle.module` resolves inside the watch extension process (the design's open risk).
+- [x] `make test` passes — Core unit suites (ReminderSkip, ReminderRecurrenceFormatter, AppInfo, ReminderIntents) green under the default en locale.
+- [x] `make build` succeeds — catalog wired through `Bundle.module`.
+- [x] `make watch-build` succeeds — proves `Bundle.module` resolves inside the watch extension process (the design's open risk).
 
 #### Manual
 - [ ] Temporarily run one Core test with a `Locale(identifier: "zh-Hans")` override and confirm `displayName`/recurrence output changes (then revert) — sanity-checks that the catalog, not the fallback, is serving.

@@ -1,507 +1,1435 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "%@ priority" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "%@ priority" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ 优先级" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "prioridad %1$@" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "%1$@ の優先度" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "%1$@-Priorität" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "priorité %1$@" } }
+  "sourceLanguage": "en",
+  "strings": {
+    "%@ priority": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ priority"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ 优先级"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "prioridad %1$@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ の優先度"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@-Priorität"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "priorité %1$@"
+          }
+        }
       }
     },
-    "Alert" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Alert" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Alerta" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アラート" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Alarm" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Alerte" } }
+    "Alert": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alert"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alerta"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アラート"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alarm"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alerte"
+          }
+        }
       }
     },
-    "All Done" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "All Done" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "全部完成" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Todo completado" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "すべて完了" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Alles erledigt" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tout est terminé" } }
+    "All Done": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All Done"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "全部完成"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Todo completado"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "すべて完了"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alles erledigt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout est terminé"
+          }
+        }
       }
     },
-    "Complete" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Complete" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Completar" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "完了" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Fertig" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Terminer" } }
+    "Complete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completar"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fertig"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminer"
+          }
+        }
       }
     },
-    "Complete Reminder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Complete Reminder" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Completar recordatorio" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーを完了" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerung fertigstellen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Terminer le rappel" } }
+    "Complete reminder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Complete reminder"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completar recordatorio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーを完了"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerung fertigstellen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminer le rappel"
+          }
+        }
       }
     },
-    "Complete reminder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Complete reminder" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Completar recordatorio" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーを完了" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerung fertigstellen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Terminer le rappel" } }
+    "Completion glow": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Completion glow"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完成光效"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resplandor de finalización"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "完了グロー"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abschluss-Leuchten"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lueur de finalisation"
+          }
+        }
       }
     },
-    "Completion glow" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Completion glow" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "完成光效" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Resplandor de finalización" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "完了グロー" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abschluss-Leuchten" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Lueur de finalisation" } }
+    "Daily": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Daily"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每天"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diario"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "毎日"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Täglich"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les jours"
+          }
+        }
       }
     },
-    "Daily" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Daily" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每天" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Diario" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "毎日" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Täglich" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tous les jours" } }
+    "Delete": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "削除"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Löschen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer"
+          }
+        }
       }
     },
-    "Delete" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "削除" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Löschen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer" } }
+    "Delete reminder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete reminder"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "删除提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eliminar recordatorio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーを削除"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerung löschen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le rappel"
+          }
+        }
       }
     },
-    "Delete reminder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Delete reminder" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "删除提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Eliminar recordatorio" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーを削除" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerung löschen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Supprimer le rappel" } }
-      }
-    },
-    "Every %lld days" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Every %lld day" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Every %lld days" } }
+    "Every %lld days": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Every %lld day"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Every %lld days"
+                }
+              }
             }
           }
         },
-        "zh-Hans" : {
-          "variations" : {
-            "plural" : {
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "每 %lld 天" } }
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "每 %lld 天"
+                }
+              }
             }
           }
         },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Cada %lld día" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Cada %lld días" } }
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Cada %lld día"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Cada %lld días"
+                }
+              }
             }
           }
         },
-        "ja" : {
-          "variations" : {
-            "plural" : {
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld 日ごと" } }
+        "ja": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 日ごと"
+                }
+              }
             }
           }
         },
-        "de" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Alle %lld Tag" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Alle %lld Tage" } }
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alle %lld Tag"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alle %lld Tage"
+                }
+              }
             }
           }
         },
-        "fr" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Tous les %lld jour" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Tous les %lld jours" } }
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tous les %lld jour"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tous les %lld jours"
+                }
+              }
             }
           }
         }
       }
     },
-    "Every %lld months" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Every %lld month" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Every %lld months" } }
+    "Every %lld months": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Every %lld month"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Every %lld months"
+                }
+              }
             }
           }
         },
-        "zh-Hans" : {
-          "variations" : {
-            "plural" : {
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "每 %lld 个月" } }
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "每 %lld 个月"
+                }
+              }
             }
           }
         },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Cada %lld mes" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Cada %lld meses" } }
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Cada %lld mes"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Cada %lld meses"
+                }
+              }
             }
           }
         },
-        "ja" : {
-          "variations" : {
-            "plural" : {
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld か月ごと" } }
+        "ja": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld か月ごと"
+                }
+              }
             }
           }
         },
-        "de" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Alle %lld Monat" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Alle %lld Monate" } }
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alle %lld Monat"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alle %lld Monate"
+                }
+              }
             }
           }
         },
-        "fr" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Tous les %lld mois" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Tous les %lld mois" } }
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tous les %lld mois"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tous les %lld mois"
+                }
+              }
             }
           }
         }
       }
     },
-    "Every %lld weeks" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Every %lld week" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Every %lld weeks" } }
+    "Every %lld weeks": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Every %lld week"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Every %lld weeks"
+                }
+              }
             }
           }
         },
-        "zh-Hans" : {
-          "variations" : {
-            "plural" : {
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "每 %lld 周" } }
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "每 %lld 周"
+                }
+              }
             }
           }
         },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Cada %lld semana" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Cada %lld semanas" } }
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Cada %lld semana"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Cada %lld semanas"
+                }
+              }
             }
           }
         },
-        "ja" : {
-          "variations" : {
-            "plural" : {
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld 週間ごと" } }
+        "ja": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 週間ごと"
+                }
+              }
             }
           }
         },
-        "de" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Alle %lld Woche" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Alle %lld Wochen" } }
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alle %lld Woche"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alle %lld Wochen"
+                }
+              }
             }
           }
         },
-        "fr" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Toutes les %lld semaine" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Toutes les %lld semaines" } }
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Toutes les %lld semaine"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Toutes les %lld semaines"
+                }
+              }
             }
           }
         }
       }
     },
-    "Every %lld years" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Every %lld year" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Every %lld years" } }
+    "Every %lld years": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Every %lld year"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Every %lld years"
+                }
+              }
             }
           }
         },
-        "zh-Hans" : {
-          "variations" : {
-            "plural" : {
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "每 %lld 年" } }
+        "zh-Hans": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "每 %lld 年"
+                }
+              }
             }
           }
         },
-        "es" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Cada %lld año" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Cada %lld años" } }
+        "es": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Cada %lld año"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Cada %lld años"
+                }
+              }
             }
           }
         },
-        "ja" : {
-          "variations" : {
-            "plural" : {
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "%lld 年ごと" } }
+        "ja": {
+          "variations": {
+            "plural": {
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld 年ごと"
+                }
+              }
             }
           }
         },
-        "de" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Alle %lld Jahr" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Alle %lld Jahre" } }
+        "de": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alle %lld Jahr"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Alle %lld Jahre"
+                }
+              }
             }
           }
         },
-        "fr" : {
-          "variations" : {
-            "plural" : {
-              "one" : { "stringUnit" : { "state" : "translated", "value" : "Tous les %lld an" } },
-              "other" : { "stringUnit" : { "state" : "translated", "value" : "Tous les %lld ans" } }
+        "fr": {
+          "variations": {
+            "plural": {
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tous les %lld an"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "Tous les %lld ans"
+                }
+              }
             }
           }
         }
       }
     },
-    "High" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "High" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "高" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Alta" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "高" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Hoch" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Haute" } }
+    "High": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alta"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "高"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hoch"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haute"
+          }
+        }
       }
     },
-    "Low" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Low" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "低" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Baja" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "低" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Niedrig" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Basse" } }
+    "Low": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Baja"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "低"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Niedrig"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basse"
+          }
+        }
       }
     },
-    "Medium" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Medium" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "中" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Media" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "中" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Mittel" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Moyenne" } }
+    "Medium": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Medium"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Media"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "中"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mittel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Moyenne"
+          }
+        }
       }
     },
-    "Monthly" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Monthly" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每月" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Mensual" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "毎月" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Monatlich" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tous les mois" } }
+    "Monthly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monthly"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每月"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mensual"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "毎月"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monatlich"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les mois"
+          }
+        }
       }
     },
-    "No Reminders" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No Reminders" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "没有提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Sin recordatorios" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーなし" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Keine Erinnerungen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Aucun rappel" } }
+    "No Reminders": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Reminders"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sin recordatorios"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーなし"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Erinnerungen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun rappel"
+          }
+        }
       }
     },
-    "No reminders yet" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "No reminders yet" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "还没有提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Aún no hay recordatorios" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "まだリマインダーはありません" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Noch keine Erinnerungen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Pas encore de rappels" } }
+    "No reminders yet": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No reminders yet"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "还没有提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aún no hay recordatorios"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "まだリマインダーはありません"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noch keine Erinnerungen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pas encore de rappels"
+          }
+        }
       }
     },
-    "Nothing due right now" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nothing due right now" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "当前没有到期的事" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Nada pendiente por ahora" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "現在期限のものはありません" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Aktuell nichts fällig" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Rien à faire pour le moment" } }
+    "Nothing due right now": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing due right now"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "当前没有到期的事"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nada pendiente por ahora"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在期限のものはありません"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aktuell nichts fällig"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien à faire pour le moment"
+          }
+        }
       }
     },
-    "Reminders Access" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reminders Access" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "提醒访问权限" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Acceso a recordatorios" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーへのアクセス" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerungs-Zugriff" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Accès aux rappels" } }
+    "Reminders Access": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reminders Access"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "提醒访问权限"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Acceso a recordatorios"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーへのアクセス"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerungs-Zugriff"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès aux rappels"
+          }
+        }
       }
     },
-    "Repeats" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Repeats" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重复" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Se repite" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "繰り返し" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wiederholt" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Répète" } }
+    "Repeats": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Repeats"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "重复"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Se repite"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "繰り返し"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wiederholt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Répète"
+          }
+        }
       }
     },
-    "Requesting access…" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Requesting access…" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "正在请求访问…" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Solicitando acceso…" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "アクセスを要求中…" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Zugriff wird angefordert…" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Demande d'accès…" } }
+    "Requesting access…": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Requesting access…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在请求访问…"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Solicitando acceso…"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "アクセスを要求中…"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zugriff wird angefordert…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Demande d'accès…"
+          }
+        }
       }
     },
-    "Skip" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Skip" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跳过" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Omitir" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "スキップ" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Überspringen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Passer" } }
+    "Skip": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スキップ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Überspringen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer"
+          }
+        }
       }
     },
-    "Skip Reminder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Skip Reminder" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跳过提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Omitir recordatorio" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーをスキップ" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerung überspringen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Passer le rappel" } }
+    "Skip reminder": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip reminder"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "跳过提醒"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Omitir recordatorio"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "リマインダーをスキップ"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erinnerung überspringen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer le rappel"
+          }
+        }
       }
     },
-    "Skip reminder" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Skip reminder" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "跳过提醒" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Omitir recordatorio" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーをスキップ" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Erinnerung überspringen" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Passer le rappel" } }
+    "Version %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本 %@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versión %@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バージョン %@"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
+          }
+        }
       }
     },
-    "Version %@" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version %@" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "版本 %@" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión %@" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バージョン %@" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Version %@" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Version %@" } }
+    "Version %@ (%@)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@ (%@)"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "版本 %1$@ (%2$@)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versión %1$@ (%2$@)"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バージョン %1$@ (%2$@)"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %1$@ (%2$@)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %1$@ (%2$@)"
+          }
+        }
       }
     },
-    "Version %@ (%@)" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Version %@ (%@)" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "版本 %1$@ (%2$@)" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Versión %1$@ (%2$@)" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "バージョン %1$@ (%2$@)" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Version %1$@ (%2$@)" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Version %1$@ (%2$@)" } }
+    "Weekly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weekly"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每周"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Semanal"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "毎週"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wöchentlich"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toutes les semaines"
+          }
+        }
       }
     },
-    "Weekly" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Weekly" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每周" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Semanal" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "毎週" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Wöchentlich" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Toutes les semaines" } }
-      }
-    },
-    "Yearly" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : { "stringUnit" : { "state" : "translated", "value" : "Yearly" } },
-        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "每年" } },
-        "es" : { "stringUnit" : { "state" : "translated", "value" : "Anual" } },
-        "ja" : { "stringUnit" : { "state" : "translated", "value" : "毎年" } },
-        "de" : { "stringUnit" : { "state" : "translated", "value" : "Jährlich" } },
-        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Tous les ans" } }
+    "Yearly": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yearly"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "每年"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Anual"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "毎年"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jährlich"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les ans"
+          }
+        }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

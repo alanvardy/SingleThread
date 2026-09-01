@@ -39,9 +39,9 @@ public nonisolated enum ReminderPriority {
         /// Human-readable name used for accessibility labels on priority markers.
         public var displayName: String {
             switch self {
-            case .high: "High"
-            case .medium: "Medium"
-            case .low: "Low"
+            case .high: String(localized: "High", table: "Localizable", bundle: .module)
+            case .medium: String(localized: "Medium", table: "Localizable", bundle: .module)
+            case .low: String(localized: "Low", table: "Localizable", bundle: .module)
             }
         }
 
