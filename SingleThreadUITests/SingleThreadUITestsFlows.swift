@@ -14,6 +14,10 @@
 
 import XCTest
 
+// The flow suite racks up enough user-flow tests to push the class past the
+// 500-line limit; size is intentional (they are the end-to-end regression
+// guard for Complete/Skip/Delete/Undo/Settings/Background/Composition).
+// swiftlint:disable:next type_body_length
 final class SingleThreadUITestsFlows: XCTestCase {
 
     override func setUpWithError() throws {
@@ -107,6 +111,45 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(
             app.staticTexts["All Done"].waitForExistence(timeout: 5),
             "Skipping the only reminder should show the All Done state")
+    }
+
+    // MARK: - Skip refetch
+
+    /// The `--seed` schema has no `completed` flag, so the cross-device
+    /// completion is simulated the only way a single app process can: the
+    /// Complete swipe action (runs the real iOS save → settle → reload round
+    /// trip). After completing "CrossDevice" the app shows the next reminder
+    /// ("ToSkip"); skipping it fires the Stage 4 background refetch that must
+    /// not resurrect the completed card.
+    @MainActor
+    func testSkipWithCrossDeviceCompletionShowsOnlyRemainingReminder() {
+        // Three reminders: "CrossDevice" is completed (simulating the other
+        // device), "ToSkip" is skipped (triggering the new background refetch),
+        // "Remaining" is the only one left visible.
+        // swiftlint:disable:next line_length
+        let seed = #"{"reminders":[{"title":"CrossDevice","priority":1},{"title":"ToSkip","priority":2},{"title":"Remaining","priority":3}]}"#
+        let app = launchApp(seedJSON: seed)
+
+        // 1. Complete "CrossDevice" (simulates a cross-device completion).
+        XCTAssertTrue(app.staticTexts["CrossDevice"].waitForExistence(timeout: 5))
+        app.staticTexts["CrossDevice"].swipeRight()
+        let complete = app.buttons["Complete"]
+        XCTAssertTrue(complete.waitForExistence(timeout: 3))
+        complete.tap()
+
+        // 2. Skip "ToSkip" (fires the Stage 4 background refetch).
+        XCTAssertTrue(app.staticTexts["ToSkip"].waitForExistence(timeout: 5))
+        app.staticTexts["ToSkip"].swipeLeft()
+        let skip = app.buttons["Skip"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 3))
+        skip.tap()
+
+        // 3. Only the non-completed, non-skipped reminder is visible.
+        XCTAssertTrue(
+            app.staticTexts["Remaining"].waitForExistence(timeout: 5),
+            "The remaining reminder should be the only visible card")
+        XCTAssertFalse(app.staticTexts["CrossDevice"].exists, "Completed card must not resurrect")
+        XCTAssertFalse(app.staticTexts["ToSkip"].exists, "Skipped card must stay hidden")
     }
 
     // MARK: - Complete

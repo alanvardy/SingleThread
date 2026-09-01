@@ -794,8 +794,8 @@ Existing `testSkipAdvancesToNextReminder`, `testCompleteViaSwipeRemovesReminder`
 ### Verification
 
 #### Automated
-- [ ] `make ui-test` green, including the new `testSkipWithCrossDeviceCompletionShowsOnlyRemainingReminder`
-- [ ] Final full gate: `./scripts/test.sh` green end-to-end (format, lint, build, periphery, unit + UI + watch tests)
+- [x] `make ui-test` green, including the new `testSkipWithCrossDeviceCompletionShowsOnlyRemainingReminder`
+- [x] Final full gate: `./scripts/test.sh` green end-to-end (format, lint, build, periphery, unit + UI + watch tests)
 
 #### Manual
 - [ ] Run the app on iOS: seed two reminders, complete one, skip the other — only the remaining reminder (if any) shows, no completed card reappears after the skip.
