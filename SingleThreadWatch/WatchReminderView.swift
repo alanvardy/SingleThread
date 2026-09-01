@@ -46,7 +46,7 @@ struct WatchReminderView: View {
         Group {
             switch viewModel.store.authorizationStatus {
             case .notDetermined:
-                ProgressView("Requesting access…")
+                ProgressView(SharedStrings.requestingAccess)
             case .fullAccess:
                 reminderContent
             default:
@@ -108,22 +108,22 @@ struct WatchReminderView: View {
             Button {
                 Task { await viewModel.completeCurrentReminder() }
             } label: {
-                Label("Complete", systemImage: "checkmark.circle.fill")
+                Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
                     .labelStyle(.iconOnly)
             }
             .tint(.green)
-            .accessibilityLabel("Complete reminder")
+            .accessibilityLabel(SharedStrings.completeReminderAccessibility)
             .accessibilityIdentifier("completeButton")
             .accessibilityAddTraits(.isButton)
 
             Button {
                 viewModel.store.skipCurrentReminder()
             } label: {
-                Label("Skip", systemImage: "circle.slash")
+                Label(SharedStrings.skipAction, systemImage: "circle.slash")
                     .labelStyle(.iconOnly)
             }
             .tint(.orange)
-            .accessibilityLabel("Skip reminder")
+            .accessibilityLabel(SharedStrings.skipReminderAccessibility)
             .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
         }
@@ -148,7 +148,7 @@ struct WatchReminderView: View {
 
     private var allDoneState: some View {
         VStack(spacing: 6) {
-            Text("All Done")
+            Text(SharedStrings.allDone)
                 .font(.headline)
                 .accessibilityIdentifier("emptyStateTitle")
             refreshButton
@@ -157,10 +157,10 @@ struct WatchReminderView: View {
 
     private var noRemindersState: some View {
         VStack(spacing: 6) {
-            Text("No Reminders")
+            Text(SharedStrings.noReminders)
                 .foregroundStyle(.secondary)
                 .accessibilityIdentifier("emptyStateTitle")
-            Text(viewModel.store.hasHidden ? "Nothing due right now" : "No reminders yet")
+            Text(viewModel.store.hasHidden ? SharedStrings.nothingDueRightNow : SharedStrings.noRemindersYet)
                 .font(.caption2)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -180,7 +180,7 @@ struct WatchReminderView: View {
             .accessibilityHidden(!isGlowUITesting)
             .accessibilityElement(children: .ignore)
             .accessibilityIdentifier("completionGlowOverlay")
-            .accessibilityLabel("Completion glow")
+            .accessibilityLabel(SharedStrings.completionGlow)
             .transition(.opacity)
     }
 
@@ -213,6 +213,7 @@ struct WatchReminderView: View {
                 Button("Delete", role: .destructive) {
                     Task { await viewModel.store.deleteCurrentReminder() }
                 }
+                .accessibilityLabel(SharedStrings.deleteAction)
                 .accessibilityIdentifier("deleteButton")
             }
 
@@ -232,7 +233,7 @@ struct WatchReminderView: View {
                     Text(display.priorityMarker)
                         .font(.headline)
                         .foregroundStyle(priorityColor(level))
-                        .accessibilityLabel("\(level.displayName) priority")
+                        .accessibilityLabel(SharedStrings.priorityAccessibilityLabel(level.displayName))
                         .accessibilityIdentifier("priorityMarker")
                 }
                 Text(display.titleAttributed)
@@ -249,12 +250,12 @@ struct WatchReminderView: View {
                     .foregroundStyle(.secondary)
             }
             if viewModel.showRecurrenceState.isEnabled, display.hasRecurrence {
-                Label(display.recurrenceSummary ?? "Repeats", systemImage: "repeat")
+                Label(display.recurrenceSummary ?? SharedStrings.repeats, systemImage: "repeat")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
             if viewModel.showAlarmsState.isEnabled, display.hasAlarms {
-                Label("Alert", systemImage: "bell")
+                Label(SharedStrings.alert, systemImage: "bell")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
             }
