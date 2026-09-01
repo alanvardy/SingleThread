@@ -356,6 +356,9 @@ struct ContentView: View {
                         allDoneCopy.title,
                         systemImage: allDoneCopy.systemImage,
                         description: Text(allDoneCopy.description))
+                        .background(
+                            .regularMaterial,
+                            in: RoundedRectangle(cornerRadius: ReminderCardView.emptyStateCornerRadius))
                         .frame(minHeight: viewHeight, alignment: .center)
                 }
                 .scrollBounceBehavior(.always)
@@ -370,6 +373,9 @@ struct ContentView: View {
                             emptyCopy.title,
                             systemImage: emptyCopy.systemImage,
                             description: Text(emptyCopy.description))
+                            .background(
+                                .regularMaterial,
+                                in: RoundedRectangle(cornerRadius: ReminderCardView.emptyStateCornerRadius))
                             .frame(minHeight: viewHeight, alignment: .center)
                     }
                     .scrollBounceBehavior(.always)

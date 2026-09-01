@@ -141,8 +141,8 @@ ContentUnavailableView(
 ### Verification
 
 #### Automated
-- [ ] `make build` succeeds (no new compiler errors)
-- [ ] `make lint` passes (SwiftFormat + SwiftLint)
+- [x] `make build` succeeds (no new compiler errors)
+- [x] `make lint` passes (SwiftFormat + SwiftLint)
 
 #### Manual
 - [ ] Launch app with a photo background in light mode — "No Reminders" text is readable over the photo
