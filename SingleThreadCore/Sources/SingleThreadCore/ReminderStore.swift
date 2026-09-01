@@ -176,6 +176,11 @@ public final class ReminderStore {
             let removed = reminders.contains { $0.calendarItemIdentifier == identifier }
             reminders.removeAll { $0.calendarItemIdentifier == identifier }
             if removed {
+                // Track before the fire-and-forget relay so a reload before the
+                // phone processes it cannot resurrect (or double-complete) this
+                // reminder. Pruned by `reload()` once the phone catches up.
+                pendingCompletions.insert(identifier)
+                pendingCompletionStore.save(pendingCompletions)
                 onCompleteReminder?(identifier)
             }
             return removed

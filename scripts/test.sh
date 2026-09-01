@@ -218,13 +218,22 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
       build-for-testing \
-      -only-testing:SingleThreadWatchUITests
+      -only-testing:SingleThreadWatchUITests \
+      -only-testing:SingleThreadWatchTests
 
     xcodebuild -scheme "$WATCH_SCHEME" \
       -destination "$WATCH_TEST_SIM" \
       -derivedDataPath "$DERIVED_DATA" \
       test-without-building \
       -only-testing:SingleThreadWatchUITests
+
+    echo ""
+    echo "==> Watch unit tests…"
+    xcodebuild -scheme "$WATCH_SCHEME" \
+      -destination "$WATCH_TEST_SIM" \
+      -derivedDataPath "$DERIVED_DATA" \
+      test-without-building \
+      -only-testing:SingleThreadWatchTests
 
     echo ""
     echo "==> macOS build…"
