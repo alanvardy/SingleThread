@@ -287,9 +287,15 @@ final class AppViewModel {
         let entitlementStore = seed.isEntitled
             ? EntitlementStore(testingWithEntitled: true)
             : EntitlementStore()
+        // An empty + hidden seed must keep the store exactly as initialized:
+        // with `loadsReminders: true`, `start()` → `reload()` recomputes
+        // `hasHidden` from the broad fetch, and `InMemoryEventStore` returns the
+        // same list for narrow and broad fetches — resetting `hasHidden` to false.
+        let emptyWithHidden = seed.reminders.isEmpty && seed.hasHidden
         let store = ReminderStore(
             eventStore: inMemoryStore,
-            loadsReminders: true,
+            loadsReminders: !emptyWithHidden,
+            hasHidden: seed.hasHidden,
             completionCounter: CompletionCounterStore(
                 defaults: AppGroup.defaults,
                 key: "completionCount"),
