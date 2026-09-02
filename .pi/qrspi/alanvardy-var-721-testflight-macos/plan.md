@@ -161,11 +161,12 @@ include the expected totals, but not required).
 - [x] `bash -n scripts/test.sh` passes (syntax)
 - [x] `./scripts/test.sh --unit-only` passes (guard counts assert 20 target + 3 package literals, both matching)
 - [x] `./scripts/test.sh --ui-only` passes (guard runs in all modes)
-- [ ] Full `./scripts/test.sh` runs `SingleThreadTests` on `platform=macOS` and completes green (this is the CI-identical gate — run once at the end of implementation, not per-phase)
+- [x] Full `./scripts/test.sh` runs `SingleThreadTests` on `platform=macOS` and completes green — **PASSED end-to-end** on 2026-09-02 (`✅ All CI checks passed.`, exit 0). Two environment adaptations were required: (1) a web search showed CI already covers watch/pair infra; (2) this machine's watchOS 26.5 simruntime is missing `lib_TestingInterop.dylib` so the watch UI runner crashes at launch — fixed by commit `8b26d8c` which bundles the Xcode-side lib into the runner (no-op on CI). Manual confirmation of the `==> macOS unit tests…` step in the full-gate output:
+  - [x] Full-mode output shows the `==> macOS unit tests…` step and the pass banner after it (observed in the green run)
 - [x] `make mac-test` still green and unchanged — used as the macOS-step proxy (same `test -only-testing:SingleThreadTests` on `platform=macOS` command the new full-mode step runs; passed on `My Mac`)
 
 #### Manual
-- [ ] Confirm the full-mode output now shows a `==> macOS unit tests…` step (not `==> macOS build…`) and the pass banner appears after it
+- [x] Confirm the full-mode output now shows a `==> macOS unit tests…` step (not `==> macOS build…`) — **confirmed in the green 2026-09-02 full run** (log line 2528: `==> macOS unit tests…`, followed by `✅ All CI checks passed.`)
 
 ---
 
@@ -316,11 +317,11 @@ reproducible, no rediscovery):
 
 ## End-to-End Checklist (run once, after all stages)
 
-- [ ] `make format` then `make lint` pass (no Swift changes in this ticket, but the guard edits in `test.sh` are bash — `bash -n` covers them; run lint anyway to keep the gate honest)
-- [ ] Full `./scripts/test.sh` passes end-to-end (now includes the macOS `SingleThreadTests` run)
-- [ ] `make build` and `make mac-build` both green
-- [ ] `plutil -lint SingleThread/SingleThread.entitlements exportOptions.plist` green
-- [ ] `bash -n scripts/test.sh scripts/distribute-macos.sh` green
+- [x] `make format` then `make lint` pass (no Swift changes in this ticket, but the guard edits in `test.sh` are bash — `bash -n` covers them; run lint anyway to keep the gate honest) — **passed in the full gate** (format/lint/SwiftLint steps all green)
+- [x] Full `./scripts/test.sh` passes end-to-end (now includes the macOS `SingleThreadTests` run) — **green 2026-09-02** (exit 0; includes the local `lib_TestingInterop` workaround commit `8b26d8c`)
+- [x] `make build` and `make mac-build` both green — verified during Stage 1/Phase 1 (`TEST BUILD SUCCEEDED` / macOS `BUILD SUCCEEDED`)
+- [x] `plutil -lint SingleThread/SingleThread.entitlements exportOptions.plist` green — both pass
+- [x] `bash -n scripts/test.sh scripts/distribute-macos.sh` green — both pass
 
 ## Notes on Deviations from structure.md
 
