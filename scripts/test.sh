@@ -109,12 +109,12 @@ cleanup_xctest_runtimes
 # those platforms — so those floors stay 26.5 while all iOS IPHONEOS floors drop):
 #   IPHONEOS_DEPLOYMENT_TARGET (all 8: app, unit + UI tests, widget) = 18.7
 #   MACOSX_DEPLOYMENT_TARGET   (all 6: app, unit + UI tests)         = 26.5
-#   WATCHOS_DEPLOYMENT_TARGET  (all 2: watch target)                 = 26.5
+#   WATCHOS_DEPLOYMENT_TARGET  (all 6: watch app + watch UI tests + watch tests) = 26.5
 #   Package.swift floor literals: .iOS = 18.7, .watchOS = 26.5, .macOS = 26.5
 DEPLOYMENT_TARGET_IOS="${DEPLOYMENT_TARGET_IOS:-18.7}"
 DEPLOYMENT_TARGET_OTHER="${DEPLOYMENT_TARGET_OTHER:-26.5}"
-EXPECTED_TARGET_LITERALS=16    # all *_DEPLOYMENT_TARGET in project.pbxproj
-EXPECTED_PACKAGE_LITERALS=3     # .iOS/.watchOS/.macOS in Package.swift
+EXPECTED_TARGET_LITERALS=20    # all *_DEPLOYMENT_TARGET in project.pbxproj (8+6+6)
+EXPECTED_PACKAGE_LITERALS=3    # .iOS/.watchOS/.macOS in Package.swift
 
 verify_deployment_target() {
     local pbxproj="SingleThread.xcodeproj/project.pbxproj"
@@ -170,6 +170,11 @@ verify_deployment_target() {
             fi
         fi
     done < "$package"
+
+    # 3) Literal-count drift checks: the guard must also catch a target or
+    #    package platform being added or removed (not just a value change).
+    [[ $((ios_target + other_target)) -eq "$EXPECTED_TARGET_LITERALS" ]] || drift=1
+    [[ $((pkg_ios + pkg_other)) -eq "$EXPECTED_PACKAGE_LITERALS" ]] || drift=1
 
     if [[ "$drift" -eq 1 ]]; then
         echo ""
@@ -264,13 +269,13 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -only-testing:SingleThreadWatchTests
 
     echo ""
-    echo "==> macOS build…"
+    echo "==> macOS unit tests…"
     xcodebuild -scheme "$SCHEME" \
       -destination "$MAC_SIM" \
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
       CODE_SIGNING_ALLOWED=NO \
-      build
+      test -only-testing:SingleThreadTests
 
     echo ""
     echo "✅ All CI checks passed."

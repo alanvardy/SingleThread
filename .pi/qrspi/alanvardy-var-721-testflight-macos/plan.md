@@ -158,11 +158,11 @@ include the expected totals, but not required).
 ### Verification
 
 #### Automated
-- [ ] `bash -n scripts/test.sh` passes (syntax)
-- [ ] `./scripts/test.sh --unit-only` passes (guard counts assert 20 target + 3 package literals, both matching)
-- [ ] `./scripts/test.sh --ui-only` passes (guard runs in all modes)
+- [x] `bash -n scripts/test.sh` passes (syntax)
+- [x] `./scripts/test.sh --unit-only` passes (guard counts assert 20 target + 3 package literals, both matching)
+- [x] `./scripts/test.sh --ui-only` passes (guard runs in all modes)
 - [ ] Full `./scripts/test.sh` runs `SingleThreadTests` on `platform=macOS` and completes green (this is the CI-identical gate — run once at the end of implementation, not per-phase)
-- [ ] `make mac-test` still green and unchanged
+- [x] `make mac-test` still green and unchanged — used as the macOS-step proxy (same `test -only-testing:SingleThreadTests` on `platform=macOS` command the new full-mode step runs; passed on `My Mac`)
 
 #### Manual
 - [ ] Confirm the full-mode output now shows a `==> macOS unit tests…` step (not `==> macOS build…`) and the pass banner appears after it
