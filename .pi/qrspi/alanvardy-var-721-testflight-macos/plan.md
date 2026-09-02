@@ -77,11 +77,11 @@ comments as unique anchors spanning down to their `SUPPORTED_PLATFORMS` lines.
 ### Verification
 
 #### Automated
-- [ ] `plutil -lint SingleThread/SingleThread.entitlements` → `SingleThread/SingleThread.entitlements: OK`
-- [ ] `grep -n 'SUPPORTED_PLATFORMS' SingleThread.xcodeproj/project.pbxproj` shows the widget at 1016/1047 as `"iphoneos iphonesimulator";` and the app/tests/UI-tests blocks still `"iphoneos iphonesimulator macosx"`
-- [ ] `make build` (iOS) stays green — widget still embeds on iOS only (`platformFilter = ios` unchanged)
-- [ ] `make mac-build` stays green (unsigned → the new entitlement has no runtime effect yet)
-- [ ] `./scripts/test.sh --unit-only` deployment-target guard stays green (the widget declares no `MACOSX_DEPLOYMENT_TARGET`, so the 6-literal count is unchanged)
+- [x] `plutil -lint SingleThread/SingleThread.entitlements` → `SingleThread/SingleThread.entitlements: OK`
+- [x] `grep -n 'SUPPORTED_PLATFORMS' SingleThread.xcodeproj/project.pbxproj` shows the widget at 1016/1047 as `"iphoneos iphonesimulator";` and the app/tests/UI-tests blocks still `"iphoneos iphonesimulator macosx"`
+- [x] `make build` (iOS) stays green — widget still embeds on iOS only (`platformFilter = ios` added to the widget embed build-file — the plan asserted it already existed, but only the target dependency had it; without it `make mac-build` breaks with a PlugIns copy step)
+- [x] `make mac-build` stays green (unsigned → the new entitlement has no runtime effect yet)
+- [x] `./scripts/test.sh --unit-only` deployment-target guard stays green (the widget declares no `MACOSX_DEPLOYMENT_TARGET`, so the 6-literal count is unchanged)
 
 #### Manual
 - [ ] Open the pbxproj in Xcode (or inspect) — the `SingleThreadWidget` target shows no macOS in Supported Platforms; the `SingleThread` app target still shows iPhone/iPad/Mac
