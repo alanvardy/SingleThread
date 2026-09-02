@@ -670,6 +670,18 @@ final class SingleThreadUITestsFlows: SingleThreadUITestCase {
     }
 
     @MainActor
+    func testUnresolvedEntitlementRendersNoUpgradeButton() {
+        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"entitlementUnresolved":true}"#
+        let app = launchApp(seedJSON: seed)
+
+        // While entitlement is unresolved, the upgrade button must not exist —
+        // neither the gated prompt nor the action cluster should flash in.
+        XCTAssertFalse(
+            app.buttons["upgradeButton"].waitForExistence(timeout: 2),
+            "Upgrade button must not appear when entitlement is unresolved")
+    }
+
+    @MainActor
     func testSettingsHasPurchaseRow() {
         let seed = #"{"reminders":[{"title":"Buy groceries"}]}"#
         let app = launchSeeded(seed)

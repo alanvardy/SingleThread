@@ -623,7 +623,9 @@ extension ContentView {
                 recordingIndicator
             } else if viewModel.dictation.canDictate, showMicrophoneButton {
                 #if os(iOS)
-                    if !viewModel.store.canMutate {
+                    if !viewModel.store.entitlementStore.hasResolvedEntitlement {
+                        EmptyView()
+                    } else if !viewModel.store.canMutate {
                         upgradePrompt
                     } else if viewModel.showsActionButtons {
                         actionCluster
