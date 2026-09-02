@@ -27,18 +27,13 @@ struct ReminderCardView: View {
 
     // MARK: Internal
 
-    /// Dark grey plate behind the swipe instructions and Dismiss button so the
-    /// coloured hints read as one dismissible prompt on the card — in both the
-    /// off-white (light) and black (dark) card-plate modes. Extracted because
-    /// the rendered paint can't be asserted headlessly — tests assert this
-    /// decision instead.
-    static let promptBoxFill = Color(red: 0.16, green: 0.17, blue: 0.18)
+    /// Forwarded to `CardPlate.promptBoxFill`; kept so existing call sites and
+    /// tests compile until the full migration lands. See `CardPlate.swift`.
+    static let promptBoxFill = CardPlate.promptBoxFill
 
-    /// Shared corner radius for every content plate — the card text plate, the
-    /// empty-state card plate, and the swipe-prompt box. Extracted because the
-    /// rendered shape can't be asserted headlessly — tests assert this
-    /// decision instead.
-    static let plateCornerRadius: CGFloat = 10
+    /// Forwarded to `CardPlate.cornerRadius`; kept so existing call sites and
+    /// tests compile until the full migration lands. See `CardPlate.swift`.
+    static let plateCornerRadius: CGFloat = CardPlate.cornerRadius
 
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
@@ -60,12 +55,10 @@ struct ReminderCardView: View {
         .padding(-12)
     }
 
-    /// Small content-sized high-contrast plate behind the card text: off-white in
-    /// light, black in dark, so the text stays readable over a photo or wallpaper.
-    /// Extracted because the rendered paint can't be asserted headlessly — tests
-    /// assert this decision instead.
+    /// Forwarded to `CardPlate.plateFill(for:)`; kept so existing call sites
+    /// and tests compile until the full migration lands. See `CardPlate.swift`.
     static func plateFill(for colorScheme: ColorScheme) -> Color {
-        colorScheme == .dark ? Color.black : Color(red: 0.96, green: 0.95, blue: 0.94)
+        CardPlate.plateFill(for: colorScheme)
     }
 
     // MARK: Private
