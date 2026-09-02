@@ -292,9 +292,9 @@ func testUnresolvedEntitlementRendersNoUpgradeButton() {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -project SingleThread.xcodeproj -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' -only-testing:SingleThreadUITests/SingleThreadUITestsFlows` passes — new `testUnresolvedEntitlementRendersNoUpgradeButton` green
-- [ ] Existing `testUpgradePromptAppearsWhenGated` and `testActionClusterAppearsWhenEntitledAtCap` still pass (unchanged seeds)
-- [ ] `xcodebuild test -project SingleThread.xcodeproj -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' -only-testing:SingleThreadTests/EntitlementSyncTests` passes — `pushAllIncludesEntitledWhenFlagEnabled` still asserts `context["isEntitled"] == false` (watch payload contract preserved)
+- [x] `xcodebuild test -project SingleThread.xcodeproj -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' -only-testing:SingleThreadUITests/SingleThreadUITestsFlows` passes — new `testUnresolvedEntitlementRendersNoUpgradeButton` green
+- [x] Existing `testUpgradePromptAppearsWhenGated` and `testActionClusterAppearsWhenEntitledAtCap` still pass (unchanged seeds)
+- [x] `xcodebuild test -project SingleThread.xcodeproj -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' -only-testing:SingleThreadTests/EntitlementSyncTests` passes — `pushAllIncludesEntitledWhenFlagEnabled` still asserts `context["isEntitled"] == false` (watch payload contract preserved)
 
 #### Manual
 - [ ] Visual check (simulator): launch with `--seed '{"reminders":[{"title":"Test"}],"completionCount":100,"isEntitled":false}'` — upgrade prompt appears in bottom bar (no regression)
