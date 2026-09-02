@@ -221,8 +221,8 @@ func entitlementUnresolvedDefaultsWhenAbsent() {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -project SingleThread.xcodeproj -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' -only-testing:SingleThreadTests/EntitlementStoreTests` passes — includes `unresolvedSeamLeavesFlagsFalse` + existing tests
-- [ ] `xcodebuild test -project SingleThread.xcodeproj -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' -only-testing:SingleThreadTests/UITestingSeedTests` passes — includes `parsesEntitlementUnresolved` and `entitlementUnresolvedDefaultsWhenAbsent` + existing tests
+- [x] `xcodebuild test -project SingleThread.xcodeproj -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' -only-testing:SingleThreadTests/EntitlementStoreTests` passes — includes `unresolvedSeamLeavesFlagsFalse` + existing tests
+- [x] `xcodebuild test -project SingleThread.xcodeproj -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26.1' -only-testing:SingleThreadTests/UITestingSeedTests` passes — includes `parsesEntitlementUnresolved` and `entitlementUnresolvedDefaultsWhenAbsent` + existing tests
 
 #### Manual
 - [ ] None

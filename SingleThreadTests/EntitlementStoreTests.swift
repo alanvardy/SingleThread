@@ -32,6 +32,13 @@ struct EntitlementStoreTests {
     }
 
     @Test
+    func unresolvedSeamLeavesFlagsFalse() {
+        let store = EntitlementStore(testingWithEntitlementUnresolved: ())
+        #expect(!store.isEntitled)
+        #expect(!store.hasResolvedEntitlement)
+    }
+
+    @Test
     func isEntitledSurvivesStoreRecreation() async throws {
         let session = try SKTestSession(configurationFileNamed: "Products")
         session.disableDialogs = true

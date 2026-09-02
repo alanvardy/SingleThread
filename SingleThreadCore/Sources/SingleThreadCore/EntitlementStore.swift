@@ -33,6 +33,13 @@ public final class EntitlementStore {
         observationTask = nil
     }
 
+    /// UI-test seam: leaves both `isEntitled` and `hasResolvedEntitlement`
+    /// false with no observation task, so the UI deterministically renders
+    /// the pre-resolution state (no upgrade button, no action cluster).
+    public init(testingWithEntitlementUnresolved _: ()) {
+        observationTask = nil
+    }
+
     deinit {
         observationTask?.cancel()
     }
