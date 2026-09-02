@@ -163,43 +163,6 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
     }
 
     @MainActor
-    func testCompletionGlowDoesNotAppearWhenDisabled() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "--ui-testing-glow-disabled"]
-        app.launch()
-        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
-
-        let complete = app.buttons["completeButton"]
-        XCTAssertTrue(complete.waitForExistence(timeout: 3))
-        complete.tap()
-
-        XCTAssertTrue(
-            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
-            "Completing should empty the list")
-        XCTAssertFalse(
-            app.otherElements["completionGlowOverlay"].exists,
-            "Glow should be suppressed when disabled")
-    }
-
-    @MainActor
-    func testCompletionGlowFlashesWhenEnabled() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "--ui-testing-glow"]
-        app.launch()
-        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
-
-        let complete = app.buttons["completeButton"]
-        XCTAssertTrue(complete.waitForExistence(timeout: 3))
-        complete.tap()
-
-        // Glow duration is extended to 2 s under the seam, so `waitForExistence`
-        // is deterministic.
-        XCTAssertTrue(
-            app.otherElements["completionGlowOverlay"].waitForExistence(timeout: 3),
-            "Glow overlay should flash briefly after completion")
-    }
-
-    @MainActor
     func testCompleteHoldsCardDuringGlow() {
         let app = XCUIApplication()
         app.launchArguments = ["--ui-testing", "--ui-testing-glow"]

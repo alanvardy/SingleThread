@@ -1,44 +1,7 @@
 #if os(iOS)
 import XCTest
 
-final class NotificationsUITests: XCTestCase {
-
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-    }
-
-    /// Launches with `--seed`. The notifications scheduling seam flag is opt-in
-    /// (`notificationsSeam:`) so the accessibility-audit test runs with the seam
-    /// overlay hidden, exactly as the plan specifies.
-    @MainActor
-    private func launchApp(seedJSON: String, notificationsSeam: Bool = false) -> XCUIApplication {
-        let app = XCUIApplication()
-        var arguments = ["--seed", seedJSON]
-        if notificationsSeam {
-            arguments.append("--ui-testing-notifications")
-        }
-        app.launchArguments = arguments
-        app.launch()
-        return app
-    }
-
-    /// SwiftUI Form rows expose a nested switch control; tapping the outer row
-    /// is swallowed, so tap the inner control until it flips to the target.
-    @MainActor
-    private func flipToggle(_ toggle: XCUIElement, target: String = "1") -> Bool {
-        let inner = toggle.switches.firstMatch
-        let tapTarget = inner.exists ? inner : toggle
-        for _ in 0..<3 {
-            if toggle.value as? String == target { return true }
-            tapTarget.tap()
-            let deadline = Date().addingTimeInterval(1)
-            while Date() < deadline {
-                if toggle.value as? String == target { return true }
-                usleep(100_000)
-            }
-        }
-        return toggle.value as? String == target
-    }
+final class NotificationsUITests: SingleThreadUITestCase {
 
     /// The menu-style picker button's label combines the title and the current
     /// value (e.g. "Remind after, 48 hours"). The picker has the
@@ -46,22 +9,6 @@ final class NotificationsUITests: XCTestCase {
     @MainActor
     private func remindAfterPicker(_ app: XCUIApplication) -> XCUIElement {
         app.buttons["notificationIntervalPicker"].firstMatch
-    }
-
-    /// Reads an app-side seam status element's label. The UI-test runner cannot
-    /// query the app's own notification store, so assertions read the pending /
-    /// last-schedule snapshots the app exposes under `--ui-testing-notifications`.
-    @MainActor
-    private func statusLabel(_ app: XCUIApplication, identifier: String) -> String? {
-        let other = app.otherElements[identifier]
-        if other.waitForExistence(timeout: 3) {
-            return other.label
-        }
-        let text = app.staticTexts[identifier]
-        if text.waitForExistence(timeout: 1) {
-            return text.label
-        }
-        return nil
     }
 
     /// Navigates Settings → Notifications, asserts the defaults (toggle OFF,
@@ -98,9 +45,9 @@ final class NotificationsUITests: XCTestCase {
 
     @MainActor
     func testFullNotificationFlow() async throws {
-        let app = launchApp(
-            seedJSON: #"{"reminders":[{"title":"Buy groceries"},{"title":"Call mom"}]}"#,
-            notificationsSeam: true)
+        let app = launchSeeded(
+            #"{"reminders":[{"title":"Buy groceries"},{"title":"Call mom"}]}"#,
+            extra: ["--ui-testing-notifications"])
 
         // 1. Verify reminders are visible.
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
@@ -154,7 +101,7 @@ final class NotificationsUITests: XCTestCase {
 
     @MainActor
     func testAccessibilityAudit() throws {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Test"}]}"#)
+        let app = launchSeeded(#"{"reminders":[{"title":"Test"}]}"#)
         XCTAssertTrue(app.staticTexts["Test"].waitForExistence(timeout: 5))
 
         app.buttons["settingsButton"].tap()

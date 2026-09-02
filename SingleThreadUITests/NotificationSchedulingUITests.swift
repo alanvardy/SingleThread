@@ -1,19 +1,7 @@
 #if os(iOS)
 import XCTest
 
-final class NotificationSchedulingUITests: XCTestCase {
-
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-    }
-
-    @MainActor
-    private func launchApp(seedJSON: String) -> XCUIApplication {
-        let app = XCUIApplication()
-        app.launchArguments = ["--seed", seedJSON, "--ui-testing-notifications"]
-        app.launch()
-        return app
-    }
+final class NotificationSchedulingUITests: SingleThreadUITestCase {
 
     /// Enables the notifications toggle via Settings → Notifications, accepting
     /// the system authorization prompt if it appears, then returns to the main
@@ -40,24 +28,6 @@ final class NotificationSchedulingUITests: XCTestCase {
         app.buttons["settingsDoneButton"].tap()
     }
 
-    /// SwiftUI Form rows expose a nested switch control; tapping the outer row
-    /// element is swallowed, so tap the inner control until it flips.
-    @MainActor
-    private func flipToggle(_ toggle: XCUIElement, target: String = "1") -> Bool {
-        let inner = toggle.switches.firstMatch
-        let tapTarget = inner.exists ? inner : toggle
-        for _ in 0..<3 {
-            if toggle.value as? String == target { return true }
-            tapTarget.tap()
-            let deadline = Date().addingTimeInterval(1)
-            while Date() < deadline {
-                if toggle.value as? String == target { return true }
-                usleep(100_000)
-            }
-        }
-        return toggle.value as? String == target
-    }
-
     @MainActor
     private func backgroundAndForeground(_ app: XCUIApplication) async throws {
         XCUIDevice.shared.press(.home)
@@ -67,28 +37,17 @@ final class NotificationSchedulingUITests: XCTestCase {
     }
 
     @MainActor
-    private func pendingLabel(_ app: XCUIApplication, identifier: String) -> String? {
-        let other = app.otherElements[identifier]
-        if other.waitForExistence(timeout: 3) {
-            return other.label
-        }
-        let text = app.staticTexts[identifier]
-        if text.waitForExistence(timeout: 1) {
-            return text.label
-        }
-        return nil
-    }
-
-    @MainActor
     func testSchedulingOnBackground() async throws {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"},{"title":"Call mom"}]}"#)
+        let app = launchSeeded(
+            #"{"reminders":[{"title":"Buy groceries"},{"title":"Call mom"}]}"#,
+            extra: ["--ui-testing-notifications"])
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         enableNotifications(app)
 
         try await backgroundAndForeground(app)
 
-        let lastSchedule = pendingLabel(app, identifier: "lastScheduleStatus")
+        let lastSchedule = statusLabel(app, identifier: "lastScheduleStatus")
         XCTAssertNotNil(lastSchedule, "A notification should have been scheduled on background")
         XCTAssertTrue(
             lastSchedule?.contains("count=1") == true,
@@ -103,7 +62,9 @@ final class NotificationSchedulingUITests: XCTestCase {
 
     @MainActor
     func testCancelOnForeground() async throws {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
+        let app = launchSeeded(
+            #"{"reminders":[{"title":"Buy groceries"}]}"#,
+            extra: ["--ui-testing-notifications"])
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         enableNotifications(app)
@@ -112,14 +73,14 @@ final class NotificationSchedulingUITests: XCTestCase {
 
         // Foregrounding (`app.activate()`) should have cancelled pending requests,
         // so the pending seam reports zero.
-        let pending = pendingLabel(app, identifier: "pendingStatus")
+        let pending = statusLabel(app, identifier: "pendingStatus")
         XCTAssertNotNil(pending, "Pending seam should be present")
         XCTAssertTrue(
             pending?.contains("count=0") == true,
             "Pending should be cancelled on foreground, got: \(pending ?? "nil")")
 
         // The request WAS scheduled before cancellation.
-        let lastSchedule = pendingLabel(app, identifier: "lastScheduleStatus")
+        let lastSchedule = statusLabel(app, identifier: "lastScheduleStatus")
         XCTAssertTrue(
             lastSchedule?.contains("count=1") == true,
             "A request should have been scheduled before cancellation")
@@ -127,7 +88,9 @@ final class NotificationSchedulingUITests: XCTestCase {
 
     @MainActor
     func testNoScheduleWhenDisabled() async throws {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
+        let app = launchSeeded(
+            #"{"reminders":[{"title":"Buy groceries"}]}"#,
+            extra: ["--ui-testing-notifications"])
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         // Leave the toggle OFF (default).
@@ -135,12 +98,12 @@ final class NotificationSchedulingUITests: XCTestCase {
         try await backgroundAndForeground(app)
 
         // Nothing scheduled, so the last-schedule status is never set.
-        let lastSchedule = pendingLabel(app, identifier: "lastScheduleStatus")
+        let lastSchedule = statusLabel(app, identifier: "lastScheduleStatus")
         XCTAssertFalse(
             lastSchedule?.contains("count=1") == true,
             "No notification should be scheduled when the toggle is off")
 
-        let pending = pendingLabel(app, identifier: "pendingStatus")
+        let pending = statusLabel(app, identifier: "pendingStatus")
         XCTAssertTrue(
             pending?.contains("count=0") == true,
             "No pending notification when disabled, got: \(pending ?? "nil")")
@@ -148,7 +111,9 @@ final class NotificationSchedulingUITests: XCTestCase {
 
     @MainActor
     func testNoScheduleWhenNoReminders() async throws {
-        let app = launchApp(seedJSON: #"{"reminders":[]}"#)
+        let app = launchSeeded(
+            #"{"reminders":[]}"#,
+            extra: ["--ui-testing-notifications"])
 
         XCTAssertTrue(app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5))
         enableNotifications(app)
@@ -156,12 +121,12 @@ final class NotificationSchedulingUITests: XCTestCase {
         try await backgroundAndForeground(app)
 
         // No reminders to schedule for, so the last-schedule status is never set.
-        let lastSchedule = pendingLabel(app, identifier: "lastScheduleStatus")
+        let lastSchedule = statusLabel(app, identifier: "lastScheduleStatus")
         XCTAssertFalse(
             lastSchedule?.contains("count=1") == true,
             "No notification should be scheduled when no reminders exist")
 
-        let pending = pendingLabel(app, identifier: "pendingStatus")
+        let pending = statusLabel(app, identifier: "pendingStatus")
         XCTAssertTrue(
             pending?.contains("count=0") == true,
             "No pending notification with no reminders, got: \(pending ?? "nil")")

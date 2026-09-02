@@ -1,22 +1,10 @@
 import XCTest
 
-final class NotificationsSettingsUITests: XCTestCase {
-
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-    }
-
-    @MainActor
-    private func launchApp(seedJSON: String) -> XCUIApplication {
-        let app = XCUIApplication()
-        app.launchArguments = ["--seed", seedJSON]
-        app.launch()
-        return app
-    }
+final class NotificationsSettingsUITests: SingleThreadUITestCase {
 
     @MainActor
     func testNotificationsToggleExists() {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Test"}]}"#)
+        let app = launchSeeded(#"{"reminders":[{"title":"Test"}]}"#)
 
         XCTAssertTrue(app.staticTexts["Test"].waitForExistence(timeout: 5))
         app.buttons["settingsButton"].tap()
@@ -33,7 +21,7 @@ final class NotificationsSettingsUITests: XCTestCase {
 
     @MainActor
     func testIntervalPickerOptions() {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Test"}]}"#)
+        let app = launchSeeded(#"{"reminders":[{"title":"Test"}]}"#)
 
         XCTAssertTrue(app.staticTexts["Test"].waitForExistence(timeout: 5))
         app.buttons["settingsButton"].tap()

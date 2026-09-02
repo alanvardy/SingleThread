@@ -499,10 +499,10 @@ Net iOS launches: 20 (24 single-occurrence baseline − 4 saves from the two mer
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild -only-testing:SingleThreadUITests -destination "$SIM" -derivedDataPath DerivedData test-without-building` — green
-- [ ] `xcodebuild -only-testing:SingleThreadWatchUITests -destination "$WATCH_TEST_SIM" -derivedDataPath DerivedData test-without-building` — green
-- [ ] `bash scripts/count_tests.sh` → `launches` down from the Phase 1 baseline of **35** (iOS **24** → ~20, watch **11** → 9), matching the plan's merge/delete arithmetic
-- [ ] `grep -rc "private func launchApp\|private func flipToggle" SingleThreadUITests/` → 0 (all centralized)
+- [x] `xcodebuild -only-testing:SingleThreadUITests -destination "$SIM" -derivedDataPath DerivedData test-without-building` — green (41 tests on iPhone 17; the single earlier isolate failure was simulator Busy/RequestDenied contention — passed cleanly in isolation and in the full rerun)
+- [x] `xcodebuild -only-testing:SingleThreadWatchUITests -destination "$WATCH_TEST_SIM" -derivedDataPath DerivedData test-without-building` — green (24 tests)
+- [x] `bash scripts/count_tests.sh` → `launches` down from the Phase 1 baseline of **35** to **17** (iOS **24 → 8**, watch **11 → 9**), beating the plan's ~20/9 arithmetic (the base-class centralization also collapsed inline `.launch()` sites)
+- [x] `grep -rc "private func launchApp\|private func flipToggle" SingleThreadUITests/` → 0 (all centralized)
 
 #### Manual
 - [ ] Confirm no persistence assertion was lost: bg-off, pin-on, pin-off, list-on, glow-off, swipe-dismissed each still asserted in the merged tests

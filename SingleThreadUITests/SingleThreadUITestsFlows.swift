@@ -14,29 +14,13 @@
 
 import XCTest
 
-// The flow suite racks up enough user-flow tests to push the class past the
-// 500-line limit; size is intentional (they are the end-to-end regression
-// guard for Complete/Skip/Delete/Undo/Settings/Background/Composition).
-// swiftlint:disable:next type_body_length
-final class SingleThreadUITestsFlows: XCTestCase {
-
-    override func setUpWithError() throws {
-        continueAfterFailure = false
-    }
-
-    @MainActor
-    private func launchApp(seedJSON: String) -> XCUIApplication {
-        let app = XCUIApplication()
-        app.launchArguments = ["--seed", seedJSON]
-        app.launch()
-        return app
-    }
+final class SingleThreadUITestsFlows: SingleThreadUITestCase {
 
     // MARK: - List rendering
 
     @MainActor
     func testListShowsSeededReminder() {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries","notes":"milk"}]}"#)
+        let app = launchSeeded(#"{"reminders":[{"title":"Buy groceries","notes":"milk"}]}"#)
 
         let title = app.staticTexts["Buy groceries"]
         XCTAssertTrue(title.waitForExistence(timeout: 5), "Seeded reminder title should be displayed")
@@ -47,7 +31,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
     @MainActor
     func testEmptyListShowsNoRemindersState() {
-        let app = launchApp(seedJSON: #"{"reminders":[]}"#)
+        let app = launchSeeded(#"{"reminders":[]}"#)
 
         XCTAssertTrue(
             app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
@@ -56,7 +40,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
     @MainActor
     func testNothingDueShowsWhenRemindersHidden() {
-        let app = launchApp(seedJSON: #"{"reminders":[],"hasHidden":true}"#)
+        let app = launchSeeded(#"{"reminders":[],"hasHidden":true}"#)
 
         XCTAssertTrue(
             app.staticTexts["Nothing due"].waitForExistence(timeout: 5),
@@ -69,7 +53,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     func testSkipAdvancesToNextReminder() {
         // "First" (high priority) sorts before "Second" (low priority).
         let seed = #"{"reminders":[{"title":"First","priority":1},{"title":"Second","priority":9}]}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         let first = app.staticTexts["First"]
         XCTAssertTrue(first.waitForExistence(timeout: 5), "Highest-priority reminder should be shown first")
@@ -88,7 +72,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testPriorityMarkerRendersForMidRangeValue() {
         let seed = #"{"reminders":[{"title":"Urgent item","priority":3}]}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         // The marker Text renders "!!!" but carries the accessibility label
         // "High priority" (level.displayName + " priority"), so UI tests match
@@ -100,7 +84,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
     @MainActor
     func testSkipAllShowsAllDoneState() {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Only one"}]}"#)
+        let app = launchSeeded(#"{"reminders":[{"title":"Only one"}]}"#)
 
         XCTAssertTrue(app.staticTexts["Only one"].waitForExistence(timeout: 5))
         app.staticTexts["Only one"].swipeLeft()
@@ -130,7 +114,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         // title tie-break can reorder them.
         // swiftlint:disable:next line_length
         let seed = #"{"reminders":[{"title":"CrossDevice","priority":1},{"title":"ToSkip","priority":5},{"title":"Remaining","priority":9}]}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         // 1. Complete "CrossDevice" (simulates a cross-device completion).
         XCTAssertTrue(app.staticTexts["CrossDevice"].waitForExistence(timeout: 5))
@@ -162,7 +146,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
     @MainActor
     func testCompleteViaSwipeRemovesReminder() {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
+        let app = launchSeeded(#"{"reminders":[{"title":"Buy groceries"}]}"#)
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         // Complete is the leading swipe action (reveal by swiping right).
@@ -180,7 +164,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
     @MainActor
     func testDeleteViaContextMenuRemovesReminder() {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
+        let app = launchSeeded(#"{"reminders":[{"title":"Buy groceries"}]}"#)
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         app.staticTexts["Buy groceries"].press(forDuration: 1.0)
@@ -198,7 +182,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
     @MainActor
     func testSettingsOpensAndShowsControls() {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
+        let app = launchSeeded(#"{"reminders":[{"title":"Buy groceries"}]}"#)
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         app.buttons["settingsButton"].tap()
@@ -235,7 +219,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
     @MainActor
     func testAboutModalShowsAttribution() {
-        let app = launchApp(seedJSON: #"{"reminders":[]}"#)
+        let app = launchSeeded(#"{"reminders":[]}"#)
 
         XCTAssertTrue(app.staticTexts.firstMatch.waitForExistence(timeout: 5))
         app.buttons["settingsButton"].tap()
@@ -266,89 +250,65 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(emailElement, "About should show the feedback email link")
     }
 
-    // MARK: - Background toggle
+    // MARK: - Background + pin wallpaper toggles
 
+    /// Both Background sub-view toggles persist across relaunch. One merged
+    /// test covers both directions (bg-off, pin-on, pin-off) in 3 launches
+    /// instead of the previous 5 (2+3): launch1 --seed flips both, launch2
+    /// --ui-testing verifies both flipped values plus pin-off, launch3
+    /// --ui-testing verifies the pin-off persisted (not a one-way latch).
     @MainActor
-    func testBackgroundToggleHidesAndPersistsAcrossRelaunch() {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
+    func testBackgroundAndPinTogglesPersistAcrossRelaunch() {
+        // Launch 1 (--seed): flip both toggles in the Background sub-view.
+        let app = launchSeeded(#"{"reminders":[{"title":"Buy groceries"}]}"#)
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         app.buttons["settingsButton"].tap()
 
         // Navigate into the Background sub-view.
         XCTAssertTrue(app.buttons["settingsBackgroundRow"].waitForExistence(timeout: 3))
         app.buttons["settingsBackgroundRow"].tap()
-        let toggle = app.switches["backgroundToggle"]
-        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
-        XCTAssertEqual(toggle.value as? String, "1", "Background should default to on")
-        XCTAssertTrue(flipToggle(toggle), "Tapping should hide the background")
 
-        // The done button lives on the settings root, so pop back to it first.
-        app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["settingsDoneButton"].tap()
-        app.terminate()
-
-        // A relaunch with `--seed` would call `resetPersistedState()` and wipe
-        // the very key under test, so persistence is verified via a second
-        // `--ui-testing` launch, which does not reset `.standard` defaults.
-        let relaunched = XCUIApplication()
-        relaunched.launchArguments = ["--ui-testing"]
-        relaunched.launch()
-        relaunched.buttons["settingsButton"].tap()
-        relaunched.buttons["settingsBackgroundRow"].tap()
-        let persistedToggle = relaunched.switches["backgroundToggle"]
-        XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
-        XCTAssertEqual(
-            persistedToggle.value as? String, "0",
-            "Background-off should persist across relaunch")
-    }
-
-    // MARK: - Pin wallpaper toggle
-
-    @MainActor
-    func testPinWallpaperTogglePersistsAcrossRelaunch() {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
-        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
-        app.buttons["settingsButton"].tap()
-
-        // Navigate into the Background sub-view.
-        XCTAssertTrue(app.buttons["settingsBackgroundRow"].waitForExistence(timeout: 3))
-        app.buttons["settingsBackgroundRow"].tap()
+        let bgToggle = app.switches["backgroundToggle"]
+        XCTAssertTrue(bgToggle.waitForExistence(timeout: 3))
+        XCTAssertEqual(bgToggle.value as? String, "1", "Background should default to on")
+        XCTAssertTrue(flipToggle(bgToggle), "Tapping should hide the background")
 
         let pinToggle = app.switches["pinWallpaperToggle"]
         XCTAssertTrue(pinToggle.waitForExistence(timeout: 3))
         XCTAssertEqual(pinToggle.value as? String, "0", "Pin wallpaper should default to off")
+        XCTAssertTrue(flipToggle(pinToggle, target: "1"), "Tapping should pin the wallpaper")
 
-        // Flip on.
-        XCTAssertTrue(flipToggle(pinToggle, target: "1"))
-
-        // Back-navigate → Done → terminate.
+        // The done button lives on the settings root, so pop back to it first.
         app.navigationBars.buttons["Settings"].tap()
         app.buttons["settingsDoneButton"].tap()
         app.terminate()
 
-        // Relaunch with --ui-testing to avoid resetPersistedState() wipe.
-        let relaunched = XCUIApplication()
-        relaunched.launchArguments = ["--ui-testing"]
-        relaunched.launch()
-        XCTAssertTrue(relaunched.buttons["settingsButton"].waitForExistence(timeout: 5))
+        // Launch 2 (--ui-testing): both flips persisted — a `--seed` relaunch
+        // would call `resetPersistedState()` and wipe the very keys under test.
+        let relaunched = launchApp(arguments: ["--ui-testing"])
         relaunched.buttons["settingsButton"].tap()
-        XCTAssertTrue(relaunched.buttons["settingsBackgroundRow"].waitForExistence(timeout: 3))
         relaunched.buttons["settingsBackgroundRow"].tap()
-        let persistedToggle = relaunched.switches["pinWallpaperToggle"]
-        XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
+
+        let persistedBg = relaunched.switches["backgroundToggle"]
+        XCTAssertTrue(persistedBg.waitForExistence(timeout: 5))
         XCTAssertEqual(
-            persistedToggle.value as? String, "1",
+            persistedBg.value as? String, "0",
+            "Background-off should persist across relaunch")
+
+        let persistedPin = relaunched.switches["pinWallpaperToggle"]
+        XCTAssertTrue(persistedPin.waitForExistence(timeout: 5))
+        XCTAssertEqual(
+            persistedPin.value as? String, "1",
             "Pin wallpaper on should persist across relaunch")
 
-        // Flip back off and verify it persists as off (not a one-way latch).
-        XCTAssertTrue(flipToggle(persistedToggle, target: "0"))
+        // Flip pin back off and verify it persists as off (not a one-way latch).
+        XCTAssertTrue(flipToggle(persistedPin, target: "0"))
         relaunched.navigationBars.buttons["Settings"].tap()
         relaunched.buttons["settingsDoneButton"].tap()
         relaunched.terminate()
 
-        let thirdLaunch = XCUIApplication()
-        thirdLaunch.launchArguments = ["--ui-testing"]
-        thirdLaunch.launch()
+        // Launch 3 (--ui-testing): pin-off persisted.
+        let thirdLaunch = launchApp(arguments: ["--ui-testing"])
         XCTAssertTrue(thirdLaunch.buttons["settingsButton"].waitForExistence(timeout: 5))
         thirdLaunch.buttons["settingsButton"].tap()
         XCTAssertTrue(thirdLaunch.buttons["settingsBackgroundRow"].waitForExistence(timeout: 3))
@@ -364,7 +324,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
     @MainActor
     func testBackgroundRefreshButtonExists() {
-        let app = launchApp(seedJSON: #"{"reminders":[{"title":"Buy groceries"}]}"#)
+        let app = launchSeeded(#"{"reminders":[{"title":"Buy groceries"}]}"#)
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         app.buttons["settingsButton"].tap()
 
@@ -390,7 +350,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testCodeBlocksRenderWithoutBacktickFences() {
         let seed = #"{"reminders":[{"title":"Use `map`","notes":"```\nlet x = 1\n```"}]}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         // Attributed text with code spans exposes accessibility *labels* but
         // not string identifiers, so the `staticTexts["..."]` subscript lookup
@@ -414,99 +374,59 @@ final class SingleThreadUITestsFlows: XCTestCase {
         XCTAssertTrue(visible.contains("let x = 1"), "Fenced code content should be visible, got: \(labels)")
     }
 
-    // MARK: - Show list toggle
+    // MARK: - Show list + completion glow toggles
 
-    /// Uses `--ui-testing` (not `--seed`) for both launches: seeding calls
-    /// `resetPersistedState()` and would wipe the key under test.
+    /// Both Reminder sub-view toggles persist across relaunch. One merged test
+    /// covers show-list-on and glow-off in 2 launches instead of 4 (2+2):
+    /// launch1 --ui-testing flips both, launch2 --ui-testing verifies both
+    /// persisted. Keeps `--ui-testing` (not `--seed`) — seeding would call
+    /// `resetPersistedState()` and wipe the keys under test.
     @MainActor
-    func testShowListTogglePersistsAcrossRelaunch() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing"]
-        app.launch()
+    func testReminderTogglesPersistAcrossRelaunch() {
+        let app = launchApp(arguments: ["--ui-testing", "--reset-glow-preference"])
         app.buttons["Settings"].tap()
 
         // Navigate into the Reminder sub-view.
         XCTAssertTrue(app.staticTexts["Reminder"].waitForExistence(timeout: 3))
         app.buttons["settingsReminderRow"].tap()
-        let toggle = app.switches["showListToggle"]
-        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
-        XCTAssertEqual(toggle.value as? String, "0", "Show list should default to off")
-        XCTAssertTrue(flipToggle(toggle, target: "1"), "Tapping should enable Show list")
+
+        let listToggle = app.switches["showListToggle"]
+        XCTAssertTrue(listToggle.waitForExistence(timeout: 3))
+        XCTAssertEqual(listToggle.value as? String, "0", "Show list should default to off")
+        XCTAssertTrue(flipToggle(listToggle, target: "1"), "Tapping should enable Show list")
+
+        let glowToggle = app.switches["showCompletionGlowToggle"]
+        XCTAssertTrue(glowToggle.waitForExistence(timeout: 3))
+        XCTAssertEqual(glowToggle.value as? String, "1", "Completion glow should default to on")
+        XCTAssertTrue(flipToggle(glowToggle, target: "0"), "Tapping should disable the glow")
 
         // The done button lives on the settings root, so pop back to it first.
         app.navigationBars.buttons.firstMatch.tap()
         app.buttons["settingsDoneButton"].tap()
         app.terminate()
 
-        let relaunched = XCUIApplication()
-        relaunched.launchArguments = ["--ui-testing"]
-        relaunched.launch()
+        let relaunched = launchApp(arguments: ["--ui-testing"])
         relaunched.buttons["settingsButton"].tap()
         relaunched.buttons["settingsReminderRow"].tap()
-        let persistedToggle = relaunched.switches["showListToggle"]
-        XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
-        XCTAssertEqual(
-            persistedToggle.value as? String, "1",
-            "Show-list-on should persist across relaunch")
-    }
 
-    /// SwiftUI Form rows expose a nested switch control; tapping the outer row
-    /// element is swallowed, so tap the inner control until it flips. In the
-    /// pushed sub-view the switch itself is the control (no nested `switches`
-    /// child), so fall back to tapping the outer element directly.
-    @MainActor
-    private func flipToggle(_ toggle: XCUIElement, target: String = "0") -> Bool {
-        let inner = toggle.switches.firstMatch
-        let tapTarget = inner.exists ? inner : toggle
-        for _ in 0..<3 {
-            if toggle.value as? String == target { return true }
-            tapTarget.tap()
-            let deadline = Date().addingTimeInterval(1)
-            while Date() < deadline {
-                if toggle.value as? String == target { return true }
-                usleep(100_000)
-            }
-        }
-        return toggle.value as? String == target
+        let persistedList = relaunched.switches["showListToggle"]
+        XCTAssertTrue(persistedList.waitForExistence(timeout: 5))
+        XCTAssertEqual(
+            persistedList.value as? String, "1",
+            "Show-list-on should persist across relaunch")
+
+        let persistedGlow = relaunched.switches["showCompletionGlowToggle"]
+        XCTAssertTrue(persistedGlow.waitForExistence(timeout: 5))
+        XCTAssertEqual(
+            persistedGlow.value as? String, "0",
+            "Completion-glow-off should persist across relaunch")
     }
 
     // MARK: - Completion glow
 
-    /// Uses `--ui-testing` (not `--seed`) for both launches: seeding calls
-    /// `resetPersistedState()` and would wipe the key under test.
-    @MainActor
-    func testCompletionGlowTogglePersistsAcrossRelaunch() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "--reset-glow-preference"]
-        app.launch()
-        app.buttons["settingsButton"].tap()
-
-        XCTAssertTrue(app.staticTexts["Reminder"].waitForExistence(timeout: 3))
-        app.buttons["settingsReminderRow"].tap()
-        let toggle = app.switches["showCompletionGlowToggle"]
-        XCTAssertTrue(toggle.waitForExistence(timeout: 3))
-        XCTAssertEqual(toggle.value as? String, "1", "Completion glow should default to on")
-        XCTAssertTrue(flipToggle(toggle, target: "0"), "Tapping should disable the glow")
-
-        app.navigationBars.buttons.firstMatch.tap()
-        app.buttons["settingsDoneButton"].tap()
-        app.terminate()
-
-        let relaunched = XCUIApplication()
-        relaunched.launchArguments = ["--ui-testing"]
-        relaunched.launch()
-        relaunched.buttons["settingsButton"].tap()
-        relaunched.buttons["settingsReminderRow"].tap()
-        let persistedToggle = relaunched.switches["showCompletionGlowToggle"]
-        XCTAssertTrue(persistedToggle.waitForExistence(timeout: 5))
-        XCTAssertEqual(persistedToggle.value as? String, "0", "Completion-glow-off should persist across relaunch")
-    }
-
     @MainActor
     func testCompletionGlowDoesNotAppearWhenDisabled() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--seed", #"{"reminders":[{"title":"Buy groceries"}]}"#, "--ui-testing-glow"]
-        app.launch()
+        let app = launchSeeded(#"{"reminders":[{"title":"Buy groceries"}]}"#, extra: ["--ui-testing-glow"])
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
         // Disable the glow, then complete the only reminder.
@@ -533,9 +453,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
 
     @MainActor
     func testCompletionGlowFlashesWhenEnabled() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--seed", #"{"reminders":[{"title":"Buy groceries"}]}"#, "--ui-testing-glow"]
-        app.launch()
+        let app = launchSeeded(#"{"reminders":[{"title":"Buy groceries"}]}"#, extra: ["--ui-testing-glow"])
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
         app.staticTexts["Buy groceries"].swipeRight()
@@ -557,9 +475,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     /// clears the persistent key so the prompt deterministically defaults ON.
     @MainActor
     func testSwipePromptAppearsUnderUITesting() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "--reset-swipe-preference"]
-        app.launch()
+        let app = launchApp(arguments: ["--ui-testing", "--reset-swipe-preference"])
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         XCTAssertTrue(
@@ -571,9 +487,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     /// `resetPersistedState()` and would wipe the key under test.
     @MainActor
     func testDismissSwipePromptHidesItAndPersistsAcrossRelaunch() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "--reset-swipe-preference"]
-        app.launch()
+        let app = launchApp(arguments: ["--ui-testing", "--reset-swipe-preference"])
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
         // Dismiss the prompt.
@@ -589,9 +503,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
         app.terminate()
 
         // Relaunch with --ui-testing (NOT --seed — that would reset persisted state).
-        let relaunched = XCUIApplication()
-        relaunched.launchArguments = ["--ui-testing"]
-        relaunched.launch()
+        let relaunched = launchApp(arguments: ["--ui-testing"])
         XCTAssertTrue(relaunched.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         XCTAssertFalse(
             relaunched.buttons["Dismiss swipe prompt"].exists,
@@ -602,9 +514,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     /// off → on through the Interface Settings screen.
     @MainActor
     func testSwipePromptToggleRoundTripsViaSettings() {
-        let app = XCUIApplication()
-        app.launchArguments = ["--ui-testing", "--reset-swipe-preference"]
-        app.launch()
+        let app = launchApp(arguments: ["--ui-testing", "--reset-swipe-preference"])
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
         // Open Settings → Interface.
@@ -654,7 +564,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testUndoButtonAppearsAfterCompleteAndUndoRemovesReminder() {
         let seed = #"{"reminders":[{"title":"Buy groceries"}]}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
@@ -682,7 +592,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testUndoButtonHiddenWhenToggleOff() {
         let seed = #"{"reminders":[{"title":"Buy groceries"}]}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
@@ -715,7 +625,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testUndoButtonDoesNotAppearWithoutCompletion() {
         let seed = #"{"reminders":[{"title":"Buy groceries"}]}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
 
@@ -728,7 +638,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testUpgradePromptAppearsWhenGated() {
         let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":false}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         // The upgrade prompt should appear instead of action buttons.
         let upgradeButton = app.buttons["upgradeButton"]
@@ -750,7 +660,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testActionClusterAppearsWhenEntitledAtCap() {
         let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":true}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         // Action buttons should appear because the user is entitled.
         let completeButton = app.buttons["completeButton"]
@@ -762,7 +672,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testSettingsHasPurchaseRow() {
         let seed = #"{"reminders":[{"title":"Buy groceries"}]}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         // Open settings.
         app.buttons["settingsButton"].tap()
@@ -777,7 +687,7 @@ final class SingleThreadUITestsFlows: XCTestCase {
     @MainActor
     func testPurchaseSheetHasRestoreButton() {
         let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":false}"#
-        let app = launchApp(seedJSON: seed)
+        let app = launchSeeded(seed)
 
         // Tap the upgrade prompt.
         app.buttons["upgradeButton"].tap()
