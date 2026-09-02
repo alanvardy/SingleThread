@@ -185,9 +185,9 @@ If two yields prove insufficient on a slow executor, use `await Task.sleep(nanos
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild -only-testing:SingleThreadTests -destination "$SIM" -derivedDataPath DerivedData test-without-building` — green, no flake (run twice to confirm determinism)
-- [ ] `bash scripts/count_tests.sh` → `settle_sleeps: 0`, `forced_400ms: 0`
-- [ ] `swiftformat --lint SingleThreadCore/ SingleThreadTests/` and `swiftlint lint --strict` clean
+- [x] `xcodebuild -only-testing:SingleThreadTests -destination "$SIM" -derivedDataPath DerivedData test-without-building` — green, no flake (run twice to confirm determinism)
+- [x] `bash scripts/count_tests.sh` → `settle_sleeps: 0`, `forced_400ms: 0`
+- [x] `swiftformat --lint SingleThreadCore/ SingleThreadTests/` and `swiftlint lint --strict` clean
 
 #### Manual
 - [ ] Grep confirms zero `Task.sleep(nanoseconds: Self.eventKitSettleDelay)` and zero `eventKitSettleDelay` constant remain in `ReminderStore.swift`

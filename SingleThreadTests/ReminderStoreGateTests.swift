@@ -3,6 +3,10 @@ import Foundation
 @testable import SingleThreadCore
 import Testing
 
+/// No-op settle hook: deterministic and sleep-free. Injected as the
+/// `ReminderStore` `settle:` seam so the skip-path test doesn't pay a real wait.
+private let noopSettle: ReminderStoreSettle = {}
+
 @MainActor
 @Suite(.serialized)
 struct ReminderStoreGateTests {
@@ -109,11 +113,15 @@ struct ReminderStoreGateTests {
             skippedIDs: [],
             authorizationStatus: .fullAccess,
             completionCounter: counter,
-            entitlementStore: .init(testingWithEntitled: false))
-        store.skipCurrentReminder()
-        // `skipCurrentReminder` applies the skip inside a `Task` after the
-        // 200ms settle sleep — wait for it before asserting.
-        try? await Task.sleep(nanoseconds: 400_000_000)
+            entitlementStore: .init(testingWithEntitled: false),
+            settle: noopSettle)
+        // `applySkipSet` fires `onSkipSetChanged` inside the main-actor Task;
+        // rendezvous on it so the assertion can't race the apply (mirrors
+        // `ReminderStoreTests.skipCurrentReminderUpdatesSkippedIDs`).
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            store.onSkipSetChanged = { _ in continuation.resume() }
+            store.skipCurrentReminder()
+        }
         #expect(store.skippedIDs.contains(rem.calendarItemIdentifier))
     }
 
