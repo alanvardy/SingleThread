@@ -16,11 +16,19 @@ struct EntitlementStoreTests {
     }
 
     @Test
+    func hasResolvedEntitlementIsFalseByDefault() {
+        let store = EntitlementStore()
+        #expect(!store.hasResolvedEntitlement)
+    }
+
+    @Test
     func seamSetsEntitlement() {
         let entitled = EntitlementStore(testingWithEntitled: true)
         #expect(entitled.isEntitled)
+        #expect(entitled.hasResolvedEntitlement)
         let notEntitled = EntitlementStore(testingWithEntitled: false)
         #expect(!notEntitled.isEntitled)
+        #expect(notEntitled.hasResolvedEntitlement)
     }
 
     @Test
