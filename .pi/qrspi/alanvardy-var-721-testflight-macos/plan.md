@@ -273,9 +273,9 @@ mac-distribute:
 ### Verification
 
 #### Automated
-- [ ] `bash -n scripts/distribute-macos.sh` passes (syntax)
-- [ ] `plutil -lint exportOptions.plist` → `exportOptions.plist: OK`
-- [ ] `make mac-distribute` runs `xcodebuild archive` to successful completion
+- [x] `bash -n scripts/distribute-macos.sh` passes (syntax)
+- [x] `plutil -lint exportOptions.plist` → `exportOptions.plist: OK`
+- [ ] `make mac-distribute` runs `xcodebuild archive` to successful completion — **BLOCKED (human/portal prerequisite, not a script bug)**: the signed archive fails at `GatherProvisioningInputs` because the installed Mac Team Provisioning Profile for `app.alanvardy.SingleThread` does not carry `com.apple.developer.in-app-purchases` (added in Phase 1). Fix: enable *In-App Purchase* on the App ID in the developer portal and regenerate the profile (see Stage 5 prerequisites). Proof the script is sound: the identical archive with `CODE_SIGNING_ALLOWED=NO` → `ARCHIVE SUCCEEDED`. Also no Distribution cert or registered Xcode account on this machine. This wall manifests at `archive`, one step earlier than the plan's documented exportArchive signing wall — same root cause.
 
 #### Manual
 - [ ] Archive succeeds; `-exportArchive` produces `build/SingleThread.pkg` (best-effort locally: it may stop at the signing wall if the team's Distribution cert is not on this Mac — that is a documented human-upload concern, not a script bug)
