@@ -1,0 +1,4 @@
+{"unit_tests":552,"unit_ios":516,"unit_watch":36,
+ "expect":962,"require":46,"issue_record":3,"assertion_mean":1.83,
+ "launches_ios":24,"launches_watch":11,
+ "settle_sleeps":5,"forced_400ms":4,"xcodebuild":14,"unnamed_expect":917}

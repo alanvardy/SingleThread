@@ -76,8 +76,8 @@ report
 ### Verification
 
 #### Automated
-- [ ] `bash scripts/count_tests.sh` prints `unit_tests: 552`, `expect: 962`, `require: 46`, `assertion_mean: 1.83`, `launches: 35`, `settle_sleeps: 5`, `forced_400ms: 4`, `xcodebuild: 14` (file-wide)
-- [ ] `bash scripts/count_tests.sh --write .pi/qrspi/alanvardy-var-755-slim-down-test-suite/before.json` writes the snapshot
+- [x] `bash scripts/count_tests.sh` prints `unit_tests: 552`, `expect: 962`, `require: 46`, `assertion_mean: 1.83`, `launches: 35`, `settle_sleeps: 5`, `forced_400ms: 4`, `xcodebuild: 14` (file-wide)
+- [x] `bash scripts/count_tests.sh --write .pi/qrspi/alanvardy-var-755-slim-down-test-suite/before.json` writes the snapshot
 - [ ] Resolve the pinned simulator once (name-only `iPhone 17` hangs with 4 runtimes): `xcrun simctl list devices available | grep -i 'iPhone 17'` → export `SIM="platform=iOS Simulator,name=iPhone 17,OS=<ver>"`
 
 #### Manual
