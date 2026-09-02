@@ -31,11 +31,7 @@ struct EmptyStateCard: View {
                 .multilineTextAlignment(.center)
                 .frame(maxWidth: maxWidth)
         }
-        .padding(20)
-        .background {
-            RoundedRectangle(cornerRadius: ReminderCardView.plateCornerRadius)
-                .fill(ReminderCardView.plateFill(for: colorScheme))
-        }
+        .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 20)
     }
 
     /// Caps the description's width so long copy wraps on a couple of centered

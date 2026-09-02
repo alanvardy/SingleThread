@@ -5,8 +5,8 @@ import Testing
 /// `View.cardPlate(...)` wraps content in a `CardPlateModifier`. SwiftUI does
 /// not inline a `ViewModifier`'s body into the host view's static type, so
 /// `String(describing:)` cannot surface the `RoundedRectangle` it draws — the
-/// shape is instead pinned through `SwipePromptTests.promptShownWhenEnabled`,
-/// which still sees `RoundedRectangle` in the prompt's inline background chain.
+/// modifier's presence in the reflected chain (here and in
+/// `SwipePromptTests.promptShownWhenEnabled`) pins the plate composition.
 /// These tests pin the modifier composition that reflection can observe.
 @MainActor
 struct CardPlateModifierTests {

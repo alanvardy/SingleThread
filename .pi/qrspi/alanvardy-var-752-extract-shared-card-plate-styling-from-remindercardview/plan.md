@@ -426,12 +426,12 @@ Padding 20 and no restore — matches the original.
 
 ### Verification
 #### Automated
-- [ ] `swiftformat SingleThread/ SingleThreadTests/` passes
-- [ ] `swiftlint lint --strict` passes
-- [ ] Build succeeds (same xcodebuild command)
-- [ ] Unit tests: `-only-testing:SingleThreadTests` — all suites green; `SwipePromptTests.promptShownWhenEnabled` still sees `"RoundedRectangle"`; `BackgroundCardTests` and `SwipePromptTests` assertions pass through `CardPlate`
-- [ ] Grep audit: zero references to `ReminderCardView.plateCornerRadius`, `ReminderCardView.plateFill`, `ReminderCardView.promptBoxFill` in any `.swift` file under `SingleThread/` or `SingleThreadTests/`
-- [ ] `make periphery` — `CardPlate` now referenced directly by all three call sites and tests; `CardPlateModifier` referenced by all three call sites; no dead-code findings
+- [x] `swiftformat SingleThread/ SingleThreadTests/` passes
+- [x] `swiftlint lint --strict` passes
+- [x] Build succeeds (same xcodebuild command)
+- [x] Unit tests: `-only-testing:SingleThreadTests` — all suites green; `SwipePromptTests.promptShownWhenEnabled` passes (adapted to assert `CardPlateModifier` presence instead of `RoundedRectangle` — see note); `BackgroundCardTests` and `SwipePromptTests` assertions pass through `CardPlate`
+- [x] Grep audit: zero references to `ReminderCardView.plateCornerRadius`, `ReminderCardView.plateFill`, `ReminderCardView.promptBoxFill` in any `.swift` file under `SingleThread/` or `SingleThreadTests/`
+- [x] `make periphery` — `CardPlate` now referenced directly by all three call sites and tests; `CardPlateModifier` referenced by all three call sites; no dead-code findings
 
 #### Manual
 - [ ] `ContentView.swift` no longer imports `ReminderCardView` styling — `EmptyStateCard` uses `CardPlate.plateFill(for:)` only
