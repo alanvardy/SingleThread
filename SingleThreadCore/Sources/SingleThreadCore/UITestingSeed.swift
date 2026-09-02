@@ -15,7 +15,7 @@ import Foundation
 ///   "excludedLists": ["Work"],
 ///   "completionCount": 3,      // optional, defaults to 0
 ///   "isEntitled": true,         // optional, defaults to false
-///   "hasHidden": true           // optional, defaults to false; only meaningful
+///   "hasHidden": true,          // optional, defaults to false; only meaningful
 ///                               // with an empty "reminders" array
 ///   "entitlementUnresolved": true  // optional, defaults to false; when true,
 ///                                  // the entitlement store starts unresolved
