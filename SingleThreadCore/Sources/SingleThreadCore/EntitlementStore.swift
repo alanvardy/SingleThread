@@ -29,6 +29,7 @@ public final class EntitlementStore {
     /// false in production, so this seam only changes behavior under testing.
     public init(testingWithEntitled entitled: Bool) {
         isEntitled = entitled
+        hasResolvedEntitlement = true
         observationTask = nil
     }
 
@@ -44,6 +45,12 @@ public final class EntitlementStore {
     /// Whether the user has purchased the unlock IAP. Reactively updated by
     /// the `Transaction.updates` stream; also updated by `sync()`.
     public private(set) var isEntitled: Bool = false
+
+    /// Whether the `isEntitled` value has been settled by at least one
+    /// StoreKit refresh (or by a test seam). Views gate rendering on this
+    /// flag so a purchased user never sees the "Upgrade to unlimited"
+    /// prompt flash before the async entitlement check completes.
+    public private(set) var hasResolvedEntitlement: Bool = false
 
     /// Calls `AppStore.sync()` to restore a prior purchase. StoreKit posts any
     /// resulting transactions to `Transaction.updates`, which this store
@@ -88,5 +95,6 @@ public final class EntitlementStore {
             break
         }
         isEntitled = entitled
+        hasResolvedEntitlement = true
     }
 }
