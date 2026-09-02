@@ -306,7 +306,7 @@ reproducible, no rediscovery):
 ### Verification
 
 #### Automated
-- [ ] (none — doc only; but guard against drift) `grep -n 'unlockProductID' SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift` confirms the symbol the doc references exists and holds the id
+- [x] (none — doc only; but guard against drift) `grep -n 'unlockProductID' SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift` confirms the symbol the doc references exists and holds the id
 
 #### Manual
 - [ ] Review pass: every command the doc references is committed and working; the product id in the doc is sourced from `EntitlementStore.unlockProductID`, not hard-coded
