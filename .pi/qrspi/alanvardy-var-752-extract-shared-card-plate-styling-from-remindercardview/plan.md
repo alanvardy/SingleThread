@@ -445,8 +445,8 @@ The integration checkpoint. No code changes — proves the extraction is behavio
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` full gate green: format → lint `--strict` → iOS build → watch build → Periphery → iOS unit tests → iOS UI tests → watch unit tests → watch UI tests → macOS build + unit tests
-- [ ] No new warnings (project-wide `SWIFT_TREAT_WARNINGS_AS_ERRORS = YES`)
+- [x] `./scripts/test.sh` full gate green: format → lint `--strict` → iOS build → watch build → Periphery → iOS unit tests → iOS UI tests → watch unit tests → watch UI tests → macOS build + unit tests
+- [x] No new warnings (project-wide `SWIFT_TREAT_WARNINGS_AS_ERRORS = YES`)
 
 #### Manual
 - [ ] Visual check on `iPhone 17` (light mode): card text plate, swipe prompt, and empty states render pixel-identical to `origin/main`
