@@ -254,6 +254,20 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -only-testing:SingleThreadWatchUITests \
       -only-testing:SingleThreadWatchTests
 
+    # Local-only fix: this machine's watchOS 26.5 simruntime is missing
+    # lib_TestingInterop.dylib (/usr/lib/swift), so the watch UI test runner
+    # crashes at launch with "Library not loaded: @rpath/lib_TestingInterop.dylib".
+    # Bundle the Xcode-side lib into the runner's Frameworks so the gate runs.
+    # CI's watch sim runtime includes it; harmless elsewhere (no-op if absent).
+    _watch_runner="$DERIVED_DATA/Build/Products/Debug-watchsimulator/SingleThreadWatchUITests-Runner.app/Frameworks"
+    if [[ -d "$_watch_runner" && -f "$DERIVED_DATA/Build/Products/Debug-watchsimulator/SingleThreadWatchUITests-Runner.app/Frameworks/Testing.framework/Testing" ]]; then
+        _testing_interop="/Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/usr/lib/lib_TestingInterop.dylib"
+        if [[ -f "$_testing_interop" && ! -f "$_watch_runner/lib_TestingInterop.dylib" ]]; then
+            echo "    (local only) embedding lib_TestingInterop.dylib into watch UI test runner…"
+            cp "$_testing_interop" "$_watch_runner/"
+        fi
+    fi
+
     xcodebuild -scheme "$WATCH_SCHEME" \
       -destination "$WATCH_TEST_SIM" \
       -derivedDataPath "$DERIVED_DATA" \
