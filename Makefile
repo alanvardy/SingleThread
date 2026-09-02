@@ -12,7 +12,7 @@ COVERAGE_UI_RESULT := build/Coverage.UI.xcresult
 COVERAGE_ALL_RESULT := build/Coverage.All.xcresult
 export SIM
 
-.PHONY: build watch-build test ui-test simverify mac-build mac-test coverage coverage-ui coverage-all check clean lint format periphery watch-ui-test watch-test
+.PHONY: build watch-build test ui-test simverify mac-build mac-test coverage coverage-ui coverage-all check clean lint format periphery watch-ui-test watch-test prune prune-dry-run
 
 build:
 	xcodebuild -scheme SingleThread -destination '$(SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build-for-testing
@@ -105,3 +105,13 @@ format:
 
 periphery:
 	periphery scan --strict -- -destination "$(SIM)"
+
+# Disk hygiene — prune regenerable Xcode build artifacts (stale GUI DerivedData
+# older than PRUNE_AGE_DAYS days, unavailable simulators, dead worktrees).
+# See scripts/prune-build-artifacts.sh for the exact rules. Runs automatically
+# weekly (Sun 03:30) via the launchd agent installed from scripts/launchd/.
+prune:
+	./scripts/prune-build-artifacts.sh
+
+prune-dry-run:
+	./scripts/prune-build-artifacts.sh -n

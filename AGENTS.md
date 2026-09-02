@@ -14,7 +14,8 @@
   with `xcrun simctl list devices available | grep -iE 'iphone|ipad'` if
   either is unavailable.
 - **Destination pinning**: the name-only `iPhone 17` destination is ambiguous
-  when multiple runtimes exist (this machine has 4) — a bare `name=` hangs.
+  when multiple runtimes exist (CI runner images ship several; this machine
+  keeps a single iOS + single watchOS runtime) — a bare `name=` hangs.
   Pin `,OS=<ver>` or `,id=<UDID>` (from `xcrun simctl list devices available`).
   `scripts/test.sh`/`Makefile` accept `SIM=`.
 - **One xcodebuild test process at a time** (simulator contention). On
@@ -80,7 +81,8 @@ SingleThread/                  # git root
 ├── SingleThreadWidget/        # widget extension
 ├── SingleThreadTests/         # unit tests (Swift Testing)
 ├── SingleThreadUITests/       # UI tests (XCTest, accessibility audit)
-├── scripts/                   # CI-identical test script
+├── scripts/                   # test script + prune automation
+├── scripts/launchd/           # weekly DerivedData prune agent (source of truth)
 ├── .github/workflows/ci.yml   # GitHub Actions
 ├── AGENTS.md
 ├── Makefile
@@ -164,6 +166,42 @@ SingleThread/                  # git root
 
 - Run `make periphery` (`periphery scan --strict`) — it scans the build's
   index store; config in `.periphery.yml`.
+
+## Disk Hygiene (Xcode artifacts)
+
+- **Weekly prune**: `make prune` (dry-run: `make prune-dry-run`) deletes stale
+  GUI DerivedData (project folders older than `PRUNE_AGE_DAYS`, default 7) and
+  unavailable simulator devices, then reports disk/runtime usage. Runs
+  automatically Sun 03:30 via the launchd agent `com.singlethread.prune-build-artifacts`
+  (plist source: `scripts/launchd/`; log: `~/Library/Logs/prune-build-artifacts.log`).
+- **DerivedData is workspace-relative** (Xcode → Settings → Locations →
+  Advanced → "Relative to Workspace"). GUI builds share `<checkout>/DerivedData`
+  with `make`/`scripts/test.sh`, so caches live with each checkout and die with
+  it instead of accumulating per-path in the GUI default location. (Set via
+  `IDEWorkspaceUserSettings_DerivedDataLocationStyle = 1` in each checkout's
+  gitignored `project.xcworkspace/xcuserdata/<user>.xcuserdatad/WorkspaceSettings.xcsettings`.)
+- **Simulator runtimes**: keep only the newest iOS + watchOS runtime
+  (`xcrun simctl runtime list` / `xcrun simctl runtime delete <id>`); older
+  minors are safe to remove and CI installs its own. `xcrun simctl delete
+  unavailable` reaps orphaned devices. Runtime choices are a conscious decision
+  — never automated in the prune script.
+- **Time Machine**: excluding the regenerable dev dirs stops TM from backing up
+  millions of tiny files. Run once (needs admin):
+
+  ```
+  sudo tmutil addexclusion -p \
+    ~/Library/Developer/Xcode/DerivedData \
+    ~/Library/Developer/CoreSimulator \
+    ~/Library/Developer/XCTestDevices \
+    ~/Library/Developer/Xcode/iOS\ DeviceSupport \
+    ~/Library/Developer/Xcode/watchOS\ DeviceSupport \
+    /Library/Developer/CoreSimulator
+  ```
+
+- **APFS local snapshots** can pin recently-deleted build data on disk for
+  hours (`.local` TM snapshots). After a big cleanup, check
+  `tmutil listlocalsnapshots /` and drop stale ones with
+  `tmutil deletelocalsnapshots <name>`.
 
 ## Accessibility Testing
 
