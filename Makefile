@@ -31,6 +31,9 @@ mac-run:
 	  -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build
 	open '$(DERIVED_DATA)/Build/Products/Debug/SingleThread.app'
 
+mac-distribute:
+	bash scripts/distribute-macos.sh
+
 coverage:
 	rm -rf '$(COVERAGE_RESULT)'
 	xcodebuild -scheme SingleThread \
