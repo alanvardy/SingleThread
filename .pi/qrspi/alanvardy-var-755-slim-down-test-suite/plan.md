@@ -566,9 +566,9 @@ preboot_sim "${SIM##*id=}"
 ### Verification
 
 #### Automated
-- [ ] `bash scripts/count_tests.sh` → `xcodebuild` down from the Phase 1 baseline of 14 → **13** (file-wide `grep -c`; the 9→8 full-mode reduction is the structural change it reflects)
-- [ ] `bash -n scripts/test.sh` — no syntax errors
-- [ ] `git diff scripts/test.sh | grep -E '^\+.*(parallel-testing|maximum-test-execution|simctl boot|id=)'` — flags/destination only, nothing that changes pass/fail
+- [x] `bash scripts/count_tests.sh` → `xcodebuild` down from the Phase 1 baseline of 14 → **13** (file-wide `grep -c`; the 9→8 full-mode reduction is the structural change it reflects)
+- [x] `bash -n scripts/test.sh` — no syntax errors
+- [x] `git diff scripts/test.sh | grep -E '^\+.*(parallel-testing|maximum-test-execution|simctl boot|id=)'` — flags/destination only, nothing that changes pass/fail
 
 #### Manual
 - [ ] Diff-review the changed `test.sh` blocks against `ci.yml:48-52` (pre-boot) and `ci.yml:129-136` (allowance/parallel) — confirm reused flags match CI exactly

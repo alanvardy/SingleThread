@@ -19,7 +19,33 @@ DERIVED_DATA="DerivedData"
 RUNTIME_AGE_HOURS="${RUNTIME_AGE_HOURS:-1}"
 RUNTIMES_DIR="$HOME/Library/Developer/XCTestDevices"
 
+# Pin a name-only iOS simulator destination to its concrete UDID: with four
+# runtimes installed a bare `name=iPhone 17` destination is ambiguous and the
+# build hangs. Falls back to leaving $SIM unchanged if no UDID resolves.
+resolve_sim_udid() {
+    local name="$1"
+    xcrun simctl list devices available | grep -F "$name (" | head -1 \
+        | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/'
+}
+# Pre-boot the simulator so the first test run doesn't pay a cold boot; matches
+# CI's pre-boot pattern (ci.yml:48-52). Safe to call when the sim is already up.
+preboot_sim() {
+    local udid="$1"
+    xcrun simctl boot "$udid" 2>/dev/null || true
+    xcrun simctl bootstatus "$udid" -b
+}
+
 cd "$(dirname "$0")/.."
+
+# Resolve the destination to a concrete ID once, then pre-boot it for all modes.
+if [[ "$SIM" != *",id="* ]]; then
+    SIM_NAME="${SIM##*name=}"; SIM_NAME="${SIM_NAME%%,*}"
+    SIM_UDID="$(resolve_sim_udid "$SIM_NAME")"
+    [[ -n "$SIM_UDID" ]] && SIM="platform=iOS Simulator,id=$SIM_UDID"
+fi
+if [[ "$SIM" == *",id="* ]]; then
+    preboot_sim "${SIM##*id=}"
+fi
 
 # Clean up abandoned XCTests runtimes. Each UI test run leaves a fresh
 # ~3 GB runtime in ~/Library/Developer/XCTestDevices that Xcode never prunes.
@@ -200,6 +226,8 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
     xcodebuild -scheme "$SCHEME" \
       -destination "$SIM" \
       -derivedDataPath "$DERIVED_DATA" \
+      -parallel-testing-enabled YES \
+      -maximum-test-execution-time-allowance 900 \
       test-without-building \
       -only-testing:SingleThreadTests
 
@@ -243,15 +271,6 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -derivedDataPath "$DERIVED_DATA" \
       CODE_SIGNING_ALLOWED=NO \
       build
-
-    echo ""
-    echo "==> macOS unit tests…"
-    xcodebuild -scheme "$SCHEME" \
-      -destination "$MAC_SIM" \
-      -derivedDataPath "$DERIVED_DATA" \
-      CODE_SIGNING_ALLOWED=NO \
-      test \
-      -only-testing:SingleThreadTests
 
     echo ""
     echo "✅ All CI checks passed."
