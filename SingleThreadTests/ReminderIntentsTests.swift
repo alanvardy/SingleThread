@@ -8,40 +8,26 @@ struct ReminderIntentsTests {
     // MARK: CompleteReminderIntent
 
     @Test
-    func completeIntentInitializes() {
+    func completeIntentIsConfigured() {
         _ = CompleteReminderIntent()
-        #expect(Bool(true))
-    }
-
-    @Test
-    func completeIntentIsNotDiscoverable() {
-        #expect(CompleteReminderIntent.isDiscoverable == false)
-    }
-
-    @Test
-    func completeIntentHasTitle() {
+        #expect(!CompleteReminderIntent.isDiscoverable, "complete intent is not discoverable")
         // The intent titles resolve through `.main` (the widget/app bundle's
         // catalog); the Core catalog doesn't hold the AppIntent keys.
-        #expect(String(localized: CompleteReminderIntent.title)
-            == String.en("Complete Reminder", bundle: .main))
+        #expect(
+            String(localized: CompleteReminderIntent.title)
+                == String.en("Complete Reminder", bundle: .main),
+            "complete intent title resolves from the app catalog")
     }
 
     // MARK: SkipReminderIntent
 
     @Test
-    func skipIntentInitializes() {
+    func skipIntentIsConfigured() {
         _ = SkipReminderIntent()
-        #expect(Bool(true))
-    }
-
-    @Test
-    func skipIntentIsNotDiscoverable() {
-        #expect(SkipReminderIntent.isDiscoverable == false)
-    }
-
-    @Test
-    func skipIntentHasTitle() {
-        #expect(String(localized: SkipReminderIntent.title)
-            == String.en("Skip Reminder", bundle: .main))
+        #expect(!SkipReminderIntent.isDiscoverable, "skip intent is not discoverable")
+        #expect(
+            String(localized: SkipReminderIntent.title)
+                == String.en("Skip Reminder", bundle: .main),
+            "skip intent title resolves from the app catalog")
     }
 }

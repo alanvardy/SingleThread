@@ -8,37 +8,24 @@ struct ShowDateTests {
     // MARK: Internal
 
     @Test
-    func dateRowHiddenWhenShowDateDisabled() {
-        let description = String(describing: makeCard(showDate: false).body)
-        // The date row is the only `Text(_, style: .date)`; hiding it removes
-        // the FormatStyleStorage. Title/notes are LocalizedTextStorage.
-        #expect(!description.contains("FormatStyleStorage"))
-    }
+    func dateAndListRowsFollowPreferences() {
+        let noDate = String(describing: makeCard(showDate: false).body)
+        #expect(
+            !noDate.contains("FormatStyleStorage"),
+            "date row hidden when showDate disabled")
+        let withDate = String(describing: makeCard(showDate: true).body)
+        #expect(
+            withDate.contains("FormatStyleStorage"),
+            "date row shown when showDate enabled")
 
-    @Test
-    func dateRowShownWhenShowDateEnabled() {
-        let description = String(describing: makeCard(showDate: true).body)
-        #expect(description.contains("FormatStyleStorage"))
-    }
-
-    @Test
-    func listRowShownWhenShowListEnabledAndListNamePresent() {
-        let description = String(describing: makeCard(showDate: true, showList: true, listName: "Groceries").body)
-        #expect(description.contains("Groceries"))
-    }
-
-    @Test
-    func listRowHiddenWhenShowListDisabled() {
-        let description = String(describing: makeCard(showDate: true, showList: false, listName: "Groceries").body)
-        #expect(!description.contains("Groceries"))
-    }
-
-    @Test
-    func listRowHiddenWhenListNameNil() {
+        let listShown = String(describing: makeCard(showDate: true, showList: true, listName: "Groceries").body)
+        #expect(listShown.contains("Groceries"), "list row shown when showList enabled and list named")
+        let listHidden = String(describing: makeCard(showDate: true, showList: false, listName: "Groceries").body)
+        #expect(!listHidden.contains("Groceries"), "list row hidden when showList disabled")
         let nilName = String(describing: makeCard(showDate: true, showList: true, listName: nil).body)
         let named = String(describing: makeCard(showDate: true, showList: true, listName: "Errands").body)
-        #expect(named.contains("Errands"))
-        #expect(!nilName.contains("Errands"))
+        #expect(named.contains("Errands"), "named card renders the list row")
+        #expect(!nilName.contains("Errands"), "nil list name hides the list row")
     }
 
     // MARK: Private

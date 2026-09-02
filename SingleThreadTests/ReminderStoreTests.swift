@@ -17,76 +17,64 @@ struct ReminderStoreTests {
     // MARK: - visibleReminders
 
     @Test
-    func visibleRemindersFiltersOutSkippedIDs() {
+    func visibleRemindersFiltersSkippedAndEmpty() {
         let rem = makeReminder(title: "A")
         let other = makeReminder(title: "B")
-        let store = ReminderStore(
+        let filtered = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem, other],
             skippedIDs: [rem.calendarItemIdentifier],
             authorizationStatus: .fullAccess)
-        let visible = store.visibleReminders
-        #expect(visible.count == 1)
-        #expect(visible.first?.title == "B")
-    }
+        let visible = filtered.visibleReminders
+        #expect(visible.count == 1, "one non-skipped reminder remains visible")
+        #expect(visible.first?.title == "B", "the skipped reminder is filtered out")
 
-    @Test
-    func visibleRemindersEmptyWhenAllSkipped() {
-        let rem = makeReminder(title: "A")
-        let store = ReminderStore(
+        let allSkipped = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [rem.calendarItemIdentifier],
             authorizationStatus: .fullAccess)
-        #expect(store.visibleReminders.isEmpty)
-    }
+        #expect(allSkipped.visibleReminders.isEmpty, "empty when every reminder is skipped")
 
-    @Test
-    func visibleRemindersEmptyWhenNoReminders() {
-        let store = ReminderStore(
+        let empty = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        #expect(store.visibleReminders.isEmpty)
+        #expect(empty.visibleReminders.isEmpty, "empty when there are no reminders")
     }
 
     @Test
-    func visibleRemindersSortsByPriority() {
+    func visibleRemindersSortsByPriorityThenDate() {
         let low = makeReminder(title: "low", priority: 9)
         let high = makeReminder(title: "high", priority: 1)
-        let store = ReminderStore(
+        let byPriority = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [low, high],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        let titles = store.visibleReminders.map(\.title)
-        #expect(titles == ["high", "low"])
-    }
+        #expect(byPriority.visibleReminders.map(\.title) == ["high", "low"], "higher priority sorts first")
 
-    @Test
-    func visibleRemindersSortsDatedBeforeUndated() {
         let undated = makeReminder(title: "undated", priority: 5)
         let dated = makeReminder(
             title: "dated",
             priority: 5,
             dateComponents: DateComponents(year: 2024, month: 1, day: 1))
-        let store = ReminderStore(
+        let byDate = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [undated, dated],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        let titles = store.visibleReminders.map(\.title)
-        #expect(titles == ["dated", "undated"])
+        #expect(byDate.visibleReminders.map(\.title) == ["dated", "undated"], "dated sorts before undated")
     }
 
     @Test
-    func visibleRemindersFiltersOutExcludedListTitles() {
+    func visibleRemindersFiltersExcludedListTitles() {
         let excluded = makeReminder(title: "A", calendarTitle: "Work")
         let kept = makeReminder(title: "B", calendarTitle: "Personal")
         let store = ReminderStore(
@@ -96,33 +84,27 @@ struct ReminderStoreTests {
             skippedIDs: [],
             authorizationStatus: .fullAccess,
             excludedListTitles: ["Work"])
-        #expect(store.visibleReminders.map(\.title) == ["B"])
-    }
+        #expect(store.visibleReminders.map(\.title) == ["B"], "reminders in excluded lists are filtered")
 
-    @Test
-    func visibleRemindersKeepsNilCalendarReminders() {
         let noCalendar = makeReminder(title: "A") // calendar == nil
-        let store = ReminderStore(
+        let keepsNil = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [noCalendar],
             skippedIDs: [],
             authorizationStatus: .fullAccess,
             excludedListTitles: ["Work"])
-        #expect(store.visibleReminders.count == 1)
-    }
+        #expect(keepsNil.visibleReminders.count == 1, "nil-calendar reminders are never excluded")
 
-    @Test
-    func visibleRemindersEmptyWhenAllListsExcluded() {
         let inList = makeReminder(title: "A", calendarTitle: "Work")
-        let store = ReminderStore(
+        let allExcluded = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [inList],
             skippedIDs: [],
             authorizationStatus: .fullAccess,
             excludedListTitles: ["Work"])
-        #expect(store.visibleReminders.isEmpty)
+        #expect(allExcluded.visibleReminders.isEmpty, "empty when every list is excluded")
     }
 
     // MARK: - availableLists
@@ -183,7 +165,7 @@ struct ReminderStoreTests {
     // MARK: - setSortOption
 
     @Test
-    func setSortOptionReordersVisibleReminders() {
+    func setSortOptionReordersAndNotifies() {
         let highLater = makeReminder(
             title: "HighLater",
             priority: 1,
@@ -192,106 +174,85 @@ struct ReminderStoreTests {
             title: "LowSooner",
             priority: 9,
             dateComponents: DateComponents(year: 2024, month: 1, day: 2))
-        let store = ReminderStore(
+        let reorderStore = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [lowSooner, highLater],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        #expect(store.visibleReminders.map(\.title) == ["HighLater", "LowSooner"]) // default .priority
-        store.setSortOption(.dueDate)
-        #expect(store.visibleReminders.map(\.title) == ["LowSooner", "HighLater"])
-    }
+        #expect(
+            reorderStore.visibleReminders.map(\.title) == ["HighLater", "LowSooner"],
+            "default sort option is .priority")
+        reorderStore.setSortOption(.dueDate)
+        #expect(
+            reorderStore.visibleReminders.map(\.title) == ["LowSooner", "HighLater"],
+            "dueDate option reorders visible reminders")
 
-    @Test
-    func setSortOptionFiresBothHooks() {
-        let rem = makeReminder(title: "A")
-        let store = ReminderStore(
+        let hookStore = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
-            reminders: [rem],
+            reminders: [makeReminder(title: "A")],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
         var received: SortOption?
         var remindersChanged = false
-        store.onSortOptionChanged = { received = $0 }
-        store.onRemindersChanged = { remindersChanged = true }
-        store.setSortOption(.title)
-        #expect(received == .title)
-        #expect(remindersChanged)
-    }
+        hookStore.onSortOptionChanged = { received = $0 }
+        hookStore.onRemindersChanged = { remindersChanged = true }
+        hookStore.setSortOption(.title)
+        #expect(received == .title, "sort-option hook fires with the new option")
+        #expect(remindersChanged, "reminders-changed hook fires")
 
-    @Test
-    func setSortOptionIsIdempotent() {
-        let store = ReminderStore(
+        let idempotent = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
         var fired = 0
-        store.onSortOptionChanged = { _ in fired += 1 }
-        store.setSortOption(.title)
-        store.setSortOption(.title)
-        store.setSortOption(.title)
-        #expect(fired == 1)
+        idempotent.onSortOptionChanged = { _ in fired += 1 }
+        idempotent.setSortOption(.title)
+        idempotent.setSortOption(.title)
+        idempotent.setSortOption(.title)
+        #expect(fired == 1, "three identical sets notify exactly once")
     }
 
     // MARK: - addReminder
 
     @Test
-    func addReminderWithInMemoryStoreDoesNotCrash() async {
-        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
-        // The in-memory store's save never throws; the important assertion is
-        // that this completes without crashing.
-        await store.addReminder(
-            title: "Buy milk",
-            notes: "Two percent",
-            dueDate: DateComponents(year: 2025, month: 1, day: 2))
-    }
-
-    @Test
-    func addReminderKeepsExistingRemindersUntouched() async {
+    func addReminderSucceedsAndKeepsExistingReminders() async {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [makeReminder(title: "Existing")],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        await store.addReminder(title: "New", notes: nil, dueDate: nil)
-        #expect(store.reminders.count == 1)
-        #expect(store.reminders.first?.title == "Existing")
-    }
+        let added = await store.addReminder(title: "New", notes: nil, dueDate: nil)
+        #expect(added, "add returns true when the save succeeds")
+        #expect(store.reminders.count == 1, "existing reminders untouched")
+        #expect(store.reminders.first?.title == "Existing", "the pre-seeded reminder is retained")
 
-    @Test
-    func addReminderWithRecurrenceRuleDoesNotCrash() async {
-        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
         let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
-        await store.addReminder(
+        let withRule = await store.addReminder(
             title: "Weekly review",
             notes: nil,
             dueDate: DateComponents(year: 2025, month: 1, day: 1),
             recurrenceRule: rule)
-        // No crash = pass.
-        #expect(Bool(true))
+        #expect(withRule, "add succeeds when a recurrence rule is provided")
     }
 
     // MARK: - skipCurrentReminder
 
     @Test
-    func skipCurrentReminderDoesNothingWhenNoVisibleReminders() {
-        let store = ReminderStore(
+    func skipCurrentReminderNoOpsAndNotifies() async {
+        let empty = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        store.skipCurrentReminder()
-        #expect(store.skippedIDs.isEmpty)
-    }
+        empty.skipCurrentReminder()
+        #expect(empty.skippedIDs.isEmpty, "no visible reminders → skipped set unchanged")
 
-    @Test
-    func skipCurrentReminderUpdatesSkippedIDs() async {
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
@@ -303,23 +264,19 @@ struct ReminderStoreTests {
             store.onSkipSetChanged = { _ in continuation.resume() }
             store.skipCurrentReminder()
         }
-        #expect(store.skippedIDs.contains(rem.calendarItemIdentifier))
-    }
+        #expect(store.skippedIDs.contains(rem.calendarItemIdentifier), "the visible reminder's id is skipped")
 
-    @Test
-    func skipCurrentReminderFiresRemindersChangedHook() async {
-        let rem = makeReminder(title: "A")
-        let store = ReminderStore(
+        let hookStore = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
-            reminders: [rem],
+            reminders: [makeReminder(title: "B")],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
         await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
-            store.onRemindersChanged = { continuation.resume() }
-            store.skipCurrentReminder()
+            hookStore.onRemindersChanged = { continuation.resume() }
+            hookStore.skipCurrentReminder()
         }
-        #expect(Bool(true))
+        // Resuming the continuation proves the reminders-changed hook fired.
     }
 
     @Test
@@ -409,43 +366,36 @@ struct ReminderStoreTests {
     // MARK: - completeCurrentReminder
 
     @Test
-    func completeCurrentReminderDoesNothingWhenNoReminders() async {
-        let store = ReminderStore(
+    func completeCurrentReminderCompletesVisibleAndNoOpsOtherwise() async {
+        let none = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        let completed = await store.completeCurrentReminder()
-        #expect(!completed)
-    }
+        let completedNone = await none.completeCurrentReminder()
+        #expect(!completedNone, "no reminders → nothing to complete")
 
-    @Test
-    func completeCurrentReminderDoesNothingWhenAllSkipped() async {
         let rem = makeReminder(title: "A")
-        let store = ReminderStore(
+        let allSkipped = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [rem.calendarItemIdentifier],
             authorizationStatus: .fullAccess)
-        let completed = await store.completeCurrentReminder()
-        #expect(!completed)
-        #expect(store.reminders.count == 1) // unchanged
-    }
+        let completedSkipped = await allSkipped.completeCurrentReminder()
+        #expect(!completedSkipped, "all skipped → nothing visible to complete")
+        #expect(allSkipped.reminders.count == 1, "skipped completion leaves reminders untouched")
 
-    @Test
-    func completeCurrentReminderWithVisibleReminderReturnsTrue() async {
-        let rem = makeReminder(title: "A")
-        let store = ReminderStore(
+        let visibleStore = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        let completed = await store.completeCurrentReminder()
-        #expect(completed)
-        #expect(rem.isCompleted)
+        let completedVisible = await visibleStore.completeCurrentReminder()
+        #expect(completedVisible, "visible reminder completes")
+        #expect(rem.isCompleted, "the visible reminder is marked completed")
     }
 
     // MARK: - completeReminder
@@ -465,127 +415,90 @@ struct ReminderStoreTests {
     // MARK: - start / reload guards
 
     @Test
-    func reloadResumesOnMainActorWhenFetchCompletesOffMain() async {
-        let reminder = makeReminder(title: "A")
-        let fake = InMemoryEventStore(reminders: [reminder], deliverCompletionOffMain: true)
-        let store = ReminderStore(eventStore: fake, loadsReminders: true)
-        await store.reload()
-        #expect(store.reminders.map(\.title) == ["A"])
-    }
+    func lifecycleGuardsRespectLoadsRemindersFlag() async {
+        let offMain = InMemoryEventStore(
+            reminders: [makeReminder(title: "A")],
+            deliverCompletionOffMain: true)
+        let fetching = ReminderStore(eventStore: offMain, loadsReminders: true)
+        await fetching.reload()
+        #expect(
+            fetching.reminders.map(\.title) == ["A"],
+            "reload resumes on the main actor when the fetch completes off-main")
 
-    @Test
-    func showsUndatedRemindersDefaultsToFalse() {
-        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
-        #expect(store.showsUndatedReminders == false)
-    }
-
-    @Test
-    func startDoesNothingWhenLoadsRemindersFalse() async {
-        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
-        await store.start()
-        #expect(store.authorizationStatus == .notDetermined)
-    }
-
-    @Test
-    func reloadDoesNothingWhenLoadsRemindersFalse() async {
-        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
-        await store.reload()
-        #expect(store.reminders.isEmpty)
-    }
-
-    @Test
-    func reloadClearSkippedDoesNothingWhenLoadsRemindersFalse() async {
-        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
-        await store.reload(clearSkipped: true)
-        #expect(store.reminders.isEmpty)
+        let masked = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
+        #expect(masked.showsUndatedReminders == false, "showsUndatedReminders defaults to false")
+        await masked.start()
+        #expect(masked.authorizationStatus == .notDetermined, "start no-ops when loadsReminders false")
+        await masked.reload()
+        #expect(masked.reminders.isEmpty, "reload no-ops when loadsReminders false")
+        await masked.reload(clearSkipped: true)
+        #expect(masked.reminders.isEmpty, "reload(clearSkipped:) no-ops when loadsReminders false")
     }
 
     // MARK: - hasHidden
 
     @Test
-    func hasHiddenDefaultsToFalse() {
+    func hasHiddenReflectsSeedsAndSets() {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        #expect(!store.hasHidden)
-    }
-
-    @Test
-    func hasHiddenSeedsFromInit() {
-        let store = ReminderStore(
+        #expect(!store.hasHidden, "defaults to false")
+        let seeded = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
             authorizationStatus: .fullAccess,
             hasHidden: true)
-        #expect(store.hasHidden)
-    }
+        #expect(seeded.hasHidden, "seeds from init when hasHidden is passed")
 
-    @Test
-    func hasHiddenForFalseWhenSetsMatch() {
         let reminder = makeReminder(title: "A")
-        #expect(!ReminderStore.hasHiddenFor(shown: [reminder], allIncomplete: [reminder]))
-    }
-
-    @Test
-    func hasHiddenForTrueWhenIncompleteHasHidden() {
-        let shown = makeReminder(title: "In")
+        #expect(
+            !ReminderStore.hasHiddenFor(shown: [reminder], allIncomplete: [reminder]),
+            "false when shown and all-incomplete sets match")
         let hidden = makeReminder(title: "Hidden")
-        #expect(ReminderStore.hasHiddenFor(shown: [shown], allIncomplete: [shown, hidden]))
+        #expect(
+            ReminderStore.hasHiddenFor(shown: [hidden], allIncomplete: [hidden, reminder]),
+            "true when an incomplete reminder is hidden")
     }
 
     // MARK: - allSkipped
 
     @Test
-    func allSkippedTrueWhenRemindersExistButAllSkipped() {
+    func allSkippedReflectsState() {
         let rem = makeReminder(title: "A")
-        let store = ReminderStore(
+        let allSkipped = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [rem.calendarItemIdentifier],
             authorizationStatus: .fullAccess)
-        #expect(store.allSkipped)
-    }
-
-    @Test
-    func allSkippedFalseWhenRemindersEmpty() {
-        let store = ReminderStore(
+        #expect(allSkipped.allSkipped, "true when reminders exist but all are skipped")
+        let empty = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        #expect(!store.allSkipped)
-    }
-
-    @Test
-    func allSkippedFalseWhenVisibleRemindersExist() {
-        let rem = makeReminder(title: "A")
-        let store = ReminderStore(
+        #expect(!empty.allSkipped, "false when there are no reminders")
+        let visible = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
             reminders: [rem],
             skippedIDs: [],
             authorizationStatus: .fullAccess)
-        #expect(!store.allSkipped)
-    }
-
-    @Test
-    func allSkippedTrueWhenAllExcluded() {
-        let rem = makeReminder(title: "A", calendarTitle: "Work")
-        let store = ReminderStore(
+        #expect(!visible.allSkipped, "false when a visible reminder exists")
+        let excluded = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
-            reminders: [rem],
+            reminders: [makeReminder(title: "A", calendarTitle: "Work")],
             skippedIDs: [],
             authorizationStatus: .fullAccess,
             excludedListTitles: ["Work"])
-        #expect(store.allSkipped)
+        #expect(excluded.allSkipped, "true when every reminder is in an excluded list")
     }
 }
 

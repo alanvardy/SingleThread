@@ -7,142 +7,80 @@ import Testing
 
 @MainActor
 struct ReminderDisplayTests {
-    @Test
-    func mapsTitle() {
-        let display = ReminderDisplay(reminder: makeReminder(title: "Buy milk"))
-        #expect(display.title == "Buy milk")
-    }
+    // MARK: Internal
 
     @Test
-    func formatsNotes() {
+    func titleAndNotesMap() {
+        let display = ReminderDisplay(reminder: makeReminder(title: "Buy milk"))
+        #expect(display.title == "Buy milk", "title maps through")
+        #expect(display.notes == nil, "nil notes stay nil")
         let reminder = makeReminder(title: "Buy milk")
         reminder.notes = "tTwo percent"
-        let display = ReminderDisplay(reminder: reminder)
-        #expect(display.notes == "Two percent")
-    }
-
-    @Test
-    func mapsNilNotes() {
-        let display = ReminderDisplay(reminder: makeReminder(title: "Buy milk"))
-        #expect(display.notes == nil)
+        #expect(
+            ReminderDisplay(reminder: reminder).notes == "Two percent",
+            "notes run through the notes formatter")
     }
 
     @Test
     func mapsDueDate() {
+        let display = ReminderDisplay(reminder: makeReminder(title: "Buy milk"))
+        #expect(display.dueDate == nil, "nil due date stays nil")
         let reminder = makeReminder(title: "Buy milk")
         let components = DateComponents(year: 2025, month: 2, day: 3)
         reminder.dueDateComponents = components
-        let display = ReminderDisplay(reminder: reminder)
-        guard let date = display.dueDate else {
+        let dated = ReminderDisplay(reminder: reminder)
+        guard let date = dated.dueDate else {
             Issue.record("expected a due date")
             return
         }
         let calendar = Calendar.current
         let displayComponents = calendar.dateComponents([.year, .month, .day], from: date)
-        #expect(displayComponents.year == components.year)
-        #expect(displayComponents.month == components.month)
-        #expect(displayComponents.day == components.day)
+        #expect(displayComponents.year == components.year, "year maps")
+        #expect(displayComponents.month == components.month, "month maps")
+        #expect(displayComponents.day == components.day, "day maps")
+    }
+
+    @Test(arguments: [
+        (0, ""),
+        (1, "!!!"),
+        (2, "!!!"),
+        (4, "!!!"),
+        (6, "!"),
+        (8, "!")
+    ])
+    func priorityMarkerMaps(_ spec: (priority: Int, expected: String)) {
+        let reminder = makeReminder(title: "P\(spec.priority)")
+        reminder.priority = spec.priority
+        #expect(
+            ReminderDisplay(reminder: reminder).priorityMarker == spec.expected,
+            "priority \(spec.priority) → \(spec.expected)")
     }
 
     @Test
-    func mapsNilDueDate() {
-        let display = ReminderDisplay(reminder: makeReminder(title: "Buy milk"))
-        #expect(display.dueDate == nil)
-    }
-
-    @Test
-    func mapsHighPriorityMarker() {
-        let reminder = makeReminder(title: "Buy milk")
-        reminder.priority = 1
-        #expect(ReminderDisplay(reminder: reminder).priorityMarker == "!!!")
-    }
-
-    @Test
-    func mapsEmptyMarkerForNoPriority() {
-        let reminder = makeReminder(title: "Buy milk")
-        reminder.priority = 0
-        #expect(ReminderDisplay(reminder: reminder).priorityMarker.isEmpty)
-    }
-
-    @Test
-    func mapsHighMarkerForPriority2() {
-        let reminder = makeReminder(title: "P2")
-        reminder.priority = 2
-        #expect(ReminderDisplay(reminder: reminder).priorityMarker == "!!!")
-    }
-
-    @Test
-    func mapsHighMarkerForPriority4() {
-        let reminder = makeReminder(title: "P4")
-        reminder.priority = 4
-        #expect(ReminderDisplay(reminder: reminder).priorityMarker == "!!!")
-    }
-
-    @Test
-    func mapsLowMarkerForPriority6() {
-        let reminder = makeReminder(title: "P6")
-        reminder.priority = 6
-        #expect(ReminderDisplay(reminder: reminder).priorityMarker == "!")
-    }
-
-    @Test
-    func mapsLowMarkerForPriority8() {
-        let reminder = makeReminder(title: "P8")
-        reminder.priority = 8
-        #expect(ReminderDisplay(reminder: reminder).priorityMarker == "!")
-    }
-
-    @Test
-    func mapsListNameFromCalendarTitle() {
-        // Construction only — never saved through EventKit.
+    func listNameFollowsCalendar() {
         let store = EKEventStore()
         let reminder = EKReminder(eventStore: store)
         reminder.title = "Buy milk"
         let calendar = EKCalendar(for: .reminder, eventStore: store)
         calendar.title = "Groceries"
         reminder.calendar = calendar
-        #expect(ReminderDisplay(reminder: reminder).listName == "Groceries")
+        #expect(
+            ReminderDisplay(reminder: reminder).listName == "Groceries",
+            "calendar title becomes list name")
+        #expect(
+            ReminderDisplay(reminder: makeReminder(title: "Buy milk")).listName == nil,
+            "missing calendar → nil list name")
     }
 
-    @Test
-    func mapsNilListNameWhenCalendarMissing() {
-        #expect(ReminderDisplay(reminder: makeReminder(title: "Buy milk")).listName == nil)
-    }
-
-    @Test
-    func mapsHasRecurrenceTrue() {
+    @Test(arguments: [true, false])
+    func alarmsFlagFollowsReminderAlarms(_ hasAlarm: Bool) {
         let reminder = makeReminder(title: "Milk")
-        reminder.addRecurrenceRule(EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil))
-        #expect(ReminderDisplay(reminder: reminder).hasRecurrence)
-    }
-
-    @Test
-    func mapsHasRecurrenceFalse() {
-        #expect(!ReminderDisplay(reminder: makeReminder(title: "Milk")).hasRecurrence)
-    }
-
-    @Test
-    func mapsRecurrenceSummary() {
-        let reminder = makeReminder(title: "Milk")
-        reminder.addRecurrenceRule(EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil))
-        #expect(ReminderDisplay(reminder: reminder).recurrenceSummary == "Daily")
-    }
-
-    @Test
-    func nilRecurrenceSummaryWhenNoRules() {
-        #expect(ReminderDisplay(reminder: makeReminder(title: "Milk")).recurrenceSummary == nil)
-    }
-
-    @Test
-    func mapsHasAlarmsTrue() {
-        let reminder = makeReminder(title: "Milk")
-        reminder.addAlarm(EKAlarm(absoluteDate: Date()))
-        #expect(ReminderDisplay(reminder: reminder).hasAlarms)
-    }
-
-    @Test
-    func mapsHasAlarmsFalse() {
-        #expect(!ReminderDisplay(reminder: makeReminder(title: "Milk")).hasAlarms)
+        if hasAlarm {
+            reminder.addAlarm(EKAlarm(absoluteDate: Date()))
+        }
+        #expect(
+            ReminderDisplay(reminder: reminder).hasAlarms == hasAlarm,
+            "has alarms: \(hasAlarm)")
     }
 
     @Test
@@ -154,53 +92,67 @@ struct ReminderDisplayTests {
             dueDate: due,
             priorityMarker: "!",
             listName: "Errands")
-        #expect(display.title == "Next thing")
-        #expect(display.notes == "Notes")
-        #expect(display.dueDate == due)
-        #expect(display.priorityMarker == "!")
-        #expect(display.listName == "Errands")
+        #expect(display.title == "Next thing", "title")
+        #expect(display.notes == "Notes", "notes")
+        #expect(display.dueDate == due, "due date")
+        #expect(display.priorityMarker == "!", "priority marker")
+        #expect(display.listName == "Errands", "list name")
+    }
+
+    @Test(arguments: [
+        ("Buy milk", "Buy milk"),
+        ("Use `map` now", "Use map now")
+    ])
+    func titleAttributedStripsCodeSpans(_ pair: (title: String, expected: String)) {
+        let display = ReminderDisplay(reminder: makeReminder(title: pair.title))
+        #expect(
+            String(display.titleAttributed.characters[...]) == pair.expected,
+            "\(pair.title) → \(pair.expected)")
     }
 
     @Test
-    func titleAttributedReturnsPlainForPlainTitle() {
-        let display = ReminderDisplay(reminder: makeReminder(title: "Buy milk"))
-        let attributed = display.titleAttributed
-        #expect(String(attributed.characters[...]) == "Buy milk")
+    func notesAttributedStripsBackticksAfterNotesFormatter() throws {
+        #expect(
+            ReminderDisplay(reminder: makeReminder(title: "Test")).notesAttributed == nil,
+            "nil notes → nil attributed")
+        let backticks = makeReminder(title: "Use `map`")
+        backticks.notes = "See `filter` docs"
+        let attributed = ReminderDisplay(reminder: backticks).notesAttributed
+        #expect(attributed != nil, "non-nil notes → non-nil attributed")
+        #expect(
+            try String(#require(attributed?.characters[...])) == "See filter docs",
+            "backticks stripped from notes")
+
+        let artifacted = makeReminder(title: "Test")
+        artifacted.notes = "tUse `map`" // t-artifact + code span
+        let pipeline = ReminderDisplay(reminder: artifacted).notesAttributed
+        #expect(pipeline != nil, "artifacted notes → non-nil attributed")
+        let text = try String(#require(pipeline?.characters[...]))
+        #expect(text == "Use map", "t stripped by notes formatter, backticks by code-span formatter")
     }
 
-    @Test
-    func titleAttributedStripsBackticks() {
-        let display = ReminderDisplay(reminder: makeReminder(title: "Use `map` now"))
-        let attributed = display.titleAttributed
-        #expect(String(attributed.characters[...]) == "Use map now")
+    // MARK: Private
+
+    private struct RecurrenceCase: Sendable {
+        let addsRule: Bool
+        let expectedHasRecurrence: Bool
+        let expectedSummary: String?
     }
 
-    @Test
-    func notesAttributedReturnsNilForNilNotes() {
-        let display = ReminderDisplay(reminder: makeReminder(title: "Test"))
-        #expect(display.notesAttributed == nil)
-    }
-
-    @Test
-    func notesAttributedStripsBackticks() throws {
-        let reminder = makeReminder(title: "Use `map`")
-        reminder.notes = "See `filter` docs"
+    @Test(arguments: [
+        RecurrenceCase(addsRule: false, expectedHasRecurrence: false, expectedSummary: nil),
+        RecurrenceCase(addsRule: true, expectedHasRecurrence: true, expectedSummary: "Daily")
+    ])
+    private func recurrenceFlagsAndSummary(_ spec: RecurrenceCase) {
+        let reminder = makeReminder(title: "Milk")
+        if spec.addsRule {
+            reminder.addRecurrenceRule(EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil))
+        }
         let display = ReminderDisplay(reminder: reminder)
-        let attributed = display.notesAttributed
-        #expect(attributed != nil)
-        #expect(try String(#require(attributed?.characters[...])) == "See filter docs")
-    }
-
-    @Test
-    func notesAttributedRunsAfterNotesFormatter() throws {
-        // Verifies the pipeline: EKReminder.notes → ReminderNotesFormatter → CodeSpanFormatter
-        let reminder = makeReminder(title: "Test")
-        reminder.notes = "tUse `map`" // t-artifact + code span
-        let display = ReminderDisplay(reminder: reminder)
-        let attributed = display.notesAttributed
-        #expect(attributed != nil)
-        let text = try String(#require(attributed?.characters[...]))
-        #expect(text == "Use map") // t stripped, backticks stripped
+        #expect(display.hasRecurrence == spec.expectedHasRecurrence, "has-recurrence for rule added: \(spec.addsRule)")
+        #expect(
+            display.recurrenceSummary == spec.expectedSummary,
+            "summary for rule added: \(spec.addsRule)")
     }
 }
 

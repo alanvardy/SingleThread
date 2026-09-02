@@ -5,276 +5,127 @@ import Testing
 struct ReminderSkipLogicTests {
     // MARK: - resolve
 
-    @Test
-    func resolvePrunesStaleIDs() {
-        let result = ReminderSkipLogic.resolve(
-            fetched: ["A", "B"],
-            skipped: ["A", "C", "D"])
-        #expect(Set(result) == ["A"])
-    }
-
-    @Test
-    func resolveKeepsAllValidIDs() {
-        let result = ReminderSkipLogic.resolve(
-            fetched: ["A", "B", "C"],
-            skipped: ["A", "B", "C"])
-        #expect(Set(result) == ["A", "B", "C"])
-    }
-
-    @Test
-    func resolveReturnsEmptyWhenFetchedIsEmpty() {
-        let result = ReminderSkipLogic.resolve(
-            fetched: [],
-            skipped: ["A", "B"])
-        #expect(result.isEmpty)
-    }
-
-    @Test
-    func resolveReturnsEmptyWhenSkippedIsEmpty() {
-        let result = ReminderSkipLogic.resolve(
-            fetched: ["A", "B"],
-            skipped: [])
-        #expect(result.isEmpty)
-    }
-
-    @Test
-    func resolveReturnsEmptyWhenNoOverlap() {
-        let result = ReminderSkipLogic.resolve(
-            fetched: ["A", "B"],
-            skipped: ["C", "D"])
-        #expect(result.isEmpty)
+    private struct ResolveCase: Sendable {
+        let fetched: [String]
+        let skipped: [String]
+        let expected: [String]
     }
 
     // MARK: - skipping
 
-    @Test
-    func skippingAddsIdentifier() {
-        let result = ReminderSkipLogic.skipping(
-            "B",
-            fetched: ["A", "B", "C"],
-            skipped: ["A"])
-        #expect(Set(result) == ["A", "B"])
+    private struct SkippingCase: Sendable {
+        let identifier: String
+        let fetched: [String]
+        let skipped: [String]
+        let expected: [String]
     }
 
-    @Test
-    func skippingPrunesStaleEntries() {
-        let result = ReminderSkipLogic.skipping(
-            "B",
-            fetched: ["A", "B"],
-            skipped: ["A", "C", "D"])
-        #expect(Set(result) == ["A", "B"])
+    @Test(arguments: [
+        ResolveCase(fetched: ["A", "B"], skipped: ["A", "C", "D"], expected: ["A"]),
+        ResolveCase(fetched: ["A", "B", "C"], skipped: ["A", "B", "C"], expected: ["A", "B", "C"]),
+        ResolveCase(fetched: [], skipped: ["A", "B"], expected: []),
+        ResolveCase(fetched: ["A", "B"], skipped: [], expected: []),
+        ResolveCase(fetched: ["A", "B"], skipped: ["C", "D"], expected: [])
+    ])
+    private func resolveIntersectsFetchedAndSkipped(_ spec: ResolveCase) {
+        let result = ReminderSkipLogic.resolve(fetched: spec.fetched, skipped: spec.skipped)
+        #expect(
+            Set(result) == Set(spec.expected),
+            "fetched \(spec.fetched), skipped \(spec.skipped) → \(spec.expected)")
     }
 
-    @Test
-    func skippingHandlesDuplicateIdentifier() {
+    @Test(arguments: [
+        SkippingCase(identifier: "B", fetched: ["A", "B", "C"], skipped: ["A"], expected: ["A", "B"]),
+        SkippingCase(identifier: "B", fetched: ["A", "B"], skipped: ["A", "C", "D"], expected: ["A", "B"]),
+        SkippingCase(identifier: "A", fetched: ["A", "B"], skipped: ["A"], expected: ["A"]),
+        SkippingCase(identifier: "A", fetched: [], skipped: ["B"], expected: []),
+        SkippingCase(identifier: "C", fetched: ["A", "B", "C", "D"], skipped: ["A", "B"], expected: ["A", "B", "C"])
+    ])
+    private func skippingAddsIdentifierAndPrunesStale(_ spec: SkippingCase) {
         let result = ReminderSkipLogic.skipping(
-            "A",
-            fetched: ["A", "B"],
-            skipped: ["A"])
-        #expect(Set(result) == ["A"])
-    }
-
-    @Test
-    func skippingWithEmptyFetchedReturnsEmpty() {
-        let result = ReminderSkipLogic.skipping(
-            "A",
-            fetched: [],
-            skipped: ["B"])
-        #expect(result.isEmpty)
-    }
-
-    @Test
-    func skippingPreservesExistingSkippedInFetched() {
-        let result = ReminderSkipLogic.skipping(
-            "C",
-            fetched: ["A", "B", "C", "D"],
-            skipped: ["A", "B"])
-        #expect(Set(result) == ["A", "B", "C"])
+            spec.identifier,
+            fetched: spec.fetched,
+            skipped: spec.skipped)
+        #expect(
+            Set(result) == Set(spec.expected),
+            "skip \(spec.identifier) over fetched \(spec.fetched), skipped \(spec.skipped) → \(spec.expected)")
     }
 }
 
 // MARK: - ReminderPriority
 
 struct ReminderPriorityTests {
-    @Test
-    func levelMapsHighPriority() {
-        #expect(ReminderPriority.level(for: 1) == .high)
-    }
+    // MARK: Internal
 
-    @Test
-    func levelMapsHighForBoundary() {
-        #expect(ReminderPriority.level(for: 2) == .high)
-        #expect(ReminderPriority.level(for: 4) == .high)
-    }
-
-    @Test
-    func levelMapsLowForMidLowPriority() {
-        #expect(ReminderPriority.level(for: 6) == .low)
-        #expect(ReminderPriority.level(for: 7) == .low)
-    }
-
-    @Test
-    func levelMapsLowForBoundary() {
-        #expect(ReminderPriority.level(for: 8) == .low)
-    }
-
-    @Test
-    func levelMapsMediumPriority() {
-        #expect(ReminderPriority.level(for: 5) == .medium)
-    }
-
-    @Test
-    func levelMapsLowPriority() {
-        #expect(ReminderPriority.level(for: 9) == .low)
-    }
-
-    @Test
-    func levelIsNilForNoPriority() {
-        #expect(ReminderPriority.level(for: 0) == nil)
-    }
-
-    @Test
-    func levelMapsHighForMidHighPriority() {
-        #expect(ReminderPriority.level(for: 3) == .high)
-    }
-
-    @Test
-    func markerIsTwoForMedium() {
-        #expect(ReminderPriority.marker(for: 5) == "!!")
-    }
-
-    @Test
-    func markerIsThreeForHigh() {
-        #expect(ReminderPriority.marker(for: 1) == "!!!")
-    }
-
-    @Test
-    func markerIsOneForLow() {
-        #expect(ReminderPriority.marker(for: 9) == "!")
+    @Test(arguments: [
+        (0, nil),
+        (1, ReminderPriority.Level.high), (2, .high), (3, .high), (4, .high),
+        (5, .medium),
+        (6, .low), (7, .low), (8, .low), (9, .low)
+    ] as [(Int, ReminderPriority.Level?)])
+    func levelMapsEveryPriority(_ spec: (priority: Int, expected: ReminderPriority.Level?)) {
+        #expect(
+            ReminderPriority.level(for: spec.priority) == spec.expected,
+            "priority \(spec.priority) → \(spec.expected.map(String.init(describing:)) ?? "nil")")
     }
 
     @Test
     func displayNameLocalizes() {
-        #expect(ReminderPriority.Level.high.displayName == String.en("High", bundle: .core))
-        #expect(ReminderPriority.Level.medium.displayName == String.en("Medium", bundle: .core))
-        #expect(ReminderPriority.Level.low.displayName == String.en("Low", bundle: .core))
+        #expect(ReminderPriority.Level.high.displayName == String.en("High", bundle: .core), "high → High")
+        #expect(ReminderPriority.Level.medium.displayName == String.en("Medium", bundle: .core), "medium → Medium")
+        #expect(ReminderPriority.Level.low.displayName == String.en("Low", bundle: .core), "low → Low")
     }
 
-    @Test
-    func markerIsEmptyWhenNoPriority() {
-        #expect(ReminderPriority.marker(for: 0).isEmpty)
+    // MARK: Private
+
+    private struct MarkerRankCase: Sendable {
+        let priority: Int
+        let marker: String
+        let rank: Int?
     }
 
-    @Test
-    func rankIsZeroForHighBoundary() {
-        #expect(ReminderPriority.rank(for: 4) == 0)
-        #expect(ReminderPriority.rank(for: 1) == 0)
-    }
-
-    @Test
-    func rankIsTwoForLowBoundary() {
-        #expect(ReminderPriority.rank(for: 6) == 2)
-        #expect(ReminderPriority.rank(for: 9) == 2)
-    }
-
-    @Test
-    func rankIsOneForMediumPriority() {
-        #expect(ReminderPriority.rank(for: 5) == 1)
-    }
-
-    @Test
-    func rankIsNilForNoPriority() {
-        #expect(ReminderPriority.rank(for: 0) == nil)
+    @Test(arguments: [
+        MarkerRankCase(priority: 0, marker: "", rank: nil),
+        MarkerRankCase(priority: 1, marker: "!!!", rank: 0),
+        MarkerRankCase(priority: 4, marker: "!!!", rank: 0),
+        MarkerRankCase(priority: 5, marker: "!!", rank: 1),
+        MarkerRankCase(priority: 6, marker: "!", rank: 2),
+        MarkerRankCase(priority: 9, marker: "!", rank: 2)
+    ])
+    private func markerAndRankMap(_ spec: MarkerRankCase) {
+        #expect(
+            ReminderPriority.marker(for: spec.priority) == spec.marker,
+            "marker for priority \(spec.priority) → \(spec.marker)")
+        #expect(
+            ReminderPriority.rank(for: spec.priority) == spec.rank,
+            "rank for priority \(spec.priority) → \(spec.rank.map(String.init(describing:)) ?? "nil")")
     }
 }
 
 // MARK: - ReminderNotesFormatter
 
 struct ReminderNotesFormatterTests {
-    @Test
-    func formatReturnsNilForNilInput() {
-        #expect(ReminderNotesFormatter.format(nil) == nil)
+    @Test(arguments: [nil, "", "   ", "\n\n", "t", "t "])
+    func formatReturnsNilForBlankOrPrefixOnly(_ input: String?) {
+        #expect(ReminderNotesFormatter.format(input) == nil, "nil for input \(input.map { "\"\($0)\"" } ?? "nil")")
     }
 
-    @Test
-    func formatReturnsNilForWhitespaceOnly() {
-        #expect(ReminderNotesFormatter.format("   ") == nil)
-    }
-
-    @Test
-    func formatReturnsNilForEmptyString() {
-        #expect(ReminderNotesFormatter.format("") == nil)
-    }
-
-    @Test
-    func formatReturnsNilForNewlinesOnly() {
-        #expect(ReminderNotesFormatter.format("\n\n") == nil)
-    }
-
-    @Test
-    func formatPreservesPlainNotes() {
-        let result = ReminderNotesFormatter.format("Buy milk")
-        #expect(result == "Buy milk")
-    }
-
-    @Test
-    func formatTrimsLeadingWhitespace() {
-        let result = ReminderNotesFormatter.format("  hello")
-        #expect(result == "hello")
-    }
-
-    @Test
-    func formatTrimsTrailingWhitespace() {
-        let result = ReminderNotesFormatter.format("hello  ")
-        #expect(result == "hello")
-    }
-
-    @Test
-    func formatStripsLeadingTPrefix() {
-        let result = ReminderNotesFormatter.format("tBuy milk")
-        #expect(result == "Buy milk")
-    }
-
-    @Test
-    func formatStripsLeadingTPrefixWithSpace() {
-        let result = ReminderNotesFormatter.format("t Buy milk")
-        #expect(result == "Buy milk")
-    }
-
-    @Test
-    func formatKeepsTInsideText() {
-        let result = ReminderNotesFormatter.format("Get two items")
-        #expect(result == "Get two items")
-    }
-
-    @Test
-    func formatPreservesLeadingLowercaseTWord() {
-        // A note that legitimately starts with a lowercase "t" must not have its
-        // first letter stripped.
-        #expect(ReminderNotesFormatter.format("take out trash") == "take out trash")
-        #expect(ReminderNotesFormatter.format("two percent") == "two percent")
-    }
-
-    @Test
-    func formatPreservesMultilineNotes() {
-        let result = ReminderNotesFormatter.format("Line one\nLine two")
-        #expect(result == "Line one\nLine two")
-    }
-
-    @Test
-    func formatStripsLeadingTPrefixFromMultiline() {
-        let result = ReminderNotesFormatter.format("tLine one\nLine two")
-        #expect(result == "Line one\nLine two")
-    }
-
-    @Test
-    func formatReturnsNilWhenOnlyLeadingPrefixChar() {
-        #expect(ReminderNotesFormatter.format("t") == nil)
-    }
-
-    @Test
-    func formatReturnsNilWhenOnlyLeadingPrefixCharWithSpace() {
-        #expect(ReminderNotesFormatter.format("t ") == nil)
+    @Test(arguments: [
+        ("Buy milk", "Buy milk"),
+        ("  hello", "hello"),
+        ("hello  ", "hello"),
+        ("tBuy milk", "Buy milk"),
+        ("t Buy milk", "Buy milk"),
+        ("Get two items", "Get two items"),
+        ("take out trash", "take out trash"),
+        ("two percent", "two percent"),
+        ("Line one\nLine two", "Line one\nLine two"),
+        ("tLine one\nLine two", "Line one\nLine two")
+    ])
+    func formatTransforms(_ pair: (input: String, expected: String)) {
+        #expect(
+            ReminderNotesFormatter.format(pair.input) == pair.expected,
+            "\(pair.input) → \(pair.expected)")
     }
 }
 
@@ -284,46 +135,30 @@ struct ReminderSortTests {
     // MARK: Internal
 
     @Test
-    func sortsHighPriorityBeforeLow() {
+    func sortsByPriorityThenDateThenTitle() {
         let low = makeReminder(title: "low", priority: 9)
         let high = makeReminder(title: "high", priority: 1)
-        #expect(titles(of: [low, high]) == ["high", "low"])
-    }
-
-    @Test
-    func sortsHighBeforeMediumBeforeLow() {
-        let low = makeReminder(title: "L", priority: 9)
+        #expect(titles(of: [low, high]) == ["high", "low"], "high priority before low")
+        let low2 = makeReminder(title: "L", priority: 9)
         let med = makeReminder(title: "M", priority: 5)
-        let high = makeReminder(title: "H", priority: 1)
-        #expect(titles(of: [low, med, high]) == ["H", "M", "L"])
-    }
-
-    @Test
-    func sortsPrioritizedBeforeNoPriority() {
+        let high2 = makeReminder(title: "H", priority: 1)
+        #expect(titles(of: [low2, med, high2]) == ["H", "M", "L"], "high before medium before low")
         let none = makeReminder(title: "none")
-        let high = makeReminder(title: "high", priority: 1)
-        #expect(titles(of: [none, high]) == ["high", "none"])
+        let high3 = makeReminder(title: "high", priority: 1)
+        #expect(titles(of: [none, high3]) == ["high", "none"], "prioritized before no priority")
     }
 
     @Test
-    func sortsWithinSamePriorityByDate() {
+    func sortsWithinSamePriorityByDateThenTitle() {
         let later = makeReminder(title: "later", priority: 1, dateComponents: date(10))
         let sooner = makeReminder(title: "sooner", priority: 1, dateComponents: date(2))
-        #expect(titles(of: [later, sooner]) == ["sooner", "later"])
-    }
-
-    @Test
-    func sortsDatedBeforeUndated() {
+        #expect(titles(of: [later, sooner]) == ["sooner", "later"], "earlier date sorts first")
         let undated = makeReminder(title: "undated", priority: 5)
         let dated = makeReminder(title: "dated", priority: 5, dateComponents: date(3))
-        #expect(titles(of: [undated, dated]) == ["dated", "undated"])
-    }
-
-    @Test
-    func breaksTiesAlphabetically() {
+        #expect(titles(of: [undated, dated]) == ["dated", "undated"], "dated before undated")
         let beta = makeReminder(title: "Beta", priority: 5)
         let alpha = makeReminder(title: "Alpha", priority: 5)
-        #expect(titles(of: [beta, alpha]) == ["Alpha", "Beta"])
+        #expect(titles(of: [beta, alpha]) == ["Alpha", "Beta"], "alphabetical tie-break")
     }
 
     @Test
@@ -338,33 +173,27 @@ struct ReminderSortTests {
     }
 
     @Test
-    func dueDateSortsSoonestFirstIgnoringPriority() {
+    func dueDateOptionSortsSoonestFirst() {
         let lowSoon = makeReminder(title: "sooner", priority: 9, dateComponents: date(2))
         let highLater = makeReminder(title: "later", priority: 1, dateComponents: date(10))
-        #expect(titles(of: [lowSoon, highLater], using: .dueDate) == ["sooner", "later"])
-    }
-
-    @Test
-    func dueDateSortsDatedBeforeUndated() {
+        #expect(
+            titles(of: [lowSoon, highLater], using: .dueDate) == ["sooner", "later"],
+            "due-date sort ignores priority")
         let undated = makeReminder(title: "undated")
         let dated = makeReminder(title: "dated", dateComponents: date(3))
-        #expect(titles(of: [undated, dated], using: .dueDate) == ["dated", "undated"])
+        #expect(titles(of: [undated, dated], using: .dueDate) == ["dated", "undated"], "dated before undated")
     }
 
     @Test
-    func titleSortIsCaseInsensitiveAlphabetical() {
+    func titleOptionSortsCaseInsensitively() {
         let zebra = makeReminder(title: "Zebra", priority: 1) // priority ignored
         let apple = makeReminder(title: "apple", priority: 9)
-        #expect(titles(of: [zebra, apple], using: .title) == ["apple", "Zebra"])
-    }
-
-    @Test
-    func titleSortBreaksTiesByDueDate() {
+        #expect(titles(of: [zebra, apple], using: .title) == ["apple", "Zebra"], "case-insensitive alphabetical")
         let later = makeReminder(title: "Same", dateComponents: date(10))
         let sooner = makeReminder(title: "Same", dateComponents: date(2))
         let sorted = [later, sooner].sorted { ReminderSort.areInIncreasingOrder($0, $1, using: .title) }
-        #expect(sorted[0].dueDateComponents?.day == 2)
-        #expect(sorted[1].dueDateComponents?.day == 10)
+        #expect(sorted[0].dueDateComponents?.day == 2, "same title breaks tie by sooner due date")
+        #expect(sorted[1].dueDateComponents?.day == 10, "same title breaks tie by later due date")
     }
 
     // MARK: Private

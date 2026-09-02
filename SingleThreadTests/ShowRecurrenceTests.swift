@@ -8,24 +8,16 @@ struct ShowRecurrenceTests {
     // MARK: Internal
 
     @Test
-    func recurrenceRowShownWhenEnabledAndHasRecurrence() {
-        let description = String(describing: makeCard(showRecurrence: true, hasRecurrence: true).body)
+    func recurrenceRowFollowsPreferenceAndData() {
+        let shown = String(describing: makeCard(showRecurrence: true, hasRecurrence: true).body)
         // The row's only text node carries the formatted summary, which the body
         // description surfaces. `Image(systemName:)` boxes as NamedImageProvider
         // and never prints the symbol name, so assert on the summary instead.
-        #expect(description.contains("Weekly"))
-    }
-
-    @Test
-    func recurrenceRowHiddenWhenDisabled() {
-        let description = String(describing: makeCard(showRecurrence: false, hasRecurrence: true).body)
-        #expect(!description.contains("Weekly"))
-    }
-
-    @Test
-    func recurrenceRowHiddenWhenNoRecurrence() {
-        let description = String(describing: makeCard(showRecurrence: true, hasRecurrence: false).body)
-        #expect(!description.contains("Weekly"))
+        #expect(shown.contains("Weekly"), "recurrence row shown when enabled and recurrence present")
+        let disabled = String(describing: makeCard(showRecurrence: false, hasRecurrence: true).body)
+        #expect(!disabled.contains("Weekly"), "recurrence row hidden when showRecurrence disabled")
+        let none = String(describing: makeCard(showRecurrence: true, hasRecurrence: false).body)
+        #expect(!none.contains("Weekly"), "recurrence row hidden when no recurrence")
     }
 
     // MARK: Private

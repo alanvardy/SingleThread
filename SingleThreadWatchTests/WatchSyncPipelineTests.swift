@@ -32,6 +32,8 @@ private final class WatchFakeSession: SkipSyncSession {
 /// asserted natively on watchOS where the iOS-side bundle cannot run.
 @MainActor
 struct WatchSyncPipelineTests {
+    // MARK: Internal
+
     @Test
     func pushAllFromWatchOmitsShowDate() throws {
         let fake = WatchFakeSession()
@@ -145,19 +147,24 @@ struct WatchSyncPipelineTests {
         #expect(!fired)
     }
 
-    @Test
-    func showUndatedSurvivesRelaunch() {
+    @Test(arguments: [
+        ("showUndatedReminders", true),
+        ("showRecurrence", false),
+        ("showAlarms", false),
+        ("showList", true),
+        ("showCompletionGlow", false),
+    ])
+    func receivedPreferenceSurvivesRelaunch(_ payload: (key: String, value: Bool)) {
         // Receive → throw the service away → a fresh store instance reads the
         // value back, proving the value survives process relaunch.
         let key = "wtest-relaunch-\(UUID().uuidString)"
         let fake = WatchFakeSession()
-        let service = SkippedReminderSyncService(
-            session: fake,
-            skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
-            showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard, key: key))
-        service.session(WCSession.default, didReceiveApplicationContext: ["showUndatedReminders": true])
-        let freshStore = ShowUndatedRemindersPreference(defaults: .standard, key: key)
-        #expect(freshStore.load())
+        let service = Self.makeService(forContextKey: payload.key, session: fake, storageKey: key)
+        service.session(WCSession.default, didReceiveApplicationContext: [payload.key: payload.value])
+        let fresh = Self.makePreference(forContextKey: payload.key, defaults: .standard, storageKey: key)
+        #expect(
+            fresh.currentValue == payload.value,
+            "\(payload.key)=\(payload.value) should survive relaunch")
     }
 
     @Test
@@ -254,36 +261,6 @@ struct WatchSyncPipelineTests {
     }
 
     @Test
-    func showRecurrenceSurvivesRelaunch() {
-        let key = "wtest-relaunch-rec-\(UUID().uuidString)"
-        let fake = WatchFakeSession()
-        let service = SkippedReminderSyncService(
-            session: fake,
-            skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
-            showRecurrenceStore: ShowRecurrencePreference(defaults: .standard, key: key))
-        service.session(
-            WCSession.default,
-            didReceiveApplicationContext: ["showRecurrence": false])
-        let freshStore = ShowRecurrencePreference(defaults: .standard, key: key)
-        #expect(!freshStore.isEnabled)
-    }
-
-    @Test
-    func showAlarmsSurvivesRelaunch() {
-        let key = "wtest-relaunch-alarm-\(UUID().uuidString)"
-        let fake = WatchFakeSession()
-        let service = SkippedReminderSyncService(
-            session: fake,
-            skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
-            showAlarmsStore: ShowAlarmsPreference(defaults: .standard, key: key))
-        service.session(
-            WCSession.default,
-            didReceiveApplicationContext: ["showAlarms": false])
-        let freshStore = ShowAlarmsPreference(defaults: .standard, key: key)
-        #expect(!freshStore.isEnabled)
-    }
-
-    @Test
     func receiveAppliesShowList() {
         let fake = WatchFakeSession()
         let suffix = UUID().uuidString
@@ -325,21 +302,6 @@ struct WatchSyncPipelineTests {
 
         #expect(!showListStore.isEnabled)
         #expect(!fired)
-    }
-
-    @Test
-    func showListSurvivesRelaunch() {
-        let key = "wtest-relaunch-sl-\(UUID().uuidString)"
-        let fake = WatchFakeSession()
-        let service = SkippedReminderSyncService(
-            session: fake,
-            skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
-            showListStore: ShowListPreference(defaults: .standard, key: key))
-        service.session(
-            WCSession.default,
-            didReceiveApplicationContext: ["showList": true])
-        let freshStore = ShowListPreference(defaults: .standard, key: key)
-        #expect(freshStore.isEnabled)
     }
 
     @Test
@@ -385,17 +347,65 @@ struct WatchSyncPipelineTests {
         #expect(values == [false])
     }
 
-    @Test
-    func showCompletionGlowSurvivesRelaunch() {
-        let key = "wtest-relaunch-glow-\(UUID().uuidString)"
-        let fake = WatchFakeSession()
-        let service = SkippedReminderSyncService(
-            session: fake,
-            skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
-            showCompletionGlowStore: ShowCompletionGlowPreference(defaults: .standard, key: key))
-        service.session(WCSession.default, didReceiveApplicationContext: ["showCompletionGlow": false])
-        let freshStore = ShowCompletionGlowPreference(defaults: .standard, key: key)
-        #expect(!freshStore.isEnabled)
+    // MARK: Private
+
+    // MARK: Private — relaunch-test seam
+
+    /// Reads the persisted Bool the way any `Show*Preference` would after the
+    /// service applied an incoming context value. The five concrete preference
+    /// types diverge only in default and key, so the relaunch shape unifies
+    /// behind this wrapper.
+    private struct PreferenceValue {
+        let currentValue: Bool
+    }
+
+    /// Builds the concrete store the service treats as "fresh" after a relaunch:
+    /// the raw Bool the previous service instance persisted under `storageKey`.
+    private static func makePreference(
+        forContextKey _: String,
+        defaults: UserDefaults,
+        storageKey: String) -> PreferenceValue {
+        PreferenceValue(currentValue: defaults.object(forKey: storageKey) as? Bool ?? false)
+    }
+
+    /// Wires a service with the concrete `Show*Preference` store for the given
+    /// context key, each under the same `storageKey` so a later read-back sees
+    /// the persisted value.
+    private static func makeService(
+        forContextKey contextKey: String,
+        session: WatchFakeSession,
+        storageKey: String) -> SkippedReminderSyncService {
+        let skipStore = SkippedReminderStore(defaults: .standard, key: storageKey + "-ids")
+        switch contextKey {
+        case "showUndatedReminders":
+            return SkippedReminderSyncService(
+                session: session,
+                skipStore: skipStore,
+                showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard, key: storageKey))
+        case "showRecurrence":
+            return SkippedReminderSyncService(
+                session: session,
+                skipStore: skipStore,
+                showRecurrenceStore: ShowRecurrencePreference(defaults: .standard, key: storageKey))
+        case "showAlarms":
+            return SkippedReminderSyncService(
+                session: session,
+                skipStore: skipStore,
+                showAlarmsStore: ShowAlarmsPreference(defaults: .standard, key: storageKey))
+        case "showList":
+            return SkippedReminderSyncService(
+                session: session,
+                skipStore: skipStore,
+                showListStore: ShowListPreference(defaults: .standard, key: storageKey))
+        case "showCompletionGlow":
+            return SkippedReminderSyncService(
+                session: session,
+                skipStore: skipStore,
+                showCompletionGlowStore: ShowCompletionGlowPreference(defaults: .standard, key: storageKey))
+        default:
+            Issue.record("unexpected legacy context key \(contextKey)")
+            return SkippedReminderSyncService(session: session, skipStore: skipStore)
+        }
     }
 }
 

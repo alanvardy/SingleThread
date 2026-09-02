@@ -1,3 +1,4 @@
+import Foundation
 @testable import SingleThreadCore
 import Testing
 
@@ -6,27 +7,16 @@ import Testing
 struct MinimumDisplayDurationTests {
     // MARK: Behavior
 
-    @Test
-    func returnsFullMinimumWhenNothingElapsed() {
-        let remaining = MinimumDisplayDuration.remainingSleep(elapsed: 0, minimum: 1)
-        #expect(remaining == 1)
-    }
-
-    @Test
-    func returnsRemainderWhenPartiallyElapsed() {
-        let remaining = MinimumDisplayDuration.remainingSleep(elapsed: 0.4, minimum: 1)
-        #expect(abs(remaining - 0.6) < 0.000_001)
-    }
-
-    @Test
-    func returnsZeroWhenMinimumMet() {
-        let remaining = MinimumDisplayDuration.remainingSleep(elapsed: 1, minimum: 1)
-        #expect(remaining == 0)
-    }
-
-    @Test
-    func returnsZeroWhenExceedingMinimum() {
-        let remaining = MinimumDisplayDuration.remainingSleep(elapsed: 1.5, minimum: 1)
-        #expect(remaining == 0)
+    @Test(arguments: [
+        (0.0, 1.0),
+        (0.4, 0.6),
+        (1.0, 0.0),
+        (1.5, 0.0)
+    ])
+    func remainingSleepScalesWithElapsed(_ spec: (elapsed: TimeInterval, remaining: TimeInterval)) {
+        let remaining = MinimumDisplayDuration.remainingSleep(elapsed: spec.elapsed, minimum: 1)
+        #expect(
+            abs(remaining - spec.remaining) < 0.000_001,
+            "elapsed \(spec.elapsed) s → \(spec.remaining) s remaining")
     }
 }

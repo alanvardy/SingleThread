@@ -26,100 +26,59 @@ private func watchReminder() -> EKReminder {
 @MainActor
 @Suite(.serialized)
 struct ShowCompletionGlowStateTests {
+    // MARK: Internal
+
     @Test
-    func initialValueFromPreference() {
+    func stateReadsAndAppliesPreference() {
         // The holder hardcodes `.standard` + key "showCompletionGlow"; seed that.
         UserDefaults.standard.set(false, forKey: "showCompletionGlow")
         defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
         let state = ShowCompletionGlowState()
-        #expect(!state.isEnabled)
-    }
-
-    @Test
-    func applyPersists() {
-        let state = ShowCompletionGlowState()
-        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
+        #expect(!state.isEnabled, "initial value comes from the persisted preference")
         state.apply(false)
-        #expect(!ShowCompletionGlowPreference(defaults: .standard).isEnabled)
-    }
-
-    @Test
-    func applyRepublishes() {
-        let state = ShowCompletionGlowState()
-        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
-        #expect(state.isEnabled) // default
-        state.apply(false)
-        #expect(!state.isEnabled) // republished
-        state.apply(true)
-        #expect(state.isEnabled)
-    }
-
-    @Test
-    func uiTestingGlowDisabledFlagPreDisablesState() {
-        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
-        let appViewModel = WatchAppViewModel(arguments: ["--ui-testing-glow-disabled"])
         #expect(
-            !appViewModel.showCompletionGlowState.isEnabled,
-            "The seam pre-disables the state so the disabled-flow test needs no settings screen")
+            !ShowCompletionGlowPreference(defaults: .standard).isEnabled,
+            "apply persists into the preference store")
+        #expect(!state.isEnabled, "apply republishes false through the state")
+        state.apply(true)
+        #expect(state.isEnabled, "apply republishes true through the state")
     }
 
-    @Test
-    func uiTestingGlowFlagPreEnablesState() {
+    @Test(arguments: [
+        ("--ui-testing-glow-disabled", false),
+        ("--ui-testing-glow", true),
+    ])
+    func uiTestingGlowFlagsPreSetState(_ arg: (flag: String, expectedEnabled: Bool)) {
         // A persisted `false` from an earlier disabled-flow test in the same
         // UI-test session must not suppress the glow for the enabled-flow test.
         defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
         UserDefaults.standard.set(false, forKey: "showCompletionGlow")
-        let appViewModel = WatchAppViewModel(arguments: ["--ui-testing-glow"])
+        let appViewModel = WatchAppViewModel(arguments: [arg.flag])
         #expect(
-            appViewModel.showCompletionGlowState.isEnabled,
-            "The seam forces the state on so the enabled-flow test is deterministic")
+            appViewModel.showCompletionGlowState.isEnabled == arg.expectedEnabled,
+            "\(arg.flag) forces the state \(arg.expectedEnabled ? "on" : "off")")
     }
 
     @Test
-    func watchGateSuppressesGlowWhenDisabled() async {
-        let store = ReminderStore(
-            eventStore: InMemoryEventStore(),
-            loadsReminders: false,
-            reminders: [watchReminder()],
-            skippedIDs: [],
-            authorizationStatus: .fullAccess)
-        let glowState = ShowCompletionGlowState()
-        // apply(false) persists to .standard; clean up so the enabled case
-        // still reads the default (true) in this serialized suite.
+    func watchGateControlsGlowBasedOnState() async {
         defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
-        glowState.apply(false)
-        let viewModel = WatchReminderViewModel(
-            store: store,
-            showDateState: ShowDateState(),
-            showRecurrenceState: ShowRecurrenceState(),
-            showAlarmsState: ShowAlarmsState(),
-            showListState: ShowListState(),
-            showCompletionGlowState: glowState,
-            entitlementState: EntitlementState())
-        await viewModel.completeCurrentReminder()
-        #expect(!viewModel.completionGlow.isActive)
-    }
 
-    @Test
-    func watchGateTriggersGlowWhenEnabled() async {
-        let store = ReminderStore(
-            eventStore: InMemoryEventStore(),
-            loadsReminders: false,
-            reminders: [watchReminder()],
-            skippedIDs: [],
-            authorizationStatus: .fullAccess)
-        let glowState = ShowCompletionGlowState()
-        // Defaults to enabled — no apply(false) call.
-        let viewModel = WatchReminderViewModel(
-            store: store,
-            showDateState: ShowDateState(),
-            showRecurrenceState: ShowRecurrenceState(),
-            showAlarmsState: ShowAlarmsState(),
-            showListState: ShowListState(),
-            showCompletionGlowState: glowState,
-            entitlementState: EntitlementState())
-        await viewModel.completeCurrentReminder()
-        #expect(viewModel.completionGlow.isActive)
+        // Disabled branch: the gate suppresses the glow so the disabled flow
+        // needs no settings screen interference.
+        let disabledState = ShowCompletionGlowState()
+        disabledState.apply(false)
+        let disabledViewModel = makeViewModel(glowState: disabledState)
+        await disabledViewModel.completeCurrentReminder()
+        #expect(
+            !disabledViewModel.completionGlow.isActive,
+            "gate suppresses the glow when the state is disabled")
+
+        // Enabled branch: the gate lets the glow through.
+        let enabledState = ShowCompletionGlowState()
+        enabledState.apply(true)
+        let enabledViewModel = makeViewModel(glowState: enabledState)
+        await enabledViewModel.completeCurrentReminder()
+        #expect(enabledViewModel.completionGlow.isActive, "gate triggers the glow when enabled")
     }
 
     // MARK: - Completion transition
@@ -289,5 +248,26 @@ struct ShowCompletionGlowStateTests {
         #expect(!viewModel.isShowingCompletionTransition)
         #expect(viewModel.transitionReminder == nil)
         #expect(store.visibleReminders.count == 1)
+    }
+
+    // MARK: Private
+
+    /// A fresh store + view model per call so a prior completion never leaks
+    /// into the next branch of the gate test.
+    private func makeViewModel(glowState: ShowCompletionGlowState) -> WatchReminderViewModel {
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [watchReminder()],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        return WatchReminderViewModel(
+            store: store,
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: glowState,
+            entitlementState: EntitlementState())
     }
 }

@@ -11,36 +11,27 @@ struct PendingCompletionLogicTests {
     // MARK: Internal
 
     @Test
-    func filteringDropsPendingIdentifiers() {
+    func filteringPruningAndRemoval() {
         let remA = reminder("A"), remB = reminder("B")
-        let out = PendingCompletionLogic.filtering(fetched: [remA, remB], pending: [remA.calendarItemIdentifier])
-        #expect(out.map(\.title) == ["B"])
-    }
+        let filtered = PendingCompletionLogic.filtering(
+            fetched: [remA, remB],
+            pending: [remA.calendarItemIdentifier])
+        #expect(filtered.map(\.title) == ["B"], "fetched reminder whose id is pending is dropped")
+        let kept = PendingCompletionLogic.filtering(fetched: [remA, remB], pending: ["other"])
+        #expect(kept.count == 2, "non-pending fetched reminders are all kept")
 
-    @Test
-    func filteringKeepsNonPending() {
-        let remA = reminder("A"), remB = reminder("B")
-        let out = PendingCompletionLogic.filtering(fetched: [remA, remB], pending: ["other"])
-        #expect(out.count == 2)
-    }
+        let pruned = PendingCompletionLogic.pruned(
+            pending: ["a", "b", "c"],
+            fetchedIdentifiers: ["b", "c", "d"])
+        #expect(pruned == ["b", "c"], "pruning keeps only ids still fetched")
+        #expect(
+            PendingCompletionLogic.pruned(pending: ["a"], fetchedIdentifiers: []).isEmpty,
+            "pruning with an empty fetch empties the pending set")
 
-    @Test
-    func prunedKeepsOnlyFetchedIDs() {
-        let out = PendingCompletionLogic.pruned(pending: ["a", "b", "c"], fetchedIdentifiers: ["b", "c", "d"])
-        #expect(out == ["b", "c"])
-    }
-
-    @Test
-    func prunedEmptiesWhenNothingFetched() {
-        #expect(PendingCompletionLogic.pruned(pending: ["a"], fetchedIdentifiers: []).isEmpty)
-    }
-
-    @Test
-    func removingCompletedDropsCompletedOnly() {
         let done = reminder("Done", completed: true)
         let todo = reminder("Todo")
-        let out = PendingCompletionLogic.removingCompleted([done, todo])
-        #expect(out.map(\.title) == ["Todo"])
+        let remaining = PendingCompletionLogic.removingCompleted([done, todo])
+        #expect(remaining.map(\.title) == ["Todo"], "completed reminders are dropped, todo kept")
     }
 
     // MARK: Private
