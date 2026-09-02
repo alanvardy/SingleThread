@@ -295,13 +295,12 @@ final class AppViewModel {
         // the Complete/Skip/Mic cluster (not just the mic) renders over a
         // visible reminder in seeded UI tests.
         UserDefaults.standard.set(true, forKey: "enableActionButtons")
-        let entitlementStore: EntitlementStore
-        if seed.entitlementUnresolved {
-            entitlementStore = EntitlementStore(testingWithEntitlementUnresolved: ())
+        let entitlementStore = if seed.entitlementUnresolved {
+            EntitlementStore(testingWithEntitlementUnresolved: ())
         } else if seed.isEntitled {
-            entitlementStore = EntitlementStore(testingWithEntitled: true)
+            EntitlementStore(testingWithEntitled: true)
         } else {
-            entitlementStore = EntitlementStore()
+            EntitlementStore()
         }
         // An empty + hidden seed must keep the store exactly as initialized:
         // with `loadsReminders: true`, `start()` → `reload()` recomputes
