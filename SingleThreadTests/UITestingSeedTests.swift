@@ -60,6 +60,29 @@ struct UITestingSeedTests {
     }
 
     @Test
+    func parsesEntitlementUnresolved() {
+        let args = [
+            "--seed",
+            #"{"reminders":[{"title":"A"}],"entitlementUnresolved":true}"#
+        ]
+        let seed = UITestingSeed.fromLaunchArguments(args)
+
+        #expect(seed?.entitlementUnresolved == true)
+        #expect(seed?.isEntitled == false)  // default when not present
+    }
+
+    @Test
+    func entitlementUnresolvedDefaultsWhenAbsent() {
+        let args = [
+            "--seed",
+            #"{"reminders":[{"title":"A"}]}"#
+        ]
+        let seed = UITestingSeed.fromLaunchArguments(args)
+
+        #expect(seed?.entitlementUnresolved == false)
+    }
+
+    @Test
     func parsesHasHidden() {
         let args = [
             "--seed",

@@ -17,6 +17,9 @@ import Foundation
 ///   "isEntitled": true,         // optional, defaults to false
 ///   "hasHidden": true           // optional, defaults to false; only meaningful
 ///                               // with an empty "reminders" array
+///   "entitlementUnresolved": true  // optional, defaults to false; when true,
+///                                  // the entitlement store starts unresolved
+///                                  // so the pre-resolution render is testable
 /// }
 /// ```
 public struct UITestingSeed {
@@ -28,6 +31,7 @@ public struct UITestingSeed {
     public let completionCount: Int
     public let isEntitled: Bool
     public let hasHidden: Bool
+    public let entitlementUnresolved: Bool
 
     /// Reads an optional `--seed '<json>'` launch argument and decodes it.
     /// Returns `nil` when the argument is absent or malformed.
@@ -99,6 +103,7 @@ private struct SeedPayload: Codable {
         completionCount = try container.decodeIfPresent(Int.self, forKey: .completionCount) ?? 0
         isEntitled = try container.decodeIfPresent(Bool.self, forKey: .isEntitled) ?? false
         hasHidden = try container.decodeIfPresent(Bool.self, forKey: .hasHidden) ?? false
+        entitlementUnresolved = try container.decodeIfPresent(Bool.self, forKey: .entitlementUnresolved) ?? false
     }
 
     // MARK: Internal
@@ -115,6 +120,7 @@ private struct SeedPayload: Codable {
     var completionCount: Int = 0
     var isEntitled: Bool = false
     var hasHidden: Bool = false
+    var entitlementUnresolved: Bool = false
 
     func materialize() -> UITestingSeed {
         let eventStore = EKEventStore()
@@ -140,7 +146,8 @@ private struct SeedPayload: Codable {
             excludedListTitles: Set(excludedLists),
             completionCount: completionCount,
             isEntitled: isEntitled,
-            hasHidden: hasHidden)
+            hasHidden: hasHidden,
+            entitlementUnresolved: entitlementUnresolved)
     }
 
     // MARK: Private
@@ -151,5 +158,6 @@ private struct SeedPayload: Codable {
         case reminders, calendars
         case excludedLists
         case completionCount, isEntitled, hasHidden
+        case entitlementUnresolved
     }
 }
