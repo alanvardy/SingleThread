@@ -42,3 +42,24 @@ Three `full`-mode runs, all failing **only** at the UI runner-launch:
 
 - `.pi/qrspi/alanvardy-var-755-slim-down-test-suite/plan.md` — Phase 6 automated checkboxes checked, full-gate outcome documented
 - No source/test code changed (Phase 6 is verification-only per plan)
+
+## 5. Addendum — pre-Phase-5 control run (proves the flake is environmental)
+
+After the three full-mode runs above plus two more parent-side attempts (cold-erased sim, warm sim),
+the same `Busy ("Application failed preflight checks")` UI-runner launch denial persisted. To rule out
+a Phase 5 regression, the parent ran the **pre-Phase-5 `scripts/test.sh`** (restored from commit
+`472a9c0`) as a control (logged at `/tmp/gate_old.log`, pid 49394):
+
+- format → lint → build → watch build → periphery → **unit passed** (`TEST EXECUTE SUCCEEDED`)
+- **UI phase**: identical failure — `Failed to launch app.alanvardy.SingleThreadUITests.xctrunner`,
+  `SBMainWorkspace … reason: Busy ("Application failed preflight checks")` at the very first runner launch.
+
+**Conclusion**: the full-gate UI-launch flake is **pre-existing environmental simulator contention**
+(AGENTS.md-documented `Busy`/`RequestDenied` runner-launch failure), reproduced identically with and
+without Phase 5's changes. No Phase 2–5 code is implicated. Every phase passes in isolation:
+- exact Phase 5 unit command passes 2× standalone (clones, `-parallel-testing-enabled YES`)
+- iOS UI suite passes 42/42 via `--ui-only` on this same host
+- watch unit + UI suites pass (Phase 4/6 runs)
+- macOS build (`build CODE_SIGNING_ALLOWED=NO`) passes standalone (exit 0)
+
+The `test.sh` control copy was reverted; working tree is clean at `74aa114` with the Phase 5 runner restored.
