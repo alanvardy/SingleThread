@@ -1,0 +1,3 @@
+# Task — Slim down test suite
+
+The local test suite takes a long time to run, which slows feature development and issue diagnosis. Slim it down by making multiple assertions inside the same test cases, removing duplicate test cases that test the same thing, and making test assertions clear about what is being tested to aid future diagnosis. Research additional ways to reduce test suite runtime; the focus is reducing **local** runtime, not CI runtime.
