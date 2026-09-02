@@ -42,17 +42,7 @@ struct ReminderCardView: View {
                 prompt
             }
         }
-        // The card text always sits on its own small, content-sized high-contrast
-        // plate (off-white in light, black in dark) so it stays readable over the
-        // photo or the wallpaper on every device. The padding pair grows the view
-        // to fit the plate, then restores the original outer geometry so list
-        // metrics are unchanged.
-        .padding(12)
-        .background {
-            RoundedRectangle(cornerRadius: Self.plateCornerRadius)
-                .fill(Self.plateFill(for: colorScheme))
-        }
-        .padding(-12)
+        .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 12, restoresGeometry: true)
     }
 
     /// Forwarded to `CardPlate.plateFill(for:)`; kept so existing call sites

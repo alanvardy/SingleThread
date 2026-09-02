@@ -299,11 +299,11 @@ struct CardPlateModifierTests {
 
 ### Verification
 #### Automated
-- [ ] `swiftformat SingleThread/ SingleThreadTests/` passes
-- [ ] `swiftlint lint --strict` passes
-- [ ] Build succeeds (same xcodebuild command as Phase 1)
-- [ ] Unit tests: `-only-testing:SingleThreadTests` — all suites green including new `CardPlateModifierTests`; `SwipePromptTests.promptShownWhenEnabled` still sees `"RoundedRectangle"` through the rewired body
-- [ ] `make periphery` — `CardPlateModifier` reachable via `ReminderCardView.body` → `.cardPlate(...)`; no dead-code findings
+- [x] `swiftformat SingleThread/ SingleThreadTests/` passes
+- [x] `swiftlint lint --strict` passes
+- [x] Build succeeds (same xcodebuild command as Phase 1)
+- [x] Unit tests: `-only-testing:SingleThreadTests` — all suites green including new `CardPlateModifierTests`; `SwipePromptTests.promptShownWhenEnabled` still sees `"RoundedRectangle"` through the rewired body
+- [x] `make periphery` — `CardPlateModifier` reachable via `ReminderCardView.body` → `.cardPlate(...)`; no dead-code findings
 
 #### Manual
 - [ ] `CardPlateModifier.swift` is auto-discovered by Xcode (synchronized file group)
