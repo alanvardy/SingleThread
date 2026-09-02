@@ -3,7 +3,9 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 # Occurrence count of PATTERN across GLOB (summed across files).
-oc() { grep -roE "$1" $2 2>/dev/null | wc -l | tr -d ' '; }
+# Trailing `|| true` keeps this exit-0 when grep finds no matches (pipefail
+# would otherwise make a zero-count metric kill the script under set -e).
+oc() { grep -roE "$1" $2 2>/dev/null | wc -l | tr -d ' ' || true; }
 
 unit_ios=$(oc '@Test' 'SingleThreadTests/*.swift')        # 516
 unit_watch=$(oc '@Test' 'SingleThreadWatchTests/*.swift') # 36

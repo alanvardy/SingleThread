@@ -2,6 +2,10 @@ import EventKit
 import Foundation
 import os
 
+/// Post-save settle hook. Production waits 200 ms for EventKit to reflect an
+/// in-flight write before `reload()`; tests inject a no-op for determinism.
+public typealias ReminderStoreSettle = @Sendable () async -> Void
+
 @MainActor
 @Observable
 public final class ReminderStore {
@@ -24,7 +28,10 @@ public final class ReminderStore {
         excludedListTitles: Set<String> = [],
         hasHidden: Bool = false,
         completionCounter: CompletionCounterStore = CompletionCounterStore(),
-        entitlementStore: EntitlementStore = EntitlementStore()) {
+        entitlementStore: EntitlementStore = EntitlementStore(),
+        settle: @escaping ReminderStoreSettle = {
+            try? await Task.sleep(nanoseconds: 200_000_000)
+        }) {
         self.eventStore = eventStore
         self.skipStore = skipStore
         self.pendingCompletionStore = pendingCompletionStore
@@ -38,6 +45,7 @@ public final class ReminderStore {
         self.hasHidden = hasHidden
         self.completionCounter = completionCounter
         self.entitlementStore = entitlementStore
+        self.settle = settle
     }
 
     // MARK: Public
@@ -197,7 +205,7 @@ public final class ReminderStore {
                 try eventStore.save(reminder, commit: true)
                 completionCounter.increment()
                 undoStore.retain(reminder)
-                try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
+                await settle()
                 await reload()
                 return true
             } catch {
@@ -228,7 +236,7 @@ public final class ReminderStore {
                 try eventStore.save(reminder, commit: true)
                 completionCounter.decrement()
                 undoStore.clear()
-                try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
+                await settle()
                 await reload()
                 return true
             } catch {
@@ -253,7 +261,7 @@ public final class ReminderStore {
             guard let reminder = reminders.first(where: { $0.calendarItemIdentifier == identifier }) else { return }
             do {
                 try eventStore.remove(reminder, commit: true)
-                try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
+                await settle()
                 await reload()
             } catch {
                 Self.logger.error("Failed to delete reminder: \(error.localizedDescription, privacy: .public)")
@@ -286,7 +294,7 @@ public final class ReminderStore {
                 recurrenceRule: recurrenceRule)
             do {
                 try eventStore.save(reminder, commit: true)
-                try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
+                await settle()
                 await reload()
                 return true
             } catch {
@@ -302,7 +310,7 @@ public final class ReminderStore {
         let updated = updatedSkipSet(afterSkipping: reminder.calendarItemIdentifier)
         let capturedGeneration = skipGeneration
         Task {
-            try? await Task.sleep(nanoseconds: Self.eventKitSettleDelay)
+            await settle()
             // Refetch only when the skip actually applied — a clear that raced
             // ahead discards it (generation gate) so no stale refetch runs.
             if applySkipSet(updated, generation: capturedGeneration) {
@@ -433,11 +441,11 @@ public final class ReminderStore {
 
     // MARK: Private
 
-    /// EventKit may not reflect an in-flight save immediately; settle briefly
-    /// before re-fetching so the just-written change shows up in `reload()`.
-    private static let eventKitSettleDelay: UInt64 = 200_000_000
-
     private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderStore")
+
+    /// Post-save settle hook. Injected for tests; production keeps the 200 ms
+    /// default so EventKit writes land before `reload()`.
+    private let settle: ReminderStoreSettle
 
     private let eventStore: any EventKitStoring
     private let skipStore: SkippedReminderStore

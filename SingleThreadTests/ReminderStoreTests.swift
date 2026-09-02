@@ -7,6 +7,10 @@ import Testing
 // suites to live together.
 // swiftlint:disable file_length
 
+/// No-op settle hook: deterministic and sleep-free. Injected as the
+/// `ReminderStore` `settle:` seam so skip-path tests don't pay a real wait.
+private let noopSettle: ReminderStoreSettle = {}
+
 @MainActor
 @Suite(.serialized)
 struct ReminderStoreTests {
@@ -328,10 +332,22 @@ struct ReminderStoreTests {
             loadsReminders: true,
             reminders: [remA, remB],
             skippedIDs: [],
-            authorizationStatus: .fullAccess)
+            authorizationStatus: .fullAccess,
+            settle: noopSettle)
 
-        store.skipCurrentReminder() // skip A (sorts first)
-        try? await Task.sleep(nanoseconds: 400_000_000) // > 200 ms settle + reload
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            // `onRemindersChanged` fires once from `applySkipSet` and once when
+            // the follow-up `reload()` finishes — resume on the second fire so
+            // `reminders` is the refetched set when assertions run below.
+            var fires = 0
+            store.onRemindersChanged = {
+                fires += 1
+                if fires >= 2 {
+                    continuation.resume()
+                }
+            }
+            store.skipCurrentReminder() // skip A (sorts first)
+        }
 
         #expect(store.skippedIDs.contains(remA.calendarItemIdentifier))
         #expect(!store.reminders.contains { $0 === remB }) // B dropped by refetch
@@ -346,10 +362,21 @@ struct ReminderStoreTests {
             loadsReminders: true,
             reminders: [remA, remB],
             skippedIDs: [],
-            authorizationStatus: .fullAccess)
+            authorizationStatus: .fullAccess,
+            settle: noopSettle)
 
-        store.skipCurrentReminder()
-        try? await Task.sleep(nanoseconds: 400_000_000)
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            // Same two-fire rendezvous as the sibling test above: the second
+            // `onRemindersChanged` call means the skip Task's `reload()` finished.
+            var fires = 0
+            store.onRemindersChanged = {
+                fires += 1
+                if fires >= 2 {
+                    continuation.resume()
+                }
+            }
+            store.skipCurrentReminder()
+        }
 
         #expect(store.skippedIDs.contains(remA.calendarItemIdentifier))
         #expect(store.reminders.contains { $0 === remB }) // incomplete → still fetched
@@ -364,12 +391,16 @@ struct ReminderStoreTests {
             loadsReminders: true,
             reminders: [rem],
             skippedIDs: [],
-            authorizationStatus: .fullAccess)
+            authorizationStatus: .fullAccess,
+            settle: noopSettle)
 
         store.skipCurrentReminder()
+        // The awaited clear reload bumps the skip generation and empties the set.
+        // The in-flight skip Task either applied before the bump (its skip is
+        // then wiped by the clear) or attempts to apply after it (discarded by
+        // the generation gate) — both end with an empty skipped set, so no
+        // additional wait is needed.
         await store.reload(clearSkipped: true)
-        // Wait for the skip Task to complete its 200 ms sleep + apply.
-        try? await Task.sleep(nanoseconds: 400_000_000)
 
         #expect(store.skippedIDs.isEmpty)
         #expect(store.visibleReminders.count == 1) // reminder visible again — skip not re-applied
