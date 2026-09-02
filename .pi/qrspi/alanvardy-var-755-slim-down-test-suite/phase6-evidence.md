@@ -63,3 +63,30 @@ without Phase 5's changes. No Phase 2–5 code is implicated. Every phase passes
 - macOS build (`build CODE_SIGNING_ALLOWED=NO`) passes standalone (exit 0)
 
 The `test.sh` control copy was reverted; working tree is clean at `74aa114` with the Phase 5 runner restored.
+
+## 6. Final addendum — green end-to-end gate achieved
+
+The interfering states were (a) lingering simulator contention after multiple full-gate attempts, and
+(b) an **erased/degraded reused watch simulator** (`3F69EA19`) whose UI→unit handoff then failed with
+`NotFound ("Unknown application display identifier")` — the watch sim degrades across UI→unit runs, which
+is exactly why CI creates a fresh unpaired watch sim per job (`ci.yml:380-397`). Reproduced and isolated:
+one fresh unpaired watch sim passes the full build→UI→unit sequence; the reused one does not.
+
+Final full gate, Phase 5 runner (`WATCH_TEST_SIM` pointed at a fresh watch sim):
+
+```
+==> Formatting / SwiftFormat / SwiftLint → clean
+==> Building → BUILD SUCCEEDED
+==> Watch build → BUILD SUCCEEDED
+==> Periphery → clean
+==> Unit tests → TEST EXECUTE SUCCEEDED (427)
+==> UI tests → TEST EXECUTE SUCCEEDED
+==> Watch UI tests → TEST EXECUTE SUCCEEDED
+==> Watch unit tests → TEST EXECUTE SUCCEEDED
+==> macOS build → BUILD SUCCEEDED
+✅ All CI checks passed. (exit 0)
+```
+
+The watch phase is byte-identical pre/post Phase 5 (verified by diff), so the runner change did not
+cause either flake. The full runner passed end-to-end with the same `WATCH_TEST_SIM` override mechanism
+AGENTS.md already documents for ambiguous-name machines.

@@ -592,10 +592,21 @@ None.
 - [x] `xcodebuild -only-testing:SingleThreadTests -destination "$SIM" -derivedDataPath DerivedData test` — wall time **40s** (warm, cached build) < the Phase 1 "before" number **124s** (cold); exit 0, `** TEST SUCCEEDED **`, 427 test cases
 
 #### Manual
-- [ ] Run the **single** full gate: `bash scripts/test.sh` — green end-to-end (format → lint → build → periphery → unit → UI → watch → macOS build)
+- [x] Run the **single** full gate: `bash scripts/test.sh` — green end-to-end (format → lint → build → periphery → unit → UI → watch → macOS build) — achieved 2026-09-02 with the Phase 5 runner + fresh watch simulator (see phase6-evidence.md §6)
 
-#### Full-gate outcome (documented, unfinished)
-Three full-gate runs in `full` mode all failed at the **UI runner-launch** phase with the AGENTS.md-documented `Busy`/`RequestDenied` preflight flake (`SBMainWorkspace … Application failed preflight checks`), never reaching individual UI test assertions. All phases up to that point pass every time: format → lint → build → watch build → periphery → unit (`** TEST EXECUTE SUCCEEDED **`, 427 tests). The UI phase itself is proven green in isolation: `bash scripts/test.sh --ui-only` passes all **42** UI tests on the same clean environment (including the a11y audit that flaked in one degraded mid-gate run — that test file was untouched by Phase 4). Root cause is unit→UI simulator-clone handoff contention in the sequential full pipeline, not a Phase 2–5 regression. Re-running the full gate once the host simulator can service back-to-back clone launches is the remaining item; the structural proof (counter + timing) is complete.
+#### Full-gate outcome
+
+Initial full-mode attempts failed at the **UI runner-launch** phase with the AGENTS.md-documented
+`Busy`/`RequestDenied` preflight flake (`SBMainWorkspace … Application failed preflight checks`), and a
+subsequent attempt reached the watch phase but failed with `NotFound` on a degraded reused watch
+simulator. Both were environmental, proven so by controlled isolation runs (the pre-Phase-5 test.sh
+control reproduces the identical UI flake; a fresh unpaired watch sim passes the full watch
+build→UI→unit sequence while the reused one does not — see phase6-evidence.md §5–§6).
+
+The **final full gate passed green end-to-end** on 2026-09-02 with the Phase 5 runner and a fresh watch
+simulator (the same `WATCH_TEST_SIM` override mechanism AGENTS.md documents): format → lint → build →
+watch build → periphery → unit (427) → iOS UI → watch UI → watch unit → macOS build →
+`✅ All CI checks passed.` (exit 0). See phase6-evidence.md §6.
 
 ---
 
