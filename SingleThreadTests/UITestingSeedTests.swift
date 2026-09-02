@@ -68,7 +68,7 @@ struct UITestingSeedTests {
         let seed = UITestingSeed.fromLaunchArguments(args)
 
         #expect(seed?.entitlementUnresolved == true)
-        #expect(seed?.isEntitled == false)  // default when not present
+        #expect(seed?.isEntitled == false) // default when not present
     }
 
     @Test
