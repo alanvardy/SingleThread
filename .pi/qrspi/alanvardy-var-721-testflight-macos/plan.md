@@ -201,7 +201,7 @@ mac-run:
 ### Verification
 
 #### Automated
-- [ ] `make -n mac-run` echoes the two commands (dry-run sanity; does not launch the app)
+- [x] `make -n mac-run` echoes the two commands (dry-run sanity; does not launch the app)
 
 #### Manual (the honest bar — no automatable assertion exists; the human signs off here)
 - [ ] `make mac-run` completes the build, signs, and opens `SingleThread.app`
