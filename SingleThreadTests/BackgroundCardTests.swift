@@ -67,14 +67,14 @@ import Testing
         /// so the decision is asserted directly.
         @Test
         func plateFillOffWhiteInLightMode() {
-            let fill = ReminderCardView.plateFill(for: .light)
+            let fill = CardPlate.plateFill(for: .light)
             #expect(fill == Color(red: 0.96, green: 0.95, blue: 0.94))
         }
 
         /// The card plate is black in dark mode for contrast.
         @Test
         func plateFillBlackInDarkMode() {
-            #expect(ReminderCardView.plateFill(for: .dark) == Color.black)
+            #expect(CardPlate.plateFill(for: .dark) == Color.black)
         }
 
         /// The shared content-plate corner radius is 10pt so the card plate,
@@ -83,7 +83,7 @@ import Testing
         /// decision instead.
         @Test
         func plateCornerRadiusIsTenPoints() {
-            #expect(ReminderCardView.plateCornerRadius == 10)
+            #expect(CardPlate.cornerRadius == 10)
         }
 
         // MARK: Private

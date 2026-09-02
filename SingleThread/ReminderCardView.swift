@@ -27,14 +27,6 @@ struct ReminderCardView: View {
 
     // MARK: Internal
 
-    /// Forwarded to `CardPlate.promptBoxFill`; kept so existing call sites and
-    /// tests compile until the full migration lands. See `CardPlate.swift`.
-    static let promptBoxFill = CardPlate.promptBoxFill
-
-    /// Forwarded to `CardPlate.cornerRadius`; kept so existing call sites and
-    /// tests compile until the full migration lands. See `CardPlate.swift`.
-    static let plateCornerRadius: CGFloat = CardPlate.cornerRadius
-
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             content
@@ -43,12 +35,6 @@ struct ReminderCardView: View {
             }
         }
         .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 12, restoresGeometry: true)
-    }
-
-    /// Forwarded to `CardPlate.plateFill(for:)`; kept so existing call sites
-    /// and tests compile until the full migration lands. See `CardPlate.swift`.
-    static func plateFill(for colorScheme: ColorScheme) -> Color {
-        CardPlate.plateFill(for: colorScheme)
     }
 
     // MARK: Private
@@ -181,11 +167,7 @@ struct ReminderCardView: View {
             .accessibilityIdentifier("swipePromptDismissButton")
         }
         .frame(maxWidth: .infinity)
-        .padding(12)
-        .background {
-            RoundedRectangle(cornerRadius: Self.plateCornerRadius)
-                .fill(Self.promptBoxFill)
-        }
+        .cardPlate(fill: CardPlate.promptBoxFill)
     }
 
     private func priorityColor(_ level: ReminderPriority.Level) -> Color {

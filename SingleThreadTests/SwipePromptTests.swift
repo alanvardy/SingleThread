@@ -13,8 +13,11 @@ struct SwipePromptTests {
         #expect(description.contains("Swipe left to skip"))
         #expect(description.contains("Swipe right to complete"))
         // The hints sit on a rounded dark-grey plate with the skip hint orange
-        // and the complete hint green (the swipe actions' own tint colors).
-        #expect(description.contains("RoundedRectangle"))
+        // and the complete hint green (the swipe actions' own tint colors). The
+        // filled shape is drawn by `CardPlateModifier` — SwiftUI does not inline
+        // a ViewModifier's body into the host view's static type, so the presence
+        // of the modifier in the reflected chain pins the plate composition.
+        #expect(description.contains("CardPlateModifier"))
         #expect(description.contains("style: orange"))
         #expect(description.contains("style: green"))
         #expect(description.contains("Dismiss"))
@@ -32,7 +35,7 @@ struct SwipePromptTests {
     /// (same rationale as `plateFill`).
     @Test
     func promptBoxIsDarkGrey() {
-        #expect(ReminderCardView.promptBoxFill == Color(red: 0.16, green: 0.17, blue: 0.18))
+        #expect(CardPlate.promptBoxFill == Color(red: 0.16, green: 0.17, blue: 0.18))
     }
 
     @Test
