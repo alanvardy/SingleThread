@@ -145,6 +145,13 @@ public final class ReminderStore {
         entitlementStore.isEntitled || completionCounter.count < 100
     }
 
+    /// Whether the entitlement value has been settled by at least one StoreKit
+    /// refresh (or a test seam). Mirrors `entitlementStore.hasResolvedEntitlement`
+    /// so views can gate on one seam without reaching into the entitlement store.
+    public var hasResolvedEntitlement: Bool {
+        entitlementStore.hasResolvedEntitlement
+    }
+
     /// Returns `true` when `allIncomplete` contains a reminder absent from
     /// `shown` (by `calendarItemIdentifier`) — i.e. the current in-window view
     /// is hiding at least one incomplete reminder.

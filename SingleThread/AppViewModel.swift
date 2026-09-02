@@ -268,7 +268,8 @@ final class AppViewModel {
                     loadsReminders: false,
                     reminders: [reminder],
                     skippedIDs: [],
-                    authorizationStatus: .fullAccess), false)
+                    authorizationStatus: .fullAccess,
+                    entitlementStore: EntitlementStore(testingWithEntitled: false)), false)
             }
         #endif
         let loads = !arguments.contains("--ui-testing")
@@ -300,7 +301,7 @@ final class AppViewModel {
         } else if seed.isEntitled {
             EntitlementStore(testingWithEntitled: true)
         } else {
-            EntitlementStore()
+            EntitlementStore(testingWithEntitled: false)
         }
         // An empty + hidden seed must keep the store exactly as initialized:
         // with `loadsReminders: true`, `start()` → `reload()` recomputes

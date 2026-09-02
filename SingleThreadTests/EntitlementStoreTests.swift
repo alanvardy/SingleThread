@@ -68,4 +68,22 @@ struct EntitlementStoreTests {
         let store = EntitlementStore()
         #expect(!store.isEntitled)
     }
+
+    /// The init task's initial entitlement refresh must settle
+    /// `hasResolvedEntitlement` even on an empty account, so the UI never
+    /// strands on the pre-resolution blank slot.
+    @Test
+    func initialRefreshSettlesResolvedFlag() async throws {
+        let session = try SKTestSession(configurationFileNamed: "Products")
+        session.disableDialogs = true
+
+        let store = EntitlementStore()
+        var waited: UInt64 = 0
+        while !store.hasResolvedEntitlement, waited < 2_000_000_000 {
+            try await Task.sleep(nanoseconds: 50_000_000)
+            waited += 50_000_000
+        }
+        #expect(store.hasResolvedEntitlement)
+        #expect(!store.isEntitled)
+    }
 }
