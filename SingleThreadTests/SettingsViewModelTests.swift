@@ -3,28 +3,21 @@ import Testing
 
 @MainActor
 struct SettingsViewModelTests {
+    /// Crash-guard smoke test: every settings mutation is a side-effect
+    /// delegation (AppDelegate lock, WidgetCenter reload) with no observable
+    /// state, so init + each mutation path completing without crashing is the
+    /// assertion.
     @Test
-    func initializesWithoutCrash() {
+    func initializationAndMutationsDoNotCrash() {
         _ = SettingsViewModel()
-        #expect(Bool(true))
+        #if os(iOS)
+            let landscapeViewModel = SettingsViewModel()
+            landscapeViewModel.allowsLandscapeChanged(true)
+            landscapeViewModel.allowsLandscapeChanged(false)
+        #endif
+        #if os(iOS) || os(macOS)
+            let preferenceViewModel = SettingsViewModel()
+            preferenceViewModel.showPreferenceChanged()
+        #endif
     }
-
-    #if os(iOS)
-        @Test
-        func allowsLandscapeChangedDoesNotCrash() {
-            let viewModel = SettingsViewModel()
-            viewModel.allowsLandscapeChanged(true)
-            viewModel.allowsLandscapeChanged(false)
-            #expect(Bool(true))
-        }
-    #endif
-
-    #if os(iOS) || os(macOS)
-        @Test
-        func showPreferenceChangedDoesNotCrash() {
-            let viewModel = SettingsViewModel()
-            viewModel.showPreferenceChanged()
-            #expect(Bool(true))
-        }
-    #endif
 }

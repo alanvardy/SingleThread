@@ -388,11 +388,11 @@ Add a private `makePreference(key:defaults:keySuffix:)` factory returning a comm
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild -only-testing:SingleThreadTests -destination "$SIM" -derivedDataPath DerivedData test-without-building` — green
-- [ ] `xcodebuild -only-testing:SingleThreadWatchTests -destination "$WATCH_TEST_SIM" -derivedDataPath DerivedData test-without-building` — green
-- [ ] `bash scripts/count_tests.sh` → `unit_tests` down from 552, `assertion_mean` up from 1.82
-- [ ] `grep -rn "addReminderWithInMemoryStoreDoesNotCrash" SingleThreadTests/` → no results (zero-assertion test gone)
-- [ ] `swiftformat SingleThreadTests/ SingleThreadWatchTests/` then `swiftlint lint --strict` clean (run `make format` first — it strips `test`/`testing` name prefixes per AGENTS.md, so re-read the renamed functions before committing)
+- [x] `xcodebuild -only-testing:SingleThreadTests -destination "$SIM" -derivedDataPath DerivedData test-without-building` — green (427 runtime tests, TEST SUCCEEDED)
+- [x] `xcodebuild -only-testing:SingleThreadWatchTests -destination "$WATCH_TEST_SIM" -derivedDataPath DerivedData test-without-building` — green (32 runtime tests, TEST SUCCEEDED)
+- [x] `bash scripts/count_tests.sh` → `unit_tests` down from 552 (now 398), `assertion_mean` up from 1.82 (now 2.34)
+- [x] `grep -rn "addReminderWithInMemoryStoreDoesNotCrash" SingleThreadTests/` → no results (zero-assertion test gone)
+- [x] `swiftformat SingleThreadTests/ SingleThreadWatchTests/` then `swiftlint lint --strict` clean (run `make format` first — it strips `test`/`testing` name prefixes per AGENTS.md, so re-read the renamed functions before committing)
 
 #### Manual
 - [ ] Spot-check: every merged `#expect(…, "…")` message names the specific input/field — a grep for multi-line `#expect` with no trailing message should return only pre-existing (unmerged) sites

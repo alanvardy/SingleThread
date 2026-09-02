@@ -13,22 +13,11 @@ import Testing
 @Suite(.serialized)
 struct CompletionGlowTests {
     @Test
-    func glowStartsInactive() {
+    func glowStateMachine() {
         let glow = CompletionGlow()
-        #expect(!glow.isActive)
-    }
-
-    @Test
-    func triggerSetsActive() {
-        let glow = CompletionGlow()
+        #expect(!glow.isActive, "glow starts inactive")
         glow.trigger()
-        #expect(glow.isActive)
-    }
-
-    @Test
-    func retriggerKeepsGlowActive() {
-        let glow = CompletionGlow()
-        glow.trigger()
+        #expect(glow.isActive, "trigger sets the glow active")
         glow.trigger()
         #expect(glow.isActive, "a second trigger must not synchronously clear the glow")
     }

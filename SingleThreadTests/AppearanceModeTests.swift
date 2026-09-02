@@ -16,56 +16,38 @@ struct AppearanceModeTests {
     // MARK: windowOverrideStyle (iOS)
 
     #if os(iOS)
-        @Test
-        func systemMapsToUnspecifiedWindowStyle() {
-            #expect(AppearanceMode.system.windowOverrideStyle == .unspecified)
-        }
-
-        @Test
-        func lightMapsToLightWindowStyle() {
-            #expect(AppearanceMode.light.windowOverrideStyle == .light)
-        }
-
-        @Test
-        func darkMapsToDarkWindowStyle() {
-            #expect(AppearanceMode.dark.windowOverrideStyle == .dark)
+        @Test(arguments: [
+            (AppearanceMode.system, UIUserInterfaceStyle.unspecified),
+            (AppearanceMode.light, .light),
+            (AppearanceMode.dark, .dark)
+        ])
+        func windowOverrideStyleMaps(_ pair: (AppearanceMode, UIUserInterfaceStyle)) {
+            #expect(pair.0.windowOverrideStyle == pair.1, "\(pair.0) → \(pair.1)")
         }
     #endif
 
     // MARK: appKitAppearance (macOS)
 
     #if os(macOS)
-        @Test
-        func systemClearsAppKitAppearance() {
-            #expect(AppearanceMode.system.appKitAppearance == nil)
-        }
-
-        @Test
-        func lightMapsToAqua() {
-            #expect(AppearanceMode.light.appKitAppearance?.name == .aqua)
-        }
-
-        @Test
-        func darkMapsToDarkAqua() {
-            #expect(AppearanceMode.dark.appKitAppearance?.name == .darkAqua)
+        @Test(arguments: [
+            (AppearanceMode.system, nil),
+            (AppearanceMode.light, NSAppearance.Name.aqua),
+            (AppearanceMode.dark, NSAppearance.Name.darkAqua)
+        ] as [(AppearanceMode, NSAppearance.Name?)])
+        func appKitAppearanceMaps(_ pair: (AppearanceMode, NSAppearance.Name?)) {
+            #expect(pair.0.appKitAppearance?.name == pair.1, "\(pair.0) → \(pair.1)")
         }
     #endif
 
     // MARK: colorScheme (previews)
 
-    @Test
-    func systemMapsToNilColorScheme() {
-        #expect(AppearanceMode.system.colorScheme == nil)
-    }
-
-    @Test
-    func lightMapsToLightColorScheme() {
-        #expect(AppearanceMode.light.colorScheme == .light)
-    }
-
-    @Test
-    func darkMapsToDarkColorScheme() {
-        #expect(AppearanceMode.dark.colorScheme == .dark)
+    @Test(arguments: [
+        (AppearanceMode.system, nil),
+        (AppearanceMode.light, ColorScheme.light),
+        (AppearanceMode.dark, ColorScheme.dark)
+    ] as [(AppearanceMode, ColorScheme?)])
+    func colorSchemeMaps(_ pair: (AppearanceMode, ColorScheme?)) {
+        #expect(pair.0.colorScheme == pair.1, "\(pair.0) → \(pair.1)")
     }
 
     // MARK: load(from:)
@@ -77,26 +59,20 @@ struct AppearanceModeTests {
         #expect(AppearanceMode.load(from: defaults) == .dark)
     }
 
-    @Test
-    func loadFallsBackToSystemWhenKeyMissing() {
+    @Test(arguments: [nil, "sepia"])
+    func loadFallsBackToSystemOnMissingOrUnknown(_ raw: String?) {
         let defaults = Self.freshUserDefaults()
-        #expect(AppearanceMode.load(from: defaults) == .system)
+        if let raw {
+            defaults.set(raw, forKey: "appearanceMode")
+        }
+        #expect(
+            AppearanceMode.load(from: defaults) == .system,
+            "\(raw.map { "\"\($0)\"" } ?? "missing") → .system")
     }
 
     @Test
-    func loadFallsBackToSystemOnUnknownString() {
-        let defaults = Self.freshUserDefaults()
-        defaults.set("sepia", forKey: "appearanceMode")
-        #expect(AppearanceMode.load(from: defaults) == .system)
-    }
-
-    @Test
-    func allCasesCoverSystemLightDark() {
+    func allCasesAndTitlesAreHumanReadable() {
         #expect(AppearanceMode.allCases == [.system, .light, .dark])
-    }
-
-    @Test
-    func titlesAreHumanReadable() {
         #expect(AppearanceMode.system.title == String.en("System", bundle: .main))
         #expect(AppearanceMode.light.title == String.en("Light", bundle: .main))
         #expect(AppearanceMode.dark.title == String.en("Dark", bundle: .main))

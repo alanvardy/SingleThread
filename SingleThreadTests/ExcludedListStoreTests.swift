@@ -4,39 +4,22 @@ import Testing
 
 struct ExcludedListStoreTests {
     @Test
-    func loadReturnsEmptyByDefault() {
-        let store = ExcludedListStore(defaults: .standard, key: "test-excluded-empty-\(UUID().uuidString)")
-        #expect(store.load().isEmpty)
-    }
-
-    @Test
-    func saveRoundTripsTitles() {
-        let store = ExcludedListStore(defaults: .standard, key: "test-excluded-roundtrip-\(UUID().uuidString)")
+    func loadDefaultsAndRoundTrips() {
+        let store = ExcludedListStore(defaults: .standard, key: "test-excluded-\(UUID().uuidString)")
+        #expect(store.load().isEmpty, "empty by default")
         store.save(["Work", "Personal"])
-        #expect(Set(store.load()) == ["Work", "Personal"])
-    }
-
-    @Test
-    func saveReplacesExistingTitles() {
-        let store = ExcludedListStore(defaults: .standard, key: "test-excluded-replace-\(UUID().uuidString)")
-        store.save(["A", "B"])
+        #expect(Set(store.load()) == ["Work", "Personal"], "round-trips titles")
         store.save(["C"])
-        #expect(Set(store.load()) == ["C"])
-    }
-
-    @Test
-    func saveEmptyClearsTitles() {
-        let store = ExcludedListStore(defaults: .standard, key: "test-excluded-clear-\(UUID().uuidString)")
-        store.save(["A"])
+        #expect(Set(store.load()) == ["C"], "save replaces, not unions")
         store.save([])
-        #expect(store.load().isEmpty)
+        #expect(store.load().isEmpty, "save([]) clears")
     }
 
     @Test
     func storesAreIsolatedByKey() {
-        let first = ExcludedListStore(defaults: .standard, key: "test-excluded-isolation-1-\(UUID().uuidString)")
-        let second = ExcludedListStore(defaults: .standard, key: "test-excluded-isolation-2-\(UUID().uuidString)")
+        let first = ExcludedListStore(defaults: .standard, key: "test-iso-1-\(UUID().uuidString)")
+        let second = ExcludedListStore(defaults: .standard, key: "test-iso-2-\(UUID().uuidString)")
         first.save(["Work"])
-        #expect(second.load().isEmpty)
+        #expect(second.load().isEmpty, "key A write never visible to key B")
     }
 }

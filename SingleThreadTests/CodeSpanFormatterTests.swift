@@ -7,111 +7,61 @@ struct CodeSpanFormatterTests {
     // MARK: Empty / plain
 
     @Test
-    func emptyStringReturnsEmptyAttributedString() {
-        let result = CodeSpanFormatter.format("")
-        #expect(result.characters.isEmpty)
-    }
-
-    @Test
-    func plainTextReturnsUnstyledAttributedString() {
-        let result = CodeSpanFormatter.format("Buy groceries")
-        #expect(String(result.characters[...]) == "Buy groceries")
+    func emptyAndPlainText() {
+        let empty = CodeSpanFormatter.format("")
+        #expect(empty.characters.isEmpty, "empty input → empty attributed string")
+        let plain = CodeSpanFormatter.format("Buy groceries")
+        #expect(
+            String(plain.characters[...]) == "Buy groceries",
+            "plain text passes through unchanged")
     }
 
     // MARK: Inline code
 
-    @Test
-    func inlineCodeStripsBackticks() {
-        let result = CodeSpanFormatter.format("Use `map` here")
-        #expect(String(result.characters[...]) == "Use map here")
-    }
-
-    @Test
-    func singleInlineCodeOnly() {
-        let result = CodeSpanFormatter.format("`code`")
-        #expect(String(result.characters[...]) == "code")
+    @Test(arguments: [
+        ("Use `map` here", "Use map here"),
+        ("`code`", "code"),
+        ("Use `map` and `filter`", "Use map and filter"),
+        ("`start` and end", "start and end"),
+        ("start and `end`", "start and end"),
+        ("a `x` b `y` c", "a x b y c")
+    ])
+    func inlineCodeStripsBackticks(_ pair: (input: String, expected: String)) {
+        let result = CodeSpanFormatter.format(pair.input)
+        #expect(String(result.characters[...]) == pair.expected, "\(pair.input) → \(pair.expected)")
     }
 
     // MARK: Fenced code
 
     @Test
-    func fencedCodeStripsFences() {
-        let result = CodeSpanFormatter.format("Before\n```\nlet x = 1\n```\nAfter")
-        let text = String(result.characters[...])
-        #expect(text.contains("let x = 1"))
-        #expect(!text.contains("```"))
-    }
-
-    @Test
-    func fencedCodeOnly() {
-        let result = CodeSpanFormatter.format("```\ncode\n```")
-        let text = String(result.characters[...])
-        #expect(text.trimmingCharacters(in: .whitespacesAndNewlines) == "code")
-    }
-
-    // MARK: Multiple spans
-
-    @Test
-    func multipleCodeSpansInOneString() {
-        let result = CodeSpanFormatter.format("Use `map` and `filter`")
-        #expect(String(result.characters[...]) == "Use map and filter")
+    func fencedAndUnclosedFencesStripFencesKeepContent() {
+        let fenced = CodeSpanFormatter.format("Before\n```\nlet x = 1\n```\nAfter")
+        let fencedText = String(fenced.characters[...])
+        #expect(fencedText.contains("let x = 1"), "fenced content preserved")
+        #expect(!fencedText.contains("```"), "fences stripped")
+        let only = CodeSpanFormatter.format("```\ncode\n```")
+        #expect(
+            String(only.characters[...]).trimmingCharacters(in: .whitespacesAndNewlines) == "code",
+            "fenced-only block reduces to its content")
+        let nested = CodeSpanFormatter.format("```\ncode `x` more\n```")
+        let nestedText = String(nested.characters[...])
+        #expect(nestedText.contains("code `x` more"), "inner backticks rendered literally")
+        #expect(!nestedText.contains("```"), "outer fences still stripped")
+        let unclosed = CodeSpanFormatter.format("```\nunclosed")
+        let unclosedText = String(unclosed.characters[...])
+        #expect(unclosedText.contains("unclosed"), "unclosed remainder treated as code content")
+        #expect(!unclosedText.contains("```"), "unclosed opening fence still stripped")
     }
 
     // MARK: Unmatched backticks
 
-    @Test
-    func unmatchedSingleBacktickRendersLiterally() {
-        let result = CodeSpanFormatter.format("a ` b")
-        #expect(String(result.characters[...]) == "a ` b")
-    }
-
-    @Test
-    func doubleBacktickRendersLiterally() {
-        // Two backticks is not a valid delimiter per the simple parsing rules.
-        let result = CodeSpanFormatter.format("a `` b")
-        #expect(String(result.characters[...]) == "a `` b")
-    }
-
-    @Test
-    func unmatchedTripleFenceRendersRestAsCode() {
-        // No closing fence: rest of string is code content, fences stripped.
-        let result = CodeSpanFormatter.format("```\nunclosed")
-        let text = String(result.characters[...])
-        #expect(!text.contains("```"))
-        #expect(text.contains("unclosed"))
-    }
-
-    // MARK: Boundaries
-
-    @Test
-    func backtickAtStartOfString() {
-        let result = CodeSpanFormatter.format("`start` and end")
-        #expect(String(result.characters[...]) == "start and end")
-    }
-
-    @Test
-    func backtickAtEndOfString() {
-        let result = CodeSpanFormatter.format("start and `end`")
-        #expect(String(result.characters[...]) == "start and end")
-    }
-
-    // MARK: Nested / sequences
-
-    @Test
-    func fencedBlockWithInnerBackticksRenderedLiterally() {
-        // Inner backticks inside a fenced block are treated literally —
-        // no nesting recursion.
-        let result = CodeSpanFormatter.format("```\ncode `x` more\n```")
-        let text = String(result.characters[...])
-        #expect(text.contains("code `x` more"))
-        #expect(!text.contains("```"))
-    }
-
-    @Test
-    func multipleSpansWithPlainTextBetween() {
-        // Plain text between code spans is preserved in correct order.
-        let result = CodeSpanFormatter.format("a `x` b `y` c")
-        #expect(String(result.characters[...]) == "a x b y c")
+    @Test(arguments: [
+        ("a ` b", "a ` b"),
+        ("a `` b", "a `` b")
+    ])
+    func unmatchedBackticksRenderLiterally(_ pair: (input: String, expected: String)) {
+        let result = CodeSpanFormatter.format(pair.input)
+        #expect(String(result.characters[...]) == pair.expected, "\(pair.input) renders literally")
     }
 
     // MARK: Attributes

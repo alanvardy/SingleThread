@@ -3,55 +3,28 @@ import SingleThreadCore
 import Testing
 
 struct ReminderRecurrenceFormatterTests {
+    // MARK: Internal
+
     @Test
-    func nilRulesReturnsNil() {
-        #expect(ReminderRecurrenceFormatter.format(nil) == nil)
+    func nilOrEmptyRulesReturnsNil() {
+        #expect(ReminderRecurrenceFormatter.format(nil) == nil, "nil rules → nil")
+        #expect(ReminderRecurrenceFormatter.format([]) == nil, "empty rules → nil")
     }
 
     @Test
-    func emptyRulesReturnsNil() {
-        #expect(ReminderRecurrenceFormatter.format([]) == nil)
+    func formatsKnownRules() {
+        #expect(formatted(frequency: .daily, interval: 1) == String.en("Daily", bundle: .core), "daily × 1")
+        #expect(formatted(frequency: .daily, interval: 2) == String.en("Every 2 days", bundle: .core), "daily × 2")
+        #expect(formatted(frequency: .weekly, interval: 1) == String.en("Weekly", bundle: .core), "weekly × 1")
+        #expect(formatted(frequency: .weekly, interval: 3) == String.en("Every 3 weeks", bundle: .core), "weekly × 3")
+        #expect(formatted(frequency: .monthly, interval: 1) == String.en("Monthly", bundle: .core), "monthly × 1")
+        #expect(formatted(frequency: .yearly, interval: 1) == String.en("Yearly", bundle: .core), "yearly × 1")
     }
 
-    @Test
-    func dailySingle() {
-        let rule = EKRecurrenceRule(recurrenceWith: .daily, interval: 1, end: nil)
-        #expect(ReminderRecurrenceFormatter.format([rule]) == String.en("Daily", bundle: .core))
-    }
+    // MARK: Private
 
-    @Test
-    func dailyIntervalTwo() {
-        let rule = EKRecurrenceRule(recurrenceWith: .daily, interval: 2, end: nil)
-        #expect(ReminderRecurrenceFormatter.format([rule]) == String.en("Every \(2) days", bundle: .core))
-    }
-
-    @Test
-    func recurrenceUsesPluralAwareLookup() {
-        let rule = EKRecurrenceRule(recurrenceWith: .daily, interval: 2, end: nil)
-        #expect(ReminderRecurrenceFormatter.format([rule]) == String.en("Every \(2) days", bundle: .core))
-    }
-
-    @Test
-    func weeklySingle() {
-        let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
-        #expect(ReminderRecurrenceFormatter.format([rule]) == String.en("Weekly", bundle: .core))
-    }
-
-    @Test
-    func weeklyIntervalThree() {
-        let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 3, end: nil)
-        #expect(ReminderRecurrenceFormatter.format([rule]) == String.en("Every \(3) weeks", bundle: .core))
-    }
-
-    @Test
-    func monthlySingle() {
-        let rule = EKRecurrenceRule(recurrenceWith: .monthly, interval: 1, end: nil)
-        #expect(ReminderRecurrenceFormatter.format([rule]) == String.en("Monthly", bundle: .core))
-    }
-
-    @Test
-    func yearlySingle() {
-        let rule = EKRecurrenceRule(recurrenceWith: .yearly, interval: 1, end: nil)
-        #expect(ReminderRecurrenceFormatter.format([rule]) == String.en("Yearly", bundle: .core))
+    private func formatted(frequency: EKRecurrenceFrequency, interval: Int) -> String? {
+        let rule = EKRecurrenceRule(recurrenceWith: frequency, interval: interval, end: nil)
+        return ReminderRecurrenceFormatter.format([rule])
     }
 }
