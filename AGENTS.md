@@ -93,7 +93,7 @@ SingleThread/                  # git root
 ## QRSPI Workflow
 
 - QRSPI pipeline: `/1_spec` → `/2_clarify` → `/3_design` → `/4_research` →
-  `/5_plan` → `/6_implement` (see `~/AGENTS.md` and `.pi/skills/qrspi/SKILL.md`).
+  `/5_plan` → `/6_implement` (see `~/.pi/agent/AGENTS.md` and `.pi/skills/qrspi/SKILL.md`).
 - All QRSPI work — decompose, research, design, plan — happens directly on
   the main ticket's current branch. **No child subtasks** and **no separate
   design PR/branch**. Artifacts live under `.pi/qrspi/<current-branch>/` and
