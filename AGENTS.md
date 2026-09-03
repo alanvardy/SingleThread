@@ -2,10 +2,9 @@
 
 ## Shell Environment
 
-- The command tool runs **fish** — keep each bash tool call to ONE simple
-  command. Anything compound (loops, heredocs, `VAR=$(...)`) fails: write the
-  script to `/tmp/x.sh` with the `write` tool and run `bash /tmp/x.sh` (see
-  `~/.pi/agent/skills/fish-shell/SKILL.md` for the translation table).
+- The command tool runs **fish** — `;`/`&&` chains and pipes work, but
+  heredocs (`<<`), loops, `case`, `$()` at command start, `timeout`/`nohup`
+  fail: write `/tmp/x.sh` and run `bash /tmp/x.sh` (see the `fish-shell` skill).
 
 ## Build & Test
 
@@ -14,13 +13,13 @@
   with `xcrun simctl list devices available | grep -iE 'iphone|ipad'` if
   either is unavailable.
 - **Destination pinning**: the name-only `iPhone 17` destination is ambiguous
-  when multiple runtimes exist (this machine has 4) — a bare `name=` hangs.
+  when multiple runtimes exist — a bare `name=` hangs.
   Pin `,OS=<ver>` or `,id=<UDID>` (from `xcrun simctl list devices available`).
   `scripts/test.sh`/`Makefile` accept `SIM=`.
 - **One xcodebuild test process at a time** (simulator contention). On
-  `Busy`/`RequestDenied` runner-launch failures: prune stale
-  `~/Library/Developer/XCTestDevices`, shutdown sims (`xcrun simctl shutdown
-  all`), and kill orphaned `xcodebuild`/`xctest` processes before retrying.
+  `Busy`/`RequestDenied` runner-launch failures: shutdown sims (`xcrun
+  simctl shutdown all`) and kill orphaned `xcodebuild`/`xctest` processes.
+  Watch UI tests need a paired sim: `xcrun simctl pair <watchUDID> <phoneUDID>`.
 - **Build & tests via `make`**: `make build` / `make test` / `make
   ui-test` / `make periphery` / `make lint` / `make format`; pin a
   destination with `SIM=`. For targeted suites:
@@ -80,7 +79,7 @@ SingleThread/                  # git root
 ├── SingleThreadWidget/        # widget extension
 ├── SingleThreadTests/         # unit tests (Swift Testing)
 ├── SingleThreadUITests/       # UI tests (XCTest, accessibility audit)
-├── scripts/                   # CI-identical test script
+├── scripts/                   # CI-identical test gate; run-devices.sh = devicectl install/launch
 ├── .github/workflows/ci.yml   # GitHub Actions
 ├── AGENTS.md
 ├── Makefile
