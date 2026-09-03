@@ -372,3 +372,12 @@ showCompletionGlow	ios	write	SingleThread/AppViewModel.swift	395	               
 showsActionButtons	ios	declaration	SingleThread/ContentViewModel.swift	45	        var showsActionButtons: Bool {
 notificationsEnabled	ios	seam	SingleThread/AppViewModel.swift	183	                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
 notificationsEnabled	ios	seam	SingleThread/AppViewModel.swift	187	                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
+showDateState.isEnabled	watchOS	declaration	SingleThreadWatch/ShowDateState.swift	18	    private(set) var isEnabled: Bool
+showListState.isEnabled	watchOS	declaration	SingleThreadWatch/ShowListState.swift	18	    private(set) var isEnabled: Bool
+showRecurrenceState.isEnabled	watchOS	declaration	SingleThreadWatch/ShowRecurrenceState.swift	18	    private(set) var isEnabled: Bool
+showAlarmsState.isEnabled	watchOS	declaration	SingleThreadWatch/ShowAlarmsState.swift	18	    private(set) var isEnabled: Bool
+showCompletionGlowState.isEnabled	watchOS	declaration	SingleThreadWatch/ShowCompletionGlowState.swift	17	    private(set) var isEnabled: Bool
+isShowingSettings	ios	declaration	SingleThread/ContentView.swift	257	    @State private var isShowingSettings = false
+isShowingPurchase	ios	declaration	SingleThread/ContentView.swift	261	    @State private var isShowingPurchase = false
+watchServiceStandardStores	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	155	            showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard),
+sortOption	ios	write	SingleThread/ContentView+Settings.swift	38	            .onChange(of: bag.sortOption) { _, new in sortOption = new }
