@@ -332,10 +332,10 @@ List of keys with `@AppStorage` plus an independent raw read, with both read sit
 ### Verification
 
 #### Automated
-- [ ] Cite-check: every `*.swift:<line>` citation string in `audit/inventory.md` appears as a row in `audit/factbase.tsv` — `grep -oE '[A-Za-z]+\.swift:[0-9]+' audit/inventory.md | sort -u | while read cite; do grep -q "$cite" audit/factbase.tsv || echo "MISSING: $cite"; done` produces no output
-- [ ] `bash audit/verify-citations.sh` still exits 0 (fact base remains clean)
-- [ ] 23-key split: count `.standard` key rows = 12, count App Group key rows = 11 in `inventory.md`
-- [ ] Store mirror table row count matches research Q2's enumerated stores (approximately 35 rows)
+- [x] Cite-check: every `*.swift:<line>` citation string in `audit/inventory.md` appears as a row in `audit/factbase.tsv` — `grep -oE '[A-Za-z]+\.swift:[0-9]+' audit/inventory.md | sort -u | while read cite; do grep -q "$cite" audit/factbase.tsv || echo "MISSING: $cite"; done` produces no output
+- [x] `bash audit/verify-citations.sh` still exits 0 (fact base remains clean)
+- [x] 23-key split: count `.standard` key rows = 12, count App Group key rows = 11 in `inventory.md`
+- [x] Store mirror table row count matches research Q2's enumerated stores (approximately 35 rows)
 
 #### Manual
 - [ ] Dual-read-path set enumerated in `inventory.md` matches the list above (12 keys) — no more, no fewer
