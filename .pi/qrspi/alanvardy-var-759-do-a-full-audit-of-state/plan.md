@@ -694,10 +694,10 @@ This is effectively the widget's `NextThingEntry.State` (:10-14) generalized —
 ### Verification
 
 #### Automated
-- [ ] Three enum sketches present (count sections titled "Enum Sketch N:" = 3)
-- [ ] Each sketch's `replaces` fields resolve as real keys in `factbase.tsv` — grep each field name
-- [ ] Advisory pointers section enumerates all remaining bare-Bool/Int clusters from research Q4: `show*` ×6, dictation, `BackgroundFade`, watch refresh flags
-- [ ] `bash audit/verify-citations.sh` still exits 0
+- [x] Three enum sketches present (count sections titled "Enum Sketch N:" = 3)
+- [x] Each sketch's `replaces` fields resolve as real keys in `factbase.tsv` — grep each field name
+- [x] Advisory pointers section enumerates all remaining bare-Bool/Int clusters from research Q4: `show*` ×6, dictation, `BackgroundFade`, watch refresh flags
+- [x] `bash audit/verify-citations.sh` still exits 0
 
 #### Manual
 - [ ] Sketch 1 (`CompletionTransition`) adheres to patterns: no persistence needed (transient watch-only), presentation on extension
