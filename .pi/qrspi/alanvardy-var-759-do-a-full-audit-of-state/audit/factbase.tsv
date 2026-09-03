@@ -1,0 +1,374 @@
+id	target	node	file	line	lineText
+appearanceMode	ios	declaration	SingleThread/ContentView.swift	72	    @AppStorage("appearanceMode")
+appearanceMode	ios	read	SingleThread/AppDelegate.swift	47	            Self.applyAppearance(AppearanceMode.load())
+appearanceMode	ios	dualRead	SingleThread/AppearanceMode.swift	80	        guard let rawValue = defaults.object(forKey: "appearanceMode") as? String,
+appearanceMode	ios	write	SingleThread/ContentView+Settings.swift	19	            .onChange(of: bag.appearanceMode) { _, new in appearanceMode = new }
+textSize	ios	declaration	SingleThread/ContentView.swift	75	    @AppStorage("textSize")
+textSize	ios	read	SingleThread/ContentView.swift	236	        .modifier(TextSizeModifier(textSize: textSize))
+textSize	ios	write	SingleThread/ContentView+Settings.swift	20	            .onChange(of: bag.textSize) { _, new in textSize = new }
+allowsLandscape	ios	declaration	SingleThread/ContentView.swift	79	        @AppStorage("allowsLandscape")
+allowsLandscape	ios	dualRead	SingleThread/AppDelegate.swift	53	            let keyExists = UserDefaults.standard.object(forKey: "allowsLandscape") != nil
+allowsLandscape	ios	read	SingleThread/AppDelegate.swift	55	                ? UserDefaults.standard.bool(forKey: "allowsLandscape")
+allowsLandscape	ios	write	SingleThread/ContentView+Settings.swift	23	                .onChange(of: bag.allowsLandscape) { _, new in allowsLandscape = new }
+showMicrophoneButton	ios	declaration	SingleThread/ContentView.swift	83	    @AppStorage("showMicrophoneButton")
+showMicrophoneButton	ios	read	SingleThread/ContentView.swift	624	            } else if viewModel.dictation.canDictate, showMicrophoneButton {
+showMicrophoneButton	ios	write	SingleThread/ContentView+Settings.swift	33	            .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
+showMicrophoneButton	ios	seam	SingleThread/AppViewModel.swift	221	        UserDefaults.standard.register(defaults: ["showMicrophoneButton": true])
+backgroundEnabled	ios	declaration	SingleThread/ContentView.swift	86	    @AppStorage("backgroundEnabled", store: .standard)
+backgroundEnabled	ios	read	SingleThread/ContentView.swift	153	                    isEnabled: backgroundEnabled,
+backgroundEnabled	ios	write	SingleThread/ContentView+Settings.swift	34	            .onChange(of: bag.backgroundEnabled) { _, new in backgroundEnabled = new }
+backgroundFadePercent	ios	declaration	SingleThread/ContentView.swift	89	    @AppStorage("backgroundFadePercent", store: .standard)
+backgroundFadePercent	ios	read	SingleThread/ContentView.swift	154	                    opacity: BackgroundFade.opacity(for: backgroundFadePercent))
+backgroundFadePercent	ios	write	SingleThread/ContentView+Settings.swift	35	            .onChange(of: bag.backgroundFadePercent) { _, new in backgroundFadePercent = new }
+backgroundPinned	ios	declaration	SingleThread/ContentView.swift	92	    @AppStorage("backgroundPinned", store: .standard)
+backgroundPinned	ios	read	SingleThread/ContentView.swift	216	            await viewModel.backgroundImage.setPinned(backgroundPinned)
+backgroundPinned	ios	write	SingleThread/ContentView+Settings.swift	36	            .onChange(of: bag.backgroundPinned) { _, new in backgroundPinned = new }
+enableActionButtons	ios	declaration	SingleThread/ContentView.swift	96	        @AppStorage("enableActionButtons")
+enableActionButtons	ios	dualRead	SingleThread/ContentViewModel.swift	46	            UserDefaults.standard.bool(forKey: "enableActionButtons")
+enableActionButtons	ios	read	SingleThread/ContentView.swift	630	                    } else if viewModel.showsActionButtons {
+enableActionButtons	ios	write	SingleThread/ContentView+Settings.swift	24	                .onChange(of: bag.enableActionButtons) { _, new in enableActionButtons = new }
+enableActionButtons	ios	seam	SingleThread/AppViewModel.swift	252	                UserDefaults.standard.set(true, forKey: "enableActionButtons")
+enableActionButtons	ios	seam	SingleThread/AppViewModel.swift	298	        UserDefaults.standard.set(true, forKey: "enableActionButtons")
+showSwipePrompt	ios	declaration	SingleThread/ContentView.swift	101	        @AppStorage("showSwipePrompt")
+showSwipePrompt	ios	read	SingleThread/ContentView.swift	397	                                showSwipePrompt: swipePromptBinding)
+showSwipePrompt	ios	write	SingleThread/ContentView+Settings.swift	25	                .onChange(of: bag.showSwipePrompt) { _, new in showSwipePrompt = new }
+showSwipePrompt	ios	seam	SingleThread/AppViewModel.swift	250	                    UserDefaults.standard.removeObject(forKey: "showSwipePrompt")
+showUndoButton	ios	declaration	SingleThread/ContentView.swift	106	        @AppStorage("showUndoButton")
+showUndoButton	ios	read	SingleThread/ContentView.swift	180	            if viewModel.store.undoStore.hasUndoableReminder, showUndoButton, viewModel.store.canMutate {
+showUndoButton	ios	write	SingleThread/ContentView+Settings.swift	26	                .onChange(of: bag.showUndoButton) { _, new in showUndoButton = new }
+notificationsEnabled	ios	declaration	SingleThread/ContentView.swift	109	        @AppStorage(AppViewModel.NotificationKeys.enabled)
+notificationsEnabled	ios	dualRead	SingleThread/AppViewModel.swift	127	            guard UserDefaults.standard.bool(forKey: NotificationKeys.enabled) else { return }
+notificationsEnabled	ios	write	SingleThread/AppViewModel.swift	187	                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
+notificationsEnabled	ios	write	SingleThread/ContentView+Settings.swift	27	                .onChange(of: bag.notificationsEnabled) { _, new in notificationsEnabled = new }
+notificationsEnabled	ios	read	SingleThread/ContentView.swift	232	        .onChange(of: notificationsEnabled) { _, newValue in
+notificationIntervalHours	ios	declaration	SingleThread/ContentView.swift	112	        @AppStorage(AppViewModel.NotificationKeys.intervalHours)
+notificationIntervalHours	ios	dualRead	SingleThread/AppViewModel.swift	131	            let intervalHours = UserDefaults.standard.integer(forKey: NotificationKeys.intervalHours)
+notificationIntervalHours	ios	read	SingleThread/AppViewModel.swift	132	            let effectiveHours = intervalHours > 0 ? intervalHours : 48
+notificationIntervalHours	ios	write	SingleThread/ContentView+Settings.swift	28	                .onChange(of: bag.notificationIntervalHours) { _, new in notificationIntervalHours = new }
+showUndatedReminders	ios	declaration	SingleThread/ContentView.swift	115	    @AppStorage("showUndatedReminders", store: AppGroup.defaults)
+showUndatedReminders	core	dualRead	SingleThreadCore/Sources/SingleThreadCore/ShowUndatedRemindersPreference.swift	19	        defaults.object(forKey: key) as? Bool ?? false
+showUndatedReminders	widget	read	SingleThreadWidget/NextThingWidget.swift	71	            store.showsUndatedReminders = AppGroup.defaults.bool(forKey: "showUndatedReminders")
+showUndatedReminders	widget	write	SingleThreadWidget/NextThingWidget.swift	71	            store.showsUndatedReminders = AppGroup.defaults.bool(forKey: "showUndatedReminders")
+showUndatedReminders	watchOS	read	SingleThreadWatch/WatchAppViewModel.swift	34	        store.showsUndatedReminders = ShowUndatedRemindersPreference(defaults: .standard).load()
+showUndatedReminders	core	write	SingleThreadCore/Sources/SingleThreadCore/ShowUndatedRemindersPreference.swift	23	        defaults.set(enabled, forKey: key)
+showUndatedReminders	ios	write	SingleThread/ContentView+Settings.swift	37	            .onChange(of: bag.showUndatedReminders) { _, new in showUndatedReminders = new }
+showUndatedReminders	ios	write	SingleThread/ContentViewModel.swift	96	        store.showsUndatedReminders = value
+showUndatedReminders	ios	write	SingleThread/ContentViewModel.swift	90	        store.showsUndatedReminders = showUndatedReminders
+showUndatedReminders	core	write	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	328	                showUndatedStore.save(received)
+showUndatedReminders	watchOS	write	SingleThreadWatch/WatchAppViewModel.swift	167	                store?.showsUndatedReminders = value
+sortOption	ios	declaration	SingleThread/ContentView.swift	118	    @AppStorage(SortOption.defaultsKey, store: AppGroup.defaults)
+sortOption	core	declaration	SingleThreadCore/Sources/SingleThreadCore/SortOption.swift	18	    public static let defaultsKey = "sortOption"
+sortOption	core	dualRead	SingleThreadCore/Sources/SingleThreadCore/SortOption.swift	35	        guard let raw = defaults.string(forKey: key), let option = SortOption(rawValue: raw) else {
+sortOption	ios	read	SingleThread/AppViewModel.swift	25	        store.sortOption = SortOptionStore().load()
+sortOption	ios	write	SingleThread/AppViewModel.swift	25	        store.sortOption = SortOptionStore().load()
+sortOption	watchOS	read	SingleThreadWatch/WatchAppViewModel.swift	31	        store.sortOption = SortOptionStore().load()
+sortOption	watchOS	write	SingleThreadWatch/WatchAppViewModel.swift	31	        store.sortOption = SortOptionStore().load()
+sortOption	widget	read	SingleThreadWidget/NextThingWidget.swift	72	            store.setSortOption(SortOptionStore().load())
+sortOption	widget	write	SingleThreadWidget/NextThingWidget.swift	72	            store.setSortOption(SortOptionStore().load())
+sortOption	widget	write	SingleThreadCore/Sources/SingleThreadCore/ReminderIntents.swift	20	        store.setSortOption(SortOptionStore().load())
+sortOption	widget	write	SingleThreadCore/Sources/SingleThreadCore/ReminderIntents.swift	43	        store.setSortOption(SortOptionStore().load())
+sortOption	core	write	SingleThreadCore/Sources/SingleThreadCore/SortOption.swift	42	        defaults.set(option.rawValue, forKey: key)
+sortOption	ios	write	SingleThread/AppViewModel.swift	72	                }
+sortOption	core	write	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	334	                sortStore.save(option)
+sortOption	ios	read	SingleThread/ContentView.swift	225	        .onChange(of: sortOption) { _, newValue in
+showDate	ios	declaration	SingleThread/ContentView.swift	121	    @AppStorage("showDate", store: AppGroup.defaults)
+showDate	core	dualRead	SingleThreadCore/Sources/SingleThreadCore/ShowDatePreference.swift	20	        defaults.object(forKey: key) as? Bool ?? true
+showDate	ios	read	SingleThread/AppViewModel.swift	380	        private func handlePreferencesChanged() {
+showDate	ios	write	SingleThread/ContentView+Settings.swift	39	            .onChange(of: bag.showDate) { _, new in showDate = new }
+showDate	core	write	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	339	                showDateStore.set(showDate)
+showList	ios	declaration	SingleThread/ContentView.swift	124	    @AppStorage("showList", store: AppGroup.defaults)
+showList	core	dualRead	SingleThreadCore/Sources/SingleThreadCore/ShowListPreference.swift	20	        defaults.object(forKey: key) as? Bool ?? false
+showList	ios	read	SingleThread/AppViewModel.swift	383	            let currentShowAlarms = ShowAlarmsPreference().isEnabled
+showList	ios	write	SingleThread/ContentView+Settings.swift	40	            .onChange(of: bag.showList) { _, new in showList = new }
+showList	core	write	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	354	                showListStore.set(showList)
+showRecurrence	ios	declaration	SingleThread/ContentView.swift	127	    @AppStorage("showRecurrence", store: AppGroup.defaults)
+showRecurrence	core	dualRead	SingleThreadCore/Sources/SingleThreadCore/ShowRecurrencePreference.swift	20	        defaults.object(forKey: key) as? Bool ?? true
+showRecurrence	ios	read	SingleThread/AppViewModel.swift	381	            let currentShowDate = ShowDatePreference().isEnabled
+showRecurrence	ios	write	SingleThread/ContentView+Settings.swift	41	            .onChange(of: bag.showRecurrence) { _, new in showRecurrence = new }
+showRecurrence	core	write	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	344	                showRecurrenceStore.set(showRecurrence)
+showAlarms	ios	declaration	SingleThread/ContentView.swift	129	    @AppStorage("showAlarms", store: AppGroup.defaults)
+showAlarms	core	dualRead	SingleThreadCore/Sources/SingleThreadCore/ShowAlarmsPreference.swift	20	        defaults.object(forKey: key) as? Bool ?? true
+showAlarms	ios	read	SingleThread/AppViewModel.swift	382	            let currentShowRecurrence = ShowRecurrencePreference().isEnabled
+showAlarms	ios	write	SingleThread/ContentView+Settings.swift	42	            .onChange(of: bag.showAlarms) { _, new in showAlarms = new }
+showAlarms	core	write	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	349	                showAlarmsStore.set(showAlarms)
+showCompletionGlow	ios	declaration	SingleThread/ContentView.swift	132	    @AppStorage("showCompletionGlow", store: AppGroup.defaults)
+showCompletionGlow	core	dualRead	SingleThreadCore/Sources/SingleThreadCore/ShowCompletionGlowPreference.swift	20	        defaults.object(forKey: key) as? Bool ?? true
+showCompletionGlow	ios	read	SingleThread/ContentViewModel.swift	118	        if await store.completeCurrentReminder(), showCompletionGlow.isEnabled {
+showCompletionGlow	ios	write	SingleThread/ContentView+Settings.swift	43	            .onChange(of: bag.showCompletionGlow) { _, new in showCompletionGlow = new }
+showCompletionGlow	core	write	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	359	                showCompletionGlowStore.set(showCompletionGlow)
+showCompletionGlow	ios	seam	SingleThread/AppViewModel.swift	247	                    UserDefaults.standard.removeObject(forKey: "showCompletionGlow")
+showCompletionGlow	watchOS	seam	SingleThreadWatch/WatchAppViewModel.swift	49	            showCompletionGlowState.apply(false)
+showCompletionGlow	watchOS	seam	SingleThreadWatch/WatchAppViewModel.swift	51	            showCompletionGlowState.apply(true)
+skippedReminderIdentifiers	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderSkip.swift	124	    public init(defaults: UserDefaults = AppGroup.defaults, key: String = "skippedReminderIdentifiers") {
+skippedReminderIdentifiers	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderSkip.swift	132	        defaults.stringArray(forKey: key) ?? []
+skippedReminderIdentifiers	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	558	            skipped: skipStore.load())
+skippedReminderIdentifiers	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderSkip.swift	136	        defaults.set(identifiers, forKey: key)
+skippedReminderIdentifiers	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	484	        skipStore.save([])
+skippedReminderIdentifiers	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	499	        skipStore.save(updated)
+skippedReminderIdentifiers	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	561	        skipStore.save(resolved)
+excludedListTitles	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ExcludedListStore.swift	7	    public init(defaults: UserDefaults = AppGroup.defaults, key: String = "excludedListTitles") {
+excludedListTitles	core	read	SingleThreadCore/Sources/SingleThreadCore/ExcludedListStore.swift	15	        defaults.stringArray(forKey: key) ?? []
+excludedListTitles	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	560	        excludedListTitles = Set(excludeStore.load())
+excludedListTitles	core	write	SingleThreadCore/Sources/SingleThreadCore/ExcludedListStore.swift	19	        defaults.set(titles, forKey: key)
+excludedListTitles	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	417	        excludeStore.save(array)
+completionCount	core	declaration	SingleThreadCore/Sources/SingleThreadCore/CompletionCounterStore.swift	23	    public var count: Int {
+completionCount	core	read	SingleThreadCore/Sources/SingleThreadCore/CompletionCounterStore.swift	24	        defaults.integer(forKey: key)
+completionCount	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	145	        entitlementStore.isEntitled || completionCounter.count < 100
+completionCount	core	write	SingleThreadCore/Sources/SingleThreadCore/CompletionCounterStore.swift	29	        defaults.set(count + 1, forKey: key)
+completionCount	core	write	SingleThreadCore/Sources/SingleThreadCore/CompletionCounterStore.swift	36	        defaults.set(max(0, current - 1), forKey: key)
+completionCount	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	213	                completionCounter.increment()
+completionCount	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	244	                completionCounter.decrement()
+completionCount	ios	seam	SingleThread/AppViewModel.swift	294	        AppGroup.defaults.set(seed.completionCount, forKey: "completionCount")
+completionCount	watchOS	seam	SingleThreadWatch/WatchAppViewModel.swift	27	            AppGroup.defaults.set(100, forKey: "completionCount")
+completionCount	watchOS	write	SingleThreadWatch/WatchAppViewModel.swift	186	            AppGroup.defaults.set(count, forKey: "completionCount")
+completionCount	core	seam	SingleThreadCore/Sources/SingleThreadCore/CompletionCounterStore.swift	41	        defaults.set(0, forKey: key)
+pendingCompletionIdentifiers	core	declaration	SingleThreadCore/Sources/SingleThreadCore/PendingCompletionStore.swift	21	        defaults: UserDefaults = AppGroup.defaults,
+pendingCompletionIdentifiers	core	read	SingleThreadCore/Sources/SingleThreadCore/PendingCompletionStore.swift	70	        let stored = defaults.dictionary(forKey: key) ?? [:]
+pendingCompletionIdentifiers	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	525	        pendingCompletions = pendingCompletionStore.load()
+pendingCompletionIdentifiers	core	write	SingleThreadCore/Sources/SingleThreadCore/PendingCompletionStore.swift	83	        defaults.set(entries.mapValues { TimeInterval($0) }, forKey: key)
+pendingCompletionIdentifiers	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	202	                pendingCompletionStore.record(identifier)
+pendingCompletionIdentifiers	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	542	            pendingCompletionStore.save(pruned)
+reminders	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	55	    public private(set) var reminders: [EKReminder] = []
+reminders	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	397	        reminders = shown
+reminders	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	192	            reminders.removeAll { $0.calendarItemIdentifier == identifier }
+reminders	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	265	            reminders.removeAll { $0.calendarItemIdentifier == identifier }
+reminders	ios	read	SingleThread/ContentView.swift	372	            } else if viewModel.store.reminders.isEmpty {
+reminders	widget	read	SingleThreadWidget/NextThingWidget.swift	74	            if store.reminders.isEmpty {
+skippedIDs	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	56	    public private(set) var skippedIDs: Set<String> = []
+skippedIDs	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	483	        skippedIDs = []
+skippedIDs	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	498	        skippedIDs = Set(updated)
+skippedIDs	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	559	        skippedIDs = Set(resolved)
+excludedListTitles	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	57	    public private(set) var excludedListTitles: Set<String> = []
+excludedListTitles	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	415	        excludedListTitles = titles
+hasHidden	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	62	    public private(set) var hasHidden = false
+hasHidden	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	381	            hasHidden = Self.hasHiddenFor(shown: shown, allIncomplete: fetched)
+hasHidden	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	390	            hasHidden = Self.hasHiddenFor(shown: shown, allIncomplete: allIncomplete)
+hasHidden	ios	read	SingleThread/ContentView.swift	373	                let emptyCopy = ContentViewModel.emptyStateCopy(hasHidden: viewModel.store.hasHidden)
+hasHidden	watchOS	read	SingleThreadWatch/WatchReminderView.swift	163	            Text(viewModel.store.hasHidden ? SharedStrings.nothingDueRightNow : SharedStrings.noRemindersYet)
+hasHidden	widget	read	SingleThreadWidget/NextThingWidget.swift	77	                    state: .empty(store.hasHidden),
+availableLists	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	64	    public private(set) var availableLists: [String] = []
+authorizationStatus	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	65	    public private(set) var authorizationStatus: EKAuthorizationStatus = .notDetermined
+authorizationStatus	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	169	        authorizationStatus = current
+authorizationStatus	ios	read	SingleThread/ContentView.swift	340	        switch viewModel.store.authorizationStatus {
+authorizationStatus	watchOS	read	SingleThreadWatch/WatchReminderView.swift	61	
+loadsReminders	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	66	    public let loadsReminders: Bool
+sortOption	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	70	    public var sortOption: SortOption = .priority
+completionCounter	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	106	    public let completionCounter: CompletionCounterStore
+entitlementStore	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	110	    public let entitlementStore: EntitlementStore
+undoStore	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	115	        public let undoStore = UndoStore()
+showsUndatedReminders	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	122	    public var showsUndatedReminders = false {
+showsUndatedReminders	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	123	        didSet {
+visibleReminders	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	129	    public var visibleReminders: [EKReminder] {
+visibleReminders	ios	read	SingleThread/ContentView.swift	390	                        if let reminder = viewModel.store.visibleReminders.first {
+visibleReminders	watchOS	read	SingleThreadWatch/WatchReminderView.swift	84	            } else if let reminder = viewModel.store.visibleReminders.first {
+visibleReminders	widget	read	SingleThreadWidget/NextThingWidget.swift	83	            guard let current = store.visibleReminders.first else {
+visibleReminders	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	227	        guard let reminder = visibleReminders.first else { return false }
+allSkipped	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	138	    public var allSkipped: Bool {
+allSkipped	ios	read	SingleThread/ContentView.swift	358	            if viewModel.store.allSkipped {
+allSkipped	watchOS	read	SingleThreadWatch/WatchReminderView.swift	82	            } else if viewModel.store.allSkipped {
+canMutate	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	144	    public var canMutate: Bool {
+canMutate	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	189	        guard canMutate else { return false }
+canMutate	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	238	            guard canMutate, let reminder = undoStore.lastCompletedReminder else {
+canMutate	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	263	        guard canMutate else { return }
+canMutate	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	315	        guard canMutate else { return }
+canMutate	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	346	        guard canMutate else { return false }
+canMutate	ios	read	SingleThread/ContentView.swift	628	                    } else if !viewModel.store.canMutate {
+canMutate	watchOS	read	SingleThreadWatch/WatchReminderView.swift	219	            if !viewModel.store.canMutate, !viewModel.entitlementState.isEnabled {
+hasResolvedEntitlement	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	151	    public var hasResolvedEntitlement: Bool {
+hasResolvedEntitlement	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	152	        entitlementStore.hasResolvedEntitlement
+hasResolvedEntitlement	ios	read	SingleThread/ContentView.swift	626	                    if !viewModel.store.hasResolvedEntitlement {
+pendingCompletions	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	464	    private var pendingCompletions: Set<String> = []
+skipGeneration	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	468	    private var skipGeneration: Int = 0
+isEntitled	core	declaration	SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift	54	    public private(set) var isEntitled: Bool = false
+isEntitled	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	145	        entitlementStore.isEntitled || completionCounter.count < 100
+isEntitled	core	write	SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift	104	        isEntitled = entitled
+isEntitled	core	seam	SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift	31	        isEntitled = entitled
+hasResolvedEntitlement	core	declaration	SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift	60	    public private(set) var hasResolvedEntitlement: Bool = false
+hasResolvedEntitlement	core	write	SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift	105	        hasResolvedEntitlement = true
+hasResolvedEntitlement	core	seam	SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift	32	        hasResolvedEntitlement = true
+unlockProductID	core	declaration	SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift	50	    public static let unlockProductID = "app.alanvardy.SingleThread.unlimited"
+entitlementState.isEnabled	core	declaration	SingleThreadCore/Sources/SingleThreadCore/EntitlementState.swift	17	    public private(set) var isEnabled: Bool = false
+entitlementState.isEnabled	core	write	SingleThreadCore/Sources/SingleThreadCore/EntitlementState.swift	20	        isEnabled = value
+entitlementState.isEnabled	watchOS	read	SingleThreadWatch/WatchReminderView.swift	219	            if !viewModel.store.canMutate, !viewModel.entitlementState.isEnabled {
+isShowingCompletionTransition	watchOS	declaration	SingleThreadWatch/WatchReminderViewModel.swift	47	    var isShowingCompletionTransition = false
+isShowingCompletionTransition	watchOS	write	SingleThreadWatch/WatchReminderViewModel.swift	70	            isShowingCompletionTransition = true
+isShowingCompletionTransition	watchOS	write	SingleThreadWatch/WatchReminderViewModel.swift	82	                isShowingCompletionTransition = false
+isShowingCompletionTransition	watchOS	read	SingleThreadWatch/WatchReminderView.swift	79	            if viewModel.isShowingCompletionTransition,
+isShowingCompletionTransition	watchOS	read	SingleThreadWatch/WatchReminderViewModel.swift	66	        guard !isShowingCompletionTransition else { return }
+transitionReminder	watchOS	declaration	SingleThreadWatch/WatchReminderViewModel.swift	51	    var transitionReminder: EKReminder?
+transitionReminder	watchOS	write	SingleThreadWatch/WatchReminderViewModel.swift	67	        transitionReminder = store.visibleReminders.first
+transitionReminder	watchOS	write	SingleThreadWatch/WatchReminderViewModel.swift	83	                transitionReminder = nil
+transitionReminder	watchOS	write	SingleThreadWatch/WatchReminderViewModel.swift	86	            transitionReminder = nil
+transitionReminder	watchOS	read	SingleThreadWatch/WatchReminderView.swift	80	               let reminder = viewModel.transitionReminder {
+completionTransitionBuffer	watchOS	declaration	SingleThreadWatch/WatchReminderViewModel.swift	55	    var completionTransitionBuffer: TimeInterval = 0.5
+isRefreshing	watchOS	declaration	SingleThreadWatch/WatchReminderViewModel.swift	42	    var isRefreshing = false
+isShowingRefreshConfirmation	watchOS	declaration	SingleThreadWatch/WatchReminderViewModel.swift	43	    var isShowingRefreshConfirmation = false
+CompletionGlow.isActive	core	declaration	SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift	21	    public private(set) var isActive = false
+CompletionGlow.isActive	core	write	SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift	33	        isActive = true
+CompletionGlow.isActive	core	write	SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift	39	                self?.isActive = false
+CompletionGlow.isActive	ios	read	SingleThread/ContentView.swift	198	            if viewModel.completionGlow.isActive {
+CompletionGlow.isActive	watchOS	read	SingleThreadWatch/WatchReminderView.swift	97	            if viewModel.completionGlow.isActive {
+CompletionGlow.duration	core	declaration	SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift	27	    public var duration: TimeInterval = 0.50
+CompletionGlow.duration	watchOS	read	SingleThreadWatch/WatchReminderViewModel.swift	72	            let delay = completionGlow.duration + completionTransitionBuffer
+CompletionGlow.duration	ios	seam	SingleThread/AppViewModel.swift	212	            viewModel.completionGlow.duration = 2.0
+CompletionGlow.duration	watchOS	seam	SingleThreadWatch/WatchAppViewModel.swift	57	            reminderViewModel.completionGlow.duration = 2.0
+isDictating	ios	declaration	SingleThread/DictationViewModel.swift	22	    private(set) var isDictating = false
+isDictating	ios	write	SingleThread/DictationViewModel.swift	62	        isDictating = true
+isDictating	ios	write	SingleThread/DictationViewModel.swift	87	        isDictating = false
+isDictating	ios	read	SingleThread/ContentView.swift	615	            } else if viewModel.dictation.isDictating {
+dictationText	ios	declaration	SingleThread/DictationViewModel.swift	23	    var dictationText = ""
+dictationText	ios	write	SingleThread/DictationViewModel.swift	63	        dictationText = ""
+dictationText	ios	write	SingleThread/DictationViewModel.swift	67	                self?.dictationText = text
+dictationText	ios	read	SingleThread/ContentView.swift	617	                    Text(viewModel.dictation.dictationText)
+dictationError	ios	declaration	SingleThread/DictationViewModel.swift	24	    var dictationError: String?
+dictationError	ios	write	SingleThread/DictationViewModel.swift	64	        dictationError = nil
+dictationError	ios	read	SingleThread/ContentView.swift	606	            if let error = viewModel.dictation.dictationError {
+creationFeedback	ios	declaration	SingleThread/DictationViewModel.swift	25	    var creationFeedback: CreationFeedback?
+creationFeedback	ios	write	SingleThread/DictationViewModel.swift	77	                    creationFeedback = .success
+creationFeedback	ios	write	SingleThread/DictationViewModel.swift	79	                    creationFeedback = .failure
+creationFeedback	ios	write	SingleThread/DictationViewModel.swift	82	                creationFeedback = nil
+creationFeedback	ios	read	SingleThread/ContentView.swift	613	            if let feedback = viewModel.dictation.creationFeedback {
+isRecording	ios	declaration	SingleThread/ReminderDictation.swift	107	    private var isRecording = false
+isRecording	ios	write	SingleThread/ReminderDictation.swift	93	        isRecording = true
+isRecording	ios	write	SingleThread/ReminderDictation.swift	153	        isRecording = false
+isRecording	ios	read	SingleThread/ReminderDictation.swift	74	        guard !isRecording else { throw DictationError.alreadyRecording }
+partialText	ios	declaration	SingleThread/ReminderDictation.swift	108	    private var partialText = ""
+lastCompletedReminder	core	declaration	SingleThreadCore/Sources/SingleThreadCore/UndoStore.swift	19	    public private(set) var lastCompletedReminder: EKReminder?
+lastCompletedReminder	core	write	SingleThreadCore/Sources/SingleThreadCore/UndoStore.swift	27	        lastCompletedReminder = reminder
+lastCompletedReminder	core	write	SingleThreadCore/Sources/SingleThreadCore/UndoStore.swift	32	        lastCompletedReminder = nil
+lastCompletedReminder	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	238	            guard canMutate, let reminder = undoStore.lastCompletedReminder else {
+hasUndoableReminder	core	declaration	SingleThreadCore/Sources/SingleThreadCore/UndoStore.swift	21	    public var hasUndoableReminder: Bool {
+hasUndoableReminder	ios	read	SingleThread/ContentView.swift	180	            if viewModel.store.undoStore.hasUndoableReminder, showUndoButton, viewModel.store.canMutate {
+imageData	ios	declaration	SingleThread/BackgroundImageStore.swift	69	    private(set) var imageData: Data?
+photographer	ios	declaration	SingleThread/BackgroundImageStore.swift	71	    private(set) var photographer: String?
+photographerURL	ios	declaration	SingleThread/BackgroundImageStore.swift	73	    private(set) var photographerURL: URL?
+isRefreshing	ios	declaration	SingleThread/BackgroundImageStore.swift	76	    private(set) var isRefreshing = false
+isPinned	ios	declaration	SingleThread/BackgroundImageStore.swift	81	    private(set) var isPinned = false
+isPinned	ios	write	SingleThread/BackgroundImageStore.swift	142	        isPinned = pinned
+isPinned	ios	read	SingleThread/BackgroundImageStore.swift	141	        let wasPinned = isPinned
+isFetching	ios	declaration	SingleThread/BackgroundImageStore.swift	198	    private var isFetching = false
+hasResumed	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ResumptionGate.swift	28	    public private(set) var hasResumed = false
+hasResumed	core	read	SingleThreadCore/Sources/SingleThreadCore/ResumptionGate.swift	35	        guard !hasResumed else { return false }
+hasResumed	core	write	SingleThreadCore/Sources/SingleThreadCore/ResumptionGate.swift	36	        hasResumed = true
+completionCounter.count	core	declaration	SingleThreadCore/Sources/SingleThreadCore/CompletionCounterStore.swift	23	    public var count: Int {
+completionCounter.count	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	145	        entitlementStore.isEntitled || completionCounter.count < 100
+wcPayloadKeys	core	declaration	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	268	        private enum PayloadKey {
+skippedReminderIdentifiers	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	269	            static let skippedReminderIdentifiers = "skippedReminderIdentifiers"
+excludedListTitles	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	270	            static let excludedListTitles = "excludedListTitles"
+completeReminderIdentifier	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	271	            static let completeReminderIdentifier = "completeReminderIdentifier"
+deleteReminderIdentifier	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	272	            static let deleteReminderIdentifier = "deleteReminderIdentifier"
+showUndatedReminders	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	273	            static let showUndatedReminders = "showUndatedReminders"
+sortOption	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	274	            static let sortOption = "sortOption"
+showDate	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	275	            static let showDate = "showDate"
+showRecurrence	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	276	            static let showRecurrence = "showRecurrence"
+showAlarms	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	277	            static let showAlarms = "showAlarms"
+showList	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	278	            static let showList = "showList"
+showCompletionGlow	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	279	            static let showCompletionGlow = "showCompletionGlow"
+completionCount	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	280	            static let completionCount = "completionCount"
+isEntitled	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	281	            static let entitled = "isEntitled"
+syncPushAll	core	declaration	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	167	        public func pushAll() {
+skippedReminderIdentifiers	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	170	                    PayloadKey.skippedReminderIdentifiers: skipStore.load(),
+excludedListTitles	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	171	                    PayloadKey.excludedListTitles: excludeStore.load(),
+showUndatedReminders	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	172	                    PayloadKey.showUndatedReminders: showUndatedStore.load(),
+sortOption	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	173	                    PayloadKey.sortOption: sortStore.load().rawValue,
+completionCount	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	174	                    PayloadKey.completionCount: completionCounter.count
+showDate	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	177	                    context[PayloadKey.showDate] = showDateStore.isEnabled
+showRecurrence	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	180	                    context[PayloadKey.showRecurrence] = showRecurrenceStore.isEnabled
+showAlarms	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	183	                    context[PayloadKey.showAlarms] = showAlarmsStore.isEnabled
+showList	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	186	                    context[PayloadKey.showList] = showListStore.isEnabled
+showCompletionGlow	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	189	                    context[PayloadKey.showCompletionGlow] = showCompletionGlowStore.isEnabled
+isEntitled	core	wcPayload	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	198	                    context[PayloadKey.entitled] = MainActor.assumeIsolated {
+syncApply	core	declaration	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	308	        private func apply(context: [String: Any]) {
+syncFreemium	core	declaration	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	369	        private func applyFreemium(context: [String: Any]) {
+isEntitled	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	372	                handler?(entitled)
+completionCount	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	376	                handler?(count)
+onCompleteReminderReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	83	        public nonisolated(unsafe) var onCompleteReminderReceived: ((String) -> Void)?
+onDeleteReminderReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	88	        public nonisolated(unsafe) var onDeleteReminderReceived: ((String) -> Void)?
+onShowUndatedRemindersReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	94	        public nonisolated(unsafe) var onShowUndatedRemindersReceived: ((Bool) -> Void)?
+onShowDateReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	100	        public nonisolated(unsafe) var onShowDateReceived: ((Bool) -> Void)?
+onShowRecurrenceReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	106	        public nonisolated(unsafe) var onShowRecurrenceReceived: ((Bool) -> Void)?
+onShowAlarmsReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	112	        public nonisolated(unsafe) var onShowAlarmsReceived: ((Bool) -> Void)?
+onShowListReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	118	        public nonisolated(unsafe) var onShowListReceived: ((Bool) -> Void)?
+onShowCompletionGlowReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	124	        public nonisolated(unsafe) var onShowCompletionGlowReceived: ((Bool) -> Void)?
+onEntitlementReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	130	        public nonisolated(unsafe) var onEntitlementReceived: ((Bool) -> Void)?
+onCompletionCountReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	136	        public nonisolated(unsafe) var onCompletionCountReceived: ((Int) -> Void)?
+onSkippedIdentifiersReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	143	        public nonisolated(unsafe) var onSkippedIdentifiersReceived: (([String]) -> Void)?
+onSortOptionReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	148	        public nonisolated(unsafe) var onSortOptionReceived: ((SortOption) -> Void)?
+onExcludedListTitlesReceived	core	hook	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	154	        public nonisolated(unsafe) var onExcludedListTitlesReceived: (([String]) -> Void)?
+sortOption	ios	hook	SingleThread/AppViewModel.swift	69	                store.onSortOptionChanged = { option in
+skippedReminderIdentifiers	ios	hook	SingleThread/AppViewModel.swift	58	                store.onSkipSetChanged = { _ in service.pushAll() }
+showUndatedReminders	ios	hook	SingleThread/AppViewModel.swift	59	                store.onShowUndatedRemindersChanged = { _ in service.pushAll() }
+excludedListTitles	ios	hook	SingleThread/AppViewModel.swift	60	                store.onExcludedListsChanged = { _ in service.pushAll() }
+skippedReminderIdentifiers	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	194	        store.onSkipSetChanged = { _ in service.pushAll() }
+showUndatedReminders	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	165	        service.onShowUndatedRemindersReceived = { [weak store] value in
+sortOption	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	178	        service.onSortOptionReceived = { [weak store] option in
+completionCount	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	185	        service.onCompletionCountReceived = { count in
+excludedListTitles	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	190	        service.onExcludedListTitlesReceived = { [weak store] titles in
+seedLaunch	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	38	    public static func fromLaunchArguments(_ arguments: [String]) -> Self? {
+seedReset	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	53	        for key in persistedKeys {
+seedReset	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	56	        for key in persistedKeys {
+seedReset	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	57	            UserDefaults.standard.removeObject(forKey: key)
+seedRemoveGroup	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	54	            AppGroup.defaults.removeObject(forKey: key)
+seedRemoveStandard	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	57	            UserDefaults.standard.removeObject(forKey: key)
+skippedReminderIdentifiers	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	64	        "skippedReminderIdentifiers",
+excludedListTitles	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	65	        "excludedListTitles",
+showDate	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	66	        "showDate",
+showList	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	67	        "showList",
+showRecurrence	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	68	        "showRecurrence",
+showAlarms	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	69	        "showAlarms",
+showCompletionGlow	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	70	        "showCompletionGlow",
+showUndatedReminders	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	71	        "showUndatedReminders",
+sortOption	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	72	        "sortOption",
+completionCount	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	73	        "completionCount",
+isEntitled	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	74	        "isEntitled",
+enableActionButtons	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	75	        "enableActionButtons",
+showMicrophoneButton	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	76	        "showMicrophoneButton",
+showSwipePrompt	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	77	        "showSwipePrompt",
+showUndoButton	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	78	        "showUndoButton",
+backgroundEnabled	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	79	        "backgroundEnabled",
+backgroundFadePercent	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	80	        "backgroundFadePercent",
+backgroundPinned	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	81	        "backgroundPinned",
+allowsLandscape	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	82	        "allowsLandscape",
+textSize	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	83	        "textSize",
+appearanceMode	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	84	        "appearanceMode",
+notificationsEnabled	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	85	        "notificationsEnabled",
+notificationIntervalHours	core	seam	SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift	86	        "notificationIntervalHours"
+isGlowUITesting	watchOS	seam	SingleThreadWatch/WatchAppViewModel.swift	53	        isGlowUITesting = arguments.contains("--ui-testing-glow")
+suiteName	core	declaration	SingleThreadCore/Sources/SingleThreadCore/AppGroup.swift	8	    public static let suiteName = "group.app.alanvardy.SingleThread"
+appGroupDefaults	core	declaration	SingleThreadCore/Sources/SingleThreadCore/AppGroup.swift	13	    public static var defaults: UserDefaults {
+appGroupDefaults	core	read	SingleThreadCore/Sources/SingleThreadCore/AppGroup.swift	14	        UserDefaults(suiteName: suiteName) ?? .standard
+settingsBindings	ios	declaration	SingleThread/SettingsBindings.swift	17	final class SettingsBindings {
+appearanceMode	ios	declaration	SingleThread/SettingsBindings.swift	63	    var appearanceMode: AppearanceMode
+textSize	ios	declaration	SingleThread/SettingsBindings.swift	64	    var textSize: TextSize
+allowsLandscape	ios	declaration	SingleThread/SettingsBindings.swift	65	    var allowsLandscape: Bool
+enableActionButtons	ios	declaration	SingleThread/SettingsBindings.swift	66	    var enableActionButtons: Bool
+showSwipePrompt	ios	declaration	SingleThread/SettingsBindings.swift	67	    var showSwipePrompt: Bool
+showUndoButton	ios	declaration	SingleThread/SettingsBindings.swift	68	    var showUndoButton: Bool
+notificationsEnabled	ios	declaration	SingleThread/SettingsBindings.swift	69	    var notificationsEnabled: Bool
+notificationIntervalHours	ios	declaration	SingleThread/SettingsBindings.swift	70	    var notificationIntervalHours: Int
+showMicrophoneButton	ios	declaration	SingleThread/SettingsBindings.swift	71	    var showMicrophoneButton: Bool
+backgroundEnabled	ios	declaration	SingleThread/SettingsBindings.swift	72	    var backgroundEnabled: Bool
+backgroundFadePercent	ios	declaration	SingleThread/SettingsBindings.swift	73	    var backgroundFadePercent: Int
+backgroundPinned	ios	declaration	SingleThread/SettingsBindings.swift	74	    var backgroundPinned: Bool
+showUndatedReminders	ios	declaration	SingleThread/SettingsBindings.swift	75	    var showUndatedReminders: Bool
+sortOption	ios	declaration	SingleThread/SettingsBindings.swift	76	    var sortOption: SortOption
+showDate	ios	declaration	SingleThread/SettingsBindings.swift	77	    var showDate: Bool
+showList	ios	declaration	SingleThread/SettingsBindings.swift	78	    var showList: Bool
+showRecurrence	ios	declaration	SingleThread/SettingsBindings.swift	79	    var showRecurrence: Bool
+showAlarms	ios	declaration	SingleThread/SettingsBindings.swift	80	    var showAlarms: Bool
+showCompletionGlow	ios	declaration	SingleThread/SettingsBindings.swift	81	    var showCompletionGlow: Bool
+pendingSummary	ios	declaration	SingleThread/AppViewModel.swift	108	        private(set) var pendingSummary: String?
+lastScheduleSummary	ios	declaration	SingleThread/AppViewModel.swift	112	        private(set) var lastScheduleSummary: String?
+lastShowDate	ios	declaration	SingleThread/AppViewModel.swift	401	        private var lastShowDate = ShowDatePreference().isEnabled
+lastShowRecurrence	ios	declaration	SingleThread/AppViewModel.swift	402	        private var lastShowRecurrence = ShowRecurrencePreference().isEnabled
+lastShowAlarms	ios	declaration	SingleThread/AppViewModel.swift	403	        private var lastShowAlarms = ShowAlarmsPreference().isEnabled
+lastShowList	ios	declaration	SingleThread/AppViewModel.swift	404	        private var lastShowList = ShowListPreference().isEnabled
+lastShowCompletionGlow	ios	declaration	SingleThread/AppViewModel.swift	405	        private var lastShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
+showDate	ios	write	SingleThread/AppViewModel.swift	391	                lastShowDate = currentShowDate
+showRecurrence	ios	write	SingleThread/AppViewModel.swift	392	                lastShowRecurrence = currentShowRecurrence
+showAlarms	ios	write	SingleThread/AppViewModel.swift	393	                lastShowAlarms = currentShowAlarms
+showList	ios	write	SingleThread/AppViewModel.swift	394	                lastShowList = currentShowList
+showCompletionGlow	ios	write	SingleThread/AppViewModel.swift	395	                lastShowCompletionGlow = currentShowCompletionGlow
+showsActionButtons	ios	declaration	SingleThread/ContentViewModel.swift	45	        var showsActionButtons: Bool {
+notificationsEnabled	ios	seam	SingleThread/AppViewModel.swift	183	                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
+notificationsEnabled	ios	seam	SingleThread/AppViewModel.swift	187	                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
