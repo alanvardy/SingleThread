@@ -150,7 +150,7 @@ availableLists	core	declaration	SingleThreadCore/Sources/SingleThreadCore/Remind
 authorizationStatus	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	65	    public private(set) var authorizationStatus: EKAuthorizationStatus = .notDetermined
 authorizationStatus	core	write	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	169	        authorizationStatus = current
 authorizationStatus	ios	read	SingleThread/ContentView.swift	340	        switch viewModel.store.authorizationStatus {
-authorizationStatus	watchOS	read	SingleThreadWatch/WatchReminderView.swift	61	
+authorizationStatus	watchOS	read	SingleThreadWatch/WatchReminderView.swift	47	            switch viewModel.store.authorizationStatus {
 loadsReminders	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	66	    public let loadsReminders: Bool
 sortOption	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	70	    public var sortOption: SortOption = .priority
 completionCounter	core	declaration	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	106	    public let completionCounter: CompletionCounterStore
