@@ -828,11 +828,11 @@ Items for the refactor ticket (deferred per decision #1):
 ### Verification
 
 #### Automated
-- [ ] Ordering invariant: no T2 finding appears before a T1 finding; no T3 before a T2; no T4 before a T3 — grep for tier labels and verify monotonic ordering
-- [ ] Every finding cites ≥1 `factbase.tsv` entry — grep each `Evidence` file:line reference against `factbase.tsv`
-- [ ] Every cluster from Stage 3 has at least one finding: completion-transition (T1.1), branch-ordering (T2.2), entitlement gate (T4.1), dictation (T1.1)
-- [ ] Action list items are flagged as *deferred/separate ticket*, not in-scope for this ticket
-- [ ] `bash audit/verify-citations.sh` still exits 0
+- [x] Ordering invariant: no T2 finding appears before a T1 finding; no T3 before a T2; no T4 before a T3 — grep for tier labels and verify monotonic ordering
+- [x] Every finding cites ≥1 `factbase.tsv` entry — grep each `Evidence` file:line reference against `factbase.tsv`
+- [x] Every cluster from Stage 3 has at least one finding: completion-transition (T1.1), branch-ordering (T2.2), entitlement gate (T4.1), dictation (T1.1)
+- [x] Action list items are flagged as *deferred/separate ticket*, not in-scope for this ticket
+- [x] `bash audit/verify-citations.sh` still exits 0
 
 #### Manual
 - [ ] Tier definitions are consistent: T1 = data-loss/reachable contradiction, T2 = cross-target divergence, T3 = dual-read drift, T4 = hygiene
@@ -872,8 +872,8 @@ This is a **read-only audit**. No code changes land in this ticket. All findings
 ### Verification
 
 #### Automated
-- [ ] `audit/index.md` links all four layer artifacts (factbase.tsv, inventory.md, clusters.md, enums.md, findings.md)
-- [ ] All five linked files exist in the `audit/` directory
+- [x] `audit/index.md` links all four layer artifacts (factbase.tsv, inventory.md, clusters.md, enums.md, findings.md)
+- [x] All five linked files exist in the `audit/` directory
 
 #### Manual
 - [ ] Read `audit/index.md` as a landing page — all links work, scope statement is clear
