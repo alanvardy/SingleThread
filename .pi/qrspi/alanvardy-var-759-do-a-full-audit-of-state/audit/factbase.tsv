@@ -462,3 +462,12 @@ BackgroundFade.opacity	ios	declaration	SingleThread/BackgroundFade.swift	24	    
 BackgroundFade.minValue	ios	declaration	SingleThread/BackgroundFade.swift	30	    private static let minValue = 0
 BackgroundFade.maxValue	ios	declaration	SingleThread/BackgroundFade.swift	31	    private static let maxValue = 90
 showDateStateApply	watchOS	write	SingleThreadWatch/ShowDateState.swift	23	        isEnabled = value
+watchServiceStandardStores	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	156	            showDateStore: ShowDatePreference(defaults: .standard),
+watchServiceStandardStores	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	157	            showRecurrenceStore: ShowRecurrencePreference(defaults: .standard),
+watchServiceStandardStores	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	158	            showAlarmsStore: ShowAlarmsPreference(defaults: .standard),
+watchServiceStandardStores	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	159	            showListStore: ShowListPreference(defaults: .standard),
+watchServiceStandardStores	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	160	            showCompletionGlowStore: ShowCompletionGlowPreference(defaults: .standard),
+showCompletionGlowState.preference	watchOS	declaration	SingleThreadWatch/ShowCompletionGlowState.swift	27	    private let preference = ShowCompletionGlowPreference(defaults: .standard)
+allowsLandscape	ios	read	SingleThread/AppDelegate.swift	56	                : true
+appGroupDoc	core	doc	SingleThreadCore/Sources/SingleThreadCore/AppGroup.swift	3	/// Shared App Group container used to coordinate state between the app and its
+appGroupDoc	core	doc	SingleThreadCore/Sources/SingleThreadCore/AppGroup.swift	4	/// widget extension (currently the skipped-reminder identifiers).
