@@ -535,11 +535,11 @@ Watch `pushAll()` reads counter from its `.standard` store at `WatchAppViewModel
 ### Verification
 
 #### Automated
-- [ ] Every `reachable` combo's `path` note resolves in `factbase.tsv` — grep each cited `file:line` from every reachable row
-- [ ] Every `unreachable(proven)` claim: the stated impossibility is verified by checking no write path exists in `factbase.tsv` that could produce the claimed vector (e.g. `empty ∧ allSkipped`: `allSkipped` requires `!reminders.isEmpty` per `ReminderStore.swift:138-140`)
-- [ ] All four cluster matrices have zero bare `undefined` cells (only the four listed open areas are marked undefined)
-- [ ] All 11 divergence sites carry `file:line` citations that resolve in Stage 2's `inventory.md`
-- [ ] `bash audit/verify-citations.sh` still exits 0
+- [x] Every `reachable` combo's `path` note resolves in `factbase.tsv` — grep each cited `file:line` from every reachable row
+- [x] Every `unreachable(proven)` claim: the stated impossibility is verified by checking no write path exists in `factbase.tsv` that could produce the claimed vector (e.g. `empty ∧ allSkipped`: `allSkipped` requires `!reminders.isEmpty` per `ReminderStore.swift:138-140`)
+- [x] All four cluster matrices have zero bare `undefined` cells (only the four listed open areas are marked undefined)
+- [x] All 11 divergence sites carry `file:line` citations that resolve in Stage 2's `inventory.md`
+- [x] `bash audit/verify-citations.sh` still exits 0
 
 #### Manual
 - [ ] Walk the completion-transition reachability path: read `WatchReminderViewModel.swift:66-86`, verify the `true,nil` row is correctly proven unreachable
