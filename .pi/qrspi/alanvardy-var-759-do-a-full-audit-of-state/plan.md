@@ -187,10 +187,10 @@ echo "PASS: self-test — verifier correctly rejects corrupted citations"
 ### Verification
 
 #### Automated
-- [ ] `bash audit/verify-citations.sh` exits 0 — all pinned `lineText` match source
-- [ ] `bash audit/verify-citations-self-test.sh` exits 0 — corruption is caught
-- [ ] Triplet invariant: for each of the 23 persisted-key `id`s, count rows with `node=declaration` ≥ 1, `node=read` ≥ 1, `node=write` ≥ 1 (manual grep check: `awk -F'\t' '$1=="sortOption" && $3=="declaration"' audit/factbase.tsv | wc -l`, etc.)
-- [ ] All 23 production keys present: `cut -f1 audit/factbase.tsv | sort -u | grep -c -E '^(appearanceMode|textSize|allowsLandscape|showMicrophoneButton|backgroundEnabled|backgroundFadePercent|backgroundPinned|enableActionButtons|showSwipePrompt|showUndoButton|notificationsEnabled|notificationIntervalHours|showUndatedReminders|sortOption|showDate|showList|showRecurrence|showAlarms|showCompletionGlow|skippedReminderIdentifiers|excludedListTitles|completionCount|pendingCompletionIdentifiers)$'` = 23
+- [x] `bash audit/verify-citations.sh` exits 0 — all pinned `lineText` match source
+- [x] `bash audit/verify-citations-self-test.sh` exits 0 — corruption is caught
+- [x] Triplet invariant: for each of the 23 persisted-key `id`s, count rows with `node=declaration` ≥ 1, `node=read` ≥ 1, `node=write` ≥ 1 (manual grep check: `awk -F'\t' '$1=="sortOption" && $3=="declaration"' audit/factbase.tsv | wc -l`, etc.)
+- [x] All 23 production keys present: `cut -f1 audit/factbase.tsv | sort -u | grep -c -E '^(appearanceMode|textSize|allowsLandscape|showMicrophoneButton|backgroundEnabled|backgroundFadePercent|backgroundPinned|enableActionButtons|showSwipePrompt|showUndoButton|notificationsEnabled|notificationIntervalHours|showUndatedReminders|sortOption|showDate|showList|showRecurrence|showAlarms|showCompletionGlow|skippedReminderIdentifiers|excludedListTitles|completionCount|pendingCompletionIdentifiers)$'` = 23
 
 #### Manual
 - [ ] Spot-check 5 random rows: open the file at that line, verify the text matches
