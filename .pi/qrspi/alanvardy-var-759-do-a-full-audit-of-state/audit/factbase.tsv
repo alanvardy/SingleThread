@@ -381,3 +381,77 @@ isShowingSettings	ios	declaration	SingleThread/ContentView.swift	257	    @State 
 isShowingPurchase	ios	declaration	SingleThread/ContentView.swift	261	    @State private var isShowingPurchase = false
 watchServiceStandardStores	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	155	            showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard),
 sortOption	ios	write	SingleThread/ContentView+Settings.swift	38	            .onChange(of: bag.sortOption) { _, new in sortOption = new }
+glowGate	watchOS	read	SingleThreadWatch/WatchReminderViewModel.swift	69	           showCompletionGlowState.isEnabled {
+CompletionGlow.trigger	watchOS	read	SingleThreadWatch/WatchReminderViewModel.swift	71	            completionGlow.trigger()
+completionClearTask	watchOS	read	SingleThreadWatch/WatchReminderViewModel.swift	73	            Task { [weak self] in
+ghostCard	watchOS	read	SingleThreadWatch/WatchReminderView.swift	81	                reminderCard(reminder)
+firstCard	watchOS	read	SingleThreadWatch/WatchReminderView.swift	85	                reminderCard(reminder)
+noRemindersState	watchOS	read	SingleThreadWatch/WatchReminderView.swift	86	            } else {
+noRemindersState	watchOS	read	SingleThreadWatch/WatchReminderView.swift	87	                noRemindersState
+noRemindersState	watchOS	read	SingleThreadWatch/WatchReminderView.swift	88	            }
+CompletionGlow.overlay	watchOS	read	SingleThreadWatch/WatchReminderView.swift	98	                completionGlowOverlay
+allDoneState	watchOS	declaration	SingleThreadWatch/WatchReminderView.swift	149	    private var allDoneState: some View {
+allDoneState	watchOS	declaration	SingleThreadWatch/WatchReminderView.swift	156	    }
+upgradeOniPhonePrompt	watchOS	declaration	SingleThreadWatch/WatchReminderView.swift	135	    private var upgradeOniPhonePrompt: some View {
+upgradeOniPhonePrompt	watchOS	read	SingleThreadWatch/WatchReminderView.swift	140	            Text("Upgrade on\nyour iPhone")
+upgradeOniPhonePrompt	watchOS	read	SingleThreadWatch/WatchReminderView.swift	220	                upgradeOniPhonePrompt
+actionButtons	watchOS	read	SingleThreadWatch/WatchReminderView.swift	222	                actionButtons
+allSkipped	core	read	SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift	139	        !reminders.isEmpty && visibleReminders.isEmpty
+allDoneFresh	ios	read	SingleThread/ContentView.swift	370	                    await viewModel.reload(clearSkipped: true)
+emptyStateCopy	ios	declaration	SingleThread/ContentViewModel.swift	58	    static func emptyStateCopy(hasHidden: Bool) -> EmptyStateCopy {
+emptyStateCopy	ios	declaration	SingleThread/ContentViewModel.swift	61	                title: String(localized: "Nothing due", table: "Localizable", bundle: .main),
+NextThingEntry.State	widget	declaration	SingleThreadWidget/NextThingWidget.swift	10	    enum State {
+NextThingEntry.State	widget	declaration	SingleThreadWidget/NextThingWidget.swift	13	        case allDone
+NextThingEntry.State	widget	declaration	SingleThreadWidget/NextThingWidget.swift	14	        case reminder(ReminderDisplay)
+widgetAuthGate	widget	read	SingleThreadWidget/NextThingWidget.swift	68	        switch EKEventStore.authorizationStatus(for: .reminder) {
+widgetAuthGate	widget	read	SingleThreadWidget/NextThingWidget.swift	69	        case .fullAccess:
+widgetReload	widget	read	SingleThreadWidget/NextThingWidget.swift	73	            await store.reload()
+widgetAllDone	widget	read	SingleThreadWidget/NextThingWidget.swift	86	                    state: .allDone,
+widgetReminder	widget	read	SingleThreadWidget/NextThingWidget.swift	94	                state: .reminder(ReminderDisplay(reminder: current)),
+widgetEntrySwitch	widget	read	SingleThreadWidget/NextThingWidget.swift	140	        switch entry.state {
+upgradePrompt	ios	read	SingleThread/ContentView.swift	629	                        upgradePrompt
+actionCluster	ios	read	SingleThread/ContentView.swift	631	                        actionCluster
+UpgradePromptButton	ios	declaration	SingleThread/PurchaseSettingsView.swift	174	struct UpgradePromptButton: View {
+dictationErrorText	ios	read	SingleThread/ContentView.swift	610	                    .multilineTextAlignment(.center)
+creationFeedbackView	ios	read	SingleThread/ContentView.swift	614	                creationFeedbackView(for: feedback)
+recordingIndicator	ios	read	SingleThread/ContentView.swift	623	                recordingIndicator
+transcribeCall	ios	read	SingleThread/DictationViewModel.swift	66	            let result = try await speechTranscriber.transcribe { [weak self] text in
+isRecording	ios	read	SingleThread/ReminderDictation.swift	94	        defer { tearDownRecording() }
+serviceStoreDefaults	ios	hook	SingleThread/AppViewModel.swift	32	                    skipStore: SkippedReminderStore(),
+serviceStoreDefaults	ios	hook	SingleThread/AppViewModel.swift	33	                    showDateStore: ShowDatePreference(),
+serviceStoreDefaults	ios	hook	SingleThread/AppViewModel.swift	37	                    entitlementStore: store.entitlementStore,
+syncObserver	ios	hook	SingleThread/AppViewModel.swift	369	                forName: UserDefaults.didChangeNotification,
+syncObserver	ios	hook	SingleThread/AppViewModel.swift	370	                object: AppGroup.defaults,
+glowDocDrift	ios	read	SingleThread/AppViewModel.swift	211	            // deterministic `exists` assertion (production duration is 0.25 s).
+watchServiceStandardStores	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	161	            completionCounter: CompletionCounterStore(defaults: .standard),
+watchSecondEntitlementStore	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	162	            entitlementStore: EntitlementStore(),
+pendingDoc	core	declaration	SingleThreadCore/Sources/SingleThreadCore/PendingCompletionStore.swift	8	/// it (on watchOS the App Group is unavailable, so `AppGroup.defaults` falls
+pendingDoc	core	declaration	SingleThreadCore/Sources/SingleThreadCore/PendingCompletionStore.swift	9	/// back to `.standard`). iOS never writes it, so on iOS `load()` is always
+testSortStoreIsolation	ios	declaration	SingleThreadTests/EntitlementSyncTests.swift	124	        /// An isolated sort store that never touches `AppGroup.defaults`.
+testSortStoreIsolation	ios	read	SingleThreadTests/EntitlementSyncTests.swift	126	            SortOptionStore(defaults: .standard, key: "test-sort-\(UUID().uuidString)")
+testSortStoreIsolation	ios	read	SingleThreadTests/EntitlementSyncTests.swift	127	        }
+showDateStateApply	watchOS	write	SingleThreadWatch/ShowDateState.swift	22	        preference.set(value)
+showDateStatePreference	watchOS	declaration	SingleThreadWatch/ShowDateState.swift	28	    private let preference = ShowDatePreference(defaults: .standard)
+gateBoundary	ios	seam	SingleThreadTests/ReminderStoreGateTests.swift	18	    func canMutateTrueWhenCountBelow100AndNotEntitled() {
+completionCount	ios	seam	SingleThreadTests/ReminderStoreGateTests.swift	25	        let store = makeStore(count: 100, entitled: false)
+completionCount	ios	seam	SingleThreadTests/ReminderStoreGateTests.swift	31	        let store = makeStore(count: 100, entitled: true)
+completionCount	ios	seam	SingleThreadTests/ReminderStoreGateTests.swift	45	        let counter = seededCounter(100)
+completionCount	ios	seam	SingleThreadTests/ReminderStoreGateTests.swift	58	        #expect(counter.count == 100) // unchanged
+completionCount	ios	seam	SingleThreadTests/ReminderStoreGateTests.swift	83	        let counter = seededCounter(100)
+completionCount	ios	seam	SingleThreadTests/ReminderStoreGateTests.swift	132	        let counter = seededCounter(100)
+gateBoundary	ios	seam	SingleThreadTests/ReminderStoreGateTests.swift	38	        #expect(store.canMutate)
+completionCount	ios	seam	SingleThreadTests/ReminderStoreTests.swift	591	            UserDefaults.standard.set(100, forKey: key)
+completionCount	ios	seam	SingleThreadUITests/SingleThreadUITestsFlows.swift	640	        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":false}"#
+completionCount	ios	seam	SingleThreadUITests/SingleThreadUITestsFlows.swift	662	        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":true}"#
+completionCount	ios	seam	SingleThreadUITests/SingleThreadUITestsFlows.swift	674	        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"entitlementUnresolved":true}"#
+completionCount	ios	seam	SingleThreadUITests/SingleThreadUITestsFlows.swift	701	        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":false}"#
+showCompletionGlow	ios	declaration	SingleThread/ContentView.swift	133	    var showCompletionGlow = true
+syncObservation	ios	hook	SingleThread/AppViewModel.swift	366	        private func setupSyncObservation() {
+reminderList	ios	declaration	SingleThread/ContentView.swift	353	    private var reminderList: some View {
+bottomBarGate	ios	read	SingleThread/ContentView.swift	625	                #if os(iOS)
+widgetEntryBuild	widget	declaration	SingleThreadWidget/NextThingWidget.swift	62	    private static func makeEntry() async -> NextThingEntry {
+showDateStateApply	watchOS	declaration	SingleThreadWatch/ShowDateState.swift	21	    func apply(_ value: Bool) {
+showDateReceive	core	read	SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift	338	            if let showDate = context[PayloadKey.showDate] as? Bool {
+watchAllSendsFalse	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	163	            sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false,
+watchLiveExcludedSeam	watchOS	seam	SingleThreadWatch/WatchAppViewModel.swift	236	    private func scheduleUITestLiveExcludedDelivery(
+watchReminderContent	watchOS	declaration	SingleThreadWatch/WatchReminderView.swift	77	    private var reminderContent: some View {

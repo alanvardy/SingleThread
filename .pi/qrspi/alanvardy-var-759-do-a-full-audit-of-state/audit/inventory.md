@@ -153,3 +153,28 @@ Store mirror row count: 50 (research Q2's ~35 property rows plus the per-store t
 
 - `ContentView.@State isShowingSettings` (:257), `isShowingPurchase` (:261) — sheet presentation flags
 - `WatchReminderViewModel.isRefreshing` (:42), `isShowingRefreshConfirmation` (:43) — refresh UI state (plan cited `:43/:44`; actual declarations are `:42/:43`)
+
+## Phase 3 Cross-Reference: App Group vs `.standard` Divergence Sites
+
+Each of the 11 divergence sites catalogued in `clusters.md` is anchored below. The cited lines were added to `factbase.tsv` where absent (service construction, observer wiring, `.standard` injections, reset seams, test isolation) so every `*.swift:<line>` here resolves to a factbase row — preserving the Phase 2 cite-check invariant.
+
+| # | Site | Citations (resolve in factbase) |
+|---|---|---|
+| 1 | Phone service store construction (default App Group stores) | `AppViewModel.swift:32-37` |
+| 2 | Watch service explicit `.standard` stores | `WatchAppViewModel.swift:155-161` |
+| 3 | Phone @AppStorage pinned App Group (11 keys) | `ContentView.swift:115-133` |
+| 4 | Phone preference observer diffs group only | `AppViewModel.swift:369-370` (observer on `AppGroup.defaults`), `AppViewModel.swift:380-395` (5 `lastShow*` diffs) |
+| 5 | Widget reads true App Group | `NextThingWidget.swift:71-73` |
+| 6 | Watch launch restore `.standard` | `WatchAppViewModel.swift:31-34` |
+| 7 | Watch count asymmetry | `WatchAppViewModel.swift:27,161,186` |
+| 8 | Phone seed unclamped count | `AppViewModel.swift:294` |
+| 9 | Reset clears both suites | `UITestingSeed.swift:54-57` |
+| 10 | PendingCompletionStore doc (watchOS fallback) | `PendingCompletionStore.swift:8-9`, `AppGroup.swift:13-14`, `PendingCompletionStore.swift:21` |
+| 11 | Test stores isolate suites (UUID keys) | `EntitlementSyncTests.swift:124-127` |
+
+Notes:
+- Site 1: the phone service uses default-constructed stores (`SkippedReminderStore()`, `ShowDatePreference()`, …) whose `UserDefaults` argument defaults to `AppGroup.defaults`.
+- Site 2: seven stores are pinned `.standard`; the counter is pinned at `WatchAppViewModel.swift:161` (the line whose receive-path counterpart writes `AppGroup.defaults` at `:186`).
+- Site 7: `:27` seeds the gate behind `--ui-testing-gated` into App Group; `:161` wires a `.standard` counter; `:186` writes a received count into App Group.
+- Site 10: the doc at `PendingCompletionStore.swift:8-9` records the no-App-Group fallback (`AppGroup.swift:13-14`); the store still defaults to `AppGroup.defaults` (`:21`).
+- Site 11: `EntitlementSyncTests.swift:126` builds `SortOptionStore(defaults: .standard, key: "test-sort-\(UUID().uuidString)")` so the UUID-keyed pair never touches the group suite.
