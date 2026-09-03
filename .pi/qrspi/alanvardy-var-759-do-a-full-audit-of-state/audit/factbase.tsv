@@ -455,3 +455,10 @@ showDateReceive	core	read	SingleThreadCore/Sources/SingleThreadCore/SkippedRemin
 watchAllSendsFalse	watchOS	hook	SingleThreadWatch/WatchAppViewModel.swift	163	            sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false,
 watchLiveExcludedSeam	watchOS	seam	SingleThreadWatch/WatchAppViewModel.swift	236	    private func scheduleUITestLiveExcludedDelivery(
 watchReminderContent	watchOS	declaration	SingleThreadWatch/WatchReminderView.swift	77	    private var reminderContent: some View {
+BackgroundFade.defaultValue	ios	declaration	SingleThread/BackgroundFade.swift	13	    static let defaultValue = 50
+BackgroundFade.step	ios	declaration	SingleThread/BackgroundFade.swift	16	    static let step = 10
+BackgroundFade.allValues	ios	declaration	SingleThread/BackgroundFade.swift	19	    static let allValues = Array(stride(from: Self.minValue, through: Self.maxValue, by: step))
+BackgroundFade.opacity	ios	declaration	SingleThread/BackgroundFade.swift	24	    static func opacity(for percent: Int) -> Double {
+BackgroundFade.minValue	ios	declaration	SingleThread/BackgroundFade.swift	30	    private static let minValue = 0
+BackgroundFade.maxValue	ios	declaration	SingleThread/BackgroundFade.swift	31	    private static let maxValue = 90
+showDateStateApply	watchOS	write	SingleThreadWatch/ShowDateState.swift	23	        isEnabled = value
