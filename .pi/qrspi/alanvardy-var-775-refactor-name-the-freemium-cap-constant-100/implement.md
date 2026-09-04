@@ -40,4 +40,25 @@ tests must stay on one physical line.**
 - [x] `SingleThreadTests` unit suite — all pass (gate boundary 99 vs 100 via `- 1`)
 - [x] Freemium-gate UI tests ×4 — all pass (with constant-backed seeds)
 
-Full `./scripts/test.sh` gate runs once after commit (QRSPI gate staging).
+## Full local gate (`./scripts/test.sh`)
+
+Ran twice; both runs failed exactly one iOS UI test unrelated to this diff
+(glow overlay on run 1, notification scheduling on run 2), each on a different
+parallel simulator clone — and both tests pass in isolation and in a serial
+single-destination run. Root cause is environmental, documented in
+`.github/workflows/ci.yml`: CI disables parallel test simulator clones for UI
+tests (`-parallel-testing-enabled NO
+-maximum-concurrent-test-simulator-destinations 1`) plus
+`-retry-tests-on-failure` because clone connection timeouts and contention
+stall the steps on shared runners. `scripts/test.sh`'s iOS UI phase does not
+carry those flags, so its scheme-default parallel clones flake on this busy
+machine.
+
+CI-equivalent serial full UI run (`SingleThreadUITests`, single destination):
+**passed** (exit 0) — glow, notification, and all four freemium-gate flows
+green.
+
+Final verdict is the PR's CI matrix (pending at time of writing) plus the
+serial run above; the local UI-phase flake is unrelated to this change (the
+diff touches only the cap constant, its references, and the UI-test target's
+package link).
