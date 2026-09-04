@@ -248,6 +248,18 @@ struct ContentView: View {
                 isPresented: $isShowingPurchase,
                 entitlementStore: viewModel.store.entitlementStore)
         }
+        #if os(iOS)
+        .overlay {
+            if ProcessInfo.processInfo.arguments.contains("--url-opener-spy"),
+               let url = lastOpenedURL {
+                Text("spyURL-\(url)")
+                    .opacity(0)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityIdentifier("lastOpenedURL")
+                    .accessibilityLabel("spyURL-\(url)")
+            }
+        }
+        #endif
     }
 
     // MARK: Private
@@ -264,8 +276,13 @@ struct ContentView: View {
     /// don't snap back when `ContentView` re-evaluates its body.
     @State private var settingsBag: SettingsBindings?
 
-    @Environment(\.openURL)
-    private var openURL
+    // Deep link last opened via the ``--url-opener-spy`` UI-test seam. Rendered
+    // back as an accessible element so an XCUITest can read it. Always nil in
+    // production (the spy launch arg is absent), so this never affects real
+    // users.
+    #if os(iOS)
+        @State private var lastOpenedURL: String?
+    #endif
 
     @Environment(\.accessibilityReduceMotion)
     private var reduceMotion
@@ -404,10 +421,9 @@ struct ContentView: View {
                             #if os(iOS)
                                 .contextMenu {
                                     Button {
-                                        let deepLink = ReminderDeepLink.url(
-                                            forReminderIdentifier: reminder.calendarItemIdentifier)
-                                        if let url = deepLink {
-                                            openURL(url)
+                                        viewModel.openInReminders(reminder)
+                                        if let spy = viewModel.urlOpener as? URLOpeningSpy {
+                                            lastOpenedURL = spy.lastOpenedURL?.absoluteString
                                         }
                                     } label: {
                                         Label("View in Reminders", systemImage: "eye")

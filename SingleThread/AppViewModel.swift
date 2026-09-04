@@ -199,13 +199,45 @@ final class AppViewModel {
         private(set) var syncService: SkippedReminderSyncService?
     #endif
 
+    /// Registers fallback `UserDefaults` values for keys whose offline default is
+    /// not `false`. `@AppStorage` initializers are invisible to raw
+    /// `bool(forKey:)` reads, so registration removes the silent divergence.
+    static func registerDefaults() {
+        UserDefaults.standard.register(defaults: ["showMicrophoneButton": true])
+    }
+
     /// The root view model. Rebuilt on demand so the view always reflects the
     /// latest store/background state.
-    var contentViewModel: ContentViewModel {
+    ///
+    /// The scene's live `OpenURLAction` is threaded in so the "View in
+    /// Reminders" deep link opens the real Reminders app in production. Under
+    /// the `--url-opener-spy` UI-test seam the spy takes precedence and records
+    /// the URL without opening anything, and the shared spy is stored back so
+    /// `ContentView` can render it for an XCUITest assertion.
+    func makeContentViewModel(openURLAction: OpenURLAction? = nil) -> ContentViewModel {
+        // The `urlOpener` is chosen by launch-mode: the `--url-opener-spy` UI-test
+        // seam reuses a single shared spy (so the view can read the last URL
+        // back), otherwise the scene's live `OpenURLAction` is wrapped, with a
+        // no-op fallback for previews and unit-test call sites that pass neither.
+        let urlOpener: any URLOpening
+        if ProcessInfo.processInfo.arguments.contains("--url-opener-spy") {
+            if let spy = urlOpenerSpy {
+                urlOpener = spy
+            } else {
+                let freshSpy = URLOpeningSpy()
+                urlOpenerSpy = freshSpy
+                urlOpener = freshSpy
+            }
+        } else if let openURLAction {
+            urlOpener = SystemURLOpener(action: openURLAction)
+        } else {
+            urlOpener = SystemURLOpener(action: OpenURLAction { _ in .handled })
+        }
         let viewModel = ContentViewModel(
             store: store,
             backgroundImage: backgroundImage,
-            speechTranscriber: ReminderDictation())
+            speechTranscriber: ReminderDictation(),
+            urlOpener: urlOpener)
         if ProcessInfo.processInfo.arguments.contains("--ui-testing-glow") {
             // UI-test seam: keep the glow visible long enough for a
             // deterministic `exists` assertion (production duration is 0.50 s).
@@ -214,14 +246,13 @@ final class AppViewModel {
         return viewModel
     }
 
-    /// Registers fallback `UserDefaults` values for keys whose offline default is
-    /// not `false`. `@AppStorage` initializers are invisible to raw
-    /// `bool(forKey:)` reads, so registration removes the silent divergence.
-    static func registerDefaults() {
-        UserDefaults.standard.register(defaults: ["showMicrophoneButton": true])
-    }
-
     // MARK: Private
+
+    /// The `--url-opener-spy` UI-test seam's shared spy. Reused across
+    /// `makeContentViewModel` calls so the view and view model share one
+    /// recording (and so `ContentView` can read the last opened URL back).
+    /// Always nil in production (the spy launch arg is absent).
+    private var urlOpenerSpy: URLOpeningSpy?
 
     /// Builds the app's ``ReminderStore`` from launch arguments.
     ///

@@ -442,9 +442,9 @@ unchanged.
 
 ### Verification
 #### Automated
-- [ ] `make build SIM='iPhone 17,OS=26.0'` — compiles without errors
-- [ ] `make format` — SwiftFormat passes
-- [ ] `make lint` — SwiftLint passes (`--strict`) on the app target
+- [x] `make build SIM='iPhone 17,OS=26.0'` — compiles without errors
+- [x] `make format` — SwiftFormat passes
+- [x] `make lint` — SwiftLint passes (`--strict`) on the app target
 - [ ] Full `./scripts/test.sh` — all unit tests + UI tests pass, no regressions
 
 #### Manual
