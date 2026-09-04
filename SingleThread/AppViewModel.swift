@@ -53,6 +53,8 @@ final class AppViewModel {
                 service.onExcludedListTitlesReceived = { [weak store] titles in
                     Task { @MainActor in store?.refreshExcludedListTitles(Set(titles)) }
                 }
+                // A watch skip-count map lands and applies via reload (authoritative save).
+                service.onSkipCountsReceived = { [weak store] _ in Task { @MainActor in await store?.reload() } }
                 service.activate()
                 syncService = service
                 store.onSkipSetChanged = { _ in service.pushAll() }

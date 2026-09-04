@@ -174,6 +174,11 @@ final class WatchAppViewModel {
         service.onSkippedIdentifiersReceived = { [weak store] _ in
             Task { await store?.reload() }
         }
+        // A phone-side skip-count map lands and applies to this watch's live list
+        // without a relaunch — reload() re-reads the just-persisted count store.
+        service.onSkipCountsReceived = { [weak store] _ in
+            Task { @MainActor in await store?.reload() }
+        }
         wireStateReceiveHooks(service)
         service.onSortOptionReceived = { [weak store] option in
             Task { @MainActor in store?.setSortOption(option) }

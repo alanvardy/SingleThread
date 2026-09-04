@@ -64,6 +64,7 @@ struct WatchSyncPipelineTests {
         let fake = WatchFakeSession()
         let suffix = UUID().uuidString
         let skipStore = SkippedReminderStore(defaults: .standard, key: "wtest-all-skip-\(suffix)")
+        let countStore = SkipCountStore(defaults: .standard, key: "wtest-all-cnt-\(suffix)")
         let excludeStore = ExcludedListStore(defaults: .standard, key: "wtest-all-excl-\(suffix)")
         let showUndatedStore = ShowUndatedRemindersPreference(defaults: .standard, key: "wtest-all-und-\(suffix)")
         let sortStore = SortOptionStore(defaults: .standard, key: "wtest-all-sort-\(suffix)")
@@ -72,17 +73,20 @@ struct WatchSyncPipelineTests {
         let service = SkippedReminderSyncService(
             session: fake,
             skipStore: skipStore,
+            countStore: countStore,
             excludeStore: excludeStore,
             sortStore: sortStore,
             showUndatedStore: showUndatedStore,
             showDateStore: showDateStore)
 
         var skips: [[String]] = []
+        var counts: [[String: Int]] = []
         var titles: [[String]] = []
         var undated: [Bool] = []
         var sorts: [SortOption] = []
         var showDates: [Bool] = []
         service.onSkippedIdentifiersReceived = { skips.append($0) }
+        service.onSkipCountsReceived = { counts.append($0) }
         service.onExcludedListTitlesReceived = { titles.append($0) }
         service.onShowUndatedRemindersReceived = { undated.append($0) }
         service.onSortOptionReceived = { sorts.append($0) }
@@ -92,6 +96,7 @@ struct WatchSyncPipelineTests {
             WCSession.default,
             didReceiveApplicationContext: [
                 "skippedReminderIdentifiers": ["R1", "R2"],
+                "skipCounts": ["R1": 6],
                 "excludedListTitles": ["Work"],
                 "showUndatedReminders": true,
                 "sortOption": "dueDate",
@@ -99,11 +104,13 @@ struct WatchSyncPipelineTests {
             ])
 
         #expect(Set(skipStore.load()) == ["R1", "R2"])
+        #expect(countStore.load() == ["R1": 6])
         #expect(excludeStore.load() == ["Work"])
         #expect(showUndatedStore.load())
         #expect(sortStore.load() == .dueDate)
         #expect(!showDateStore.isEnabled)
         #expect(skips == [["R1", "R2"]])
+        #expect(counts == [["R1": 6]])
         #expect(titles == [["Work"]])
         #expect(undated == [true])
         #expect(sorts == [.dueDate])
@@ -345,6 +352,52 @@ struct WatchSyncPipelineTests {
 
         #expect(!glowStore.isEnabled)
         #expect(values == [false])
+    }
+
+    @Test
+    func pushAllFromWatchIncludesSkipCountsAndOmitsPhoneOnlyKeys() throws {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let skipStore = SkippedReminderStore(defaults: .standard, key: "wtest-push-cnt-skip-\(suffix)")
+        skipStore.save(["A"])
+        let countStore = SkipCountStore(defaults: .standard, key: "wtest-push-cnt-\(suffix)")
+        countStore.save(["a": 2])
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: skipStore,
+            countStore: countStore,
+            excludeStore: ExcludedListStore(defaults: .standard, key: "wtest-push-cnt-excl-\(suffix)"),
+            sortStore: SortOptionStore(defaults: .standard, key: "wtest-push-cnt-sort-\(suffix)"),
+            showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard, key: "wtest-push-cnt-und-\(suffix)"),
+            sendsShowDate: false, sendsEntitled: false)
+        service.pushAll()
+        let context = try #require(fake.lastContext)
+        // The count snapshot rides the shared context like the skip IDs.
+        let counts = try #require(context["skipCounts"] as? [String: Int])
+        #expect(counts == ["a": 2])
+        // Phone-only keys stay omitted from the watch's push.
+        #expect(context["showDate"] == nil)
+        #expect(context["isEntitled"] == nil)
+    }
+
+    @Test
+    func receiveSkipCountsSavesAndFiresHookOnWatch() {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let countStore = SkipCountStore(defaults: .standard, key: "wtest-recv-cnt-\(suffix)")
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-recv-cnt-skip-\(suffix)"),
+            countStore: countStore)
+        var received: [[String: Int]] = []
+        service.onSkipCountsReceived = { received.append($0) }
+
+        service.session(
+            WCSession.default,
+            didReceiveApplicationContext: ["skipCounts": ["a": 6]])
+
+        #expect(countStore.load() == ["a": 6]) // persisted first
+        #expect(received == [["a": 6]]) // then notified
     }
 
     // MARK: Private
