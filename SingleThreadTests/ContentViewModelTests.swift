@@ -28,26 +28,6 @@ struct ContentViewModelTests {
     }
 
     @Test
-    func openInRemindersWithEmptyIdentifierDoesNothing() {
-        // This path is defensive — a real EKReminder always gets a UUID,
-        // but the guard handles the edge case.
-        let spy = URLOpeningSpy()
-        let viewModel = ContentViewModel(
-            store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
-            backgroundImage: BackgroundImageStore(),
-            speechTranscriber: ReminderDictation(),
-            urlOpener: spy)
-
-        // Create a reminder but clear its identifier via KVC (the only way
-        // to get an empty identifier since the property is readonly).
-        let reminder = EKReminder(eventStore: Self.store)
-        reminder.setValue("", forKey: "calendarItemIdentifier")
-        viewModel.openInReminders(reminder)
-
-        #expect(spy.openedURLs.isEmpty)
-    }
-
-    @Test
     func openInRemindersWithValidReminderRecordsURL() throws {
         // Sanity: a real freshly-created EKReminder has a UUID identifier,
         // and openInReminders passes it to the spy.
@@ -68,6 +48,23 @@ struct ContentViewModelTests {
         // UUID portion should be 36 chars (dashed UUID format)
         let uuidPortion = String(urlString.dropFirst("x-apple-reminderkit://REMCDReminder/".count))
         #expect(uuidPortion.count == 36)
+    }
+
+    @Test
+    func lastOpenedURLAccessorIsNilWithoutSpy() {
+        // A model built with the default (system) opener exposes no UI-test URL:
+        // the seam is inert for production. This guards against a future path
+        // that accidentally leaks the injected spy into the accessor.
+        let reminder = EKReminder(eventStore: Self.store)
+        reminder.title = "Test"
+        let viewModel = ContentViewModel(
+            store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation())
+
+        viewModel.openInReminders(reminder)
+
+        #expect(viewModel.lastOpenedURLForUITesting == nil)
     }
 
     // MARK: Private

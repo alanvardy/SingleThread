@@ -19,6 +19,14 @@ final class SystemURLOpener: URLOpening {
 
     // MARK: Internal
 
+    /// Shared no-op opener for call sites that never exercise the deep link
+    /// (previews, unit tests). Every production call site must inject the
+    /// scene's live `OpenURLAction`; a forgotten injection silently drops
+    /// opens, so keep the no-op the explicit exception, not the default.
+    static var noop: SystemURLOpener {
+        SystemURLOpener(action: OpenURLAction { _ in .handled })
+    }
+
     func open(_ url: URL) {
         action(url)
     }

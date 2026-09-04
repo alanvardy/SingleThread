@@ -199,13 +199,20 @@ final class SingleThreadUITestsFlows: SingleThreadUITestCase {
         let label = statusLabel(app, identifier: "lastOpenedURL")
         XCTAssertNotNil(label, "The spy URL element should render after opening the deep link")
         let spyLabel: String = label ?? ""
+        let hasPrefix = spyLabel.hasPrefix("spyURL-x-apple-reminderkit://REMCDReminder/")
         XCTAssertTrue(
-            spyLabel.hasPrefix("spyURL-x-apple-reminderkit://REMCDReminder/"),
+            hasPrefix,
             "Expected ReminderKit deep link prefix, got: \(spyLabel)")
 
-        // The UUID portion should be 36 chars (dashed UUID).
-        let fullURL = String(spyLabel.dropFirst("spyURL-".count))
-        let uuidPart = String(fullURL.dropFirst("x-apple-reminderkit://REMCDReminder/".count))
+        // Only parse the trailing UUID when the prefix matched, so a failed
+        // prefix surfaces as the friendly XCTest message above rather than a
+        // dropFirst() bounds error (XCTest assertions do not abort the test).
+        let fullURL = hasPrefix
+            ? String(spyLabel.dropFirst("spyURL-".count))
+            : ""
+        let uuidPart = hasPrefix
+            ? String(fullURL.dropFirst("x-apple-reminderkit://REMCDReminder/".count))
+            : ""
         XCTAssertEqual(
             uuidPart.count, 36,
             "Expected dashed UUID (36 chars), got: \(uuidPart)")
