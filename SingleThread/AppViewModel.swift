@@ -281,6 +281,12 @@ final class AppViewModel {
     /// store seeded with the payload's reminders, the freemium counter written
     /// to the App Group key (or `.standard` fallback), and an entitlement store
     /// that reflects the seeded `isEntitled` flag.
+    ///
+    /// The counter write is deliberately unclamped: production only writes
+    /// `count + 1`, `max(0, count - 1)`, or `0` (see ``CompletionCounterStore``),
+    /// but the seed accepts any `Int` so UI tests can stage the free-tier gate
+    /// (99 = near-cap, 100 = gated) that production never produces. Gating
+    /// scenarios seeded here drive `canMutate` exactly as the real counter does.
     private static func seededStore(_ seed: UITestingSeed) -> ReminderStore {
         UITestingSeed.resetPersistedState()
         let inMemoryStore = InMemoryEventStore(
@@ -290,7 +296,10 @@ final class AppViewModel {
         // Seed the freemium counter straight into the App Group (or, on
         // watchOS fallback, `.standard`) so `canMutate` reflects the seeded
         // cap. The counter store is read-only except `increment()`, so the
-        // value is written before the store observes it.
+        // value is written before the store observes it. Unlike production
+        // writes (count+1 / max(0, count-1) / 0 — see CompletionCounterStore),
+        // the seed value is intentionally unclamped: gating scenarios seed 99
+        // (near-cap) and 100 (gated), both values production never produces.
         AppGroup.defaults.set(seed.completionCount, forKey: "completionCount")
         // Mirror the `--ui-testing` seam: enable the action-buttons toggle so
         // the Complete/Skip/Mic cluster (not just the mic) renders over a
