@@ -705,8 +705,8 @@ The nudge banner/dialog reuse `SharedStrings.skipNudgeTitle` + `SharedStrings.de
 ### Verification
 
 #### Automated
-- [ ] `make build` passes (watch scheme)
-- [ ] `make watch-ui-test` green (targeted `-only-testing:SingleThreadWatchUITests/…`)
+- [x] `make build` passes (watch scheme)
+- [x] `make watch-ui-test` green (targeted `-only-testing:SingleThreadWatchUITests/…`)
 
 New `SingleThreadWatchUITests` XCTest flow:
 - `testSkipNudgeShowsDeleteDialog` — launch `["--ui-testing", "--ui-testing-skip-count", "5"]` → tap `skipButton` → assert `skipNudgeBanner` exists → tap it → assert `nudgeDeleteButton` (destructive) → tap → assert all-done state.

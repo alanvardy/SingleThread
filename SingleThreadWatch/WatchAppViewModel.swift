@@ -109,6 +109,17 @@ final class WatchAppViewModel {
            let priority = Int(arguments[index + 1]) {
             reminder.priority = priority
         }
+        // `--ui-testing-skip-count <n>` pre-seeds the reminder's skip count so a
+        // watch UI test can reach the 6-skip nudge with one tap (seeded at 5).
+        // The store's `SkipCountStore` reads `AppGroup.defaults` (falling back to
+        // `.standard` where no App Group suite is registered), so the count lands
+        // there — keyed by the reminder's calendar-item identifier, which is
+        // available only after materialization.
+        if let index = arguments.firstIndex(of: "--ui-testing-skip-count"),
+           index + 1 < arguments.count,
+           let count = Int(arguments[index + 1]) {
+            AppGroup.defaults.set([reminder.calendarItemIdentifier: count], forKey: "skipCounts")
+        }
         // `--ui-testing-excluded-list "<list>"` gives the sample reminder a calendar
         // of that title and pre-populates the store's exclusion set, so an XCTest
         // can assert a list's current card is suppressed (the store's live exclusion
