@@ -60,6 +60,21 @@ struct UITestingSeedTests {
     }
 
     @Test
+    func preservesOutOfDomainCompletionCountVerbatim() {
+        // The seam writes completionCount unclamped (production writes only
+        // count+1, max(0, count-1), or 0) so tests can stage gate scenarios
+        // (99 near-cap, 100 gated) that production never produces. Pin the
+        // verbatim contract so a future clamp cannot silently break gating.
+        let args = [
+            "--seed",
+            #"{"reminders":[{"title":"A"}],"completionCount":250}"#
+        ]
+        let seed = UITestingSeed.fromLaunchArguments(args)
+
+        #expect(seed?.completionCount == 250)
+    }
+
+    @Test
     func parsesEntitlementUnresolved() {
         let args = [
             "--seed",

@@ -22,6 +22,12 @@ import Foundation
 ///                                  // so the pre-resolution render is testable
 /// }
 /// ```
+///
+/// `completionCount` is written verbatim (unclamped) by the app's `--seed`
+/// seam: production only ever writes `count + 1`, `max(0, count - 1)`, or `0`
+/// (see ``CompletionCounterStore``), yet the seed accepts any `Int` so UI tests
+/// can stage the free-tier gate scenarios (99 = near-cap, 100 = gated) that
+/// production never produces.
 public struct UITestingSeed {
     // MARK: Public
 

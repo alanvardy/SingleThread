@@ -6,6 +6,13 @@ import Foundation
 /// save inside `ReminderStore.completeReminder`. It is only decremented by
 /// undo; it is never reset in production. Tests inject UUID-keyed stores for
 /// isolation.
+///
+/// Production writes stay within `0...100`: `increment()` runs only while
+/// `canMutate` is true (count < 100), `decrement()` clamps at 0, and the reset
+/// path writes 0. The `--seed` UI-test seam is the deliberate exception — it
+/// writes the seed's `completionCount` verbatim, unclamped, so tests can stage
+/// free-tier gate scenarios (99 = near-cap, 100 = gated) that production never
+/// produces.
 public struct CompletionCounterStore {
     // MARK: Lifecycle
 
