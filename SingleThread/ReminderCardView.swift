@@ -16,13 +16,17 @@ struct ReminderCardView: View {
         showList: Bool = false,
         showRecurrence: Bool = true,
         showAlarms: Bool = true,
-        showSwipePrompt: Binding<Bool> = .constant(false)) {
+        showSwipePrompt: Binding<Bool> = .constant(false),
+        showNudge: Bool = false,
+        onNudgeTap: @escaping () -> Void = {}) {
         self.display = display
         self.showDate = showDate
         self.showList = showList
         self.showRecurrence = showRecurrence
         self.showAlarms = showAlarms
         _showSwipePrompt = showSwipePrompt
+        self.showNudge = showNudge
+        self.onNudgeTap = onNudgeTap
     }
 
     // MARK: Internal
@@ -30,6 +34,9 @@ struct ReminderCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             content
+            if showNudge {
+                nudgeBanner
+            }
             if showSwipePrompt {
                 prompt
             }
@@ -49,6 +56,12 @@ struct ReminderCardView: View {
     private let display: ReminderDisplay
     private let showDate: Bool
     private let showList: Bool
+
+    /// When true, an actionable nudge banner is shown under the card content.
+    private let showNudge: Bool
+
+    /// Tapped when the nudge banner is activated.
+    private let onNudgeTap: () -> Void
 
     /// True when the recurrence indicator row is shown.
     private let showRecurrence: Bool
@@ -119,6 +132,27 @@ struct ReminderCardView: View {
         // size-checks each small child (marker / notes rows fall below 44pt). This is
         // a genuine app-wide accessibility improvement, not just a test escape.
         .accessibilityElement(children: .combine)
+    }
+
+    /// Tappable nudge banner. Unlike the swipe hint, NOT `.accessibilityHidden` —
+    /// the nudge is actionable and must be screen-reader reachable.
+    private var nudgeBanner: some View {
+        Button(action: onNudgeTap) {
+            HStack(spacing: 6) {
+                Image(systemName: "exclamationmark.bubble")
+                Text(SharedStrings.skipNudgeTitle)
+                    .font(.caption.bold())
+            }
+            .foregroundStyle(.orange)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(.white)
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .accessibilityLabel("Skipped 6 times — tap to manage")
+        .accessibilityIdentifier("skipNudgeBanner")
     }
 
     /// Instructs the user that swiping left skips and swiping right completes.
