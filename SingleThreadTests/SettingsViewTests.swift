@@ -317,6 +317,20 @@ struct SettingsViewTests {
         }
     }
 
+    @Test
+    func purchaseSettingsViewContainsTopAnchor() {
+        let view = PurchaseSettingsView(entitlementStore: EntitlementStore())
+        let bodyDescription = String(describing: view.body)
+
+        // The `.navigationTitle("Unlock")` string does not survive SwiftUI
+        // reflection (it lives in an opaque preference transform closure, same
+        // as ExcludedListsView), but the Section header text does — it is real
+        // body content, so it pins the non-entitled purchase surface.
+        #expect(bodyDescription.contains("Unlock"))
+        #if os(macOS)
+            #expect(bodyDescription.contains("SettingsSubscreenLayout"))
+        #endif
+    }
     // MARK: Private
 
     /// Builds a store whose fetch pipeline has already populated a photo and

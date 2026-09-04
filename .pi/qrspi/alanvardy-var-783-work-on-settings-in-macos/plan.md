@@ -301,8 +301,8 @@ trigger the `.task` StoreKit load (that runs on appear, not construction).
 ### Verification
 
 #### Automated
-- [ ] `make mac-test` passes — `purchaseSettingsViewContainsTopAnchor` green
-- [ ] `make test` passes (macOS-gated block compiled out; list still describes
+- [x] `make mac-test` passes — `purchaseSettingsViewContainsTopAnchor` green
+- [x] `make test` passes (macOS-gated block compiled out; list still describes
       "Unlock")
 
 #### Manual
