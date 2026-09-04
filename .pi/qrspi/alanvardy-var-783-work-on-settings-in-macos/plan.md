@@ -241,13 +241,13 @@ existing loop, add:
 ### Verification
 
 #### Automated
-- [ ] `make mac-test` passes — macOS branch: all 7 presence assertions + root
+- [x] `make mac-test` passes — macOS branch: all 7 presence assertions + root
       negative guard green
-- [ ] `make test` passes — iOS branch: existing row-label assertions still
+- [x] `make test` passes — iOS branch: existing row-label assertions still
       green (macOS-gated blocks compiled out)
-- [ ] `make format` clean (SwiftFormat `organizeDeclarations` does not reorder
+- [x] `make format` clean (SwiftFormat `organizeDeclarations` does not reorder
       the modifier chains)
-- [ ] `make lint` clean (SwiftLint `--strict`)
+- [x] `make lint` clean (SwiftLint `--strict`)
 
 #### Manual
 - [ ] `make mac-run` → open Interface, Reminder, Filtering & Sorting → Excluded

@@ -18,6 +18,7 @@ struct PrivacySettingsView: View {
             }
         }
         .navigationTitle("Privacy Policy")
+        .settingsSubscreenLayout()
     }
 }
 

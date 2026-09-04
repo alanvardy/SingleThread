@@ -28,6 +28,7 @@ struct ExcludedListsView: View {
             }
         }
         .navigationTitle("Excluded Lists")
+        .settingsSubscreenLayout()
     }
 
     // MARK: Private
