@@ -102,6 +102,41 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
             "Skipping the only reminder should show the All Done state")
     }
 
+    // MARK: - Skip nudge
+
+    @MainActor
+    func testSkipNudgeShowsDeleteDialog() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-skip-count", "5"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        // The 6th skip (seed 5 → 6) interrupts the cycle instead of advancing:
+        // the card stays put and the nudge banner appears.
+        let skip = app.buttons["skipButton"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 3), "Skip button should be present")
+        skip.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["Buy groceries"].waitForExistence(timeout: 3),
+            "The 6th skip should keep the reminder visible (interrupt, not advance)")
+        let banner = app.buttons["skipNudgeBanner"]
+        XCTAssertTrue(
+            banner.waitForExistence(timeout: 3),
+            "Crossing the 6-skip threshold should show the nudge banner")
+        banner.tap()
+
+        // watchOS dialog actions expose their label, not the identifier, so match
+        // the destructive Delete action by its label (see the flows delete test).
+        let delete = app.buttons["Delete"]
+        XCTAssertTrue(delete.waitForExistence(timeout: 3), "Nudge dialog should show Delete")
+        delete.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
+            "Deleting the nudged reminder should show the empty state")
+    }
+
     // MARK: - Delete (via confirmation dialog)
 
     @MainActor

@@ -24,6 +24,10 @@ final class WatchReminderViewModel {
         self.showListState = showListState
         self.showCompletionGlowState = showCompletionGlowState
         self.entitlementState = entitlementState
+        // 6th-skip nudge: surface the in-card banner and track the dialog state.
+        store.onSkipNudgeRequested = { [weak self] identifier in
+            self?.nudgeIdentifier = identifier
+        }
     }
 
     // MARK: Internal
@@ -41,6 +45,14 @@ final class WatchReminderViewModel {
 
     var isRefreshing = false
     var isShowingRefreshConfirmation = false
+
+    /// Identifier of the reminder that just crossed the 6-skip threshold. Drives
+    /// the in-card nudge banner; cleared on delete/dismiss/refresh.
+    var nudgeIdentifier: String?
+
+    /// Drives the Delete confirmation dialog presented when the nudge banner is
+    /// tapped.
+    var isShowingNudgeDialog = false
 
     /// When `true`, the completion glow is playing out and the card should
     /// stay visible as a "ghost" even though the store is already empty.
@@ -62,6 +74,12 @@ final class WatchReminderViewModel {
     /// and triggers the glow. Holds the card visible for the full glow + buffer,
     /// then relinquishes to the normal state branches — the next reminder (if
     /// any) or the empty/done state.
+    /// True when `identifier` is the reminder that just crossed the 6-skip
+    /// threshold, so the view renders the nudge banner on its card.
+    func isNudged(_ identifier: String) -> Bool {
+        nudgeIdentifier == identifier
+    }
+
     func completeCurrentReminder() async {
         guard !isShowingCompletionTransition else { return }
         transitionReminder = store.visibleReminders.first

@@ -216,6 +216,22 @@ struct WatchReminderView: View {
                 .accessibilityIdentifier("deleteButton")
             }
 
+            if viewModel.isNudged(reminder.calendarItemIdentifier) {
+                Button {
+                    viewModel.isShowingNudgeDialog = true
+                } label: {
+                    Label(SharedStrings.skipNudgeTitle, systemImage: "exclamationmark.bubble")
+                        .font(.caption)
+                }
+                .accessibilityIdentifier("skipNudgeBanner")
+                .confirmationDialog(SharedStrings.skipNudgeTitle, isPresented: $viewModel.isShowingNudgeDialog) {
+                    Button(SharedStrings.deleteAction, role: .destructive) {
+                        Task { await viewModel.store.deleteCurrentReminder() }
+                    }
+                    .accessibilityIdentifier("nudgeDeleteButton")
+                }
+            }
+
             if !viewModel.store.canMutate, !viewModel.entitlementState.isEnabled {
                 upgradeOniPhonePrompt
             } else {
