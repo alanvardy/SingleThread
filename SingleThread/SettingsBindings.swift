@@ -7,11 +7,12 @@ import SwiftUI
 /// it is store-backed (not @AppStorage) and is passed to sub-views as a separate
 /// `Binding<Set<String>>`.
 ///
-/// `allowsLandscape`, `enableActionButtons`, `showSwipePrompt`, and
-/// `showUndoButton` are iOS-only in ContentView, but the compiler does not
-/// support `#if` directives inside a parameter list, so they are declared
-/// unconditionally here with their ContentView defaults. On macOS they are
-/// harmless: the values are simply never wired or read.
+/// `allowsLandscape`, `enableActionButtons`, `showSwipePrompt`, `showUndoButton`,
+/// `notificationsEnabled`, and `notificationIntervalHours` are iOS-only in
+/// ContentView, but the compiler does not support `#if` directives inside a
+/// parameter list, so they are declared unconditionally here with their
+/// ContentView defaults. On macOS they are harmless: the values are simply
+/// never wired or read.
 @MainActor
 @Observable
 final class SettingsBindings {
