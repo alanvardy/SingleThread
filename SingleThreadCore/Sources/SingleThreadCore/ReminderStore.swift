@@ -151,6 +151,19 @@ public final class ReminderStore {
         !reminders.isEmpty && visibleReminders.isEmpty
     }
 
+    /// Single post-auth resolution of what a list surface should show, in
+    /// canonical order `allDone → reminder → empty`. Never returns `.noAccess`
+    /// (auth is a target-local concern).
+    public var listContent: ListContent {
+        if allSkipped {
+            return .allDone
+        }
+        if let first = visibleReminders.first {
+            return .reminder(ReminderDisplay(reminder: first))
+        }
+        return .empty(hasHidden: hasHidden)
+    }
+
     /// `true` when mutations are allowed: either the user is entitled (purchased
     /// the IAP) or has not yet hit the free-tier completion cap
     /// (`EntitlementStore.freemiumCap`).
