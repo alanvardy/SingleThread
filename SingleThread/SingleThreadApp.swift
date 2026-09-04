@@ -18,11 +18,16 @@ struct SingleThreadApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(viewModel: viewModel.contentViewModel, appViewModel: viewModel)
+            ContentView(
+                viewModel: viewModel.makeContentViewModel(openURLAction: openURL),
+                appViewModel: viewModel)
         }
     }
 
     // MARK: Private
+
+    @Environment(\.openURL)
+    private var openURL
 
     #if os(iOS)
         @UIApplicationDelegateAdaptor(AppDelegate.self)
