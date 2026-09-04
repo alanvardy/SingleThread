@@ -364,10 +364,10 @@ Rules followed (design decision 5):
 ### Verification
 
 #### Automated
-- [ ] `make build` — exhaustive-switch compile check for iOS
-- [ ] `make test` — `contentViewEmptyStatesShowDistinctCopy` / `contentViewAllDoneShowsAllDoneCopy` (`SingleThreadTests.swift:32-56`) stay green
-- [ ] `make ui-test` — `emptyStateTitle` assertions unchanged (`SingleThreadUITestsFlows.swift:34/:43/:87/:149/:167`, `ActionButtonsUITests.swift:40`)
-- [ ] `make format && make lint` — clean
+- [x] `make build` — exhaustive-switch compile check for iOS
+- [x] `make test` — `contentViewEmptyStatesShowDistinctCopy` / `contentViewAllDoneShowsAllDoneCopy` (`SingleThreadTests.swift:32-56`) stay green
+- [x] `make ui-test` — `emptyStateTitle` assertions unchanged (`SingleThreadUITestsFlows.swift:34/:43/:87/:149/:167`, `ActionButtonsUITests.swift:40`) — full suite ran twice with unrelated load flakes (both pass isolated); all 6 Stage-3-pinned tests pass cleanly in one targeted `-only-testing` run
+- [x] `make format && make lint` — clean
 
 #### Manual
 - [ ] Run in simulator: empty list → "No Reminders" card; skip-all → "All Done" (no bottom bar); a visible reminder → card with complete/skip + bottom bar
