@@ -427,8 +427,8 @@ Widget writes counts via App Group only (its default `SkipCountStore` = `AppGrou
 ### Verification
 
 #### Automated
-- [ ] `make build` passes
-- [ ] `make test` green for `SkippedReminderSyncServiceTests` + `WatchSyncPipelineTests` (extend the `FakeSession`/`WatchFakeSession` fixtures to carry `skipCounts` where they carry `skippedReminderIdentifiers`)
+- [x] `make build` passes
+- [x] `make test` green for `SkippedReminderSyncServiceTests` + `WatchSyncPipelineTests` (extend the `FakeSession`/`WatchFakeSession` fixtures to carry `skipCounts` where they carry `skippedReminderIdentifiers`)
 
 New/extended sync cases:
 - `pushAllIncludesSkipCounts` — `FakeSession.lastContext["skipCounts"]` equals `countStore.load()`.

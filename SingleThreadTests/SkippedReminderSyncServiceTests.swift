@@ -572,6 +572,69 @@
         }
     }
 
+    /// Skip-count transport tests, kept in their own struct so `type_body_length`
+    /// (500) stays under the limit for each test type.
+    @MainActor
+    struct SkipCountSyncTests {
+        @Test
+        func pushAllIncludesSkipCounts() throws {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let skipStore = SkippedReminderStore(defaults: .standard, key: "test-cnt-push-skip-\(suffix)")
+            let countStore = SkipCountStore(defaults: .standard, key: "test-cnt-push-\(suffix)")
+            countStore.save(["a": 3, "b": 1])
+            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, countStore: countStore)
+
+            service.pushAll()
+
+            let context = try #require(fake.lastContext)
+            let counts = try #require(context["skipCounts"] as? [String: Int])
+            #expect(counts == ["a": 3, "b": 1])
+        }
+
+        @Test
+        func receiveSkipCountsSavesAndFiresHook() {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let countStore = SkipCountStore(defaults: .standard, key: "test-cnt-recv-\(suffix)")
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-cnt-recv-skip-\(suffix)"),
+                countStore: countStore)
+            var received: [[String: Int]] = []
+            service.onSkipCountsReceived = { received.append($0) }
+
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: ["skipCounts": ["a": 6]])
+
+            #expect(countStore.load() == ["a": 6]) // persisted first
+            #expect(received == [["a": 6]]) // then notified
+        }
+
+        @Test
+        func receiveAbsentSkipCountsIsNoop() {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let countStore = SkipCountStore(defaults: .standard, key: "test-cnt-noop-\(suffix)")
+            countStore.save(["a": 1])
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-cnt-noop-skip-\(suffix)"),
+                countStore: countStore)
+            var fired = false
+            service.onSkipCountsReceived = { _ in fired = true }
+
+            // A skip-only payload must not clobber local counts (independent keys).
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: ["skippedReminderIdentifiers": ["X"]])
+
+            #expect(countStore.load() == ["a": 1]) // unchanged
+            #expect(!fired) // absent key is a no-op for the handler too
+        }
+    }
+
     /// Builds a reminder that lives in a calendar titled `list`, so exclusion
     /// filtering (which matches `calendar.title`) can be exercised.
     /// Construction only — never saved through EventKit.

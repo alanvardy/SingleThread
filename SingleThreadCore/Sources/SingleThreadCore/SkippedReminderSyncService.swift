@@ -26,6 +26,7 @@ import os
         public init(
             session: any SkipSyncSession,
             skipStore: SkippedReminderStore,
+            countStore: SkipCountStore = SkipCountStore(),
             excludeStore: ExcludedListStore = ExcludedListStore(),
             sortStore: SortOptionStore = SortOptionStore(),
             showUndatedStore: ShowUndatedRemindersPreference = ShowUndatedRemindersPreference(),
@@ -44,6 +45,7 @@ import os
             sendsEntitled: Bool = true) {
             self.session = session
             self.skipStore = skipStore
+            self.countStore = countStore
             self.excludeStore = excludeStore
             self.sortStore = sortStore
             self.showUndatedStore = showUndatedStore
@@ -142,6 +144,13 @@ import os
         /// `onCompleteReminderReceived`.
         public nonisolated(unsafe) var onSkippedIdentifiersReceived: (([String]) -> Void)?
 
+        /// Hook fired on the counterpart when the per-reminder skip-count map
+        /// arrives in an application context. Passes the received counts. Fired
+        /// **after** the count store is persisted, so a handler can simply reload.
+        /// Same write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onSkippedIdentifiersReceived`.
+        public nonisolated(unsafe) var onSkipCountsReceived: (([String: Int]) -> Void)?
+
         /// Hook fired on the counterpart when a new sort option is received.
         /// Shares the same write-once-before-activate invariant as
         /// `onCompleteReminderReceived`.
@@ -168,6 +177,7 @@ import os
             do {
                 var context: [String: Any] = [
                     PayloadKey.skippedReminderIdentifiers: skipStore.load(),
+                    PayloadKey.skipCounts: countStore.load(),
                     PayloadKey.excludedListTitles: excludeStore.load(),
                     PayloadKey.showUndatedReminders: showUndatedStore.load(),
                     PayloadKey.sortOption: sortStore.load().rawValue,
@@ -267,6 +277,7 @@ import os
         /// receiver so the two sides of the wire protocol cannot drift.
         private enum PayloadKey {
             static let skippedReminderIdentifiers = "skippedReminderIdentifiers"
+            static let skipCounts = "skipCounts"
             static let excludedListTitles = "excludedListTitles"
             static let completeReminderIdentifier = "completeReminderIdentifier"
             static let deleteReminderIdentifier = "deleteReminderIdentifier"
@@ -285,6 +296,7 @@ import os
 
         private let session: any SkipSyncSession
         private let skipStore: SkippedReminderStore
+        private let countStore: SkipCountStore
         private let excludeStore: ExcludedListStore
         private let sortStore: SortOptionStore
         private let showUndatedStore: ShowUndatedRemindersPreference
@@ -360,13 +372,18 @@ import os
                 let handler = onShowCompletionGlowReceived
                 handler?(showCompletionGlow)
             }
-            applyFreemium(context: context)
+            applyRemaining(context: context)
         }
 
-        /// Decodes the freemium keys (entitlement flag + completion count). Kept
-        /// in its own method so `apply(context:)` stays within SwiftLint's
-        /// 50-line function-body limit.
-        private func applyFreemium(context: [String: Any]) {
+        /// Decodes the remaining keys (skip counts + freemium entitlement/completion
+        /// count). Kept in its own method so `apply(context:)` stays within
+        /// SwiftLint's 50-line function-body limit.
+        private func applyRemaining(context: [String: Any]) {
+            if let received = context[PayloadKey.skipCounts] as? [String: Int] {
+                countStore.save(received)
+                let handler = onSkipCountsReceived
+                handler?(received)
+            }
             if let entitled = context[PayloadKey.entitled] as? Bool {
                 let handler = onEntitlementReceived
                 handler?(entitled)
