@@ -501,7 +501,7 @@ func testViewInRemindersOpensURL() {
 
 ### Verification
 #### Automated
-- [ ] `make ui-test SIM='iPhone 17,OS=26.0'` — new test passes alongside existing UI tests
+- [x] `make ui-test SIM='iPhone 17,OS=26.0'` — new test passes alongside existing UI tests
 - [ ] `./scripts/test.sh` — full gate passes (format + lint + build + unit + UI + Periphery)
 
 #### Manual

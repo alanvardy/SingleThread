@@ -179,6 +179,38 @@ final class SingleThreadUITestsFlows: SingleThreadUITestCase {
             "Deleting the only reminder should empty the list")
     }
 
+    @MainActor
+    func testViewInRemindersOpensURL() {
+        let app = launchSeeded(
+            #"{"reminders":[{"title":"Buy groceries"}]}"#,
+            extra: ["--url-opener-spy"])
+
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+        app.staticTexts["Buy groceries"].press(forDuration: 1.0)
+
+        let viewInReminders = app.buttons["View in Reminders"]
+        XCTAssertTrue(
+            viewInReminders.waitForExistence(timeout: 3),
+            "Long-press should reveal the 'View in Reminders' context action")
+        viewInReminders.tap()
+
+        // The spy element renders as an `accessibilityElement(children: .ignore)`
+        // (not a staticText), so `statusLabel` reads it via `otherElements` first.
+        let label = statusLabel(app, identifier: "lastOpenedURL")
+        XCTAssertNotNil(label, "The spy URL element should render after opening the deep link")
+        let spyLabel: String = label ?? ""
+        XCTAssertTrue(
+            spyLabel.hasPrefix("spyURL-x-apple-reminderkit://REMCDReminder/"),
+            "Expected ReminderKit deep link prefix, got: \(spyLabel)")
+
+        // The UUID portion should be 36 chars (dashed UUID).
+        let fullURL = String(spyLabel.dropFirst("spyURL-".count))
+        let uuidPart = String(fullURL.dropFirst("x-apple-reminderkit://REMCDReminder/".count))
+        XCTAssertEqual(
+            uuidPart.count, 36,
+            "Expected dashed UUID (36 chars), got: \(uuidPart)")
+    }
+
     // MARK: - Settings
 
     @MainActor
