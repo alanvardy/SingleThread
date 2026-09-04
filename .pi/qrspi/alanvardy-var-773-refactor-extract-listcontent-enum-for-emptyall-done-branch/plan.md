@@ -251,8 +251,8 @@ the `default:` auth branch.
 ### Verification
 
 #### Automated
-- [ ] `make build` — widget app-extension compiles; an exhaustive `ListContent` switch with a dropped/extra case fails here (`error: switch must be exhaustive`)
-- [ ] `make format && make lint` — clean
+- [x] `make build` — widget app-extension compiles; an exhaustive `ListContent` switch with a dropped/extra case fails here (`error: switch must be exhaustive`)
+- [x] `make format && make lint` — clean
 
 #### Manual
 - [ ] Exercise the widget previews (`:257/:274/:286` — `.reminder`/`.noAccess`/`.allDone`) in Xcode; confirm each renders as before
