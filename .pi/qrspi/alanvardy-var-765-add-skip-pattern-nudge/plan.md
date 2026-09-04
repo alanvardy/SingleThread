@@ -345,8 +345,8 @@ The app's first due-date write, as a small tested `ReminderStore` mutation consu
 ### Verification
 
 #### Automated
-- [ ] `make build` passes
-- [ ] `make test` green for `EventKitStoringTests` + `ReminderStoreTests`
+- [x] `make build` passes
+- [x] `make test` green for `EventKitStoringTests` + `ReminderStoreTests`
 
 New `EventKitStoringTests` cases (reuse `fakeEventStore`/`testStore` helpers; `FakeEventStore` already records `saved: [EKReminder]` and `saveShouldThrow`):
 - `reschedulePersistsDueDateAndReloads` — reschedule a seeded reminder to `DateComponents(year: 2027, month: 1, day: 2)`, assert `fake.saved.last?.dueDateComponents` matches and `fetchCallCount` advanced (reload fired).
