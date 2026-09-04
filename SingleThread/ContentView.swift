@@ -546,6 +546,9 @@ struct ContentView: View {
     @ViewBuilder private var settingsSheetContent: some View {
         if let bag = settingsBag {
             settingsSheetWritebacks(bag)
+            #if os(macOS)
+                .frame(minWidth: 400, minHeight: 500)
+            #endif
         }
     }
 

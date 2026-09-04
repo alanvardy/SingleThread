@@ -262,8 +262,8 @@ The `#if os(macOS)` guard ensures zero change on iOS — the modifier is compile
 ### Verification
 
 #### Automated
-- [ ] `make mac-test` green — all macOS unit tests still pass
-- [ ] `make test` green — iOS unit tests unaffected (the `#if os(macOS)` block does not compile on iOS)
+- [x] `make mac-test` green — all macOS unit tests still pass
+- [x] `make test` green — iOS unit tests unaffected (the `#if os(macOS)` block does not compile on iOS)
 
 #### Manual
 - [ ] `make mac-run` → open Settings via gear button:
