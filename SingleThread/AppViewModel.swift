@@ -208,7 +208,7 @@ final class AppViewModel {
             speechTranscriber: ReminderDictation())
         if ProcessInfo.processInfo.arguments.contains("--ui-testing-glow") {
             // UI-test seam: keep the glow visible long enough for a
-            // deterministic `exists` assertion (production duration is 0.25 s).
+            // deterministic `exists` assertion (production duration is 0.50 s).
             viewModel.completionGlow.duration = 2.0
         }
         return viewModel

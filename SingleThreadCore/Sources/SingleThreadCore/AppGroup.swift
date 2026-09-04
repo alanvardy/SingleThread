@@ -1,7 +1,10 @@
 import Foundation
 
 /// Shared App Group container used to coordinate state between the app and its
-/// widget extension (currently the skipped-reminder identifiers).
+/// widget extension. The suite carries UI preferences (`showDate`, `showList`,
+/// `showRecurrence`, `showAlarms`, `showCompletionGlow`, `showUndatedReminders`,
+/// `sortOption`) plus store-backed payloads (`skippedReminderIdentifiers`,
+/// `excludedListTitles`, `completionCount`, `pendingCompletionIdentifiers`).
 public enum AppGroup {
     /// The App Group identifier. Must match the value registered under the
     /// App Groups capability for both the app and widget targets.
