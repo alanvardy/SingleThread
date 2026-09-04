@@ -23,6 +23,9 @@ struct AboutViewTests {
         ] {
             #expect(bodyDescription.contains(expected))
         }
+        #if os(macOS)
+            #expect(bodyDescription.contains("SettingsSubscreenLayout"))
+        #endif
     }
 
     @Test

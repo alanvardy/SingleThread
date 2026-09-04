@@ -121,6 +121,7 @@ struct InterfaceSettingsView: View {
             #endif
         }
         .navigationTitle("Interface")
+        .settingsSubscreenLayout()
     }
 }
 

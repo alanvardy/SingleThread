@@ -6,10 +6,10 @@ import Testing
 
 @MainActor
 struct SettingsSubscreenLayoutTests {
-    /// SwiftUI does not inline a `ViewModifier`'s body into the host view's
-    /// reflected description (see `CardPlateModifierTests`), so reflection can
-    /// only pin that the modifier is present — which, on macOS, *is* the
-    /// fill-and-top-align behavior.
+    // SwiftUI does not inline a `ViewModifier`'s body into the host view's
+    // reflected description (see `CardPlateModifierTests`), so reflection can
+    // only pin that the modifier is present — which, on macOS, *is* the
+    // fill-and-top-align behavior.
     #if os(macOS)
         @Test
         func settingsSubscreenLayoutTopAlignedOnMacOS() {
@@ -20,8 +20,8 @@ struct SettingsSubscreenLayoutTests {
         }
     #endif
 
-    /// Negative/sad path: on iOS the helper must be a true no-op — the wrapped
-    /// view equals the unwrapped view and carries no `SettingsSubscreenLayout`.
+    // Negative/sad path: on iOS the helper must be a true no-op — the wrapped
+    // view equals the unwrapped view and carries no `SettingsSubscreenLayout`.
     #if os(iOS)
         @Test
         func settingsSubscreenLayoutIsNoopOnIOS() {

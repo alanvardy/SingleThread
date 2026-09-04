@@ -37,6 +37,7 @@ struct AboutView: View {
             }
         }
         .navigationTitle("About")
+        .settingsSubscreenLayout()
     }
 
     // MARK: Private
