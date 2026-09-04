@@ -216,7 +216,7 @@ New:
 - [x] `make mac-test` green — proves the edits touched only comments, no code
 
 #### Manual
-- [ ] `git diff` shows comment-only hunks in exactly two files
+- [x] `git diff` shows comment-only hunks in exactly two files
 
 ---
 
