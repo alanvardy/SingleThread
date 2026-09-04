@@ -22,6 +22,9 @@ final class ContentViewModel {
         self.showCompletionGlow = showCompletionGlow
         self.urlOpener = urlOpener ?? SystemURLOpener.noop
         dictation = DictationViewModel(speechTranscriber: speechTranscriber, store: store)
+        store.onSkipNudgeRequested = { [weak self] identifier in
+            self?.nudgeIdentifier = identifier
+        }
     }
 
     // MARK: Internal
@@ -37,6 +40,11 @@ final class ContentViewModel {
     let backgroundImage: BackgroundImageStore
     let dictation: DictationViewModel
     let urlOpener: any URLOpening
+
+    /// Identifier of the reminder that just crossed the 6-skip threshold.
+    /// Drives the in-card banner. Cleared on act or dismiss. Single owner —
+    /// ContentViewModel, not AppViewModel.
+    var nudgeIdentifier: String?
 
     /// Drives the brief full-screen green flash after a successful completion.
     let completionGlow = CompletionGlow()
@@ -163,6 +171,37 @@ final class ContentViewModel {
         guard let url = ReminderDeepLink.url(forReminderIdentifier: reminder.calendarItemIdentifier)
         else { return }
         urlOpener.open(url)
+    }
+
+    // MARK: - Skip nudge
+
+    /// True when `identifier`'s card should show the skip-nudge banner.
+    func isNudged(_ identifier: String) -> Bool {
+        nudgeIdentifier == identifier
+    }
+
+    /// Clears the nudge banner (dismiss without acting).
+    func dismissNudge() {
+        nudgeIdentifier = nil
+    }
+
+    /// Deletes the nudged reminder and clears the banner.
+    func deleteNudgedReminder() async {
+        guard let identifier = nudgeIdentifier else { return }
+        await store.deleteReminder(identifier: identifier)
+        nudgeIdentifier = nil
+    }
+
+    /// Reschedules the nudged reminder to a new due date, clearing the banner on
+    /// success. Returns whether the reschedule applied.
+    @discardableResult
+    func rescheduleNudgedReminder(to due: DateComponents) async -> Bool {
+        guard let identifier = nudgeIdentifier else { return false }
+        let succeeded = await store.rescheduleReminder(identifier: identifier, to: due)
+        if succeeded {
+            nudgeIdentifier = nil
+        }
+        return succeeded
     }
 
     // MARK: Private

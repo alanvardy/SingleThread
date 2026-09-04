@@ -132,6 +132,17 @@ struct ContentView: View {
     @AppStorage("showCompletionGlow", store: AppGroup.defaults)
     var showCompletionGlow = true
 
+    /// Drives the skip-nudge sheet (iOS only), shown when the user taps the
+    /// in-card nudge banner after a reminder has been skipped 6 times.
+    @State var isShowingNudgeSheet = false
+
+    /// The due date the nudge sheet's reschedule action writes to, defaulting
+    /// to tomorrow so the sheet is pre-populated with a valid date.
+    @State var rescheduleDate = Date().addingTimeInterval(86400)
+
+    @Environment(\.openURL)
+    var openURL
+
     #if os(iOS)
         let appViewModel: AppViewModel?
     #endif
@@ -249,6 +260,9 @@ struct ContentView: View {
                 entitlementStore: viewModel.store.entitlementStore)
         }
         #if os(iOS)
+        .sheet(isPresented: $isShowingNudgeSheet, onDismiss: { viewModel.dismissNudge() }) {
+            nudgeSheetContent
+        }
         .overlay {
             if isURLSpyUITesting,
                let url = lastOpenedURL {
@@ -409,13 +423,20 @@ struct ContentView: View {
                 ZStack(alignment: .bottom) {
                     List {
                         if let reminder = viewModel.store.visibleReminders.first {
+                            let openNudgeSheet = { isShowingNudgeSheet = true }
                             ReminderCardView(
                                 display: ReminderDisplay(reminder: reminder),
                                 showDate: showDate,
                                 showList: showList,
                                 showRecurrence: showRecurrence,
                                 showAlarms: showAlarms,
-                                showSwipePrompt: swipePromptBinding)
+                                showSwipePrompt: swipePromptBinding,
+                                // The nudge args are harmless on non-iOS: the
+                                // 6th-skip interrupt (and thus `nudgeIdentifier`)
+                                // never fires on macOS, so `isNudged` is always
+                                // false there.
+                                showNudge: viewModel.isNudged(reminder.calendarItemIdentifier),
+                                onNudgeTap: openNudgeSheet)
                                 .listRowBackground(viewModel.rowChromeBackground)
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 12)
@@ -575,6 +596,8 @@ struct ContentView: View {
             #endif
         }
     }
+
+    // The skip-nudge sheet (iOS only) lives in `ContentView+iOS.swift`.
 
     private func creationFeedbackView(for feedback: CreationFeedback) -> some View {
         Image(systemName: feedback.systemImage)

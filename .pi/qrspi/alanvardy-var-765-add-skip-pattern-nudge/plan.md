@@ -618,9 +618,9 @@ Add the iOS-only English literals ("This reminder keeps coming back.", "Reschedu
 ### Verification
 
 #### Automated
-- [ ] `make build` passes
-- [ ] `make lint` clean (SwiftLint `--strict`: watch SwiftLint's 50-line function-body limit on the sheet builder — split into smaller `@ViewBuilder` vars if it trips)
-- [ ] `make ui-test` green for the new iOS test (targeted `xcodebuild -only-testing:SingleThreadUITests/…` with `,id=`-pinned destination)
+- [x] `make build` passes
+- [x] `make lint` clean (SwiftLint `--strict`: watch SwiftLint's 50-line function-body limit on the sheet builder — split into smaller `@ViewBuilder` vars if it trips)
+- [x] `make ui-test` green for the new iOS test (targeted `xcodebuild -only-testing:SingleThreadUITests/…` with `,id=`-pinned destination)
 
 New `SingleThreadUITests/…` XCTest flows (seed via `launchSeeded(_:extra:)` with `--seed '{"reminders":[{"title":"Buy groceries"}],"skipCounts":{"Buy groceries":5}}'`):
 - `testSkipNudgeBannerAppearsAfterSixthSkipAndDeletes` — tap `skipButton` → assert `skipNudgeBanner` exists → tap it → assert `nudgeSheetTitle` exists → tap `nudgeDeleteButton` → assert empty/all-done state.

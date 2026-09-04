@@ -21,6 +21,11 @@ public enum SharedStrings {
         String(localized: "Delete", table: "Localizable", bundle: .module)
     }
 
+    /// Nudge banner title: a reminder has been skipped more than five times.
+    public static var skipNudgeTitle: String {
+        String(localized: "Skipped 6 times", table: "Localizable", bundle: .module)
+    }
+
     public static var completeReminderAccessibility: String {
         String(localized: "Complete reminder", table: "Localizable", bundle: .module)
     }
