@@ -147,12 +147,10 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             Color.systemBackground.ignoresSafeArea()
-            #if os(iOS)
-                BackgroundPhotoLayer(
-                    imageData: viewModel.backgroundImage.imageData,
-                    isEnabled: backgroundEnabled,
-                    opacity: BackgroundFade.opacity(for: backgroundFadePercent))
-            #endif
+            BackgroundPhotoLayer(
+                imageData: viewModel.backgroundImage.imageData,
+                isEnabled: backgroundEnabled,
+                opacity: BackgroundFade.opacity(for: backgroundFadePercent))
             if viewModel.store.loadsReminders {
                 authGatedContent
             } else {

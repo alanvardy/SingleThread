@@ -228,9 +228,9 @@ ZStack order unchanged: `Color.systemBackground` → photo layer → content (`C
 ### Verification
 
 #### Automated
-- [ ] `make mac-build` — proves the ungated instantiation compiles on macOS
-- [ ] `make mac-test` — macOS unit suite green (`BackgroundImageStoreTests`/`BackgroundFadeTests`/`ColorCrossPlatformTests` + new `BackgroundPhotoLayerTests`)
-- [ ] `make test` — iOS unit suite green (confirms the iOS render path is untouched)
+- [x] `make mac-build` — proves the ungated instantiation compiles on macOS
+- [x] `make mac-test` — macOS unit suite green (`BackgroundImageStoreTests`/`BackgroundFadeTests`/`ColorCrossPlatformTests` + new `BackgroundPhotoLayerTests`)
+- [x] `make test` — iOS unit suite green (confirms the iOS render path is untouched)
 
 #### Manual
 - [ ] `make mac-run` — macOS app launches and the photo renders **behind** the reminder card (not over it)
