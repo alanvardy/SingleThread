@@ -26,7 +26,7 @@ extension ContentView {
                 .onChange(of: bag.showUndoButton) { _, new in showUndoButton = new }
                 .onChange(of: bag.notificationsEnabled) { _, new in notificationsEnabled = new }
                 .onChange(of: bag.notificationIntervalHours) { _, new in notificationIntervalHours = new }
-        #else
+        #elseif os(macOS)
             let withIOSPreferences = withAppearance
         #endif
         return withIOSPreferences
@@ -68,7 +68,7 @@ extension ContentView {
                 showRecurrence: showRecurrence,
                 showAlarms: showAlarms,
                 showCompletionGlow: showCompletionGlow)
-        #else
+        #elseif os(macOS)
             SettingsBindings(
                 appearanceMode: appearanceMode,
                 textSize: textSize,

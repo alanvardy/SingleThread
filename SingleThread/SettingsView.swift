@@ -43,7 +43,7 @@ struct SettingsView: View {
                                 showSwipePrompt: $bindings.showSwipePrompt,
                                 showUndoButton: $bindings.showUndoButton,
                                 viewModel: viewModel)
-                        #else
+                        #elseif os(macOS)
                             InterfaceSettingsView(
                                 appearanceMode: $bindings.appearanceMode,
                                 textSize: $bindings.textSize,
