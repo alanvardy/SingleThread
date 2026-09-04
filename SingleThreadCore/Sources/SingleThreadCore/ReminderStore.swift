@@ -18,6 +18,7 @@ public final class ReminderStore {
     public init(
         eventStore: any EventKitStoring = EKEventStore(),
         skipStore: SkippedReminderStore = SkippedReminderStore(),
+        skipCountStore: SkipCountStore = SkipCountStore(),
         pendingCompletionStore: PendingCompletionStore = PendingCompletionStore(),
         excludeStore: ExcludedListStore = ExcludedListStore(),
         loadsReminders: Bool = true,
@@ -34,6 +35,7 @@ public final class ReminderStore {
         }) {
         self.eventStore = eventStore
         self.skipStore = skipStore
+        self.skipCountStore = skipCountStore
         self.pendingCompletionStore = pendingCompletionStore
         self.excludeStore = excludeStore
         self.loadsReminders = loadsReminders
@@ -81,6 +83,11 @@ public final class ReminderStore {
     /// title array. Wired by each app layer to push exclusion changes via
     /// WatchConnectivity.
     public var onExcludedListsChanged: (([String]) -> Void)?
+
+    /// Hook fired when a reminder's skip count first crosses the nudge threshold
+    /// (6). Passes the reminder's identifier. Wired by the iOS/watch view models
+    /// to surface the nudge banner.
+    public var onSkipNudgeRequested: ((String) -> Void)?
 
     /// Hook invoked when the user completes a reminder on watchOS, where EventKit
     /// writes are unavailable. Passes the completed reminder's identifier. Wired by
@@ -202,6 +209,7 @@ public final class ReminderStore {
                 pendingCompletions.insert(identifier)
                 pendingCompletionStore.record(identifier)
                 onCompleteReminder?(identifier)
+                resetSkipCount(for: identifier)
             }
             return removed
         #else
@@ -213,6 +221,7 @@ public final class ReminderStore {
                 try eventStore.save(reminder, commit: true)
                 completionCounter.increment()
                 undoStore.retain(reminder)
+                resetSkipCount(for: identifier)
                 await settle()
                 await reload()
                 return true
@@ -264,11 +273,13 @@ public final class ReminderStore {
         guard canMutate else { return }
         #if os(watchOS)
             reminders.removeAll { $0.calendarItemIdentifier == identifier }
+            resetSkipCount(for: identifier)
             onDeleteReminder?(identifier)
         #else
             guard let reminder = reminders.first(where: { $0.calendarItemIdentifier == identifier }) else { return }
             do {
                 try eventStore.remove(reminder, commit: true)
+                resetSkipCount(for: identifier)
                 await settle()
                 await reload()
             } catch {
@@ -315,7 +326,17 @@ public final class ReminderStore {
     public func skipCurrentReminder() {
         guard canMutate else { return }
         guard let reminder = visibleReminders.first else { return }
-        let updated = updatedSkipSet(afterSkipping: reminder.calendarItemIdentifier)
+        let identifier = reminder.calendarItemIdentifier
+        #if os(iOS) || os(watchOS)
+            if incrementSkipCount(for: identifier) {
+                // 6th skip: interrupt the cycle and prompt instead of advancing.
+                onSkipNudgeRequested?(identifier)
+                return
+            }
+        #else
+            _ = incrementSkipCount(for: identifier)
+        #endif
+        let updated = updatedSkipSet(afterSkipping: identifier)
         let capturedGeneration = skipGeneration
         Task {
             await settle()
@@ -346,7 +367,13 @@ public final class ReminderStore {
     public func skipCurrentReminderImmediately() -> Bool {
         guard canMutate else { return false }
         guard let reminder = visibleReminders.first else { return false }
-        let updated = updatedSkipSet(afterSkipping: reminder.calendarItemIdentifier)
+        let identifier = reminder.calendarItemIdentifier
+        if incrementSkipCount(for: identifier) {
+            // Widget has no nudge UI; the count still persists so the paired
+            // phone/watch surfaces the prompt. The skip still applies.
+            onSkipNudgeRequested?(identifier)
+        }
+        let updated = updatedSkipSet(afterSkipping: identifier)
         applySkipSet(updated)
         return true
     }
@@ -429,6 +456,13 @@ public final class ReminderStore {
         onRemindersChanged?()
     }
 
+    // MARK: Skip counts
+
+    /// The persisted skip count for a reminder, `0` when unknown.
+    public func skipCount(for identifier: String) -> Int {
+        skipCountStore.load()[identifier] ?? 0
+    }
+
     // MARK: Internal
 
     /// Requests full access to reminders, updating `authorizationStatus` and
@@ -457,6 +491,7 @@ public final class ReminderStore {
 
     private let eventStore: any EventKitStoring
     private let skipStore: SkippedReminderStore
+    private let skipCountStore: SkipCountStore
     private let pendingCompletionStore: PendingCompletionStore
     private let excludeStore: ExcludedListStore
 
@@ -475,6 +510,36 @@ public final class ReminderStore {
             identifier,
             fetched: reminders.map(\.calendarItemIdentifier),
             skipped: Array(skippedIDs))
+    }
+
+    /// Increments the count and persists it, returning `true` when the increment
+    /// first crossed the nudge threshold.
+    private func incrementSkipCount(for identifier: String) -> Bool {
+        var counts = skipCountStore.load()
+        let old = counts[identifier] ?? 0
+        let new = old + 1
+        counts[identifier] = new
+        skipCountStore.save(counts)
+        return SkipCountLogic.crossedThreshold(from: old, to: new)
+    }
+
+    /// Removes a reminder's count (delete/reschedule/complete). No-op when absent.
+    private func resetSkipCount(for identifier: String) {
+        let counts = skipCountStore.load()
+        let filtered = counts.filter { $0.key != identifier }
+        guard filtered.count != counts.count else { return } // absent → no-op
+        skipCountStore.save(filtered)
+    }
+
+    /// Prunes counts for identifiers no longer in the in-window fetched set, so a
+    /// reminder that leaves the window re-zeros (mirrors the skip-set prune).
+    private func reconcileSkipCounts(visibleShown: [EKReminder]) {
+        let windowIDs = Set(visibleShown.map(\.calendarItemIdentifier))
+        let counts = skipCountStore.load()
+        let pruned = counts.filter { windowIDs.contains($0.key) }
+        if pruned.count != counts.count {
+            skipCountStore.save(pruned)
+        }
     }
 
     /// Clears the skipped set, bumping the generation so any in-flight skip task
@@ -552,13 +617,17 @@ public final class ReminderStore {
     private func reconcileSkipState(clearSkipped: Bool, visibleShown: [EKReminder]) {
         if clearSkipped {
             clearSkippedState()
-            return
+        } else {
+            let resolved = ReminderSkipLogic.resolve(
+                fetched: visibleShown.map(\.calendarItemIdentifier),
+                skipped: skipStore.load())
+            skippedIDs = Set(resolved)
+            excludedListTitles = Set(excludeStore.load())
+            skipStore.save(resolved)
         }
-        let resolved = ReminderSkipLogic.resolve(
-            fetched: visibleShown.map(\.calendarItemIdentifier),
-            skipped: skipStore.load())
-        skippedIDs = Set(resolved)
-        excludedListTitles = Set(excludeStore.load())
-        skipStore.save(resolved)
+        // Counts are history, not part of the skip set — `clearSkipped: true`
+        // clears the skip set but keeps counts (the prune still runs, so only
+        // out-of-window identifiers drop).
+        reconcileSkipCounts(visibleShown: visibleShown)
     }
 }

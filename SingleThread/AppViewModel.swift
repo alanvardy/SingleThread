@@ -338,6 +338,10 @@ final class AppViewModel {
         // the seed value is intentionally unclamped: gating scenarios seed 99
         // (near-cap) and 100 (gated), both values production never produces.
         AppGroup.defaults.set(seed.completionCount, forKey: "completionCount")
+        // Preload the skip counts so a seeded test reaches the 6th-skip nudge
+        // with one tap (seed `skipCounts` at 5). The store's `SkipCountStore`
+        // reads `AppGroup.defaults`, falling back to `.standard` on watchOS.
+        AppGroup.defaults.set(seed.skipCountsByIdentifier, forKey: "skipCounts")
         // Mirror the `--ui-testing` seam: enable the action-buttons toggle so
         // the Complete/Skip/Mic cluster (not just the mic) renders over a
         // visible reminder in seeded UI tests.

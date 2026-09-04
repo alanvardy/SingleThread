@@ -14,6 +14,7 @@ import Foundation
 ///   "calendars": ["Groceries"],
 ///   "excludedLists": ["Work"],
 ///   "completionCount": 3,      // optional, defaults to 0
+///   "skipCounts": {"Buy groceries": 5},  // optional, title-keyed, defaults to {}
 ///   "isEntitled": true,         // optional, defaults to false
 ///   "hasHidden": true,          // optional, defaults to false; only meaningful
 ///                               // with an empty "reminders" array
@@ -35,6 +36,9 @@ public struct UITestingSeed {
     public let calendars: [EKCalendar]
     public let excludedListTitles: Set<String>
     public let completionCount: Int
+    /// Title-keyed skip counts, resolved to identifier-keyed on materialization
+    /// (identifiers aren't stable until `calendarItemIdentifier` is generated).
+    public let skipCountsByIdentifier: [String: Int]
     public let isEntitled: Bool
     public let hasHidden: Bool
     public let entitlementUnresolved: Bool
@@ -108,6 +112,7 @@ private struct SeedPayload: Codable {
         calendars = try container.decodeIfPresent([String].self, forKey: .calendars) ?? []
         excludedLists = try container.decodeIfPresent([String].self, forKey: .excludedLists) ?? []
         completionCount = try container.decodeIfPresent(Int.self, forKey: .completionCount) ?? 0
+        skipCounts = try container.decodeIfPresent([String: Int].self, forKey: .skipCounts) ?? [:]
         isEntitled = try container.decodeIfPresent(Bool.self, forKey: .isEntitled) ?? false
         hasHidden = try container.decodeIfPresent(Bool.self, forKey: .hasHidden) ?? false
         entitlementUnresolved = try container.decodeIfPresent(Bool.self, forKey: .entitlementUnresolved) ?? false
@@ -125,6 +130,7 @@ private struct SeedPayload: Codable {
     var calendars: [String] = []
     var excludedLists: [String] = []
     var completionCount: Int = 0
+    var skipCounts: [String: Int] = [:]
     var isEntitled: Bool = false
     var hasHidden: Bool = false
     var entitlementUnresolved: Bool = false
@@ -147,11 +153,19 @@ private struct SeedPayload: Codable {
             reminder.calendar = defaultCalendar
             return reminder
         }
+        // Resolve title-keyed wire counts to identifier-keyed (identifiers are
+        // generated at materialization, so the JSON can't key by identifier).
+        var countsByIdentifier: [String: Int] = [:]
+        for reminder in createdReminders {
+            guard let title = reminder.title, let count = skipCounts[title] else { continue }
+            countsByIdentifier[reminder.calendarItemIdentifier] = count
+        }
         return UITestingSeed(
             reminders: createdReminders,
             calendars: createdCalendars,
             excludedListTitles: Set(excludedLists),
             completionCount: completionCount,
+            skipCountsByIdentifier: countsByIdentifier,
             isEntitled: isEntitled,
             hasHidden: hasHidden,
             entitlementUnresolved: entitlementUnresolved)
@@ -165,6 +179,7 @@ private struct SeedPayload: Codable {
         case reminders, calendars
         case excludedLists
         case completionCount, isEntitled, hasHidden
+        case skipCounts
         case entitlementUnresolved
     }
 }
