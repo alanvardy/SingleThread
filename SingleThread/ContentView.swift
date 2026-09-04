@@ -546,6 +546,8 @@ struct ContentView: View {
     @ViewBuilder private var settingsSheetContent: some View {
         if let bag = settingsBag {
             settingsSheetWritebacks(bag)
+            // macOS sheets are sized by the content's ideal size; without a
+            // minimum frame the settings List collapses to 0px and hides every row.
             #if os(macOS)
                 .frame(minWidth: 400, minHeight: 500)
             #endif

@@ -12,6 +12,7 @@ build/
 *.o
 *.LinkFileList
 *.hmap
+*.profraw
 
 # Swift Package Manager
 .build/
