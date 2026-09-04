@@ -7,15 +7,8 @@ import WidgetKit
 // MARK: - Timeline entry
 
 struct NextThingEntry: TimelineEntry {
-    enum State {
-        case noAccess
-        case empty(Bool) // hasHidden — true when reminders exist but are out-of-window
-        case allDone
-        case reminder(ReminderDisplay)
-    }
-
     let date: Date
-    let state: State
+    let state: ListContent
     let showsDate: Bool
     let showsList: Bool
     let showsRecurrence: Bool
@@ -71,27 +64,9 @@ struct NextThingProvider: TimelineProvider {
             store.showsUndatedReminders = AppGroup.defaults.bool(forKey: "showUndatedReminders")
             store.setSortOption(SortOptionStore().load())
             await store.reload()
-            if store.reminders.isEmpty {
-                return NextThingEntry(
-                    date: date,
-                    state: .empty(store.hasHidden),
-                    showsDate: showsDate,
-                    showsList: showsList,
-                    showsRecurrence: showsRecurrence,
-                    showsAlarms: showsAlarms)
-            }
-            guard let current = store.visibleReminders.first else {
-                return NextThingEntry(
-                    date: date,
-                    state: .allDone,
-                    showsDate: showsDate,
-                    showsList: showsList,
-                    showsRecurrence: showsRecurrence,
-                    showsAlarms: showsAlarms)
-            }
             return NextThingEntry(
                 date: date,
-                state: .reminder(ReminderDisplay(reminder: current)),
+                state: store.listContent,
                 showsDate: showsDate,
                 showsList: showsList,
                 showsRecurrence: showsRecurrence,
