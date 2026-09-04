@@ -271,6 +271,63 @@ private final class FakeEventStore: EventKitStoring {
         }
 
         @Test
+        func reschedulePersistsDueDateAndReloads() async {
+            let reminder = makeReminder(title: "Task")
+            let fake = FakeEventStore(fetchResult: [reminder])
+            let store = testStore(eventStore: fake)
+            await store.reload()
+            let before = fake.fetchCallCount
+            let due = DateComponents(year: 2027, month: 1, day: 2)
+
+            let rescheduled = await store.rescheduleReminder(
+                identifier: reminder.calendarItemIdentifier,
+                to: due)
+
+            #expect(rescheduled)
+            #expect(fake.saved.count == 1)
+            #expect(fake.saved.last === reminder)
+            #expect(fake.saved.last?.dueDateComponents?.year == 2027)
+            #expect(fake.saved.last?.dueDateComponents?.month == 1)
+            #expect(fake.saved.last?.dueDateComponents?.day == 2)
+            #expect(fake.lastSaveCommit == true)
+            #expect(fake.lastPredicate != nil)
+            #expect(fake.fetchCallCount == before + 2) // reload-after-save (narrow + broad)
+        }
+
+        @Test
+        func rescheduleUnknownIdentifierIsNoop() async {
+            let reminder = makeReminder(title: "Task")
+            let fake = FakeEventStore(fetchResult: [reminder])
+            let store = testStore(eventStore: fake)
+            await store.reload()
+
+            let rescheduled = await store.rescheduleReminder(
+                identifier: "unknown-id",
+                to: DateComponents(year: 2027, month: 1, day: 2))
+
+            #expect(!rescheduled)
+            #expect(fake.saved.isEmpty)
+        }
+
+        @Test
+        func rescheduleFailureReturnsFalse() async {
+            let reminder = makeReminder(title: "Task")
+            let fake = FakeEventStore(fetchResult: [reminder])
+            fake.saveShouldThrow = true
+            let store = testStore(eventStore: fake)
+            await store.reload()
+            let before = fake.fetchCallCount
+
+            let rescheduled = await store.rescheduleReminder(
+                identifier: reminder.calendarItemIdentifier,
+                to: DateComponents(year: 2027, month: 1, day: 2))
+
+            #expect(!rescheduled)
+            #expect(fake.saved.isEmpty)
+            #expect(fake.fetchCallCount == before) // no reload on save error
+        }
+
+        @Test
         func deleteReminderWhileSkippedPrunesSkipIDOnReload() async {
             let reminder = makeReminder(title: "Task")
             let fake = FakeEventStore(fetchResult: [reminder])

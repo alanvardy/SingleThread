@@ -669,6 +669,29 @@ struct ReminderStoreSkipCountTests {
         #expect(store.skipCount(for: rem.calendarItemIdentifier) == 0, "delete resets the skip count")
     }
 
+    #if !os(watchOS)
+        @Test
+        func rescheduleResetsSkipCount() async {
+            let rem = makeReminder(title: "A")
+            let key = "skipCounts-\(UUID().uuidString)"
+            let countStore = SkipCountStore(defaults: .standard, key: key)
+            let store = ReminderStore(
+                eventStore: InMemoryEventStore(reminders: [rem]),
+                skipCountStore: countStore,
+                loadsReminders: true,
+                reminders: [rem],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess,
+                settle: noopSettle)
+            countStore.save([rem.calendarItemIdentifier: 6])
+            let rescheduled = await store.rescheduleReminder(
+                identifier: rem.calendarItemIdentifier,
+                to: DateComponents(year: 2027, month: 1, day: 2))
+            #expect(rescheduled, "reschedule succeeds")
+            #expect(store.skipCount(for: rem.calendarItemIdentifier) == 0, "reschedule resets the skip count")
+        }
+    #endif
+
     @Test
     func reconcilePrunesSkipCountForAbsentIdentifier() async {
         let rem = makeReminder(title: "A")

@@ -2,6 +2,11 @@ import EventKit
 import Foundation
 import os
 
+// The skip-count lifecycle (Phase 1/2) plus the reschedule write (Phase 3)
+// push this store over the `file_length` threshold; the logic is cohesive so
+// the store stays in one file. Same convention as `ContentView.swift`.
+// swiftlint:disable file_length
+
 /// Post-save settle hook. Production waits 200 ms for EventKit to reflect an
 /// in-flight write before `reload()`; tests inject a no-op for determinism.
 public typealias ReminderStoreSettle = @Sendable () async -> Void
@@ -318,6 +323,32 @@ public final class ReminderStore {
                 return true
             } catch {
                 Self.logger.error("Failed to add reminder: \(error.localizedDescription, privacy: .public)")
+                return false
+            }
+        #endif
+    }
+
+    /// Reschedules `identifier` to a new due date (iOS only — EventKit is
+    /// read-only on watchOS). Sets `dueDateComponents`, saves, and reloads; also
+    /// resets the reminder's skip count so its nudge history starts over.
+    @discardableResult
+    public func rescheduleReminder(identifier: String, to due: DateComponents) async -> Bool {
+        guard canMutate else { return false }
+        #if os(watchOS)
+            return false
+        #else
+            guard let reminder = reminders.first(where: {
+                $0.calendarItemIdentifier == identifier
+            }) else { return false }
+            do {
+                reminder.dueDateComponents = due
+                try eventStore.save(reminder, commit: true)
+                resetSkipCount(for: identifier)
+                await settle()
+                await reload()
+                return true
+            } catch {
+                Self.logger.error("Failed to reschedule reminder: \(error.localizedDescription, privacy: .public)")
                 return false
             }
         #endif
