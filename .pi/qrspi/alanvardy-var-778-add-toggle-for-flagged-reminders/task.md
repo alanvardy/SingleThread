@@ -1,0 +1,3 @@
+# Task: Add toggle for flagged reminders
+
+Add a toggle in Single Thread (iOS) that filters the reminder queue to only show reminders that are flagged in Apple Reminders. The toggle lives in Settings, persists across relaunches, and — because the queue is composed in `ReminderStore` and consumed by iOS, watch, and widget — needs to be consistent with the existing preference architecture (`AppGroup`/`UserDefaults` + `SkippedReminderSyncService`) and ship with unit and UI test coverage.
