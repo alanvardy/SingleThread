@@ -79,12 +79,22 @@ struct WatchReminderView: View {
             if viewModel.isShowingCompletionTransition,
                let reminder = viewModel.transitionReminder {
                 reminderCard(reminder)
-            } else if viewModel.store.allSkipped {
-                allDoneState
-            } else if let reminder = viewModel.store.visibleReminders.first {
-                reminderCard(reminder)
             } else {
-                noRemindersState
+                switch viewModel.store.listContent {
+                case .noAccess:
+                    // Unreachable: `body` diverts non-.fullAccess before this.
+                    // Required for exhaustiveness (footgun note — see Stage 3).
+                    EmptyView()
+                case .allDone:
+                    allDoneState
+                case let .empty(hasHidden):
+                    noRemindersState(hasHidden: hasHidden)
+                case .reminder:
+                    // `reminderCard` takes an `EKReminder`; don't bind the payload.
+                    if let reminder = viewModel.store.visibleReminders.first {
+                        reminderCard(reminder)
+                    }
+                }
             }
 
             if viewModel.isRefreshing {
@@ -155,19 +165,6 @@ struct WatchReminderView: View {
         }
     }
 
-    private var noRemindersState: some View {
-        VStack(spacing: 6) {
-            Text(SharedStrings.noReminders)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier("emptyStateTitle")
-            Text(viewModel.store.hasHidden ? SharedStrings.nothingDueRightNow : SharedStrings.noRemindersYet)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-            refreshButton
-        }
-    }
-
     /// Decorative full-screen green flash. Passes touches through and stays out
     /// of the accessibility tree; fades via the `.animation` on `reminderContent`.
     /// During the completion-glow UI test the overlay is exposed to accessibility
@@ -190,6 +187,19 @@ struct WatchReminderView: View {
         }
         .disabled(viewModel.isRefreshing)
         .accessibilityIdentifier("refreshButton")
+    }
+
+    private func noRemindersState(hasHidden: Bool) -> some View {
+        VStack(spacing: 6) {
+            Text(SharedStrings.noReminders)
+                .foregroundStyle(.secondary)
+                .accessibilityIdentifier("emptyStateTitle")
+            Text(hasHidden ? SharedStrings.nothingDueRightNow : SharedStrings.noRemindersYet)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+            refreshButton
+        }
     }
 
     /// The reminder is always scrollable so long titles and notes are never cut off.
