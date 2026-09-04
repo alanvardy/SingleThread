@@ -4,7 +4,7 @@ import SwiftUI
 extension ContentView {
     /// Builds the Settings sheet content. The write-back chain is split into
     /// staged values so each expression stays within the compiler's type-check
-    /// budget (a single 17-modifier chain does not).
+    /// budget (a single 13-modifier chain on macOS, 19 on iOS, does not).
     func settingsSheetWritebacks(_ bag: SettingsBindings) -> some View {
         let withAppearance = SettingsView(
             bindings: bag,

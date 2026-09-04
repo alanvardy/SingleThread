@@ -211,9 +211,9 @@ New:
 ### Verification
 
 #### Automated
-- [ ] `make format` — no reformat churn (comment-only diffs should be formatting-stable)
-- [ ] `make lint` green
-- [ ] `make mac-test` green — proves the edits touched only comments, no code
+- [x] `make format` — no reformat churn (comment-only diffs should be formatting-stable)
+- [x] `make lint` green
+- [x] `make mac-test` green — proves the edits touched only comments, no code
 
 #### Manual
 - [ ] `git diff` shows comment-only hunks in exactly two files
