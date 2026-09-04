@@ -545,9 +545,9 @@ Implementation notes:
 ### Verification
 
 #### Automated
-- [ ] `make build` (compiles `appex` with the two controls + the mixed bundle body — this is the cross-cutting seam that must compile).
-- [ ] `make lint`.
-- [ ] `make test` — `ReminderIntentsTests.completeIntentIsConfigured` and `skipIntentIsConfigured` stay green (they pin `isDiscoverable == false` and the `.main`-catalog title; both intents are unchanged).
+- [x] `make build` (compiles `appex` with the two controls + the mixed bundle body — this is the cross-cutting seam that must compile).
+- [x] `make lint`.
+- [x] `make test` — `ReminderIntentsTests.completeIntentIsConfigured` and `skipIntentIsConfigured` stay green (they pin `isDiscoverable == false` and the `.main`-catalog title; both intents are unchanged).
 
 #### Manual
 - [ ] On a device (gallery surfacing is not reliable in the simulator): Control Center → Customize Controls (plus button) → SingleThread shows **Complete** and **Skip**.

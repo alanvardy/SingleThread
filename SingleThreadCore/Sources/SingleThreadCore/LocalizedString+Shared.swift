@@ -17,6 +17,20 @@ public enum SharedStrings {
         String(localized: "Skip", table: "Localizable", bundle: .module)
     }
 
+    /// `LocalizedStringResource` twins for the already-translated
+    /// "Complete"/"Skip" keys. `StaticControlConfiguration.displayName(_:)`
+    /// only accepts a `LocalizedStringResource`, so the plain `String` twins
+    /// above can't be reused for Control Center display names. No new
+    /// localized keys are introduced — these resolve the same `.module`
+    /// catalog entries.
+    public static var completeActionResource: LocalizedStringResource {
+        LocalizedStringResource("Complete", table: "Localizable", bundle: .module)
+    }
+
+    public static var skipActionResource: LocalizedStringResource {
+        LocalizedStringResource("Skip", table: "Localizable", bundle: .module)
+    }
+
     public static var deleteAction: String {
         String(localized: "Delete", table: "Localizable", bundle: .module)
     }

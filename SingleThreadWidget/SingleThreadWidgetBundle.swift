@@ -5,5 +5,7 @@ import WidgetKit
 struct SingleThreadWidgetBundle: WidgetBundle {
     var body: some Widget {
         NextThingWidget()
+        CompleteReminderControl()
+        SkipReminderControl()
     }
 }
