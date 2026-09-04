@@ -125,7 +125,10 @@ struct NextThingWidget: Widget {
                 "Your next reminder, with Complete and Skip.",
                 table: "Localizable",
                 bundle: .main))
-        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+        .supportedFamilies([
+            .systemSmall, .systemMedium, .systemLarge,
+            .accessoryInline, .accessoryRectangular, .accessoryCircular
+        ])
     }
 }
 
@@ -137,6 +140,48 @@ struct NextThingWidgetView: View {
     let entry: NextThingEntry
 
     var body: some View {
+        switch family {
+        case .accessoryInline:
+            accessoryInlineView
+        case .accessoryRectangular:
+            accessoryRectangularView
+        case .accessoryCircular:
+            accessoryCircularView
+        default:
+            mainView
+        }
+    }
+
+    // MARK: Private
+
+    @Environment(\.widgetFamily)
+    private var family: WidgetFamily
+
+    // MARK: Accessory
+
+    private var accessoryState: NextThingState {
+        switch entry.state {
+        case .noAccess: .noAccess
+        case let .empty(hasHidden): .empty(hasHidden: hasHidden)
+        case .allDone: .allDone
+        case let .reminder(display): .reminder(display)
+        }
+    }
+
+    private var summary: NextThingSummary {
+        NextThingSummary.summarize(
+            accessoryState,
+            showsDate: entry.showsDate,
+            showsList: entry.showsList,
+            showsRecurrence: entry.showsRecurrence,
+            showsAlarms: entry.showsAlarms)
+    }
+
+    // Existing messageView/reminderView/actionButtons unchanged.
+
+    @ViewBuilder private var mainView: some View {
+        // Move the current `body` switch (case .noAccess/.empty/.allDone/.reminder) here
+        // unchanged — home-screen rendering is untouched.
         switch entry.state {
         case .noAccess:
             messageView(
@@ -161,7 +206,28 @@ struct NextThingWidgetView: View {
         }
     }
 
-    // MARK: Private
+    private var accessoryInlineView: some View {
+        Text(summary.inlineText)
+            .accessibilityLabel(summary.inlineText)
+    }
+
+    private var accessoryRectangularView: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Label(summary.rectangularTitle, systemImage: summary.symbolName)
+                .font(.headline)
+            if let detail = summary.rectangularDetail {
+                Text(detail)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
+    }
+
+    private var accessoryCircularView: some View {
+        Image(systemName: summary.symbolName)
+            .accessibilityLabel(summary.rectangularTitle)
+    }
 
     private var actionButtons: some View {
         HStack(spacing: 12) {
@@ -293,4 +359,31 @@ struct NextThingWidgetView: View {
         showsList: true,
         showsRecurrence: true,
         showsAlarms: true)
+}
+
+#Preview("Accessory Inline — Reminder", as: .accessoryInline) {
+    NextThingWidget()
+} timeline: {
+    NextThingEntry(
+        date: Date(),
+        state: .reminder(ReminderDisplay(title: "Buy groceries", dueDate: Date())),
+        showsDate: true, showsList: true, showsRecurrence: true, showsAlarms: true)
+}
+
+#Preview("Accessory Rectangular — No Access", as: .accessoryRectangular) {
+    NextThingWidget()
+} timeline: {
+    NextThingEntry(
+        date: Date(),
+        state: .noAccess,
+        showsDate: true, showsList: true, showsRecurrence: true, showsAlarms: true)
+}
+
+#Preview("Accessory Circular — All Done", as: .accessoryCircular) {
+    NextThingWidget()
+} timeline: {
+    NextThingEntry(
+        date: Date(),
+        state: .allDone,
+        showsDate: true, showsList: true, showsRecurrence: true, showsAlarms: true)
 }

@@ -449,9 +449,9 @@ Add three previews (one per family, one per non-empty status):
 ### Verification
 
 #### Automated
-- [ ] `make build` (build-for-testing compiles `SingleThreadWidget.appex`, exercising the family switch and all three accessory views).
-- [ ] `make lint` (`swiftformat --lint` + `swiftlint lint --strict`).
-- [ ] `make test` still green (no regression to unit suites).
+- [x] `make build` (build-for-testing compiles `SingleThreadWidget.appex`, exercising the family switch and all three accessory views).
+- [x] `make lint` (`swiftformat --lint` + `swiftlint lint --strict`).
+- [x] `make test` still green (no regression to unit suites).
 
 #### Manual
 - [ ] Open the Lock Screen gallery (long-press Lock Screen → Customize → Add Widget → SingleThread): the three accessory variants appear and each renders the next-reminder summary.
