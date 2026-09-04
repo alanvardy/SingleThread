@@ -20,6 +20,12 @@
   `Busy`/`RequestDenied` runner-launch failures: shutdown sims (`xcrun
   simctl shutdown all`) and kill orphaned `xcodebuild`/`xctest` processes.
   Watch UI tests need a paired sim: `xcrun simctl pair <watchUDID> <phoneUDID>`.
+- **Subagent launches**: this environment's background subagent runner is
+  flaky (`MODULE_NOT_FOUND`/jiti import errors, runner exits before writing
+  a result). For single recon/direct handoffs (e.g. the codebase-locator
+  in QRSPI decompose), prefer `async:false` from the start; if a background
+  run does fail at startup, don't relaunch it as-is — retry once with
+  `async:false`.
 - **Build & tests via `make`**: `make build` / `make test` / `make
   ui-test` / `make periphery` / `make lint` / `make format`; pin a
   destination with `SIM=`. For targeted suites:

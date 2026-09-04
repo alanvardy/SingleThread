@@ -1,0 +1,5 @@
+# Task — Watch complication + interactive Smart Stack widget (VAR-784)
+
+Ship a WidgetKit-based watchOS complication (accessoryRectangular / accessoryCorner / accessoryCircular) that shows the user's next reminder directly on the watch face without launching the app, plus an interactive Smart Stack widget (watchOS 11+ buttons) so the user can Complete / Skip straight from the watch face.
+
+The complication and widget must reuse the phone's `ReminderStore.visibleReminders` filtering/sort logic, match the watch app's empty states ("All done", "No reminders", "Nothing due right now"), and refresh through the existing `onRemindersChanged` widget-reload hook and WatchConnectivity sync. Mutations (Complete/Skip) reuse the existing watch→phone relay via `CompleteReminderIntent` / `SkipReminderIntent`, since watchOS `EKEventStore` is read-only. Deployment target is watchOS 26.5. Requires unit tests (Swift Testing, SingleThreadCore) and watch UI tests via the existing `--ui-testing` seam.
