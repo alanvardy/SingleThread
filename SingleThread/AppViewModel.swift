@@ -220,7 +220,7 @@ final class AppViewModel {
         // back), otherwise the scene's live `OpenURLAction` is wrapped, with a
         // no-op fallback for previews and unit-test call sites that pass neither.
         let urlOpener: any URLOpening
-        if ProcessInfo.processInfo.arguments.contains("--url-opener-spy") {
+        if isURLSpyUITesting {
             if let spy = urlOpenerSpy {
                 urlOpener = spy
             } else {
@@ -231,7 +231,7 @@ final class AppViewModel {
         } else if let openURLAction {
             urlOpener = SystemURLOpener(action: openURLAction)
         } else {
-            urlOpener = SystemURLOpener(action: OpenURLAction { _ in .handled })
+            urlOpener = SystemURLOpener.noop
         }
         let viewModel = ContentViewModel(
             store: store,
@@ -253,6 +253,12 @@ final class AppViewModel {
     /// recording (and so `ContentView` can read the last opened URL back).
     /// Always nil in production (the spy launch arg is absent).
     private var urlOpenerSpy: URLOpeningSpy?
+
+    /// True only under the `--url-opener-spy` UI-test seam; production opens
+    /// real deep links through the scene's `OpenURLAction` instead.
+    private var isURLSpyUITesting: Bool {
+        ProcessInfo.processInfo.arguments.contains("--url-opener-spy")
+    }
 
     /// Builds the app's ``ReminderStore`` from launch arguments.
     ///

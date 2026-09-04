@@ -445,7 +445,7 @@ unchanged.
 - [x] `make build SIM='iPhone 17,OS=26.0'` — compiles without errors
 - [x] `make format` — SwiftFormat passes
 - [x] `make lint` — SwiftLint passes (`--strict`) on the app target
-- [ ] Full `./scripts/test.sh` — all unit tests + UI tests pass, no regressions
+- [x] Full `./scripts/test.sh` — all unit tests + UI tests pass, no regressions
 
 #### Manual
 - [ ] Run app in simulator, long-press the reminder card, tap "View in Reminders" —
@@ -502,7 +502,7 @@ func testViewInRemindersOpensURL() {
 ### Verification
 #### Automated
 - [x] `make ui-test SIM='iPhone 17,OS=26.0'` — new test passes alongside existing UI tests
-- [ ] `./scripts/test.sh` — full gate passes (format + lint + build + unit + UI + Periphery)
+- [x] `./scripts/test.sh` — full gate passes (format + lint + build + unit + UI + Periphery)
 
 #### Manual
 - [ ] Run `make ui-test` and observe the test pass: context menu appears, tap,

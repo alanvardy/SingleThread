@@ -250,7 +250,7 @@ struct ContentView: View {
         }
         #if os(iOS)
         .overlay {
-            if ProcessInfo.processInfo.arguments.contains("--url-opener-spy"),
+            if isURLSpyUITesting,
                let url = lastOpenedURL {
                 Text("spyURL-\(url)")
                     .opacity(0)
@@ -294,6 +294,12 @@ struct ContentView: View {
     /// overlay from accessibility (unchanged behavior for real users).
     private var isGlowUITesting: Bool {
         ProcessInfo.processInfo.arguments.contains("--ui-testing-glow")
+    }
+
+    /// True only under the `--url-opener-spy` UI-test seam; production never
+    /// renders (or reads) the deep-link spy element.
+    private var isURLSpyUITesting: Bool {
+        ProcessInfo.processInfo.arguments.contains("--url-opener-spy")
     }
 
     /// iOS-only `showSwipePrompt` preference: other platforms never show the
@@ -422,8 +428,8 @@ struct ContentView: View {
                                 .contextMenu {
                                     Button {
                                         viewModel.openInReminders(reminder)
-                                        if let spy = viewModel.urlOpener as? URLOpeningSpy {
-                                            lastOpenedURL = spy.lastOpenedURL?.absoluteString
+                                        if isURLSpyUITesting {
+                                            lastOpenedURL = viewModel.lastOpenedURLForUITesting
                                         }
                                     } label: {
                                         Label("View in Reminders", systemImage: "eye")

@@ -20,7 +20,7 @@ final class ContentViewModel {
         self.store = store
         self.backgroundImage = backgroundImage
         self.showCompletionGlow = showCompletionGlow
-        self.urlOpener = urlOpener ?? SystemURLOpener(action: OpenURLAction { _ in .handled })
+        self.urlOpener = urlOpener ?? SystemURLOpener.noop
         dictation = DictationViewModel(speechTranscriber: speechTranscriber, store: store)
     }
 
@@ -57,6 +57,13 @@ final class ContentViewModel {
     /// can't be asserted headlessly — tests assert this decision instead.
     var rowChromeBackground: Color {
         .clear
+    }
+
+    /// The last URL recorded by the `--url-opener-spy` UI-test seam, exposed so
+    /// the view never needs to know the concrete `URLOpeningSpy` type. Always
+    /// nil in production, where the opener is a `SystemURLOpener`.
+    var lastOpenedURLForUITesting: String? {
+        (urlOpener as? URLOpeningSpy)?.lastOpenedURL?.absoluteString
     }
 
     static func emptyStateCopy(hasHidden: Bool) -> EmptyStateCopy {
@@ -138,21 +145,24 @@ final class ContentViewModel {
         await store.undoLastCompletion()
     }
 
-    /// Opens the given reminder (identified by ``calendarItemIdentifier``) in
-    /// Apple's Reminders app via the injected ``URLopener``. No-op when the
-    /// reminder has no identifier.
-    func openInReminders(_ reminder: EKReminder) {
-        guard let url = ReminderDeepLink.url(forReminderIdentifier: reminder.calendarItemIdentifier)
-        else { return }
-        urlOpener.open(url)
-    }
-
     func reload(clearSkipped: Bool = false) async {
         await store.reload(clearSkipped: clearSkipped)
     }
 
     func setExcludedListTitles(_ titles: Set<String>) {
         store.setExcludedListTitles(titles)
+    }
+
+    // MARK: - Deep linking
+
+    /// Opens the given reminder in Apple's Reminders app via the injected
+    /// ``urlOpener``. Building the deep link here (rather than in the view) keeps
+    /// the URL construction unit-testable. No-op when the reminder has no
+    /// identifier.
+    func openInReminders(_ reminder: EKReminder) {
+        guard let url = ReminderDeepLink.url(forReminderIdentifier: reminder.calendarItemIdentifier)
+        else { return }
+        urlOpener.open(url)
     }
 
     // MARK: Private
