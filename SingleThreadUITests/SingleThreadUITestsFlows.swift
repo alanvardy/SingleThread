@@ -12,6 +12,7 @@
 // user-flow tests (Complete/Skip/Delete/Undo/Settings/Background/Composition).
 // swiftlint:disable file_length
 
+import SingleThreadCore
 import XCTest
 
 final class SingleThreadUITestsFlows: SingleThreadUITestCase {
@@ -637,7 +638,8 @@ final class SingleThreadUITestsFlows: SingleThreadUITestCase {
 
     @MainActor
     func testUpgradePromptAppearsWhenGated() {
-        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":false}"#
+        let cap = EntitlementStore.freemiumCap
+        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":\#(cap),"isEntitled":false}"#
         let app = launchSeeded(seed)
 
         // The upgrade prompt should appear instead of action buttons.
@@ -659,7 +661,8 @@ final class SingleThreadUITestsFlows: SingleThreadUITestCase {
 
     @MainActor
     func testActionClusterAppearsWhenEntitledAtCap() {
-        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":true}"#
+        let cap = EntitlementStore.freemiumCap
+        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":\#(cap),"isEntitled":true}"#
         let app = launchSeeded(seed)
 
         // Action buttons should appear because the user is entitled.
@@ -671,7 +674,8 @@ final class SingleThreadUITestsFlows: SingleThreadUITestCase {
 
     @MainActor
     func testUnresolvedEntitlementRendersNoUpgradeButton() {
-        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"entitlementUnresolved":true}"#
+        let cap = EntitlementStore.freemiumCap
+        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":\#(cap),"entitlementUnresolved":true}"#
         let app = launchSeeded(seed)
 
         // While entitlement is unresolved, the upgrade button must not exist —
@@ -698,7 +702,8 @@ final class SingleThreadUITestsFlows: SingleThreadUITestCase {
 
     @MainActor
     func testPurchaseSheetHasRestoreButton() {
-        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":100,"isEntitled":false}"#
+        let cap = EntitlementStore.freemiumCap
+        let seed = #"{"reminders":[{"title":"Buy groceries"}],"completionCount":\#(cap),"isEntitled":false}"#
         let app = launchSeeded(seed)
 
         // Tap the upgrade prompt.
