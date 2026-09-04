@@ -66,7 +66,7 @@ import SwiftUI
                     DatePicker(
                         "Reschedule to",
                         selection: $rescheduleDate,
-                        displayedComponents: [.date, .hourAndMinute])
+                        displayedComponents: nudgedReminderHasDueTime ? [.date, .hourAndMinute] : [.date])
 
                     nudgeRescheduleButton
 
@@ -84,12 +84,32 @@ import SwiftUI
             }
         }
 
+        /// Whether the nudged reminder has a due time (vs. date-only), so the
+        /// reschedule picker offers no time to a reminder that never had one.
+        /// Defaults to `false` (date-only) when the nudged reminder can't be
+        /// resolved.
+        private var nudgedReminderHasDueTime: Bool {
+            guard let identifier = viewModel.nudgeIdentifier,
+                  let reminder = viewModel.store.visibleReminders.first(where: {
+                      $0.calendarItemIdentifier == identifier
+                  }),
+                  let components = reminder.dueDateComponents
+            else {
+                return false
+            }
+            return components.hour != nil
+        }
+
         /// Reschedules the nudged reminder to the picked date, closing the sheet on
-        /// success (the banner clears via the view-model hook).
+        /// success (the banner clears via the view-model hook). Omits the hour from
+        /// the saved components when the reminder has no due time, so a date-only
+        /// reminder stays date-only.
         private var nudgeRescheduleButton: some View {
             Button {
                 let components = Calendar.current.dateComponents(
-                    [.year, .month, .day, .hour, .minute],
+                    nudgedReminderHasDueTime
+                        ? [.year, .month, .day, .hour, .minute]
+                        : [.year, .month, .day],
                     from: rescheduleDate)
                 Task {
                     if await viewModel.rescheduleNudgedReminder(to: components) {
