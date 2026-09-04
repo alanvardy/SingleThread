@@ -328,8 +328,14 @@ No file changes.
       quick `make build` + run, since the change is iOS no-op).
 
 #### Automated (parent runs ONCE after all phases commit)
-- [ ] `./scripts/test.sh` fully green (formats, lints, builds, Periphery, iOS
+- [x] `./scripts/test.sh` fully green (formats, lints, builds, Periphery, iOS
       unit + UI tests, watch suites, macOS unit tests — identical to CI).
+      \* Each leg was run with the identical commands of `scripts/test.sh`; the
+      script as a single process was twice OOM-killed at its UI stage by a
+      concurrent xcodebuild from another session on this 24 GB machine (never a
+      test failure — every leg passed when run in an uncontended window: format,
+      lint, build, watch build, Periphery, iOS unit, iOS UI, watch UI, watch
+      unit, macOS unit).
 
 ---
 
