@@ -246,7 +246,7 @@ struct ContentViewModelTests {
 
 ### Verification
 #### Automated
-- [ ] `make test SIM='iPhone 17,OS=26.0'` passes — Phase 1 tests + new `ContentViewModelTests`
+- [x] `make test SIM='iPhone 17,OS=26.0'` passes — Phase 1 tests + new `ContentViewModelTests`
 
 #### Manual
 - [ ] Build succeeds with updated `ContentViewModel` init (all existing call sites

@@ -1,3 +1,4 @@
+import EventKit
 import SingleThreadCore
 import Speech
 import SwiftUI
@@ -14,10 +15,12 @@ final class ContentViewModel {
         store: ReminderStore,
         backgroundImage: BackgroundImageStore,
         speechTranscriber: any SpeechTranscribing,
-        showCompletionGlow: ShowCompletionGlowPreference = ShowCompletionGlowPreference()) {
+        showCompletionGlow: ShowCompletionGlowPreference = ShowCompletionGlowPreference(),
+        urlOpener: (any URLOpening)? = nil) {
         self.store = store
         self.backgroundImage = backgroundImage
         self.showCompletionGlow = showCompletionGlow
+        self.urlOpener = urlOpener ?? SystemURLOpener(action: OpenURLAction { _ in .handled })
         dictation = DictationViewModel(speechTranscriber: speechTranscriber, store: store)
     }
 
@@ -33,6 +36,7 @@ final class ContentViewModel {
     let store: ReminderStore
     let backgroundImage: BackgroundImageStore
     let dictation: DictationViewModel
+    let urlOpener: any URLOpening
 
     /// Drives the brief full-screen green flash after a successful completion.
     let completionGlow = CompletionGlow()
@@ -132,6 +136,15 @@ final class ContentViewModel {
     /// No glow trigger — the reappearing reminder is its own feedback.
     func undoLastCompletion() async {
         await store.undoLastCompletion()
+    }
+
+    /// Opens the given reminder (identified by ``calendarItemIdentifier``) in
+    /// Apple's Reminders app via the injected ``URLopener``. No-op when the
+    /// reminder has no identifier.
+    func openInReminders(_ reminder: EKReminder) {
+        guard let url = ReminderDeepLink.url(forReminderIdentifier: reminder.calendarItemIdentifier)
+        else { return }
+        urlOpener.open(url)
     }
 
     func reload(clearSkipped: Bool = false) async {
