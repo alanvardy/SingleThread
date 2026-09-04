@@ -144,6 +144,15 @@ struct UITestingSeedTests {
     }
 
     @Test
+    func resetPersistedStateClearsSkipCounts() {
+        AppGroup.defaults.set(["x": 1], forKey: "skipCounts")
+        UserDefaults.standard.set(["x": 1], forKey: "skipCounts")
+        UITestingSeed.resetPersistedState()
+        #expect(AppGroup.defaults.dictionary(forKey: "skipCounts") == nil)
+        #expect(UserDefaults.standard.dictionary(forKey: "skipCounts") == nil)
+    }
+
+    @Test
     func resetPersistedStateClearsBackgroundEnabled() {
         UserDefaults.standard.set(false, forKey: "backgroundEnabled")
         UITestingSeed.resetPersistedState()
