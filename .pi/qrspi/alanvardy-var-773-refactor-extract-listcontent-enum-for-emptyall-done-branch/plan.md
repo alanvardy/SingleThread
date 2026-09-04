@@ -456,10 +456,10 @@ animation overlay, not a content state, and `ShowCompletionGlowStateTests` pins 
 ### Verification
 
 #### Automated
-- [ ] `make watch-build` — exhaustive-switch compile check for watchOS
-- [ ] `make watch-test` — `ShowCompletionGlowStateTests` (transition ghost) and `WatchReminderViewRegressionTests` green
-- [ ] `make watch-ui-test` — `emptyStateTitle` assertions unchanged (`SingleThreadWatchUITestsFlows.swift:39-195`)
-- [ ] `make format && make lint` — clean
+- [x] `make watch-build` — exhaustive-switch compile check for watchOS
+- [x] `make watch-test` — `ShowCompletionGlowStateTests` (transition ghost) and `WatchReminderViewRegressionTests` green
+- [x] `make watch-ui-test` — `emptyStateTitle` assertions unchanged (`SingleThreadWatchUITestsFlows.swift:39-195`)
+- [x] `make format && make lint` — clean
 
 #### Manual
 - [ ] Run watch sim: All Done vs No Reminders vs reminder card all render; completion glow then "No Reminders" still holds (`--ui-testing-glow` seam)
