@@ -389,7 +389,8 @@ struct ContentView: View {
             let viewHeight = geometry.size.height
                 - geometry.safeAreaInsets.top
                 - geometry.safeAreaInsets.bottom
-            if viewModel.store.allSkipped {
+            switch viewModel.store.listContent {
+            case .allDone:
                 let allDoneCopy = ContentViewModel.allDoneStateCopy()
                 ScrollView {
                     EmptyStateCard(
@@ -403,8 +404,8 @@ struct ContentView: View {
                 .refreshable {
                     await viewModel.reload(clearSkipped: true)
                 }
-            } else if viewModel.store.reminders.isEmpty {
-                let emptyCopy = ContentViewModel.emptyStateCopy(hasHidden: viewModel.store.hasHidden)
+            case let .empty(hasHidden):
+                let emptyCopy = ContentViewModel.emptyStateCopy(hasHidden: hasHidden)
                 ZStack(alignment: .bottom) {
                     ScrollView {
                         EmptyStateCard(
@@ -418,7 +419,10 @@ struct ContentView: View {
                     }
                     bottomBar
                 }
-            } else {
+            case .reminder:
+                // Keep the inner `if let` so the `EKReminder` identifier stays in scope
+                // for the deep link below; the associated `ReminderDisplay` is unused
+                // here (binding it would trip the unused-value warning→error).
                 ZStack(alignment: .bottom) {
                     List {
                         if let reminder = viewModel.store.visibleReminders.first {
@@ -496,6 +500,11 @@ struct ContentView: View {
                     }
                     bottomBar
                 }
+            case .noAccess:
+                // Unreachable: `authGatedContent` diverts non-.fullAccess before this
+                // renders. Required only for exhaustiveness — if auth ever collapses
+                // into the enum, this arm is the footgun to revisit.
+                EmptyView()
             }
         }
     }
