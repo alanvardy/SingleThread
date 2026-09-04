@@ -1,6 +1,6 @@
 import Foundation
+import SwiftUI
 #if os(iOS)
-    import SwiftUI
     import UIKit
 #elseif os(macOS)
     import AppKit
@@ -257,32 +257,39 @@ final class BackgroundImageStore {
     }
 }
 
-#if os(iOS)
-    /// Decorative full-bleed background photo layer shown behind the reminder
-    /// list. Non-interactive and hidden from accessibility so it never steals
-    /// touches or pollutes the a11y tree.
-    struct BackgroundPhotoLayer: View {
-        let imageData: Data?
-        /// Toggled from Settings; `false` hides the photo without touching disk.
-        var isEnabled = true
-        /// Fade level as a SwiftUI opacity fraction, chosen in Settings.
-        var opacity = BackgroundFade.opacity(for: BackgroundFade.defaultValue)
+/// Decorative full-bleed background photo layer shown behind the reminder
+/// list. Non-interactive and hidden from accessibility so it never steals
+/// touches or pollutes the a11y tree.
+struct BackgroundPhotoLayer: View {
+    let imageData: Data?
+    /// Toggled from Settings; `false` hides the photo without touching disk.
+    var isEnabled = true
+    /// Fade level as a SwiftUI opacity fraction, chosen in Settings.
+    var opacity = BackgroundFade.opacity(for: BackgroundFade.defaultValue)
 
-        var body: some View {
-            if isEnabled, let image = imageData.flatMap(UIImage.init(data:)) {
-                // The overlay wrapper pins the layer to its parent's size so
-                // `scaledToFill` can never expand the surrounding layout.
-                Color.clear
-                    .overlay {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                    }
-                    .ignoresSafeArea()
-                    .opacity(opacity)
-                    .allowsHitTesting(false)
-                    .accessibilityHidden(true)
-            }
+    var body: some View {
+        if isEnabled, let image = imageData.flatMap(Self.image(from:)) {
+            // The overlay wrapper pins the layer to its parent's size so
+            // `scaledToFill` can never expand the surrounding layout.
+            Color.clear
+                .overlay {
+                    image
+                        .resizable()
+                        .scaledToFill()
+                }
+                .ignoresSafeArea()
+                .opacity(opacity)
+                .allowsHitTesting(false)
+                .accessibilityHidden(true)
         }
     }
-#endif
+
+    /// `nil` when `data` isn't a decodable image on this platform.
+    static func image(from data: Data) -> Image? {
+        #if os(macOS)
+            NSImage(data: data).map(Image.init(nsImage:))
+        #else
+            UIImage(data: data).map(Image.init(uiImage:))
+        #endif
+    }
+}
