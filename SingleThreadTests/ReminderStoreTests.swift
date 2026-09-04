@@ -502,6 +502,194 @@ struct ReminderStoreTests {
     }
 }
 
+// MARK: - Skip counts + nudge threshold
+
+/// The skip-count suite shares the file-scoped `makeReminder`/`noopSettle`
+/// fixtures; it lives separately so `ReminderStoreTests` stays under the
+/// 500-line SwiftLint body limit.
+@MainActor
+@Suite(.serialized)
+struct ReminderStoreSkipCountTests {
+    @Test
+    func incrementsSkipCountOnInteractiveSkip() async {
+        let rem = makeReminder(title: "A")
+        let key = "skipCounts-\(UUID().uuidString)"
+        let countStore = SkipCountStore(defaults: .standard, key: key)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            skipCountStore: countStore,
+            loadsReminders: true,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            settle: noopSettle)
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            store.onSkipSetChanged = { _ in continuation.resume() }
+            store.skipCurrentReminder()
+        }
+        #expect(store.skipCount(for: rem.calendarItemIdentifier) == 1, "interactive skip increments to 1")
+    }
+
+    @Test
+    func receivePathDoesNotIncrementSkipCount() async {
+        let key = "skipCounts-\(UUID().uuidString)"
+        let rem = makeReminder(title: "A")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [rem]),
+            skipCountStore: SkipCountStore(defaults: .standard, key: key),
+            loadsReminders: true,
+            reminders: [rem],
+            authorizationStatus: .fullAccess,
+            settle: noopSettle)
+        await store.reload()
+        #expect(store.skipCount(for: rem.calendarItemIdentifier) == 0, "reload/reconcile never increments")
+    }
+
+    @Test
+    func skipCountReturnsZeroForUnknownIdentifier() {
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            skipCountStore: SkipCountStore(defaults: .standard, key: "skipCounts-\(UUID().uuidString)"),
+            loadsReminders: false)
+        #expect(store.skipCount(for: "unknown-id") == 0, "unknown identifier read as zero")
+    }
+
+    #if os(iOS) || os(watchOS)
+        @Test
+        func nudgeInterruptsSixthSkipAndKeepsReminderVisible() {
+            let rem = makeReminder(title: "A")
+            let key = "skipCounts-\(UUID().uuidString)"
+            let countStore = SkipCountStore(defaults: .standard, key: key)
+            let store = ReminderStore(
+                eventStore: InMemoryEventStore(),
+                skipCountStore: countStore,
+                loadsReminders: false,
+                reminders: [rem],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess,
+                settle: noopSettle)
+            countStore.save([rem.calendarItemIdentifier: 5])
+            var nudged: String?
+            store.onSkipNudgeRequested = { nudged = $0 }
+            store.skipCurrentReminder()
+            #expect(nudged == rem.calendarItemIdentifier, "nudge hook fires with the reminder id")
+            #expect(store.skipCount(for: rem.calendarItemIdentifier) == 6, "count incremented to 6")
+            #expect(store.visibleReminders.first === rem, "interrupted - reminder stays visible (not advanced)")
+            #expect(store.skippedIDs.isEmpty, "interrupted - skip set not applied")
+        }
+    #endif
+
+    @Test
+    func nudgeDoesNotFireAtFive() async {
+        let rem = makeReminder(title: "A")
+        let key = "skipCounts-\(UUID().uuidString)"
+        let countStore = SkipCountStore(defaults: .standard, key: key)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [rem]),
+            skipCountStore: countStore,
+            loadsReminders: true,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            settle: noopSettle)
+        countStore.save([rem.calendarItemIdentifier: 4])
+        var nudged = false
+        store.onSkipNudgeRequested = { _ in nudged = true }
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            store.onSkipSetChanged = { _ in continuation.resume() }
+            store.skipCurrentReminder()
+        }
+        #expect(!nudged, "the 5th skip does not nudge")
+        #expect(store.skipCount(for: rem.calendarItemIdentifier) == 5, "the 5th skip increments to 5")
+        let advanced5 = store.visibleReminders.isEmpty || store.skippedIDs.contains(rem.calendarItemIdentifier)
+        #expect(advanced5, "the 5th skip advances (reminder hidden)")
+    }
+
+    @Test
+    func seventhSkipAdvancesWithoutRenudging() async {
+        let rem = makeReminder(title: "A")
+        let key = "skipCounts-\(UUID().uuidString)"
+        let countStore = SkipCountStore(defaults: .standard, key: key)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [rem]),
+            skipCountStore: countStore,
+            loadsReminders: true,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            settle: noopSettle)
+        countStore.save([rem.calendarItemIdentifier: 6])
+        var nudged = false
+        store.onSkipNudgeRequested = { _ in nudged = true }
+        await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+            store.onSkipSetChanged = { _ in continuation.resume() }
+            store.skipCurrentReminder()
+        }
+        #expect(!nudged, "a 7th skip (already across threshold) does not re-nudge")
+        #expect(store.skipCount(for: rem.calendarItemIdentifier) == 7, "count continues to advance")
+        let advanced7 = store.visibleReminders.isEmpty || store.skippedIDs.contains(rem.calendarItemIdentifier)
+        #expect(advanced7, "the 7th skip advances")
+    }
+
+    @Test
+    func completeResetsSkipCount() async {
+        let rem = makeReminder(title: "A")
+        let key = "skipCounts-\(UUID().uuidString)"
+        let countStore = SkipCountStore(defaults: .standard, key: key)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [rem]),
+            skipCountStore: countStore,
+            loadsReminders: true,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            completionCounter: CompletionCounterStore(defaults: .standard, key: "completion-\(UUID().uuidString)"),
+            settle: noopSettle)
+        countStore.save([rem.calendarItemIdentifier: 6])
+        let completed = await store.completeReminder(identifier: rem.calendarItemIdentifier)
+        #expect(completed, "completion succeeds")
+        #expect(store.skipCount(for: rem.calendarItemIdentifier) == 0, "completion resets the skip count")
+    }
+
+    @Test
+    func deleteResetsSkipCount() async {
+        let rem = makeReminder(title: "A")
+        let key = "skipCounts-\(UUID().uuidString)"
+        let countStore = SkipCountStore(defaults: .standard, key: key)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [rem]),
+            skipCountStore: countStore,
+            loadsReminders: true,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            settle: noopSettle)
+        countStore.save([rem.calendarItemIdentifier: 6])
+        await store.deleteReminder(identifier: rem.calendarItemIdentifier)
+        #expect(store.skipCount(for: rem.calendarItemIdentifier) == 0, "delete resets the skip count")
+    }
+
+    @Test
+    func reconcilePrunesSkipCountForAbsentIdentifier() async {
+        let rem = makeReminder(title: "A")
+        let key = "skipCounts-\(UUID().uuidString)"
+        let countStore = SkipCountStore(defaults: .standard, key: key)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [rem]),
+            skipCountStore: countStore,
+            loadsReminders: true,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            settle: noopSettle)
+        countStore.save([rem.calendarItemIdentifier: 3, "stale-id": 6])
+        await store.reload()
+        let counts = countStore.load()
+        #expect(counts[rem.calendarItemIdentifier] == 3, "in-window reminder's count kept")
+        #expect(counts["stale-id"] == nil, "absent identifier's count pruned on reload")
+    }
+}
+
 // MARK: - Undo completion
 
 #if !os(watchOS)

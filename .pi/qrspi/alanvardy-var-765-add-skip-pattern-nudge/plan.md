@@ -283,8 +283,8 @@ Pass `skipCountsByIdentifier: countsByIdentifier` into the `UITestingSeed(...)` 
 ### Verification
 
 #### Automated
-- [ ] `make build` passes
-- [ ] `make test` green for `ReminderStoreTests` plus the `SkipCountStoreTests` logic tables
+- [x] `make build` passes
+- [x] `make test` green for `ReminderStoreTests` plus the `SkipCountStoreTests` logic tables
 
 New `ReminderStoreTests` cases (reuse file-scoped `makeReminder` fixtures, `noopSettle`, `InMemoryEventStore`, and `withCheckedContinuation` on `onSkipSetChanged`/`onRemindersChanged`):
 - `incrementsSkipCountOnInteractiveSkip` — skip once → `skipCount(for:) == 1`.
