@@ -140,9 +140,10 @@ public final class ReminderStore {
     }
 
     /// `true` when mutations are allowed: either the user is entitled (purchased
-    /// the IAP) or has not yet hit the free-tier completion cap (100).
+    /// the IAP) or has not yet hit the free-tier completion cap
+    /// (`EntitlementStore.freemiumCap`).
     public var canMutate: Bool {
-        entitlementStore.isEntitled || completionCounter.count < 100
+        entitlementStore.isEntitled || completionCounter.count < EntitlementStore.freemiumCap
     }
 
     /// Whether the entitlement value has been settled by at least one StoreKit

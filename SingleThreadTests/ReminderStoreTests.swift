@@ -588,7 +588,7 @@ struct ReminderStoreTests {
         @Test
         func undoReturnsFalseWhenGated() async {
             let key = UUID().uuidString
-            UserDefaults.standard.set(100, forKey: key)
+            UserDefaults.standard.set(EntitlementStore.freemiumCap, forKey: key)
             let counter = CompletionCounterStore(defaults: .standard, key: key)
             let rem = makeReminder(title: "A")
             let store = ReminderStore(

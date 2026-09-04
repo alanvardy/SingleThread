@@ -49,6 +49,13 @@ public final class EntitlementStore {
     /// The StoreKit product ID for the one-time unlock IAP.
     public static let unlockProductID = "app.alanvardy.SingleThread.unlimited"
 
+    /// The free-tier lifetime-completion cap: the number of completions a
+    /// non-entitled user may make before mutation is gated. Single source of
+    /// truth — referenced by the mutation gate (`ReminderStore.canMutate`), the
+    /// watch UI-test seam, and the boundary tests. Strict-`<` semantics: the
+    /// gate closes at exactly this count.
+    public static let freemiumCap = 100
+
     /// Whether the user has purchased the unlock IAP. Reactively updated by
     /// the `Transaction.updates` stream; also updated by `sync()`.
     public private(set) var isEntitled: Bool = false

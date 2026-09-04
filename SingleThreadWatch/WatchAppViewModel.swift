@@ -24,7 +24,7 @@ final class WatchAppViewModel {
         // (suiteName:) ?? .standard`), so the seeded count must land in that
         // suite (it falls back to `.standard` where no App Group is registered).
         if arguments.contains("--ui-testing-gated") {
-            AppGroup.defaults.set(100, forKey: "completionCount")
+            AppGroup.defaults.set(EntitlementStore.freemiumCap, forKey: "completionCount")
         }
         // Restore the last-received sort (persisted to .standard on receive) so the
         // watch shows the correct order even before the next context push arrives.

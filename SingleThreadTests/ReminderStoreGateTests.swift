@@ -16,25 +16,25 @@ struct ReminderStoreGateTests {
 
     @Test
     func canMutateTrueWhenCountBelow100AndNotEntitled() {
-        let store = makeStore(count: 50, entitled: false)
+        let store = makeStore(count: EntitlementStore.freemiumCap - 1, entitled: false)
         #expect(store.canMutate)
     }
 
     @Test
     func canMutateFalseWhenCountAt100AndNotEntitled() {
-        let store = makeStore(count: 100, entitled: false)
+        let store = makeStore(count: EntitlementStore.freemiumCap, entitled: false)
         #expect(!store.canMutate)
     }
 
     @Test
     func canMutateTrueWhenCountAt100AndEntitled() {
-        let store = makeStore(count: 100, entitled: true)
+        let store = makeStore(count: EntitlementStore.freemiumCap, entitled: true)
         #expect(store.canMutate)
     }
 
     @Test
     func canMutateTrueWhenCountBelow100AndEntitled() {
-        let store = makeStore(count: 50, entitled: true)
+        let store = makeStore(count: EntitlementStore.freemiumCap - 1, entitled: true)
         #expect(store.canMutate)
     }
 
@@ -42,7 +42,7 @@ struct ReminderStoreGateTests {
 
     @Test
     func completeReminderReturnsFalseWhenGated() async {
-        let counter = seededCounter(100)
+        let counter = seededCounter(EntitlementStore.freemiumCap)
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
             eventStore: InMemoryEventStore(reminders: [rem]),
@@ -55,7 +55,7 @@ struct ReminderStoreGateTests {
         let result = await store.completeReminder(
             identifier: rem.calendarItemIdentifier)
         #expect(!result)
-        #expect(counter.count == 100) // unchanged
+        #expect(counter.count == EntitlementStore.freemiumCap) // unchanged
     }
 
     @Test
@@ -80,7 +80,7 @@ struct ReminderStoreGateTests {
 
     @Test
     func skipCurrentReminderNoOpsWhenGated() {
-        let counter = seededCounter(100)
+        let counter = seededCounter(EntitlementStore.freemiumCap)
         let rem = makeReminder(title: "A")
         let store = ReminderStore(
             eventStore: InMemoryEventStore(reminders: [rem]),
@@ -129,7 +129,7 @@ struct ReminderStoreGateTests {
 
     @Test
     func deleteReminderNoOpsWhenGated() async {
-        let counter = seededCounter(100)
+        let counter = seededCounter(EntitlementStore.freemiumCap)
         let rem = makeReminder(title: "A")
         let eventStore = InMemoryEventStore(reminders: [rem])
         let store = ReminderStore(
