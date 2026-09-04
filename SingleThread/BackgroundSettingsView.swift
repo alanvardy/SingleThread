@@ -85,6 +85,7 @@ struct BackgroundSettingsView: View {
             }
         }
         .navigationTitle("Background")
+        .settingsSubscreenLayout()
     }
 }
 

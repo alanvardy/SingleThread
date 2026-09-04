@@ -92,6 +92,7 @@ struct ReminderSettingsView: View {
             .accessibilityIdentifier("showCompletionGlowToggle")
         }
         .navigationTitle("Reminder")
+        .settingsSubscreenLayout()
     }
 }
 

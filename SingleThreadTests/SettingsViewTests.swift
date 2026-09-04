@@ -66,6 +66,11 @@ struct SettingsViewTests {
         #if os(iOS)
             #expect(bodyDescription.contains("Get reminded when you have due reminders."))
         #endif
+        #if os(macOS)
+            #expect(
+                !bodyDescription.contains("SettingsSubscreenLayout"),
+                "Root settings List must not be top-anchored")
+        #endif
     }
 
     @Test
@@ -115,6 +120,11 @@ struct SettingsViewTests {
         for caption in expectedCaptions {
             #expect(bodyDescription.contains(caption))
         }
+        #if os(macOS)
+            #expect(
+                bodyDescription.contains("SettingsSubscreenLayout"),
+                "Sub-view should top-anchor via SettingsSubscreenLayout on macOS")
+        #endif
     }
 
     @Test
@@ -145,6 +155,11 @@ struct SettingsViewTests {
         for caption in expectedCaptions {
             #expect(bodyDescription.contains(caption))
         }
+        #if os(macOS)
+            #expect(
+                bodyDescription.contains("SettingsSubscreenLayout"),
+                "Sub-view should top-anchor via SettingsSubscreenLayout on macOS")
+        #endif
     }
 
     @Test
@@ -171,6 +186,11 @@ struct SettingsViewTests {
         for caption in expectedCaptions {
             #expect(bodyDescription.contains(caption))
         }
+        #if os(macOS)
+            #expect(
+                bodyDescription.contains("SettingsSubscreenLayout"),
+                "Sub-view should top-anchor via SettingsSubscreenLayout on macOS")
+        #endif
     }
 
     @Test
@@ -196,6 +216,11 @@ struct SettingsViewTests {
         for caption in expectedCaptions {
             #expect(bodyDescription.contains(caption))
         }
+        #if os(macOS)
+            #expect(
+                bodyDescription.contains("SettingsSubscreenLayout"),
+                "Sub-view should top-anchor via SettingsSubscreenLayout on macOS")
+        #endif
     }
 
     @Test
@@ -245,6 +270,28 @@ struct SettingsViewTests {
         for label in expected {
             #expect(bodyDescription.contains(label), "Expected privacy content to contain \(label)")
         }
+        #if os(macOS)
+            #expect(
+                bodyDescription.contains("SettingsSubscreenLayout"),
+                "Sub-view should top-anchor via SettingsSubscreenLayout on macOS")
+        #endif
+    }
+
+    @Test
+    func excludedListsViewContainsTopAnchor() {
+        let view = ExcludedListsView(
+            excludedLists: .constant(["Work"]),
+            availableLists: ["Work", "Personal"])
+        let bodyDescription = String(describing: view.body)
+
+        // The `.navigationTitle("Excluded Lists")` string does not survive
+        // SwiftUI reflection (it lives in an opaque transform closure), so
+        // content coverage pins the reflected excluded-lists data instead.
+        #expect(bodyDescription.contains("Personal"))
+        #expect(bodyDescription.contains("Excluded lists are hidden from the reminder list."))
+        #if os(macOS)
+            #expect(bodyDescription.contains("SettingsSubscreenLayout"))
+        #endif
     }
 
     @Test

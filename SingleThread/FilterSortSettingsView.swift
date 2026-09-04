@@ -56,6 +56,7 @@ struct FilterSortSettingsView: View {
             }
         }
         .navigationTitle("Filtering & Sorting")
+        .settingsSubscreenLayout()
     }
 }
 
