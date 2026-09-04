@@ -719,11 +719,11 @@ New `SingleThreadWatchUITests` XCTest flow:
 
 ## Final gate (parent runs once, after phases commit)
 
-- [ ] `make format` (SwiftFormat) clean
-- [ ] `make lint` (SwiftLint `--strict`) clean
-- [ ] `./scripts/test.sh` (full: unit + iOS UI + watch UI + watch unit + macOS unit) green, `SIM=`/`WATCH_TEST_SIM=` pinned as needed
-- [ ] `make periphery` (`periphery scan --strict`) clean — new public APIs (`SkipCountStore`, `SkipCountLogic`, `skipCount(for:)`, `rescheduleReminder`, `onSkipNudgeRequested`, `onSkipCountsReceived`) are exercised by production or test call sites
-- [ ] Confirm coverage ships: unit tests for count increment/reset/prune/threshold + reschedule; sync tests for the new key; iOS + watch UI tests for the nudge end-to-end
+- [x] `make format` (SwiftFormat) clean
+- [x] `make lint` (SwiftLint `--strict`) clean
+- [x] `./scripts/test.sh` (full: unit + iOS UI + watch UI + watch unit + macOS unit) green, `SIM=`/`WATCH_TEST_SIM=` pinned as needed
+- [x] `make periphery` (`periphery scan --strict`) clean — new public APIs (`SkipCountStore`, `SkipCountLogic`, `skipCount(for:)`, `rescheduleReminder`, `onSkipNudgeRequested`, `onSkipCountsReceived`) are exercised by production or test call sites
+- [x] Confirm coverage ships: unit tests for count increment/reset/prune/threshold + reschedule; sync tests for the new key; iOS + watch UI tests for the nudge end-to-end
 
 ---
 
