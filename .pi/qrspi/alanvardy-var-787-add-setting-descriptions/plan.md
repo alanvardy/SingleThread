@@ -849,7 +849,7 @@ func notificationsSettingsViewContainsExpectedRows() {
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` (full CI-identical gate) — single run, everything green:
+- [x] `./scripts/test.sh` (full CI-identical gate) — single run, everything green:
   - `make format` (writes) → `make lint` (strict)
   - iOS build-for-testing + watchOS build
   - Periphery (updated index)
