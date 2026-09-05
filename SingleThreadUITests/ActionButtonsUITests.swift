@@ -34,9 +34,17 @@ final class ActionButtonsUITests: XCTestCase {
             skip.waitForExistence(timeout: 5),
             "Skip button should be present beside the mic")
 
-        // Tap Skip; the settle-delayed skip write advances the visible reminder,
-        // which lands on the allSkipped "All Done" branch (bottom bar disappears).
+        // Tap Skip. The `--ui-testing` seam turns the action-buttons toggle on,
+        // so the tap presents the three-action menu (Phase 4) instead of
+        // skipping directly; tapping the dialog's Skip advances the visible
+        // reminder, which lands on the allSkipped "All Done" branch (bottom bar
+        // disappears).
         skip.tap()
+        let dialogSkip = app.buttons["Skip"]
+        XCTAssertTrue(
+            dialogSkip.waitForExistence(timeout: 3),
+            "Toggle ON: the Skip tap should present the action menu")
+        dialogSkip.tap()
         XCTAssertTrue(
             app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
             "Skipping should advance the displayed card to the All Done state")
