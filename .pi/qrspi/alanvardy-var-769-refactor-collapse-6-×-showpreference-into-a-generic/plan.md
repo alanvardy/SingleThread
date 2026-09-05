@@ -214,7 +214,7 @@ Follows existing test pattern: UUID-key on `.standard` + `defer removeObject`, a
 
 ### Verification
 #### Automated
-- [ ] `make test SIM=iPhone 17,OS=26.1 -only-testing:SingleThreadTests/BoolPreferenceStoreTests` passes
+- [x] `make test SIM=iPhone 17,OS=26.1 -only-testing:SingleThreadTests/BoolPreferenceStoreTests` passes
 
 #### Manual
 - [ ] Confirm all six key+fallback pairs are covered by the parameterized tests
