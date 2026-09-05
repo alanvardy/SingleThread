@@ -240,8 +240,8 @@ Produces the release-ready artifact. No source files change here; this is verifi
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes once, end-to-end (SwiftFormat → SwiftLint `--strict` → iOS build-for-testing → watch build → `periphery scan --strict` → iOS unit → iOS UI → watch build-for-testing → watch UI → watch unit → macOS unit)
-- [ ] `make periphery` clean (no dead `compareLists`)
+- [ ] `./scripts/test.sh` passes once, end-to-end (SwiftFormat → SwiftLint `--strict` → iOS build-for-testing → watch build → `periphery scan --strict` → iOS unit → iOS UI → watch build-for-testing → watch UI → watch unit → macOS unit) — **BLOCKED: pre-existing `SingleThreadWatch/WatchAppViewModel.swift:172` function_body_length lint violation, byte-identical to origin/main, introduced by a prior ticket's merge (077e3b8); not attributable to this branch. Reported, not fixed per protocol.**
+- [x] `make periphery` clean (no dead `compareLists`)
 
 > Do **not** re-run the full gate per phase — per AGENTS.md "Gate staging", the full `./scripts/test.sh` runs ONCE after phases commit. Phases 1–2 use the `--unit-only` / targeted-suites loops above.
 
