@@ -51,6 +51,37 @@ struct ContentViewModelTests {
     }
 
     @Test
+    func openInRemindersIdentifierOpensCorrectURL() {
+        let identifier = "E0B6FFFB-1234-5678-9ABC-DEF012345678"
+        let spy = URLOpeningSpy()
+        let viewModel = ContentViewModel(
+            store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation(),
+            urlOpener: spy)
+
+        viewModel.openInReminders(identifier: identifier)
+
+        #expect(spy.lastOpenedURL?.absoluteString == "x-apple-reminderkit://REMCDReminder/\(identifier)")
+    }
+
+    @Test
+    func openInRemindersWithEmptyIdentifierIsNoOp() {
+        // The nudge sheet passes the nudged identifier; an empty one (a
+        // reminder with no identifier) must not open anything.
+        let spy = URLOpeningSpy()
+        let viewModel = ContentViewModel(
+            store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation(),
+            urlOpener: spy)
+
+        viewModel.openInReminders(identifier: "")
+
+        #expect(spy.openedURLs.isEmpty)
+    }
+
+    @Test
     func lastOpenedURLAccessorIsNilWithoutSpy() {
         // A model built with the default (system) opener exposes no UI-test URL:
         // the seam is inert for production. This guards against a future path

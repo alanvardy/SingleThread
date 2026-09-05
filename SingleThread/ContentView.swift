@@ -140,8 +140,13 @@ struct ContentView: View {
     /// to tomorrow so the sheet is pre-populated with a valid date.
     @State var rescheduleDate = Date().addingTimeInterval(86400)
 
-    @Environment(\.openURL)
-    var openURL
+    // Deep link last opened via the ``--url-opener-spy`` UI-test seam. Rendered
+    // back as an accessible element so an XCUITest can read it. Always nil in
+    // production (the spy launch arg is absent), so this never affects real
+    // users.
+    #if os(iOS)
+        @State var lastOpenedURL: String?
+    #endif
 
     #if os(iOS)
         let appViewModel: AppViewModel?
@@ -153,6 +158,14 @@ struct ContentView: View {
         Binding(
             get: { viewModel.store.excludedListTitles },
             set: { viewModel.setExcludedListTitles($0) })
+    }
+
+    /// True only under the `--url-opener-spy` UI-test seam; production never
+    /// renders (or reads) the deep-link spy element. Internal (not `private`)
+    /// so the iOS-only nudge sheet in `ContentView+iOS.swift` can replay the
+    /// spy URL back to the overlay.
+    var isURLSpyUITesting: Bool {
+        ProcessInfo.processInfo.arguments.contains("--url-opener-spy")
     }
 
     var body: some View {
@@ -290,14 +303,6 @@ struct ContentView: View {
     /// don't snap back when `ContentView` re-evaluates its body.
     @State private var settingsBag: SettingsBindings?
 
-    // Deep link last opened via the ``--url-opener-spy`` UI-test seam. Rendered
-    // back as an accessible element so an XCUITest can read it. Always nil in
-    // production (the spy launch arg is absent), so this never affects real
-    // users.
-    #if os(iOS)
-        @State private var lastOpenedURL: String?
-    #endif
-
     @Environment(\.accessibilityReduceMotion)
     private var reduceMotion
 
@@ -308,12 +313,6 @@ struct ContentView: View {
     /// overlay from accessibility (unchanged behavior for real users).
     private var isGlowUITesting: Bool {
         ProcessInfo.processInfo.arguments.contains("--ui-testing-glow")
-    }
-
-    /// True only under the `--url-opener-spy` UI-test seam; production never
-    /// renders (or reads) the deep-link spy element.
-    private var isURLSpyUITesting: Bool {
-        ProcessInfo.processInfo.arguments.contains("--url-opener-spy")
     }
 
     /// iOS-only `showSwipePrompt` preference: other platforms never show the

@@ -91,11 +91,13 @@ final class SkipNudgeUITests: SingleThreadUITestCase {
 
     // MARK: - View in Reminders
 
-    /// The nudge sheet offers View in Reminders (a deep link); we assert the
-    /// control exists but never tap it (a real openURL hop can't be asserted).
+    /// The nudge sheet's View in Reminders deep-links to the reminder. Under
+    /// the `--url-opener-spy` seam the app renders the opened URL as an
+    /// accessible element, so we assert the deep link actually fired (prefix
+    /// + UUID), not just that the button exists.
     @MainActor
-    func testSkipNudgeViewInRemindersOffersDeepLink() {
-        let app = launchSeeded(Self.seed)
+    func testSkipNudgeViewInRemindersOpensURL() {
+        let app = launchSeeded(Self.seed, extra: ["--url-opener-spy"])
 
         XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
         app.staticTexts["Buy groceries"].swipeLeft()
@@ -110,8 +112,31 @@ final class SkipNudgeUITests: SingleThreadUITestCase {
             app.staticTexts["nudgeSheetTitle"].waitForExistence(timeout: 3),
             "Tapping the banner should open the nudge sheet")
 
+        let viewInReminders = app.buttons["nudgeViewInRemindersButton"]
         XCTAssertTrue(
-            app.buttons["nudgeViewInRemindersButton"].waitForExistence(timeout: 3),
+            viewInReminders.waitForExistence(timeout: 3),
             "Nudge sheet should offer View in Reminders")
+        viewInReminders.tap()
+
+        // The spy element renders as an `accessibilityElement(children: .ignore)`
+        // (not a staticText), so `statusLabel` reads it via `otherElements` first.
+        let label = statusLabel(app, identifier: "lastOpenedURL")
+        XCTAssertNotNil(label, "The spy URL element should render after opening the deep link")
+        let spyLabel: String = label ?? ""
+        let hasPrefix = spyLabel.hasPrefix("spyURL-x-apple-reminderkit://REMCDReminder/")
+        XCTAssertTrue(
+            hasPrefix,
+            "Expected ReminderKit deep link prefix, got: \(spyLabel)")
+
+        // Only parse the trailing UUID when the prefix matched, so a failed
+        // prefix surfaces as the friendly XCTest message above rather than a
+        // dropFirst() bounds error (XCTest assertions do not abort the test).
+        if hasPrefix {
+            let fullURL = String(spyLabel.dropFirst("spyURL-".count))
+            let uuidPortion = String(fullURL.dropFirst("x-apple-reminderkit://REMCDReminder/".count))
+            XCTAssertEqual(
+                uuidPortion.count, 36,
+                "Expected a 36-char UUID in the deep link, got \(uuidPortion)")
+        }
     }
 }
