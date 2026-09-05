@@ -11,13 +11,25 @@ struct NotificationsSettingsView: View {
     var body: some View {
         Form {
             Toggle(isOn: $notificationsEnabled) {
-                Label("Enable reminder notifications", systemImage: "bell.badge")
+                Label {
+                    VStack(alignment: .leading) {
+                        Text("Enable reminder notifications")
+                        SettingsCaption(text: "Send a notification when you have due reminders.")
+                    }
+                } icon: {
+                    Image(systemName: "bell.badge")
+                }
             }
             .accessibilityIdentifier("notificationsEnabledToggle")
-            Picker("Remind after", selection: $notificationIntervalHours) {
+            Picker(selection: $notificationIntervalHours) {
                 Text("24 hours").tag(24)
                 Text("48 hours").tag(48)
                 Text("72 hours").tag(72)
+            } label: {
+                VStack(alignment: .leading) {
+                    Text("Remind after")
+                    SettingsCaption(text: "How long to wait before sending another reminder.")
+                }
             }
             .pickerStyle(.menu)
             .accessibilityIdentifier("notificationIntervalPicker")

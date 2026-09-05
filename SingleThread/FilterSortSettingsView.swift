@@ -17,14 +17,26 @@ struct FilterSortSettingsView: View {
 
     var body: some View {
         Form {
-            Picker("Sort By", selection: $sortOption) {
+            Picker(selection: $sortOption) {
                 ForEach(SortOption.allCases, id: \.self) { option in
                     Label(option.title, systemImage: option.systemImage)
                         .tag(option)
                 }
+            } label: {
+                VStack(alignment: .leading) {
+                    Text("Sort By")
+                    SettingsCaption(text: "Choose the order reminders appear in.")
+                }
             }
             Toggle(isOn: $showUndatedReminders) {
-                Label("Show undated reminders", systemImage: "calendar.badge.minus")
+                Label {
+                    VStack(alignment: .leading) {
+                        Text("Show undated reminders")
+                        SettingsCaption(text: "Include reminders that have no due date.")
+                    }
+                } icon: {
+                    Image(systemName: "calendar.badge.minus")
+                }
             }
             Section {
                 NavigationLink {
@@ -32,7 +44,14 @@ struct FilterSortSettingsView: View {
                         excludedLists: $excludedLists,
                         availableLists: availableLists)
                 } label: {
-                    Label("Excluded Lists", systemImage: "eye.slash")
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("Excluded Lists")
+                            SettingsCaption(text: "Hide specific lists from the reminder view.")
+                        }
+                    } icon: {
+                        Image(systemName: "eye.slash")
+                    }
                 }
             }
         }
