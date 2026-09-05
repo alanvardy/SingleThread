@@ -482,10 +482,10 @@ Recompute with the guard's own grep before finalizing:
 ### Verification
 
 #### Automated
-- [ ] `make watch-build` green — new `SingleThreadWatchWidget` target compiles and embeds into `SingleThreadWatch.app`
-- [ ] `./scripts/test.sh` deployment-target guard passes with the updated 22 (`8+6+8`) counts
-- [ ] `plutil -lint SingleThread.xcodeproj/project.pbxproj` reports `OK`; `xcodebuild -list -project SingleThread.xcodeproj` lists `SingleThreadWatchWidget`
-- [ ] `make watch-test` still green (existing watch suites — plumbing only, no new assertions)
+- [x] `make watch-build` green — new `SingleThreadWatchWidget` target compiles and embeds into `SingleThreadWatch.app`
+- [x] `./scripts/test.sh` deployment-target guard passes with the updated 22 (`8+6+8`) counts
+- [x] `plutil -lint SingleThread.xcodeproj/project.pbxproj` reports `OK`; `xcodebuild -list -project SingleThread.xcodeproj` lists `SingleThreadWatchWidget`
+- [x] `make watch-test` still green (existing watch suites — plumbing only, no new assertions)
 
 #### Manual
 - [ ] `xcrun simctl get_app_container <booted-watch-UDID> app.alanvardy.SingleThread.watchkitapp app` shows `SingleThreadWatchWidget.appex` inside `PlugIns/`

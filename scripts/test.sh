@@ -109,11 +109,11 @@ cleanup_xctest_runtimes
 # those platforms — so those floors stay 26.5 while all iOS IPHONEOS floors drop):
 #   IPHONEOS_DEPLOYMENT_TARGET (all 8: app, unit + UI tests, widget) = 18.7
 #   MACOSX_DEPLOYMENT_TARGET   (all 6: app, unit + UI tests)         = 26.5
-#   WATCHOS_DEPLOYMENT_TARGET  (all 6: watch app + watch UI tests + watch tests) = 26.5
+#   WATCHOS_DEPLOYMENT_TARGET  (all 8: watch app + watch UI tests + watch tests + watch widget) = 26.5
 #   Package.swift floor literals: .iOS = 18.7, .watchOS = 26.5, .macOS = 26.5
 DEPLOYMENT_TARGET_IOS="${DEPLOYMENT_TARGET_IOS:-18.7}"
 DEPLOYMENT_TARGET_OTHER="${DEPLOYMENT_TARGET_OTHER:-26.5}"
-EXPECTED_TARGET_LITERALS=20    # all *_DEPLOYMENT_TARGET in project.pbxproj (8+6+6)
+EXPECTED_TARGET_LITERALS=22    # all *_DEPLOYMENT_TARGET in project.pbxproj (8+6+8)
 EXPECTED_PACKAGE_LITERALS=3    # .iOS/.watchOS/.macOS in Package.swift
 
 verify_deployment_target() {

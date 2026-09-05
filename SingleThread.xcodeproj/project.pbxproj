@@ -15,6 +15,8 @@
 		518BF49A302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		51AA3F29000000000000000A /* SingleThreadWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51AA3F200000000000000001 /* SingleThreadWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		51AA3F480000000000000000 /* SingleThreadWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 51AA3F410000000000000000 /* SingleThreadWidget.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		51AA3F7A0000000000000009 /* SingleThreadWatchWidget.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = 51AA3F7A0000000000000001 /* SingleThreadWatchWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		51AA3F7A000000000000000A /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -60,6 +62,13 @@
 			remoteGlobalIDString = 51AA3F220000000000000003;
 			remoteInfo = SingleThreadWatch;
 		};
+		51AA3F7A000000000000000B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 51AA3ECE302D5C4500960DFC /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 51AA3F7A0000000000000004;
+			remoteInfo = SingleThreadWatchWidget;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -85,6 +94,17 @@
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AA3F7A0000000000000008 /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				51AA3F7A0000000000000009 /* SingleThreadWatchWidget.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -95,6 +115,7 @@
 		51AA3F410000000000000000 /* SingleThreadWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SingleThreadWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		51AA3F610000000000000002 /* SingleThreadWatchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SingleThreadWatchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		51F0F49900000000000000A1 /* SingleThreadWatchTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SingleThreadWatchTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		51AA3F7A0000000000000001 /* SingleThreadWatchWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SingleThreadWatchWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -104,6 +125,13 @@
 				Info.plist,
 			);
 			target = 51AA3F420000000000000000 /* SingleThreadWidget */;
+		};
+		51AA3F7A0000000000000003 /* Exceptions for "SingleThreadWatchWidget" folder in "SingleThreadWatchWidget" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 51AA3F7A0000000000000004 /* SingleThreadWatchWidget */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -144,6 +172,14 @@
 		51F0F49900000000000000A2 /* SingleThreadWatchTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = SingleThreadWatchTests;
+			sourceTree = "<group>";
+		};
+		51AA3F7A0000000000000002 /* SingleThreadWatchWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				51AA3F7A0000000000000003 /* Exceptions for "SingleThreadWatchWidget" folder in "SingleThreadWatchWidget" target */,
+			);
+			path = SingleThreadWatchWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -204,6 +240,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AA3F7A0000000000000006 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				51AA3F7A000000000000000A /* SingleThreadCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -217,6 +261,7 @@
 				51AA3F620000000000000003 /* SingleThreadWatchUITests */,
 				51F0F49900000000000000A2 /* SingleThreadWatchTests */,
 				51AA3F400000000000000000 /* SingleThreadWidget */,
+				51AA3F7A0000000000000002 /* SingleThreadWatchWidget */,
 				51AA3ED7302D5C4500960DFC /* Products */,
 			);
 			sourceTree = "<group>";
@@ -231,6 +276,7 @@
 				51AA3F610000000000000002 /* SingleThreadWatchUITests.xctest */,
 				51F0F49900000000000000A1 /* SingleThreadWatchTests.xctest */,
 				51AA3F410000000000000000 /* SingleThreadWidget.appex */,
+				51AA3F7A0000000000000001 /* SingleThreadWatchWidget.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -320,10 +366,12 @@
 				51AA3F230000000000000004 /* Sources */,
 				51AA3F240000000000000005 /* Frameworks */,
 				51AA3F250000000000000006 /* Resources */,
+				51AA3F7A0000000000000008 /* Embed App Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				51AA3F7A000000000000000C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				51AA3F210000000000000002 /* SingleThreadWatch */,
@@ -406,6 +454,29 @@
 			productReference = 51F0F49900000000000000A1 /* SingleThreadWatchTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		51AA3F7A0000000000000004 /* SingleThreadWatchWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 51AA3F7A000000000000000D /* Build configuration list for PBXNativeTarget "SingleThreadWatchWidget" */;
+			buildPhases = (
+				51AA3F7A0000000000000005 /* Sources */,
+				51AA3F7A0000000000000006 /* Frameworks */,
+				51AA3F7A0000000000000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				51AA3F7A0000000000000002 /* SingleThreadWatchWidget */,
+			);
+			name = SingleThreadWatchWidget;
+			packageProductDependencies = (
+				51AA3F110000000000000002 /* SingleThreadCore */,
+			);
+			productName = SingleThreadWatchWidget;
+			productReference = 51AA3F7A0000000000000001 /* SingleThreadWatchWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -430,6 +501,9 @@
 						CreatedOnToolsVersion = 26.6;
 					};
 					51AA3F420000000000000000 = {
+						CreatedOnToolsVersion = 26.6;
+					};
+					51AA3F7A0000000000000004 = {
 						CreatedOnToolsVersion = 26.6;
 					};
 					51AA3F600000000000000001 = {
@@ -470,6 +544,7 @@
 				51AA3F600000000000000001 /* SingleThreadWatchUITests */,
 				51F0F49900000000000000A3 /* SingleThreadWatchTests */,
 				51AA3F420000000000000000 /* SingleThreadWidget */,
+				51AA3F7A0000000000000004 /* SingleThreadWatchWidget */,
 			);
 		};
 /* End PBXProject section */
@@ -518,6 +593,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		51F0F49900000000000000A8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		51AA3F7A0000000000000007 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -576,6 +658,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		51AA3F7A0000000000000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -610,6 +699,11 @@
 			isa = PBXTargetDependency;
 			target = 51AA3F220000000000000003 /* SingleThreadWatch */;
 			targetProxy = 51F0F49900000000000000A4 /* PBXContainerItemProxy */;
+		};
+		51AA3F7A000000000000000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 51AA3F7A0000000000000004 /* SingleThreadWatchWidget */;
+			targetProxy = 51AA3F7A000000000000000B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -942,6 +1036,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SingleThreadWatch/AppGroup.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6NWX2DHB9Q;
@@ -970,6 +1065,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = SingleThreadWatch/AppGroup.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 6NWX2DHB9Q;
@@ -1053,6 +1149,70 @@
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 6.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		51AA3F7A000000000000000E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SingleThreadWatchWidget/AppGroup.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6NWX2DHB9Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SingleThreadWatchWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SingleThread;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "SingleThread needs access to show your reminders.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.alanvardy.SingleThread.watchkitapp.watchwidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.5;
+			};
+			name = Debug;
+		};
+		51AA3F7A000000000000000F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SingleThreadWatchWidget/AppGroup.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 6NWX2DHB9Q;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SingleThreadWatchWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = SingleThread;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSRemindersFullAccessUsageDescription = "SingleThread needs access to show your reminders.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = app.alanvardy.SingleThread.watchkitapp.watchwidget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 26.5;
 			};
 			name = Release;
 		};
@@ -1219,6 +1379,15 @@
 			buildConfigurations = (
 				51F0F49900000000000000AA /* Debug */,
 				51F0F49900000000000000AB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		51AA3F7A000000000000000D /* Build configuration list for PBXNativeTarget "SingleThreadWatchWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				51AA3F7A000000000000000E /* Debug */,
+				51AA3F7A000000000000000F /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
