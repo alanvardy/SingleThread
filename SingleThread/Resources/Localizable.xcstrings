@@ -5308,47 +5308,6 @@
           }
         }
       }
-    },
-    "Fetch a new wallpaper now.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fetch a new wallpaper now."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "现在获取一张新壁纸。"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Obtén un nuevo fondo de pantalla ahora."
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "今すぐ新しい壁紙を取得します。"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lade jetzt ein neues Hintergrundbild."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Récupérez un nouveau fond d'écran maintenant."
-          }
-        }
-      }
     }
   },
   "version": "1.0"
