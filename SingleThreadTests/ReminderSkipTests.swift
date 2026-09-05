@@ -234,7 +234,9 @@ struct ReminderSortTests {
         let titled = makeReminder(title: "titled", priority: 1, calendarTitle: "Work")
         let untitled = makeReminder(title: "untitled", priority: 1)
         #expect(titles(of: [untitled, titled]) == ["titled", "untitled"], "titled list before nil list")
-        #expect(titles(of: [titled, untitled]) == ["titled", "untitled"], "nil list sorts last regardless of input order")
+        #expect(
+            titles(of: [titled, untitled]) == ["titled", "untitled"],
+            "nil list sorts last regardless of input order")
     }
 
     @Test
