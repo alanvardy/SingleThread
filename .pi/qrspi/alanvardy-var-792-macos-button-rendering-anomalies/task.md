@@ -1,0 +1,3 @@
+# Task
+
+On macOS, buttons in SingleThread render with translucent squares — the platform-default button chrome (bezel) — around them, while on iPhone and iPad the same views render chrome-less. The goal is to make macOS buttons render identically to iOS/iPadOS: white glyphs on a black circle in dark mode, black on off-white in light mode, with no visible translucent container. The fix should apply the button styling iOS already uses across all macOS-facing buttons so both platforms look the same.
