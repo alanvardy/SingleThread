@@ -40,6 +40,7 @@ final class WatchAppViewModel {
         showListState = ShowListState()
         showCompletionGlowState = ShowCompletionGlowState()
         entitlementState = EntitlementState()
+        showEnableActionButtonsState = ShowEnableActionButtonsState()
 
         // --ui-testing-glow-disabled: pre-disable the state so the disabled-flow
         // watch UI test doesn't need a settings screen. --ui-testing-glow:
@@ -70,6 +71,7 @@ final class WatchAppViewModel {
     let showListState: ShowListState
     let showCompletionGlowState: ShowCompletionGlowState
     let entitlementState: EntitlementState
+    let showEnableActionButtonsState: ShowEnableActionButtonsState
 
     /// True when the `--ui-testing-glow` launch argument is present (watch
     /// completion-glow UI tests). The seam extends the glow duration to 2 s so
@@ -88,7 +90,8 @@ final class WatchAppViewModel {
         showAlarmsState: showAlarmsState,
         showListState: showListState,
         showCompletionGlowState: showCompletionGlowState,
-        entitlementState: entitlementState)
+        entitlementState: entitlementState,
+        showEnableActionButtonsState: showEnableActionButtonsState)
 
     // MARK: Private
 
@@ -250,6 +253,10 @@ final class WatchAppViewModel {
         let entitlementState = entitlementState
         service.onEntitlementReceived = { [weak entitlementState] value in
             Task { @MainActor in entitlementState?.apply(value) }
+        }
+        let showEnableActionButtonsState = showEnableActionButtonsState
+        service.onEnableActionButtonsReceived = { [weak showEnableActionButtonsState] value in
+            Task { @MainActor in showEnableActionButtonsState?.apply(value) }
         }
     }
 

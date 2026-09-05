@@ -22,7 +22,8 @@ struct WatchReminderView: View {
         showAlarmsState: ShowAlarmsState = ShowAlarmsState(),
         showListState: ShowListState = ShowListState(),
         showCompletionGlowState: ShowCompletionGlowState = ShowCompletionGlowState(),
-        entitlementState: EntitlementState = EntitlementState()) {
+        entitlementState: EntitlementState = EntitlementState(),
+        showEnableActionButtonsState: ShowEnableActionButtonsState = ShowEnableActionButtonsState()) {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: loadsReminders,
@@ -37,7 +38,8 @@ struct WatchReminderView: View {
             showAlarmsState: showAlarmsState,
             showListState: showListState,
             showCompletionGlowState: showCompletionGlowState,
-            entitlementState: entitlementState)
+            entitlementState: entitlementState,
+            showEnableActionButtonsState: showEnableActionButtonsState)
     }
 
     // MARK: Internal

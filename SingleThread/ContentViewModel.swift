@@ -62,7 +62,7 @@ final class ContentViewModel {
         /// outside a live view (unit-test seam); inside the app it reads the live
         /// `@AppStorage` value.
         var showsActionButtons: Bool {
-            UserDefaults.standard.bool(forKey: "enableActionButtons")
+            AppGroup.defaults.bool(forKey: "enableActionButtons")
                 && store.visibleReminders.first != nil
         }
     #endif

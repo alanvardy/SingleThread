@@ -101,7 +101,8 @@ struct ShowCompletionGlowStateTests {
             showAlarmsState: ShowAlarmsState(),
             showListState: ShowListState(),
             showCompletionGlowState: ShowCompletionGlowState(),
-            entitlementState: EntitlementState())
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState())
         #expect(!viewModel.isShowingCompletionTransition)
         #expect(viewModel.transitionReminder == nil)
     }
@@ -121,7 +122,8 @@ struct ShowCompletionGlowStateTests {
             showAlarmsState: ShowAlarmsState(),
             showListState: ShowListState(),
             showCompletionGlowState: ShowCompletionGlowState(),
-            entitlementState: EntitlementState())
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState())
         await viewModel.completeCurrentReminder()
         #expect(viewModel.isShowingCompletionTransition)
         #expect(viewModel.transitionReminder != nil)
@@ -145,7 +147,8 @@ struct ShowCompletionGlowStateTests {
             showAlarmsState: ShowAlarmsState(),
             showListState: ShowListState(),
             showCompletionGlowState: glowState,
-            entitlementState: EntitlementState())
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState())
         await viewModel.completeCurrentReminder()
         #expect(!viewModel.isShowingCompletionTransition)
         #expect(viewModel.transitionReminder == nil)
@@ -166,7 +169,8 @@ struct ShowCompletionGlowStateTests {
             showAlarmsState: ShowAlarmsState(),
             showListState: ShowListState(),
             showCompletionGlowState: ShowCompletionGlowState(),
-            entitlementState: EntitlementState())
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState())
         await viewModel.completeCurrentReminder()
         #expect(!viewModel.isShowingCompletionTransition)
         #expect(viewModel.transitionReminder == nil)
@@ -187,7 +191,8 @@ struct ShowCompletionGlowStateTests {
             showAlarmsState: ShowAlarmsState(),
             showListState: ShowListState(),
             showCompletionGlowState: ShowCompletionGlowState(),
-            entitlementState: EntitlementState())
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState())
         await viewModel.completeCurrentReminder()
         #expect(viewModel.isShowingCompletionTransition)
         // Second call while transition is active exits immediately.
@@ -211,7 +216,8 @@ struct ShowCompletionGlowStateTests {
             showAlarmsState: ShowAlarmsState(),
             showListState: ShowListState(),
             showCompletionGlowState: ShowCompletionGlowState(),
-            entitlementState: EntitlementState())
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState())
         viewModel.completionGlow.duration = 0.05
         viewModel.completionTransitionBuffer = 0.01
         await viewModel.completeCurrentReminder()
@@ -240,7 +246,8 @@ struct ShowCompletionGlowStateTests {
             showAlarmsState: ShowAlarmsState(),
             showListState: ShowListState(),
             showCompletionGlowState: ShowCompletionGlowState(),
-            entitlementState: EntitlementState())
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState())
         viewModel.completionGlow.duration = 0.05
         viewModel.completionTransitionBuffer = 0.01
         await viewModel.completeCurrentReminder()
@@ -271,6 +278,7 @@ struct ShowCompletionGlowStateTests {
             showAlarmsState: ShowAlarmsState(),
             showListState: ShowListState(),
             showCompletionGlowState: glowState,
-            entitlementState: EntitlementState())
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState())
     }
 }
