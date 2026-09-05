@@ -406,16 +406,16 @@ None — verification only.
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` passes — full CI-identical gate:
-  - [ ] `swiftformat --lint` + `swiftlint lint --strict` clean
-  - [ ] iOS build-for-testing succeeds
-  - [ ] watch build succeeds
-  - [ ] `periphery scan --strict` clean (no new dead code:`isProcessing` is read in `ContentView.swift` and` ReminderDictationTests.swift`)
-  - [ ] iOS unit tests pass (62 suites)
-  - [ ] iOS UI tests pass
-  - [ ] watch unit tests pass
-  - [ ] watch UI tests pass
-  - [ ] macOS unit tests pass
+- [x] `./scripts/test.sh` passes — full CI-identical gate:
+  - [x] `swiftformat --lint` + `swiftlint lint --strict` clean
+  - [x] iOS build-for-testing succeeds
+  - [x] watch build succeeds
+  - [x] `periphery scan --strict` clean (no new dead code:`isProcessing` is read in `ContentView.swift` and` ReminderDictationTests.swift`)
+  - [x] iOS unit tests pass (62 suites)
+  - [x] iOS UI tests pass
+  - [x] watch unit tests pass
+  - [x] watch UI tests pass
+  - [x] macOS unit tests pass
 
 #### Manual
 - [ ] Build and run on iPhone 17 simulator: tap mic, speak, verify:
