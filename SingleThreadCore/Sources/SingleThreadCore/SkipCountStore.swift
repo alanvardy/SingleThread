@@ -23,12 +23,15 @@ public nonisolated enum SkipCountLogic {
 public struct SkipCountStore {
     // MARK: Lifecycle
 
-    public init(defaults: UserDefaults = AppGroup.defaults, key: String = "skipCounts") {
+    public init(defaults: UserDefaults = AppGroup.defaults, key: String = defaultsKey) {
         self.defaults = defaults
         self.key = key
     }
 
     // MARK: Public
+
+    /// Single shared key used by the store and sync payload.
+    public static let defaultsKey = "skipCounts"
 
     public func load() -> [String: Int] {
         defaults.dictionary(forKey: key) as? [String: Int] ?? [:]

@@ -19,7 +19,7 @@ public struct PendingCompletionStore {
 
     public init(
         defaults: UserDefaults = AppGroup.defaults,
-        key: String = "pendingCompletionIdentifiers",
+        key: String = defaultsKey,
         expiry: TimeInterval = 300,
         now: @escaping () -> TimeInterval = { Date().timeIntervalSince1970 }) {
         self.defaults = defaults
@@ -29,6 +29,9 @@ public struct PendingCompletionStore {
     }
 
     // MARK: Public
+
+    /// Single shared key used by the store and sync payload.
+    public static let defaultsKey = "pendingCompletionIdentifiers"
 
     /// Returns only the identifiers that have not exceeded ``expiry``.
     public func load() -> Set<String> {

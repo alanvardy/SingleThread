@@ -8,12 +8,15 @@ import Foundation
 public struct ShowAlarmsPreference {
     // MARK: Lifecycle
 
-    public init(defaults: UserDefaults = AppGroup.defaults, key: String = "showAlarms") {
+    public init(defaults: UserDefaults = AppGroup.defaults, key: String = defaultsKey) {
         self.defaults = defaults
         self.key = key
     }
 
     // MARK: Public
+
+    /// Single shared key used by the store, `@AppStorage`, and sync payload.
+    public static let defaultsKey = "showAlarms"
 
     /// Whether alarm indicators are shown. `nil` (missing key) → `true`.
     public var isEnabled: Bool {

@@ -283,7 +283,7 @@ final class AppViewModel {
             // XCTest seam on a test-only destination.
             if arguments.contains("--ui-testing") {
                 if arguments.contains("--reset-glow-preference") {
-                    UserDefaults.standard.removeObject(forKey: "showCompletionGlow")
+                    UserDefaults.standard.removeObject(forKey: ShowCompletionGlowPreference.defaultsKey)
                 }
                 if arguments.contains("--reset-swipe-preference") {
                     UserDefaults.standard.removeObject(forKey: "showSwipePrompt")
@@ -339,11 +339,11 @@ final class AppViewModel {
         // writes (count+1 / max(0, count-1) / 0 — see CompletionCounterStore),
         // the seed value is intentionally unclamped: gating scenarios seed 99
         // (near-cap) and 100 (gated), both values production never produces.
-        AppGroup.defaults.set(seed.completionCount, forKey: "completionCount")
+        AppGroup.defaults.set(seed.completionCount, forKey: CompletionCounterStore.defaultsKey)
         // Preload the skip counts so a seeded test reaches the 6th-skip nudge
         // with one tap (seed `skipCounts` at 5). The store's `SkipCountStore`
         // reads `AppGroup.defaults`, falling back to `.standard` on watchOS.
-        AppGroup.defaults.set(seed.skipCountsByIdentifier, forKey: "skipCounts")
+        AppGroup.defaults.set(seed.skipCountsByIdentifier, forKey: SkipCountStore.defaultsKey)
         // Mirror the `--ui-testing` seam: enable the action-buttons toggle so
         // the Complete/Skip/Mic cluster (not just the mic) renders over a
         // visible reminder in seeded UI tests.
@@ -366,7 +366,7 @@ final class AppViewModel {
             hasHidden: seed.hasHidden,
             completionCounter: CompletionCounterStore(
                 defaults: AppGroup.defaults,
-                key: "completionCount"),
+                key: CompletionCounterStore.defaultsKey),
             entitlementStore: entitlementStore)
         if !seed.excludedListTitles.isEmpty {
             store.setExcludedListTitles(seed.excludedListTitles)

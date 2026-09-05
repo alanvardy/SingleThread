@@ -8,12 +8,15 @@ public struct ShowUndatedRemindersPreference {
 
     public init(
         defaults: UserDefaults = AppGroup.defaults,
-        key: String = "showUndatedReminders") {
+        key: String = defaultsKey) {
         self.defaults = defaults
         self.key = key
     }
 
     // MARK: Public
+
+    /// Single shared key used by the store, `@AppStorage`, and sync payload.
+    public static let defaultsKey = "showUndatedReminders"
 
     public func load() -> Bool {
         defaults.object(forKey: key) as? Bool ?? false

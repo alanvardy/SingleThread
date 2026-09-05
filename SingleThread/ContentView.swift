@@ -112,24 +112,24 @@ struct ContentView: View {
         @AppStorage(AppViewModel.NotificationKeys.intervalHours)
         var notificationIntervalHours = 48
     #endif
-    @AppStorage("showUndatedReminders", store: AppGroup.defaults)
+    @AppStorage(ShowUndatedRemindersPreference.defaultsKey, store: AppGroup.defaults)
     var showUndatedReminders = false
 
     @AppStorage(SortOption.defaultsKey, store: AppGroup.defaults)
     var sortOption = SortOption.priority
 
-    @AppStorage("showDate", store: AppGroup.defaults)
+    @AppStorage(ShowDatePreference.defaultsKey, store: AppGroup.defaults)
     var showDate = true
 
-    @AppStorage("showList", store: AppGroup.defaults)
+    @AppStorage(ShowListPreference.defaultsKey, store: AppGroup.defaults)
     var showList = false
 
-    @AppStorage("showRecurrence", store: AppGroup.defaults)
+    @AppStorage(ShowRecurrencePreference.defaultsKey, store: AppGroup.defaults)
     var showRecurrence = true
-    @AppStorage("showAlarms", store: AppGroup.defaults)
+    @AppStorage(ShowAlarmsPreference.defaultsKey, store: AppGroup.defaults)
     var showAlarms = true
 
-    @AppStorage("showCompletionGlow", store: AppGroup.defaults)
+    @AppStorage(ShowCompletionGlowPreference.defaultsKey, store: AppGroup.defaults)
     var showCompletionGlow = true
 
     /// Drives the skip-nudge sheet (iOS only), shown when the user taps the
