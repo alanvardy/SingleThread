@@ -219,15 +219,17 @@ Apply the cap in `body`, **inside** the card and before `.cardPlate` (mirrors `E
 
 > **Red-first requirement** (design's open risk on the exact iPad trigger): before writing the fix in steps 1–4, run only this one test against a clean `origin/main` checkout on iPad and confirm it **fails**. Then apply steps 1–4 and confirm it passes.
 
+> **Mismatch (Phase 2, adjudicated)**: the red-first premise is falsified on the current codebase. Origin `main` commit `0e3b49e` ("Review: nudge banner hugs the reminder card") already removed the banner label's `.frame(maxWidth: .infinity)`, so the nudged banner hugs today. Measured on iPad (A16) iOS 26.5: window=820pt, banner=148pt, long-title card=616pt — the pre-added iPad test passes pre-fix. The genuinely-stretching states are long-title (616pt) and the swipe prompt (`.frame(maxWidth: .infinity)` at `ReminderCardView.swift:206`). Steps 1–4 fix those; the pre-added test remains a valid post-fix regression guard. Option to strengthen the test toward the swipe-prompt state is surfaced in review.
+
 ### Verification
 
 #### Automated
-- [ ] Red-first: on `origin/main`, `SIM='platform=iOS Simulator,name=iPad (A16)'` — `testNudgedCardDoesNotSpanRowOnIPad` **fails**
-- [ ] After fix: `SIM='platform=iOS Simulator,name=iPad (A16),OS=<ver>'` — `testNudgedCardDoesNotSpanRowOnIPad` **passes** (pin `,OS=`/`,id=` — bare `name=` hangs, per conventions)
-- [ ] `make build` passes
-- [ ] `SIM='platform=iOS Simulator,name=iPhone 17'` — existing `SkipNudgeUITests`, `ActionMenuUITests`, and `SingleThreadUITestsFlows` swipe-prompt flows stay green (the new test also passes on iPhone — the banner already hugged there)
-- [ ] `make test` green — the existing `String(describing:)` card snapshots (`ShowDateTests`, `ShowAlarmsTests`, `ShowRecurrenceTests`, `SwipePromptTests`) stay green: they assert substrings (`"Groceries"`, `"FormatStyleStorage"`, `"CardPlateModifier"`, `"style: orange"`, `"BorderedProminentButtonStyle"`), none of which a `.frame`/`.fixedSize` wrapper or the removed prompt frame removes
-- [ ] `make periphery` clean (no orphaned code after the `prompt` frame deletion)
+- [ ] Red-first: NOT REPRODUCIBLE — see mismatch note above. Ran `testNudgedCardDoesNotSpanRowOnIPad` on pre-fix `origin/main`-equivalent code on iPad — it **passed** (banner already hugs); premise resolved in the negative, so this item is deliberately left unchecked.
+- [x] After fix: `SIM='platform=iOS Simulator,id=6D3FB9C8-DAA9-457C-B7B6-D6F710F9C96D'` — `testNudgedCardDoesNotSpanRowOnIPad` **passes** (pinned to iOS 26.5 UDID; bare `name=` hangs, per conventions)
+- [x] `make build` passes
+- [x] `SIM='platform=iOS Simulator,id=D7AC0D41-275E-47C5-B603-BC7FA08D1BB4'` — existing `SkipNudgeUITests`, `ActionMenuUITests`, and `SingleThreadUITestsFlows` swipe-prompt flows stay green (the new test also passes on iPhone — the banner already hugged there)
+- [x] `make test` green — the existing `String(describing:)` card snapshots (`ShowDateTests`, `ShowAlarmsTests`, `ShowRecurrenceTests`, `SwipePromptTests`) stay green: they assert substrings (`"Groceries"`, `"FormatStyleStorage"`, `"CardPlateModifier"`, `"style: orange"`, `"BorderedProminentButtonStyle"`), none of which a `.frame`/`.fixedSize` wrapper or the removed prompt frame removes
+- [x] `make periphery` clean (no orphaned code after the `prompt` frame deletion)
 
 #### Manual
 - [ ] On iPad sim: card hugs content in all four states (plain / nudge banner / swipe prompt / long title) — never edge-to-edge; on iPhone the card looks unchanged except long titles wrap at the cap (~340 wouldn't matter on narrow iPhone — effectively no visual change)

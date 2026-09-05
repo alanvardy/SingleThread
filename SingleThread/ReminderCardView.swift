@@ -18,7 +18,8 @@ struct ReminderCardView: View {
         showAlarms: Bool = true,
         showSwipePrompt: Binding<Bool> = .constant(false),
         showNudge: Bool = false,
-        onNudgeTap: @escaping () -> Void = {}) {
+        onNudgeTap: @escaping () -> Void = {},
+        maxWidth: CGFloat = 340) {
         self.display = display
         self.showDate = showDate
         self.showList = showList
@@ -27,6 +28,7 @@ struct ReminderCardView: View {
         _showSwipePrompt = showSwipePrompt
         self.showNudge = showNudge
         self.onNudgeTap = onNudgeTap
+        self.maxWidth = maxWidth
     }
 
     // MARK: Internal
@@ -41,6 +43,7 @@ struct ReminderCardView: View {
                 prompt
             }
         }
+        .frame(maxWidth: maxWidth, alignment: .leading)
         .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 12, restoresGeometry: true)
     }
 
@@ -68,6 +71,10 @@ struct ReminderCardView: View {
 
     /// True when the alarm indicator row is shown.
     private let showAlarms: Bool
+
+    /// Caps the card's width so long titles wrap and the nudge banner/styled
+    /// buttons stop expanding under the row's `.center` proposal on iPad.
+    private let maxWidth: CGFloat
 
     /// The card's reminder content, combined into a single accessible element so
     /// VoiceOver reads the whole card as one unit. The swipe-instruction prompt
@@ -152,6 +159,7 @@ struct ReminderCardView: View {
         }
         .buttonStyle(.borderedProminent)
         .tint(.white)
+        .fixedSize(horizontal: true, vertical: false)
         .padding(.vertical, 8)
         .contentShape(Rectangle())
         .accessibilityLabel("Skipped 6 times — tap to manage")
@@ -203,7 +211,6 @@ struct ReminderCardView: View {
             .accessibilityLabel("Dismiss swipe prompt")
             .accessibilityIdentifier("swipePromptDismissButton")
         }
-        .frame(maxWidth: .infinity)
         .cardPlate(fill: CardPlate.promptBoxFill)
     }
 

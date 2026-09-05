@@ -424,7 +424,8 @@ struct ContentView: View {
                                 // never fires on macOS, so `isNudged` is always
                                 // false there.
                                 showNudge: viewModel.isNudged(reminder.calendarItemIdentifier),
-                                onNudgeTap: openNudgeSheet)
+                                onNudgeTap: openNudgeSheet,
+                                maxWidth: CardWidth.maxContentWidth(viewportWidth: geometry.size.width))
                                 .listRowBackground(viewModel.rowChromeBackground)
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 12)
