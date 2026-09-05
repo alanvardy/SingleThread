@@ -168,7 +168,14 @@ final class ContentViewModel {
     /// the URL construction unit-testable. No-op when the reminder has no
     /// identifier.
     func openInReminders(_ reminder: EKReminder) {
-        guard let url = ReminderDeepLink.url(forReminderIdentifier: reminder.calendarItemIdentifier)
+        openInReminders(identifier: reminder.calendarItemIdentifier)
+    }
+
+    /// Identifier-based deep link, shared with the skip-nudge sheet (which
+    /// holds only the nudged identifier, not an `EKReminder`). No-op for an
+    /// empty identifier.
+    func openInReminders(identifier: String) {
+        guard let url = ReminderDeepLink.url(forReminderIdentifier: identifier)
         else { return }
         urlOpener.open(url)
     }

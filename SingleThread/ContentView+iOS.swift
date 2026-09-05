@@ -123,12 +123,16 @@ import SwiftUI
         }
 
         /// Opens the nudged reminder in the system Reminders app via its deep link.
+        /// Routes through the view model so the `--url-opener-spy` UI-test seam
+        /// records and replays the URL (same pattern as the context-menu deep
+        /// link), instead of calling `openURL` directly in the view.
         private var nudgeViewInRemindersButton: some View {
             Button {
-                let identifier = viewModel.nudgeIdentifier
-                if let identifier,
-                   let url = ReminderDeepLink.url(forReminderIdentifier: identifier) {
-                    openURL(url)
+                if let identifier = viewModel.nudgeIdentifier {
+                    viewModel.openInReminders(identifier: identifier)
+                    if isURLSpyUITesting {
+                        lastOpenedURL = viewModel.lastOpenedURLForUITesting
+                    }
                 }
                 isShowingNudgeSheet = false
             } label: {
