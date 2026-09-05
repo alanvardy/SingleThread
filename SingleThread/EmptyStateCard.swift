@@ -40,7 +40,7 @@ struct EmptyStateCard: View {
     /// plate always hugs its text. Relative so the card stays proportionate on
     /// iPads, with an absolute ceiling so it never balloons on very wide screens.
     static func maxContentWidth(viewportWidth: CGFloat) -> CGFloat {
-        min(340, viewportWidth * 0.6)
+        CardWidth.maxContentWidth(viewportWidth: viewportWidth)
     }
 
     // MARK: Private

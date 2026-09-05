@@ -79,10 +79,10 @@ Note: `CardWidth` is `internal`, so access is via `@testable import SingleThread
 ### Verification
 
 #### Automated
-- [ ] `make format` passes (no renames — the new unit-test names don't start with `test`/`testing`)
-- [ ] `make lint` passes (`swiftformat --lint` + `swiftlint lint --strict`)
-- [ ] `make test` green — `CardWidthTests` passes on iOS (`-only-testing:SingleThreadTests`)
-- [ ] `make periphery` clean (helper is consumed by `EmptyStateCard` immediately — no dead extraction)
+- [x] `make format` passes (no renames — the new unit-test names don't start with `test`/`testing`)
+- [x] `make lint` passes (`swiftformat --lint` + `swiftlint lint --strict`)
+- [x] `make test` green — `CardWidthTests` passes on iOS (`-only-testing:SingleThreadTests`)
+- [x] `make periphery` clean (helper is consumed by `EmptyStateCard` immediately — no dead extraction)
 
 #### Manual
 - [ ] `EmptyStateCard` still renders identical empty/all-done cards (behavior-preserving refactor)
