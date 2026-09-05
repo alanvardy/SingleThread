@@ -4,6 +4,12 @@
     import Testing
     import WatchConnectivity
 
+    // Converting the sync-service tests to `BoolPreferenceStore` pushed this
+    // file a few lines past the 650-line `file_length` warning: the store
+    // constructions (key + fallback) are inherently longer than the former
+    // `Show*Preference` defaults, and every one of the 11 call sites stayed put.
+    // swiftlint:disable file_length
+
     // MARK: - Fake session for testing
 
     final class FakeSession: SkipSyncSession {
@@ -81,11 +87,13 @@
             skipStore.save(["X"])
             let excludeStore = ExcludedListStore(defaults: .standard, key: "test-all-excl-\(suffix)")
             excludeStore.save(["Work"])
-            let showUndatedStore = ShowUndatedRemindersPreference(defaults: .standard, key: "test-all-und-\(suffix)")
-            showUndatedStore.save(true)
+            let showUndatedStore = BoolPreferenceStore(
+                defaults: .standard, key: "test-all-und-\(suffix)", fallback: false)
+            showUndatedStore.set(true)
             let sortStore = SortOptionStore(defaults: .standard, key: "test-all-sort-\(suffix)")
             sortStore.save(.dueDate)
-            let showDateStore = ShowDatePreference(defaults: .standard, key: "test-all-date-\(suffix)")
+            let showDateStore = BoolPreferenceStore(
+                defaults: .standard, key: "test-all-date-\(suffix)", fallback: true)
             showDateStore.set(false)
             let service = SkippedReminderSyncService(
                 session: fake,
@@ -129,8 +137,8 @@
         func receiveContextPersistsShowUndatedAndFiresHook() {
             let fake = FakeSession()
             let suffix = UUID().uuidString
-            let showUndatedStore = ShowUndatedRemindersPreference(
-                defaults: .standard, key: "test-und-persist-\(suffix)")
+            let showUndatedStore = BoolPreferenceStore(
+                defaults: .standard, key: "test-und-persist-\(suffix)", fallback: false)
             let service = SkippedReminderSyncService(
                 session: fake,
                 skipStore: SkippedReminderStore(defaults: .standard, key: "test-und-persist-ids-\(suffix)"),
@@ -138,7 +146,7 @@
             var received: [Bool] = []
             service.onShowUndatedRemindersReceived = { received.append($0) }
             service.session(WCSession.default, didReceiveApplicationContext: ["showUndatedReminders": true])
-            #expect(showUndatedStore.load()) // persisted (was hook-only before this phase)
+            #expect(showUndatedStore.isEnabled) // persisted (was hook-only before this phase)
             #expect(received == [true]) // still notified
         }
 
@@ -151,10 +159,10 @@
             let service = SkippedReminderSyncService(
                 session: fake,
                 skipStore: SkippedReminderStore(defaults: .standard, key: key + "-ids"),
-                showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard, key: key))
+                showUndatedStore: BoolPreferenceStore(defaults: .standard, key: key, fallback: false))
             service.session(WCSession.default, didReceiveApplicationContext: ["showUndatedReminders": true])
-            let freshStore = ShowUndatedRemindersPreference(defaults: .standard, key: key)
-            #expect(freshStore.load())
+            let freshStore = BoolPreferenceStore(defaults: .standard, key: key, fallback: false)
+            #expect(freshStore.isEnabled)
         }
 
         @Test
@@ -432,7 +440,8 @@
         @Test
         func receiveContextWritesShowDate() {
             let fake = FakeSession()
-            let showDateStore = ShowDatePreference(defaults: .standard, key: "test-sync-showdate-receive")
+            let showDateStore = BoolPreferenceStore(
+                defaults: .standard, key: "test-sync-showdate-receive", fallback: true)
             showDateStore.set(true)
             let service = SkippedReminderSyncService(
                 session: fake,
@@ -450,7 +459,8 @@
         @Test
         func receiveContextMissingShowDateLeavesLocalUnchanged() {
             let fake = FakeSession()
-            let showDateStore = ShowDatePreference(defaults: .standard, key: "test-sync-showdate-missing")
+            let showDateStore = BoolPreferenceStore(
+                defaults: .standard, key: "test-sync-showdate-missing", fallback: true)
             showDateStore.set(true)
             let service = SkippedReminderSyncService(
                 session: fake,
@@ -469,7 +479,8 @@
         func receiveContextFiresOnShowDateHandlerAndPersists() {
             let fake = FakeSession()
             let suffix = UUID().uuidString
-            let showDateStore = ShowDatePreference(defaults: .standard, key: "test-date-hook-\(suffix)")
+            let showDateStore = BoolPreferenceStore(
+                defaults: .standard, key: "test-date-hook-\(suffix)", fallback: true)
             showDateStore.set(true)
             let service = SkippedReminderSyncService(
                 session: fake,
@@ -488,7 +499,8 @@
             let service = SkippedReminderSyncService(
                 session: fake,
                 skipStore: SkippedReminderStore(defaults: .standard, key: "test-sync-showdate-false"),
-                showDateStore: ShowDatePreference(defaults: .standard, key: "test-sync-showdate-false-pref"),
+                showDateStore: BoolPreferenceStore(
+                    defaults: .standard, key: "test-sync-showdate-false-pref", fallback: true),
                 sendsShowDate: false)
             service.pushAll()
             let context = try #require(fake.lastContext)
@@ -506,7 +518,7 @@
         func pushAllIncludesShowCompletionGlowWhenEnabled() throws {
             let fake = FakeSession()
             let suffix = UUID().uuidString
-            let glowStore = ShowCompletionGlowPreference(defaults: .standard, key: "test-glow-push-\(suffix)")
+            let glowStore = BoolPreferenceStore(defaults: .standard, key: "test-glow-push-\(suffix)", fallback: true)
             glowStore.set(true)
             let service = SkippedReminderSyncService(
                 session: fake,
@@ -525,9 +537,8 @@
             let service = SkippedReminderSyncService(
                 session: fake,
                 skipStore: SkippedReminderStore(defaults: .standard, key: "test-glow-omit-ids-\(suffix)"),
-                showCompletionGlowStore: ShowCompletionGlowPreference(
-                    defaults: .standard,
-                    key: "test-glow-omit-\(suffix)"),
+                showCompletionGlowStore: BoolPreferenceStore(
+                    defaults: .standard, key: "test-glow-omit-\(suffix)", fallback: true),
                 sendsShowCompletionGlow: false)
             service.pushAll()
             let context = try #require(fake.lastContext)
@@ -538,7 +549,7 @@
         func receiveShowCompletionGlowApplies() {
             let fake = FakeSession()
             let suffix = UUID().uuidString
-            let glowStore = ShowCompletionGlowPreference(defaults: .standard, key: "test-glow-recv-\(suffix)")
+            let glowStore = BoolPreferenceStore(defaults: .standard, key: "test-glow-recv-\(suffix)", fallback: true)
             glowStore.set(true)
             let service = SkippedReminderSyncService(
                 session: fake,
@@ -555,9 +566,8 @@
             let service = SkippedReminderSyncService(
                 session: fake,
                 skipStore: SkippedReminderStore(defaults: .standard, key: "test-glow-hook-ids-\(suffix)"),
-                showCompletionGlowStore: ShowCompletionGlowPreference(
-                    defaults: .standard,
-                    key: "test-glow-hook-\(suffix)"))
+                showCompletionGlowStore: BoolPreferenceStore(
+                    defaults: .standard, key: "test-glow-hook-\(suffix)", fallback: true))
             var received: [Bool] = []
             service.onShowCompletionGlowReceived = { received.append($0) }
             service.session(WCSession.default, didReceiveApplicationContext: ["showCompletionGlow": false])

@@ -572,8 +572,8 @@ pref.set(false)
 ### 3e. Format + lint
 
 Run:
-- [ ] `make format` (SwiftFormat + SwiftLint --fix)
-- [ ] `make lint` (SwiftFormat --lint + SwiftLint lint --strict)
+- [x] `make format` (SwiftFormat + SwiftLint --fix)
+- [x] `make lint` (SwiftFormat --lint + SwiftLint lint --strict)
 
 Watch for:
 - `function_body_length` on `SkippedReminderSyncService.init` — replacing six concrete params with six generic params shouldn't change line count significantly, but the init is near the limit (suppressed `:298-300`).
@@ -582,8 +582,8 @@ Watch for:
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` — full CI gate: format, lint, build, Periphery, unit tests (iOS + watchOS), UI tests (iOS + watchOS). All green.
-- [ ] Periphery specifically confirms no dead code from removed files (no lingering `ShowDatePreference` references).
+- [x] `./scripts/test.sh` — full CI gate: format, lint, build, Periphery, unit tests (iOS + watchOS), UI tests (iOS + watchOS). All green.
+- [x] Periphery specifically confirms no dead code from removed files (no lingering `ShowDatePreference` references).
 
 #### Manual
 - [ ] Run app once with `--seed` launch arg to confirm seeded prefs round-trip

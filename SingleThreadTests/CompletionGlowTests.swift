@@ -87,8 +87,8 @@ struct CompletionGlowViewModelTests {
         let eventStore = EKEventStore()
         let reminder = EKReminder(eventStore: eventStore)
         reminder.title = "Buy groceries"
-        let disabled = ShowCompletionGlowPreference(
-            defaults: .standard, key: "glow-disabled-\(UUID().uuidString)")
+        let disabled = BoolPreferenceStore(
+            defaults: .standard, key: "glow-disabled-\(UUID().uuidString)", fallback: true)
         disabled.set(false)
         let viewModel = makeViewModel(reminders: [reminder], showCompletionGlow: disabled)
         await viewModel.completeCurrentReminder()
@@ -100,8 +100,7 @@ struct CompletionGlowViewModelTests {
         let eventStore = EKEventStore()
         let reminder = EKReminder(eventStore: eventStore)
         reminder.title = "Buy groceries"
-        let enabled = ShowCompletionGlowPreference(
-            defaults: .standard, key: "glow-enabled-\(UUID().uuidString)")
+        let enabled = BoolPreferenceStore(defaults: .standard, key: "glow-enabled-\(UUID().uuidString)", fallback: true)
         enabled.set(true)
         let viewModel = makeViewModel(reminders: [reminder], showCompletionGlow: enabled)
         await viewModel.completeCurrentReminder()
@@ -113,7 +112,9 @@ struct CompletionGlowViewModelTests {
     private func makeViewModel(
         reminders: [EKReminder],
         skippedIDs: Set<String> = [],
-        showCompletionGlow: ShowCompletionGlowPreference = ShowCompletionGlowPreference()) -> ContentViewModel {
+        showCompletionGlow: BoolPreferenceStore = BoolPreferenceStore(
+            key: BoolPreferenceKey.showCompletionGlow.rawValue,
+            fallback: true)) -> ContentViewModel {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
