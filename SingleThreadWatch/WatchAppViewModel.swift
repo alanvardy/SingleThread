@@ -222,6 +222,9 @@ final class WatchAppViewModel {
         // push hook is wired here. The receive path above applies incoming exclusions.
         store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
         store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
+        store.onRescheduleReminder = { identifier, components in
+            service.requestRescheduleReminder(identifier: identifier, dueDateComponents: components)
+        }
         scheduleUITestLiveExcludedDelivery(service: service, arguments: arguments)
     }
 

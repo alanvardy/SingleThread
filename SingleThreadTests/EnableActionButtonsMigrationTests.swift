@@ -1,5 +1,5 @@
-@testable import SingleThread
 import Foundation
+@testable import SingleThread
 import SingleThreadCore
 import Testing
 
