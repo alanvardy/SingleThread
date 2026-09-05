@@ -139,4 +139,32 @@ final class SkipNudgeUITests: SingleThreadUITestCase {
                 "Expected a 36-char UUID in the deep link, got \(uuidPortion)")
         }
     }
+
+    // MARK: - iPad layout
+
+    /// On iPad the nudged card must hug its content instead of stretching the
+    /// borderedProminent banner edge-to-edge across the padded row. Red on
+    /// `origin/main` (banner fills ~rowWidth − 80); green once the card is
+    /// width-capped.
+    @MainActor
+    func testNudgedCardDoesNotSpanRowOnIPad() {
+        let app = launchSeeded(Self.seed)
+
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+        app.staticTexts["Buy groceries"].swipeLeft()
+        let skip = app.buttons["Skip"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 3))
+        skip.tap()
+
+        let banner = app.buttons["skipNudgeBanner"]
+        XCTAssertTrue(banner.waitForExistence(timeout: 3))
+
+        let rowWidth = app.windows.firstMatch.frame.width
+        // Strictly less-than is deliberate: before the fix the banner equals
+        // the padded row width on iPad, so `<=` would falsely pass.
+        XCTAssertLessThan(
+            banner.frame.width,
+            rowWidth - 80,
+            "Nudged card should hug its content, not span the full row width")
+    }
 }
