@@ -1098,11 +1098,11 @@ ContentViewModel. Let me not go deeper — the existing .task/.onChange behavior
 is preserved by the PreferenceHolder, just the observation source changes.
 
 ### Verification
-- [ ] `make test` green — ActionButtonTests updated for new injection path
-- [ ] `make lint` green
-- [ ] `make build` + `make watch-build` + `make mac-build` green
-- [ ] Widget read path — widget timeline entry still reflects correct showUndatedReminders value
-- [ ] `ReminderStoreTests` — showsUndatedReminders didSet still fires reload hook without double-fire
+- [x] `make test` green — ActionButtonTests updated for new injection path
+- [x] `make lint` green
+- [x] `make build` + `make watch-build` + `make mac-build` green
+- [x] Widget read path — widget timeline entry still reflects correct showUndatedReminders value
+- [x] `ReminderStoreTests` — showsUndatedReminders didSet still fires reload hook without double-fire
 - [ ] Full gate: `./scripts/test.sh` — all targets, all suites, Periphery
 
 ---

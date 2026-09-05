@@ -23,31 +23,21 @@ import Testing
 
         @Test
         func buttonsShowWhenToggleOnAndReminderVisible() {
-            let key = "enableActionButtons"
-            UserDefaults.standard.set(true, forKey: key)
-            defer { UserDefaults.standard.removeObject(forKey: key) }
-
             let viewModel = makeViewModel(store: storeWithReminder())
+            viewModel.enableActionButtons = true
             #expect(viewModel.showsActionButtons)
         }
 
         @Test
         func buttonsHiddenWhenToggleOff() {
-            let key = "enableActionButtons"
-            UserDefaults.standard.set(false, forKey: key)
-            defer { UserDefaults.standard.removeObject(forKey: key) }
-
             let viewModel = makeViewModel(store: storeWithReminder())
+            viewModel.enableActionButtons = false
             #expect(!viewModel.showsActionButtons)
         }
 
         @Test
         func buttonsHiddenWhenNoVisibleReminder() {
             // Toggle on, but an empty store -> no visible reminder -> plain mic.
-            let key = "enableActionButtons"
-            UserDefaults.standard.set(true, forKey: key)
-            defer { UserDefaults.standard.removeObject(forKey: key) }
-
             let store = ReminderStore(
                 eventStore: InMemoryEventStore(),
                 loadsReminders: false,
@@ -55,16 +45,13 @@ import Testing
                 skippedIDs: [],
                 authorizationStatus: .fullAccess)
             let viewModel = makeViewModel(store: store)
+            viewModel.enableActionButtons = true
             #expect(!viewModel.showsActionButtons)
         }
 
         @Test
         func buttonsHiddenWhenAllSkipped() {
             // Toggle on, but every reminder skipped -> visibleReminders empty.
-            let key = "enableActionButtons"
-            UserDefaults.standard.set(true, forKey: key)
-            defer { UserDefaults.standard.removeObject(forKey: key) }
-
             // Construction only — never saved through EventKit.
             let eventStore = EKEventStore()
             let reminder = EKReminder(eventStore: eventStore)
@@ -76,6 +63,7 @@ import Testing
                 skippedIDs: [reminder.calendarItemIdentifier],
                 authorizationStatus: .fullAccess)
             let viewModel = makeViewModel(store: store)
+            viewModel.enableActionButtons = true
             #expect(!viewModel.showsActionButtons)
         }
 

@@ -222,11 +222,19 @@ struct ContentView: View {
         }
         .task {
             await viewModel.backgroundImage.setPinned(backgroundPinned)
+            #if os(iOS)
+                viewModel.enableActionButtons = enableActionButtons
+            #endif
             await viewModel.task(showUndatedReminders: preferences.showUndatedReminders)
         }
         .onChange(of: backgroundPinned) { _, newValue in
             setBackgroundPinned(newValue)
         }
+        #if os(iOS)
+        .onChange(of: enableActionButtons) { _, newValue in
+            viewModel.enableActionButtons = newValue
+        }
+        #endif
         .onChange(of: preferences.showUndatedReminders) { _, newValue in
             viewModel.handleShowUndatedReminders(newValue)
         }

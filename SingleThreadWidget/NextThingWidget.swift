@@ -61,7 +61,7 @@ struct NextThingProvider: TimelineProvider {
         switch EKEventStore.authorizationStatus(for: .reminder) {
         case .fullAccess:
             let store = ReminderStore(loadsReminders: true)
-            store.showsUndatedReminders = AppGroup.defaults.bool(forKey: "showUndatedReminders")
+            store.showsUndatedReminders = ShowUndatedRemindersPreference().isEnabled
             store.setSortOption(SortOptionStore().load())
             await store.reload()
             return NextThingEntry(
