@@ -197,6 +197,23 @@ struct ContentView: View {
             .padding(.top, 8)
             .padding(.trailing, 12)
         }
+        #if os(macOS)
+        .overlay(alignment: .topLeading) {
+            Button {
+                Task { await viewModel.refreshManual() }
+            } label: {
+                Image(systemName: "arrow.clockwise")
+                    .font(.title3)
+                    .controlPlate()
+            }
+            .disabled(viewModel.isRefreshing)
+            .accessibilityLabel("Refresh")
+            .accessibilityIdentifier("refreshButton")
+            .accessibilityAddTraits(.isButton)
+            .padding(.top, 8)
+            .padding(.leading, 12)
+        }
+        #endif
         #if os(iOS)
         .overlay(alignment: .topLeading) {
             if viewModel.store.undoStore.hasUndoableReminder, showUndoButton, viewModel.store.canMutate {
