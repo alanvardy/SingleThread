@@ -82,8 +82,9 @@ struct WatchReminderView: View {
             } else {
                 switch viewModel.store.listContent {
                 case .noAccess:
-                    // Unreachable: `body` diverts non-.fullAccess before this.
-                    // Required for exhaustiveness (footgun note — see Stage 3).
+                    // Unreachable: `body` diverts non-.fullAccess before this
+                    // renders. Required only for exhaustiveness — if auth ever
+                    // collapses into the enum, this arm is the footgun to revisit.
                     EmptyView()
                 case .allDone:
                     allDoneState
