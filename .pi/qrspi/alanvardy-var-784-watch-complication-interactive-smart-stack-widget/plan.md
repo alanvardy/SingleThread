@@ -942,8 +942,8 @@ Button(intent: SkipReminderIntent()) {
 ### Verification
 
 #### Automated
-- [ ] `make watch-build` green (extension compiles + embeds)
-- [ ] `make test` + `make watch-test` still green (Phase 1 + Phase 3 suites — the widget consumes both, no new runnable tests)
+- [x] `make watch-build` green (extension compiles + embeds)
+- [x] `make test` + `make watch-test` still green (Phase 1 + Phase 3 suites — the widget consumes both, no new runnable tests)
 
 #### Manual (simulator smoke)
 - [ ] Complication renders all four states on a watch face (boot a watch sim via `xcrun simctl`; add the complication)
