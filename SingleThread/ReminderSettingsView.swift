@@ -21,7 +21,14 @@ struct ReminderSettingsView: View {
     var body: some View {
         Form {
             Toggle(isOn: $showDate) {
-                Label("Show date", systemImage: "calendar")
+                Label {
+                    VStack(alignment: .leading) {
+                        Text("Show date")
+                        SettingsCaption(text: "Show the due date next to each reminder.")
+                    }
+                } icon: {
+                    Image(systemName: "calendar")
+                }
             }
             .accessibilityIdentifier("showDateToggle")
             #if os(iOS) || os(macOS)
@@ -30,11 +37,25 @@ struct ReminderSettingsView: View {
                 }
             #endif
             Toggle(isOn: $showList) {
-                Label("Show list", systemImage: "list.bullet")
+                Label {
+                    VStack(alignment: .leading) {
+                        Text("Show list")
+                        SettingsCaption(text: "Show which list each reminder belongs to.")
+                    }
+                } icon: {
+                    Image(systemName: "list.bullet")
+                }
             }
             .accessibilityIdentifier("showListToggle")
             Toggle(isOn: $showRecurrence) {
-                Label("Recurrence indicator", systemImage: "repeat")
+                Label {
+                    VStack(alignment: .leading) {
+                        Text("Recurrence indicator")
+                        SettingsCaption(text: "Show if a reminder repeats.")
+                    }
+                } icon: {
+                    Image(systemName: "repeat")
+                }
             }
             .accessibilityIdentifier("showRecurrenceToggle")
             #if os(iOS) || os(macOS)
@@ -43,7 +64,14 @@ struct ReminderSettingsView: View {
                 }
             #endif
             Toggle(isOn: $showAlarms) {
-                Label("Reminder alerts", systemImage: "bell")
+                Label {
+                    VStack(alignment: .leading) {
+                        Text("Reminder alerts")
+                        SettingsCaption(text: "Show if a reminder has a time alert.")
+                    }
+                } icon: {
+                    Image(systemName: "bell")
+                }
             }
             .accessibilityIdentifier("showAlarmsToggle")
             #if os(iOS) || os(macOS)
@@ -52,7 +80,14 @@ struct ReminderSettingsView: View {
                 }
             #endif
             Toggle(isOn: $showCompletionGlow) {
-                Label(SharedStrings.completionGlow, systemImage: "sparkles")
+                Label {
+                    VStack(alignment: .leading) {
+                        Text(SharedStrings.completionGlow)
+                        SettingsCaption(text: "Show a sparkle animation when a reminder is completed.")
+                    }
+                } icon: {
+                    Image(systemName: "sparkles")
+                }
             }
             .accessibilityIdentifier("showCompletionGlowToggle")
         }

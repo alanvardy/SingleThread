@@ -51,7 +51,10 @@ struct SettingsView: View {
                                 viewModel: viewModel)
                         #endif
                     } label: {
-                        Label("Interface", systemImage: "paintpalette")
+                        SettingsLinkLabel(
+                            title: "Interface",
+                            systemImage: "paintpalette",
+                            caption: "Customize the appearance, text size, and controls.")
                     }
                     .accessibilityIdentifier("settingsInterfaceRow")
                     #if os(iOS)
@@ -60,7 +63,10 @@ struct SettingsView: View {
                                 notificationsEnabled: $bindings.notificationsEnabled,
                                 notificationIntervalHours: $bindings.notificationIntervalHours)
                         } label: {
-                            Label("Notifications", systemImage: "bell.badge")
+                            SettingsLinkLabel(
+                                title: "Notifications",
+                                systemImage: "bell.badge",
+                                caption: "Get reminded when you have due reminders.")
                         }
                         .accessibilityIdentifier("settingsNotificationsRow")
                     #endif
@@ -73,7 +79,10 @@ struct SettingsView: View {
                             showCompletionGlow: $bindings.showCompletionGlow,
                             viewModel: viewModel)
                     } label: {
-                        Label("Reminder", systemImage: "bell.badge")
+                        SettingsLinkLabel(
+                            title: "Reminder",
+                            systemImage: "bell.badge",
+                            caption: "Choose what information is shown with each reminder.")
                     }
                     .accessibilityIdentifier("settingsReminderRow")
                     NavigationLink {
@@ -83,7 +92,10 @@ struct SettingsView: View {
                             availableLists: availableLists,
                             excludedLists: $excludedLists)
                     } label: {
-                        Label("Filtering & Sorting", systemImage: "line.3.horizontal.decrease")
+                        SettingsLinkLabel(
+                            title: "Filtering & Sorting",
+                            systemImage: "line.3.horizontal.decrease",
+                            caption: "Control the order, visibility, and excluded lists.")
                     }
                     .accessibilityIdentifier("settingsFilterSortRow")
                     NavigationLink {
@@ -93,15 +105,22 @@ struct SettingsView: View {
                             backgroundPinned: $bindings.backgroundPinned,
                             backgroundImage: backgroundImage)
                     } label: {
-                        Label("Background", systemImage: "photo.on.rectangle")
+                        SettingsLinkLabel(
+                            title: "Background",
+                            systemImage: "photo.on.rectangle",
+                            caption: "Manage the wallpaper and its appearance.")
                     }
                     .accessibilityIdentifier("settingsBackgroundRow")
+                    let purchaseTitle = LocalizedStringKey(
+                        entitlementStore.isEntitled ? "Manage Purchase" : "Unlock")
+                    let purchaseIcon = entitlementStore.isEntitled ? "checkmark.seal" : "lock.open"
                     NavigationLink {
                         PurchaseSettingsView(entitlementStore: entitlementStore)
                     } label: {
-                        Label(
-                            entitlementStore.isEntitled ? "Manage Purchase" : "Unlock",
-                            systemImage: entitlementStore.isEntitled ? "checkmark.seal" : "lock.open")
+                        SettingsLinkLabel(
+                            title: purchaseTitle,
+                            systemImage: purchaseIcon,
+                            caption: "View and manage your purchase status.")
                     }
                     .accessibilityLabel(
                         entitlementStore.isEntitled ? "Manage Purchase" : "Unlock")
@@ -113,13 +132,19 @@ struct SettingsView: View {
                     NavigationLink {
                         PrivacySettingsView()
                     } label: {
-                        Label("Privacy Policy", systemImage: "hand.raised")
+                        SettingsLinkLabel(
+                            title: "Privacy Policy",
+                            systemImage: "hand.raised",
+                            caption: "How SingleThread handles your data.")
                     }
                     .accessibilityIdentifier("settingsPrivacyRow")
                     NavigationLink {
                         AboutView()
                     } label: {
-                        Label("About", systemImage: "info.circle")
+                        SettingsLinkLabel(
+                            title: "About",
+                            systemImage: "info.circle",
+                            caption: "App version, credits, and contact.")
                     }
                     .accessibilityLabel("About")
                     .accessibilityIdentifier("settingsAboutRow")

@@ -18,18 +18,37 @@ struct BackgroundSettingsView: View {
     var body: some View {
         Form {
             Toggle(isOn: $backgroundEnabled) {
-                Label("Background", systemImage: "photo")
+                Label {
+                    VStack(alignment: .leading) {
+                        Text("Background")
+                        SettingsCaption(text: "Show a wallpaper behind the reminder list.")
+                    }
+                } icon: {
+                    Image(systemName: "photo")
+                }
             }
             .accessibilityIdentifier("backgroundToggle")
-            Picker("Background Fade", selection: $backgroundFadePercent) {
+            Picker(selection: $backgroundFadePercent) {
                 ForEach(BackgroundFade.allValues, id: \.self) { percent in
                     Text("\(percent)%").tag(percent)
+                }
+            } label: {
+                VStack(alignment: .leading) {
+                    Text("Background Fade")
+                    SettingsCaption(text: "How much the wallpaper fades for readability.")
                 }
             }
             .accessibilityIdentifier("backgroundFadePicker")
             Section {
                 Toggle(isOn: $backgroundPinned) {
-                    Label("Pin wallpaper", systemImage: "pin")
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("Pin wallpaper")
+                            SettingsCaption(text: "Prevents the background from refreshing automatically.")
+                        }
+                    } icon: {
+                        Image(systemName: "pin")
+                    }
                 }
                 .accessibilityIdentifier("pinWallpaperToggle")
             }
@@ -37,12 +56,15 @@ struct BackgroundSettingsView: View {
                 Button {
                     Task { await backgroundImage.forceRefresh() }
                 } label: {
-                    HStack {
-                        Label("Refresh wallpaper", systemImage: "arrow.triangle.2.circlepath")
-                        Spacer()
-                        if backgroundImage.isRefreshing {
-                            ProgressView()
+                    VStack(alignment: .leading) {
+                        HStack {
+                            Label("Refresh wallpaper", systemImage: "arrow.triangle.2.circlepath")
+                            Spacer()
+                            if backgroundImage.isRefreshing {
+                                ProgressView()
+                            }
                         }
+                        SettingsCaption(text: "Fetch a new wallpaper now.")
                     }
                 }
                 .disabled(backgroundImage.isRefreshing)

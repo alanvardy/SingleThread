@@ -50,6 +50,22 @@ struct SettingsViewTests {
             #expect(bodyDescription.contains(label))
         }
         #expect(bodyDescription.contains("Done"))
+
+        let expectedCaptions = [
+            "Customize the appearance, text size, and controls.",
+            "Choose what information is shown with each reminder.",
+            "Control the order, visibility, and excluded lists.",
+            "Manage the wallpaper and its appearance.",
+            "View and manage your purchase status.",
+            "How SingleThread handles your data.",
+            "App version, credits, and contact."
+        ]
+        for caption in expectedCaptions {
+            #expect(bodyDescription.contains(caption))
+        }
+        #if os(iOS)
+            #expect(bodyDescription.contains("Get reminded when you have due reminders."))
+        #endif
     }
 
     @Test
@@ -82,6 +98,23 @@ struct SettingsViewTests {
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
         }
+
+        var expectedCaptions = [
+            "Choose between system, light, and dark mode.",
+            "Adjust the size of text throughout the app.",
+            "Add a microphone button for voice input."
+        ]
+        #if os(iOS)
+            expectedCaptions += [
+                "Let the app rotate on iPhone.",
+                "Show complete, skip, and delete buttons.",
+                "Show a hint when there are swipeable reminders.",
+                "Show an undo button after completing a reminder."
+            ]
+        #endif
+        for caption in expectedCaptions {
+            #expect(bodyDescription.contains(caption))
+        }
     }
 
     @Test
@@ -101,6 +134,17 @@ struct SettingsViewTests {
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
         }
+
+        let expectedCaptions = [
+            "Show the due date next to each reminder.",
+            "Show which list each reminder belongs to.",
+            "Show if a reminder repeats.",
+            "Show if a reminder has a time alert.",
+            "Show a sparkle animation when a reminder is completed."
+        ]
+        for caption in expectedCaptions {
+            #expect(bodyDescription.contains(caption))
+        }
     }
 
     @Test
@@ -118,6 +162,15 @@ struct SettingsViewTests {
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
         }
+
+        let expectedCaptions = [
+            "Choose the order reminders appear in.",
+            "Include reminders that have no due date.",
+            "Hide specific lists from the reminder view."
+        ]
+        for caption in expectedCaptions {
+            #expect(bodyDescription.contains(caption))
+        }
     }
 
     @Test
@@ -133,6 +186,16 @@ struct SettingsViewTests {
         let expectedLabels = ["Background", "Background Fade", "Pin wallpaper", "Unsplash"]
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
+        }
+
+        let expectedCaptions = [
+            "Show a wallpaper behind the reminder list.",
+            "How much the wallpaper fades for readability.",
+            "Prevents the background from refreshing automatically.",
+            "Fetch a new wallpaper now."
+        ]
+        for caption in expectedCaptions {
+            #expect(bodyDescription.contains(caption))
         }
     }
 
@@ -182,6 +245,29 @@ struct SettingsViewTests {
         ]
         for label in expected {
             #expect(bodyDescription.contains(label), "Expected privacy content to contain \(label)")
+        }
+    }
+
+    @Test
+    func notificationsSettingsViewContainsExpectedRows() {
+        let view = NotificationsSettingsView(
+            notificationsEnabled: .constant(false),
+            notificationIntervalHours: .constant(48))
+        let bodyDescription = String(describing: view.body)
+
+        let expectedLabels = [
+            "Enable reminder notifications", "Remind after"
+        ]
+        for label in expectedLabels {
+            #expect(bodyDescription.contains(label))
+        }
+
+        let expectedCaptions = [
+            "Send a notification when you have due reminders.",
+            "How long to wait before sending another reminder."
+        ]
+        for caption in expectedCaptions {
+            #expect(bodyDescription.contains(caption))
         }
     }
 

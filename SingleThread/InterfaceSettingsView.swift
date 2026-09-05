@@ -32,23 +32,40 @@ struct InterfaceSettingsView: View {
 
     var body: some View {
         Form {
-            Picker("Appearance", selection: $appearanceMode) {
+            Picker(selection: $appearanceMode) {
                 ForEach(AppearanceMode.allCases, id: \.self) { mode in
                     Label(mode.title, systemImage: mode.systemImage)
                         .tag(mode)
                 }
+            } label: {
+                VStack(alignment: .leading) {
+                    Text("Appearance")
+                    SettingsCaption(text: "Choose between system, light, and dark mode.")
+                }
             }
             .accessibilityIdentifier("appearancePicker")
-            Picker("Text Size", selection: $textSize) {
+            Picker(selection: $textSize) {
                 ForEach(TextSize.allCases, id: \.self) { size in
                     Label(size.title, systemImage: size.systemImage)
                         .tag(size)
+                }
+            } label: {
+                VStack(alignment: .leading) {
+                    Text("Text Size")
+                    SettingsCaption(text: "Adjust the size of text throughout the app.")
                 }
             }
             .accessibilityIdentifier("textSizePicker")
             #if os(iOS)
                 Toggle(isOn: $allowsLandscape) {
-                    Label("Allow landscape", systemImage: "rectangle.landscape.rotate")
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("Allow landscape")
+                            SettingsCaption(text: "Let the app rotate on iPhone.")
+                        }
+                    } icon: {
+                        Image(systemName: "rectangle.landscape.rotate")
+                    }
                 }
                 .accessibilityIdentifier("allowLandscapeToggle")
                 .onChange(of: allowsLandscape) { _, newValue in
@@ -56,20 +73,49 @@ struct InterfaceSettingsView: View {
                 }
             #endif
             Toggle(isOn: $showMicrophoneButton) {
-                Label("Show microphone", systemImage: "microphone")
+                Label {
+                    VStack(alignment: .leading) {
+                        Text("Show microphone")
+                        SettingsCaption(text: "Add a microphone button for voice input.")
+                    }
+                } icon: {
+                    Image(systemName: "microphone")
+                }
             }
             .accessibilityIdentifier("showMicrophoneToggle")
             #if os(iOS)
                 Toggle(isOn: $enableActionButtons) {
-                    Label("Show action buttons", systemImage: "hand.tap")
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("Show action buttons")
+                            SettingsCaption(text: "Show complete, skip, and delete buttons.")
+                        }
+                    } icon: {
+                        Image(systemName: "hand.tap")
+                    }
                 }
                 .accessibilityIdentifier("showActionButtonsToggle")
                 Toggle(isOn: $showSwipePrompt) {
-                    Label("Show swipe prompt", systemImage: "arrow.left.arrow.right")
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("Show swipe prompt")
+                            SettingsCaption(text: "Show a hint when there are swipeable reminders.")
+                        }
+                    } icon: {
+                        Image(systemName: "arrow.left.arrow.right")
+                    }
                 }
                 .accessibilityIdentifier("showSwipePromptToggle")
+                .accessibilityLabel("Show swipe prompt")
                 Toggle(isOn: $showUndoButton) {
-                    Label("Show undo button", systemImage: "arrow.uturn.backward")
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("Show undo button")
+                            SettingsCaption(text: "Show an undo button after completing a reminder.")
+                        }
+                    } icon: {
+                        Image(systemName: "arrow.uturn.backward")
+                    }
                 }
                 .accessibilityIdentifier("showUndoButtonToggle")
             #endif

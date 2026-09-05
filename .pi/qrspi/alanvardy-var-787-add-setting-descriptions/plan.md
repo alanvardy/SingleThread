@@ -830,13 +830,13 @@ func notificationsSettingsViewContainsExpectedRows() {
 ### Verification — Phase 3
 
 #### Automated
-- [ ] `make build && make lint` — compiles, SwiftLint clean
-- [ ] `xcodebuild -only-testing:SingleThreadTests/SettingsViewTests -destination "$SIM"` —
+- [x] `make build && make lint` — compiles, SwiftLint clean
+- [x] `xcodebuild -only-testing:SingleThreadTests/SettingsViewTests -destination "$SIM"` —
   all 7 tests green (including new `notificationsSettingsViewContainsExpectedRows`)
-- [ ] `xcodebuild -only-testing:SingleThreadTests -destination "$SIM"` — complete unit suite green
-- [ ] `xcodebuild -only-testing:SingleThreadUITests -destination "$SIM"` —
+- [x] `xcodebuild -only-testing:SingleThreadTests -destination "$SIM"` — complete unit suite green
+- [x] `xcodebuild -only-testing:SingleThreadUITests -destination "$SIM"` —
   existing UI tests pass unchanged (all settings staticText/switch matches intact)
-- [ ] `make periphery` — `SettingsCaption` + `SettingsLinkLabel` both referenced
+- [x] `make periphery` — `SettingsCaption` + `SettingsLinkLabel` both referenced
 
 #### Manual
 - [ ] `make mac-build && make mac-run` — captions render on macOS without clipping
