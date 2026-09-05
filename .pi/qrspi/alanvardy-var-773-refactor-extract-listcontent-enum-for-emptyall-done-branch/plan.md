@@ -468,8 +468,8 @@ animation overlay, not a content state, and `ShowCompletionGlowStateTests` pins 
 
 ## Final Gate (parent only, after all stages commit)
 
-- [ ] `make check` — i.e. `./scripts/test.sh`, identical to CI (iOS + watch matrix runs), green once
-- [ ] Confirm `git log` shows each stage as a scoped commit; no orphaned `DELETEME` marker
+- [x] `make check` — i.e. `./scripts/test.sh`, identical to CI (iOS + watch matrix runs), green once
+- [x] Confirm `git log` shows each stage as a scoped commit; no orphaned `DELETEME` marker
 
 ## Cross-cutting notes
 
