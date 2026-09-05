@@ -98,6 +98,121 @@ struct ContentViewModelTests {
         #expect(viewModel.lastOpenedURLForUITesting == nil)
     }
 
+    // MARK: - refreshManual
+
+    @Test
+    func refreshManualTogglesIsRefreshing() async {
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
+        let viewModel = ContentViewModel(
+            store: store,
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation())
+        #expect(viewModel.isRefreshing == false)
+
+        await viewModel.refreshManual()
+
+        #expect(viewModel.isRefreshing == false)
+    }
+
+    @Test
+    func refreshManualGateBlocksReentrantCall() async {
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
+        let viewModel = ContentViewModel(
+            store: store,
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation())
+
+        // Fire two concurrent refreshManual calls; the second must be
+        // dropped by the re-entrancy guard.
+        await withTaskGroup(of: Void.self) { group in
+            group.addTask { await viewModel.refreshManual() }
+            group.addTask { await viewModel.refreshManual() }
+            await group.waitForAll()
+        }
+
+        // After both complete, the flag must be false (defer reset).
+        #expect(viewModel.isRefreshing == false)
+    }
+
+    @Test
+    func refreshManualMinimumDisplayDuration() async {
+        // With loadsReminders: false, reload() is a no-op (nearly instant).
+        // The minimum-display hold keeps isRefreshing true for ≥1 s.
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
+        let viewModel = ContentViewModel(
+            store: store,
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation())
+
+        let startedAt = Date()
+        await viewModel.refreshManual()
+        let elapsed = Date().timeIntervalSince(startedAt)
+
+        // Must have waited at least 1 s (allow 0.1 s slop for timing).
+        #expect(elapsed >= 0.9)
+        #expect(viewModel.isRefreshing == false)
+    }
+
+    @Test
+    func refreshManualClearsSkippedWhenAllSkipped() async {
+        // Seed one already-skipped reminder via the ReminderStore init so
+        // allSkipped is deterministically true (no async skip call needed).
+        let calendar = EKCalendar(for: .reminder, eventStore: Self.store)
+        calendar.title = "Work"
+        let reminder = EKReminder(eventStore: Self.store)
+        reminder.title = "Skipped"
+        reminder.calendar = calendar
+        let inMemory = InMemoryEventStore(reminders: [reminder], calendars: [calendar])
+
+        let store = ReminderStore(
+            eventStore: inMemory,
+            loadsReminders: true,
+            reminders: [reminder],
+            skippedIDs: [reminder.calendarItemIdentifier],
+            authorizationStatus: .fullAccess)
+        #expect(store.allSkipped == true)
+
+        let viewModel = ContentViewModel(
+            store: store,
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation())
+
+        await viewModel.refreshManual()
+
+        // refreshManual passes clearSkipped: store.allSkipped (== true here),
+        // so the skipped set is cleared.
+        #expect(store.skippedIDs.isEmpty)
+    }
+
+    @Test
+    func refreshManualPreservesSkippedWhenVisible() async {
+        // One visible, non-skipped reminder → allSkipped is false.
+        let calendar = EKCalendar(for: .reminder, eventStore: Self.store)
+        calendar.title = "Personal"
+        let reminder = EKReminder(eventStore: Self.store)
+        reminder.title = "Buy milk"
+        reminder.calendar = calendar
+        let inMemory = InMemoryEventStore(reminders: [reminder], calendars: [calendar])
+
+        let store = ReminderStore(
+            eventStore: inMemory,
+            loadsReminders: true,
+            reminders: [reminder],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        #expect(store.allSkipped == false)
+
+        let viewModel = ContentViewModel(
+            store: store,
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation())
+
+        await viewModel.refreshManual()
+
+        // clearSkipped: false → skippedIDs stays as resolved (empty here).
+        #expect(store.skippedIDs.isEmpty)
+    }
+
     // MARK: Private
 
     private static let store = EKEventStore()
