@@ -179,7 +179,7 @@ import os
                     PayloadKey.skippedReminderIdentifiers: skipStore.load(),
                     PayloadKey.skipCounts: countStore.load(),
                     PayloadKey.excludedListTitles: excludeStore.load(),
-                    PayloadKey.showUndatedReminders: showUndatedStore.load(),
+                    PayloadKey.showUndatedReminders: showUndatedStore.isEnabled,
                     PayloadKey.sortOption: sortStore.load().rawValue,
                     PayloadKey.completionCount: completionCounter.count
                 ]
@@ -276,20 +276,20 @@ import os
         /// Keys used in the WatchConnectivity payloads, shared by the sender and
         /// receiver so the two sides of the wire protocol cannot drift.
         private enum PayloadKey {
-            static let skippedReminderIdentifiers = "skippedReminderIdentifiers"
-            static let skipCounts = "skipCounts"
-            static let excludedListTitles = "excludedListTitles"
-            static let completeReminderIdentifier = "completeReminderIdentifier"
-            static let deleteReminderIdentifier = "deleteReminderIdentifier"
-            static let showUndatedReminders = "showUndatedReminders"
-            static let sortOption = "sortOption"
-            static let showDate = "showDate"
-            static let showRecurrence = "showRecurrence"
-            static let showAlarms = "showAlarms"
-            static let showList = "showList"
-            static let showCompletionGlow = "showCompletionGlow"
-            static let completionCount = "completionCount"
-            static let entitled = "isEntitled"
+            static let skippedReminderIdentifiers = SkippedReminderStore.defaultsKey
+            static let skipCounts = SkipCountStore.defaultsKey
+            static let excludedListTitles = ExcludedListStore.defaultsKey
+            static let completeReminderIdentifier = "completeReminderIdentifier" // payload-only
+            static let deleteReminderIdentifier = "deleteReminderIdentifier" // payload-only
+            static let showUndatedReminders = ShowUndatedRemindersPreference.defaultsKey
+            static let sortOption = SortOption.defaultsKey
+            static let showDate = ShowDatePreference.defaultsKey
+            static let showRecurrence = ShowRecurrencePreference.defaultsKey
+            static let showAlarms = ShowAlarmsPreference.defaultsKey
+            static let showList = ShowListPreference.defaultsKey
+            static let showCompletionGlow = ShowCompletionGlowPreference.defaultsKey
+            static let completionCount = CompletionCounterStore.defaultsKey
+            static let entitled = "isEntitled" // in-memory, no UserDefaults backing
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")
@@ -337,7 +337,7 @@ import os
                 handler?(receivedTitles)
             }
             if let received = context[PayloadKey.showUndatedReminders] as? Bool {
-                showUndatedStore.save(received)
+                showUndatedStore.set(received)
                 let handler = onShowUndatedRemindersReceived
                 handler?(received)
             }

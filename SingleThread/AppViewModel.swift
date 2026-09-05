@@ -93,13 +93,6 @@ final class AppViewModel {
     // MARK: Internal
 
     #if os(iOS)
-        /// Notification-preference UserDefaults keys, shared between
-        /// AppViewModel reads and the @AppStorage declarations in ContentView.
-        enum NotificationKeys {
-            static let enabled = "notificationsEnabled"
-            static let intervalHours = "notificationIntervalHours"
-        }
-
         /// The single pending notification-request identifier — stable across
         /// schedules so each cycle replaces the previous one.
         static let idleReminderIdentifier = "app.alanvardy.SingleThread.idle-reminder"
@@ -126,12 +119,11 @@ final class AppViewModel {
             let center = UNUserNotificationCenter.current()
             center.removeAllPendingNotificationRequests()
 
-            guard UserDefaults.standard.bool(forKey: NotificationKeys.enabled) else { return }
+            guard NotificationPreference().isEnabled else { return }
             let count = store.visibleReminders.count
             guard count > 0 || store.hasHidden else { return }
 
-            let intervalHours = UserDefaults.standard.integer(forKey: NotificationKeys.intervalHours)
-            let effectiveHours = intervalHours > 0 ? intervalHours : 48
+            let effectiveHours = NotificationPreference().intervalHours
 
             let content = UNMutableNotificationContent()
             content.title = String(localized: "SingleThread", table: "Localizable", bundle: .main)
@@ -182,11 +174,11 @@ final class AppViewModel {
                 do {
                     granted = try await center.requestAuthorization(options: [.alert, .badge])
                 } catch {
-                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
+                    NotificationPreference().setEnabled(false)
                     return
                 }
                 if !granted {
-                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
+                    NotificationPreference().setEnabled(false)
                 }
             default:
                 break
@@ -283,7 +275,10 @@ final class AppViewModel {
             // XCTest seam on a test-only destination.
             if arguments.contains("--ui-testing") {
                 if arguments.contains("--reset-glow-preference") {
-                    UserDefaults.standard.removeObject(forKey: "showCompletionGlow")
+                    // Glow lives in the App Group suite (the store type reads it
+                    // there); removing the `.standard` key left the prior test's
+                    // value polluting later launches on the shared simulator.
+                    AppGroup.defaults.removeObject(forKey: ShowCompletionGlowPreference.defaultsKey)
                 }
                 if arguments.contains("--reset-swipe-preference") {
                     UserDefaults.standard.removeObject(forKey: "showSwipePrompt")
@@ -339,11 +334,11 @@ final class AppViewModel {
         // writes (count+1 / max(0, count-1) / 0 — see CompletionCounterStore),
         // the seed value is intentionally unclamped: gating scenarios seed 99
         // (near-cap) and 100 (gated), both values production never produces.
-        AppGroup.defaults.set(seed.completionCount, forKey: "completionCount")
+        AppGroup.defaults.set(seed.completionCount, forKey: CompletionCounterStore.defaultsKey)
         // Preload the skip counts so a seeded test reaches the 6th-skip nudge
         // with one tap (seed `skipCounts` at 5). The store's `SkipCountStore`
         // reads `AppGroup.defaults`, falling back to `.standard` on watchOS.
-        AppGroup.defaults.set(seed.skipCountsByIdentifier, forKey: "skipCounts")
+        AppGroup.defaults.set(seed.skipCountsByIdentifier, forKey: SkipCountStore.defaultsKey)
         // Mirror the `--ui-testing` seam: enable the action-buttons toggle so
         // the Complete/Skip/Mic cluster (not just the mic) renders over a
         // visible reminder in seeded UI tests.
@@ -366,7 +361,7 @@ final class AppViewModel {
             hasHidden: seed.hasHidden,
             completionCounter: CompletionCounterStore(
                 defaults: AppGroup.defaults,
-                key: "completionCount"),
+                key: CompletionCounterStore.defaultsKey),
             entitlementStore: entitlementStore)
         if !seed.excludedListTitles.isEmpty {
             store.setExcludedListTitles(seed.excludedListTitles)

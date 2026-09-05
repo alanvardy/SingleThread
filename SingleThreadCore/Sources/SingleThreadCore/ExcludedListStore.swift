@@ -4,12 +4,15 @@ import Foundation
 public struct ExcludedListStore {
     // MARK: Lifecycle
 
-    public init(defaults: UserDefaults = AppGroup.defaults, key: String = "excludedListTitles") {
+    public init(defaults: UserDefaults = AppGroup.defaults, key: String = defaultsKey) {
         self.defaults = defaults
         self.key = key
     }
 
     // MARK: Public
+
+    /// Single shared key used by the store and sync payload.
+    public static let defaultsKey = "excludedListTitles"
 
     public func load() -> [String] {
         defaults.stringArray(forKey: key) ?? []

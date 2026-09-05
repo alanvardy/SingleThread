@@ -8,12 +8,15 @@ import Foundation
 public struct ShowDatePreference {
     // MARK: Lifecycle
 
-    public init(defaults: UserDefaults = AppGroup.defaults, key: String = "showDate") {
+    public init(defaults: UserDefaults = AppGroup.defaults, key: String = defaultsKey) {
         self.defaults = defaults
         self.key = key
     }
 
     // MARK: Public
+
+    /// Single shared key used by the store, `@AppStorage`, and sync payload.
+    public static let defaultsKey = "showDate"
 
     /// Whether the due date is shown. `nil` (missing key) → `true`.
     public var isEnabled: Bool {

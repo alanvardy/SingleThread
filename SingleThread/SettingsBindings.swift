@@ -1,11 +1,17 @@
 import SingleThreadCore
 import SwiftUI
 
-/// Single bag of all @AppStorage-backed preference values, passed down from
-/// SettingsView to sub-views via @Bindable. Owned by SettingsView; mirrors the
-/// @AppStorage defaults from ContentView exactly. `excludedLists` is NOT here:
-/// it is store-backed (not @AppStorage) and is passed to sub-views as a separate
-/// `Binding<Set<String>>`.
+/// Single bag of all preference values, passed down from
+/// SettingsView to sub-views via @Bindable. Owned by SettingsView.
+/// The Standard-suite values mirror the `@AppStorage` defaults from ContentView
+/// exactly. `excludedLists` is NOT here: it is store-backed (not @AppStorage)
+/// and is passed to sub-views as a separate `Binding<Set<String>>`.
+///
+/// The seven App-Group keys are computed store-backed properties: reading/writing
+/// them goes straight through the store types, which post
+/// `UserDefaults.didChangeNotification` on the App Group suite, so `PreferenceHolder`
+/// refreshes the main view automatically. No init arguments (or write-back
+/// `.onChange` handlers) exist for them.
 ///
 /// `allowsLandscape`, `enableActionButtons`, `showSwipePrompt`, `showUndoButton`,
 /// `notificationsEnabled`, and `notificationIntervalHours` are iOS-only in
@@ -30,14 +36,7 @@ final class SettingsBindings {
         showMicrophoneButton: Bool = true,
         backgroundEnabled: Bool = true,
         backgroundFadePercent: Int = 50,
-        backgroundPinned: Bool = false,
-        showUndatedReminders: Bool = false,
-        sortOption: SortOption = .priority,
-        showDate: Bool = true,
-        showList: Bool = false,
-        showRecurrence: Bool = true,
-        showAlarms: Bool = true,
-        showCompletionGlow: Bool = true) {
+        backgroundPinned: Bool = false) {
         self.appearanceMode = appearanceMode
         self.textSize = textSize
         self.allowsLandscape = allowsLandscape
@@ -50,13 +49,6 @@ final class SettingsBindings {
         self.backgroundEnabled = backgroundEnabled
         self.backgroundFadePercent = backgroundFadePercent
         self.backgroundPinned = backgroundPinned
-        self.showUndatedReminders = showUndatedReminders
-        self.sortOption = sortOption
-        self.showDate = showDate
-        self.showList = showList
-        self.showRecurrence = showRecurrence
-        self.showAlarms = showAlarms
-        self.showCompletionGlow = showCompletionGlow
     }
 
     // MARK: Internal
@@ -73,11 +65,106 @@ final class SettingsBindings {
     var backgroundEnabled: Bool
     var backgroundFadePercent: Int
     var backgroundPinned: Bool
-    var showUndatedReminders: Bool
-    var sortOption: SortOption
-    var showDate: Bool
-    var showList: Bool
-    var showRecurrence: Bool
-    var showAlarms: Bool
-    var showCompletionGlow: Bool
+
+    // MARK: - App-Group preferences (store-backed, observable)
+
+    /// Computed from the store so the sheet always opens with the current value
+    /// and every write persists immediately (no @AppStorage round-trip). Views
+    /// reading the property register observation through the macro-generated
+    /// `access(keyPath:)`/`withMutation(keyPath:)` members, exactly like a
+    /// tracked stored property — otherwise a `@Bindable` binding write would not
+    /// invalidate SwiftUI and toggles would stay visually stale.
+    var showUndatedReminders: Bool {
+        get {
+            access(keyPath: \.showUndatedReminders)
+            return showUndatedPreference.isEnabled
+        }
+        set {
+            withMutation(keyPath: \.showUndatedReminders) {
+                showUndatedPreference.set(newValue)
+            }
+        }
+    }
+
+    var sortOption: SortOption {
+        get {
+            access(keyPath: \.sortOption)
+            return sortStore.load()
+        }
+        set {
+            withMutation(keyPath: \.sortOption) {
+                sortStore.save(newValue)
+            }
+        }
+    }
+
+    var showDate: Bool {
+        get {
+            access(keyPath: \.showDate)
+            return showDatePreference.isEnabled
+        }
+        set {
+            withMutation(keyPath: \.showDate) {
+                showDatePreference.set(newValue)
+            }
+        }
+    }
+
+    var showList: Bool {
+        get {
+            access(keyPath: \.showList)
+            return showListPreference.isEnabled
+        }
+        set {
+            withMutation(keyPath: \.showList) {
+                showListPreference.set(newValue)
+            }
+        }
+    }
+
+    var showRecurrence: Bool {
+        get {
+            access(keyPath: \.showRecurrence)
+            return showRecurrencePreference.isEnabled
+        }
+        set {
+            withMutation(keyPath: \.showRecurrence) {
+                showRecurrencePreference.set(newValue)
+            }
+        }
+    }
+
+    var showAlarms: Bool {
+        get {
+            access(keyPath: \.showAlarms)
+            return showAlarmsPreference.isEnabled
+        }
+        set {
+            withMutation(keyPath: \.showAlarms) {
+                showAlarmsPreference.set(newValue)
+            }
+        }
+    }
+
+    var showCompletionGlow: Bool {
+        get {
+            access(keyPath: \.showCompletionGlow)
+            return showCompletionGlowPreference.isEnabled
+        }
+        set {
+            withMutation(keyPath: \.showCompletionGlow) {
+                showCompletionGlowPreference.set(newValue)
+            }
+        }
+    }
+
+    // MARK: Private
+
+    private let showUndatedPreference = ShowUndatedRemindersPreference()
+    private let sortStore = SortOptionStore()
+    private let showDatePreference = ShowDatePreference()
+    private let showListPreference = ShowListPreference()
+    private let showRecurrencePreference = ShowRecurrencePreference()
+    private let showAlarmsPreference = ShowAlarmsPreference()
+    private let showCompletionGlowPreference = ShowCompletionGlowPreference()
 }

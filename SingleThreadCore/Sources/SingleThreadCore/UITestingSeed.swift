@@ -71,30 +71,30 @@ public struct UITestingSeed {
     // MARK: Private
 
     private static let persistedKeys = [
-        "skippedReminderIdentifiers",
-        "skipCounts",
-        "excludedListTitles",
-        "showDate",
-        "showList",
-        "showRecurrence",
-        "showAlarms",
-        "showCompletionGlow",
-        "showUndatedReminders",
-        "sortOption",
-        "completionCount",
-        "isEntitled",
-        "enableActionButtons",
-        "showMicrophoneButton",
-        "showSwipePrompt",
-        "showUndoButton",
-        "backgroundEnabled",
-        "backgroundFadePercent",
-        "backgroundPinned",
-        "allowsLandscape",
-        "textSize",
-        "appearanceMode",
-        "notificationsEnabled",
-        "notificationIntervalHours"
+        SkippedReminderStore.defaultsKey,
+        SkipCountStore.defaultsKey,
+        ExcludedListStore.defaultsKey,
+        ShowDatePreference.defaultsKey,
+        ShowListPreference.defaultsKey,
+        ShowRecurrencePreference.defaultsKey,
+        ShowAlarmsPreference.defaultsKey,
+        ShowCompletionGlowPreference.defaultsKey,
+        ShowUndatedRemindersPreference.defaultsKey,
+        SortOption.defaultsKey,
+        CompletionCounterStore.defaultsKey,
+        "isEntitled", // in-memory, no store type
+        "enableActionButtons", // Stage 3/6: replace with store constant
+        "showMicrophoneButton", // cosmetic, no store type
+        "showSwipePrompt", // cosmetic, no store type
+        "showUndoButton", // cosmetic, no store type
+        "backgroundEnabled", // cosmetic, no store type
+        "backgroundFadePercent", // cosmetic, no store type
+        "backgroundPinned", // cosmetic, no store type
+        OrientationPreference.defaultsKey,
+        "textSize", // cosmetic, no store type
+        AppearanceModePreference.defaultsKey,
+        NotificationPreference.enabledDefaultsKey,
+        NotificationPreference.intervalDefaultsKey
     ]
 }
 

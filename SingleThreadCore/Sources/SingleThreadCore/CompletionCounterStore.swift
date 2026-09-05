@@ -18,12 +18,15 @@ public struct CompletionCounterStore {
 
     public init(
         defaults: UserDefaults = AppGroup.defaults,
-        key: String = "completionCount") {
+        key: String = defaultsKey) {
         self.defaults = defaults
         self.key = key
     }
 
     // MARK: Public
+
+    /// Single shared key used by the store, `@AppStorage`, and sync payload.
+    public static let defaultsKey = "completionCount"
 
     /// The current completion count. Reads `UserDefaults.integer(forKey:)`,
     /// which returns 0 when the key is absent — safe, 0-defaulted.

@@ -1,3 +1,4 @@
+import SingleThreadCore
 import SwiftUI
 #if os(iOS)
     import UIKit
@@ -77,9 +78,6 @@ enum AppearanceMode: String, CaseIterable {
     /// `.system` for a missing or unknown value. Mirrors `AppDelegate`'s
     /// `allowsLandscape` launch read and `@AppStorage`'s fallback-to-default.
     static func load(from defaults: UserDefaults = .standard) -> Self {
-        guard let rawValue = defaults.object(forKey: "appearanceMode") as? String,
-              let mode = Self(rawValue: rawValue)
-        else { return .system }
-        return mode
+        Self(rawValue: AppearanceModePreference(defaults: defaults).rawValue) ?? .system
     }
 }

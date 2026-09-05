@@ -24,14 +24,14 @@ final class WatchAppViewModel {
         // (suiteName:) ?? .standard`), so the seeded count must land in that
         // suite (it falls back to `.standard` where no App Group is registered).
         if arguments.contains("--ui-testing-gated") {
-            AppGroup.defaults.set(EntitlementStore.freemiumCap, forKey: "completionCount")
+            AppGroup.defaults.set(EntitlementStore.freemiumCap, forKey: CompletionCounterStore.defaultsKey)
         }
         // Restore the last-received sort (persisted to .standard on receive) so the
         // watch shows the correct order even before the next context push arrives.
         store.sortOption = SortOptionStore().load()
         // Restore the last-received show-undated preference the same way. Direct
         // assignment fires the didSet hook, which is unwired on the watch — no echo.
-        store.showsUndatedReminders = ShowUndatedRemindersPreference(defaults: .standard).load()
+        store.showsUndatedReminders = ShowUndatedRemindersPreference(defaults: .standard).isEnabled
 
         showDateState = ShowDateState()
         showRecurrenceState = ShowRecurrenceState()
@@ -118,7 +118,7 @@ final class WatchAppViewModel {
         if let index = arguments.firstIndex(of: "--ui-testing-skip-count"),
            index + 1 < arguments.count,
            let count = Int(arguments[index + 1]) {
-            AppGroup.defaults.set([reminder.calendarItemIdentifier: count], forKey: "skipCounts")
+            AppGroup.defaults.set([reminder.calendarItemIdentifier: count], forKey: SkipCountStore.defaultsKey)
         }
         // `--ui-testing-excluded-list "<list>"` gives the sample reminder a calendar
         // of that title and pre-populates the store's exclusion set, so an XCTest
@@ -199,7 +199,7 @@ final class WatchAppViewModel {
         // The store's counter reads `AppGroup.defaults`, so the received count is
         // persisted there (falling back to `.standard` when no App Group exists).
         service.onCompletionCountReceived = { count in
-            AppGroup.defaults.set(count, forKey: "completionCount")
+            AppGroup.defaults.set(count, forKey: CompletionCounterStore.defaultsKey)
         }
         // A phone-side exclusion toggle arrives and re-filters this watch's live list.
         // Same write-before-activate invariant as shared onShowUndatedRemindersReceived.
@@ -258,7 +258,7 @@ final class WatchAppViewModel {
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 service.session(
                     WCSession.default,
-                    didReceiveApplicationContext: ["excludedListTitles": [list]])
+                    didReceiveApplicationContext: [ExcludedListStore.defaultsKey: [list]])
             }
         }
     }

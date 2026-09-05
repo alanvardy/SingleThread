@@ -69,14 +69,14 @@ struct ContentView: View {
 
     // MARK: - Creation Feedback
 
-    @AppStorage("appearanceMode")
+    @AppStorage(AppearanceModePreference.defaultsKey)
     var appearanceMode = AppearanceMode.system
 
     @AppStorage("textSize")
     var textSize = TextSize.system
 
     #if os(iOS)
-        @AppStorage("allowsLandscape")
+        @AppStorage(OrientationPreference.defaultsKey)
         var allowsLandscape = true
     #endif
 
@@ -106,31 +106,12 @@ struct ContentView: View {
         @AppStorage("showUndoButton")
         var showUndoButton = true
 
-        @AppStorage(AppViewModel.NotificationKeys.enabled)
+        @AppStorage(NotificationPreference.enabledDefaultsKey)
         var notificationsEnabled = false
 
-        @AppStorage(AppViewModel.NotificationKeys.intervalHours)
+        @AppStorage(NotificationPreference.intervalDefaultsKey)
         var notificationIntervalHours = 48
     #endif
-    @AppStorage("showUndatedReminders", store: AppGroup.defaults)
-    var showUndatedReminders = false
-
-    @AppStorage(SortOption.defaultsKey, store: AppGroup.defaults)
-    var sortOption = SortOption.priority
-
-    @AppStorage("showDate", store: AppGroup.defaults)
-    var showDate = true
-
-    @AppStorage("showList", store: AppGroup.defaults)
-    var showList = false
-
-    @AppStorage("showRecurrence", store: AppGroup.defaults)
-    var showRecurrence = true
-    @AppStorage("showAlarms", store: AppGroup.defaults)
-    var showAlarms = true
-
-    @AppStorage("showCompletionGlow", store: AppGroup.defaults)
-    var showCompletionGlow = true
 
     /// Drives the skip-nudge sheet (iOS only), shown when the user taps the
     /// in-card nudge banner after a reminder has been skipped 6 times.
@@ -153,6 +134,11 @@ struct ContentView: View {
     #endif
 
     let viewModel: ContentViewModel
+
+    /// Observable snapshot of the App-Group preferences, refreshed on any
+    /// `UserDefaults.didChangeNotification` for the suite. Replaces the former
+    /// `@AppStorage(..., store: AppGroup.defaults)` declarations.
+    var preferences = PreferenceHolder()
 
     var excludedListsBinding: Binding<Set<String>> {
         Binding(
@@ -235,16 +221,26 @@ struct ContentView: View {
             handleScenePhaseChange(phase)
         }
         .task {
+            #if os(iOS)
+                // PROBE: hardcoded true to isolate value vs mechanism
+                print("[PROBE] task ran, appstorage=\(enableActionButtons), setting true")
+                viewModel.enableActionButtons = true
+            #endif
             await viewModel.backgroundImage.setPinned(backgroundPinned)
-            await viewModel.task(showUndatedReminders: showUndatedReminders)
+            await viewModel.task(showUndatedReminders: preferences.showUndatedReminders)
         }
         .onChange(of: backgroundPinned) { _, newValue in
             setBackgroundPinned(newValue)
         }
-        .onChange(of: showUndatedReminders) { _, newValue in
+        #if os(iOS)
+        .onChange(of: enableActionButtons) { _, newValue in
+            viewModel.enableActionButtons = newValue
+        }
+        #endif
+        .onChange(of: preferences.showUndatedReminders) { _, newValue in
             viewModel.handleShowUndatedReminders(newValue)
         }
-        .onChange(of: sortOption) { _, newValue in
+        .onChange(of: preferences.sortOption) { _, newValue in
             viewModel.handleSortOption(newValue)
         }
         .onChange(of: appearanceMode) { _, newValue in
@@ -429,10 +425,10 @@ struct ContentView: View {
                             let openNudgeSheet = { isShowingNudgeSheet = true }
                             ReminderCardView(
                                 display: ReminderDisplay(reminder: reminder),
-                                showDate: showDate,
-                                showList: showList,
-                                showRecurrence: showRecurrence,
-                                showAlarms: showAlarms,
+                                showDate: preferences.showDate,
+                                showList: preferences.showList,
+                                showRecurrence: preferences.showRecurrence,
+                                showAlarms: preferences.showAlarms,
                                 showSwipePrompt: swipePromptBinding,
                                 // The nudge args are harmless on non-iOS: the
                                 // 6th-skip interrupt (and thus `nudgeIdentifier`)
@@ -560,7 +556,7 @@ struct ContentView: View {
                 .font(.title2)
                 .controlPlate()
         }
-        .accessibilityLabel("Dictate reminder")
+        .accessibilityLabel("Dictate reminder \(viewModel.enableActionButtons ? "FLAGON" : "FLAGOFF")")
         .accessibilityIdentifier("dictateButton")
         .accessibilityAddTraits(.isButton)
     }
