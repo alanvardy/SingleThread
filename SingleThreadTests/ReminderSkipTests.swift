@@ -163,8 +163,8 @@ struct ReminderSortTests {
 
     @Test
     func priorityOptionMatchesLegacyComparator() {
-        let lowPriority = makeReminder(title: "a", priority: 9, dateComponents: date(2))
-        let highPriority = makeReminder(title: "b", priority: 1)
+        let lowPriority = makeReminder(title: "a", priority: 9, dateComponents: date(2), calendarTitle: "Work")
+        let highPriority = makeReminder(title: "b", priority: 1, calendarTitle: "Home")
         let viaPriority = [lowPriority, highPriority].sorted {
             ReminderSort.areInIncreasingOrder($0, $1, using: .priority)
         }.map(\.title)
@@ -194,6 +194,57 @@ struct ReminderSortTests {
         let sorted = [later, sooner].sorted { ReminderSort.areInIncreasingOrder($0, $1, using: .title) }
         #expect(sorted[0].dueDateComponents?.day == 2, "same title breaks tie by sooner due date")
         #expect(sorted[1].dueDateComponents?.day == 10, "same title breaks tie by later due date")
+    }
+
+    @Test
+    func groupsByListWithinPriorityBucket() {
+        let work = makeReminder(title: "Work task", priority: 1, calendarTitle: "Work")
+        let home = makeReminder(title: "Home task", priority: 1, calendarTitle: "Home")
+        #expect(titles(of: [work, home]) == ["Home task", "Work task"], "same priority groups by list")
+    }
+
+    @Test
+    func groupsByListWithinDueDateBucket() {
+        let work = makeReminder(title: "Work task", dateComponents: date(2), calendarTitle: "Work")
+        let home = makeReminder(title: "Home task", dateComponents: date(2), calendarTitle: "Home")
+        #expect(titles(of: [work, home], using: .dueDate) == ["Home task", "Work task"], "same due date groups by list")
+    }
+
+    @Test
+    func groupsByListWithinTitleBucket() {
+        let homeLater = makeReminder(title: "Same", dateComponents: date(10), calendarTitle: "Home")
+        let workSooner = makeReminder(title: "Same", dateComponents: date(2), calendarTitle: "Work")
+        let sorted = [homeLater, workSooner].sorted { ReminderSort.areInIncreasingOrder($0, $1, using: .title) }
+        #expect(sorted.map(\.calendar?.title) == ["Home", "Work"], "same title groups by list; list beats due date")
+    }
+
+    @Test
+    func listCollationIsCaseAndLocaleInsensitive() {
+        let upper = makeReminder(title: "z-title", priority: 1, calendarTitle: "Work")
+        let lower = makeReminder(title: "a-title", priority: 1, calendarTitle: "work")
+        // Case-sensitive would order "Work" before "work"; case-insensitive ties
+        // them so title decides. Locale-insensitivity is inherited from
+        // localizedCaseInsensitiveCompare (not deterministically assertable here).
+        let sorted = [upper, lower].sorted { ReminderSort.areInIncreasingOrder($0, $1, using: .priority) }
+        #expect(sorted.map(\.title) == ["a-title", "z-title"], "Work/work collapse to one list; title breaks the tie")
+    }
+
+    @Test
+    func nilListSortsLast() {
+        let titled = makeReminder(title: "titled", priority: 1, calendarTitle: "Work")
+        let untitled = makeReminder(title: "untitled", priority: 1)
+        #expect(titles(of: [untitled, titled]) == ["titled", "untitled"], "titled list before nil list")
+        #expect(titles(of: [titled, untitled]) == ["titled", "untitled"], "nil list sorts last regardless of input order")
+    }
+
+    @Test
+    func sameListFallsThroughToDateThenTitle() {
+        let later = makeReminder(title: "later", priority: 1, dateComponents: date(10), calendarTitle: "Work")
+        let sooner = makeReminder(title: "sooner", priority: 1, dateComponents: date(2), calendarTitle: "Work")
+        #expect(titles(of: [later, sooner]) == ["sooner", "later"], "same list falls through to date")
+        let beta = makeReminder(title: "Beta", priority: 1, calendarTitle: "Work")
+        let alpha = makeReminder(title: "Alpha", priority: 1, calendarTitle: "Work")
+        #expect(titles(of: [beta, alpha]) == ["Alpha", "Beta"], "same list + no date falls through to title")
     }
 
     // MARK: Private

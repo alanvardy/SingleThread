@@ -212,7 +212,7 @@ The legacy 2-arg `areInIncreasingOrder(_:_:)` (`:9-11`) is unchanged — it dele
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh --unit-only` passes — all six new list-grouping cases **and** every pre-existing unmodified chain test (`sortsByPriorityThenDateThenTitle`, `sortsWithinSamePriorityByDateThenTitle`, `dueDateOptionSortsSoonestFirst`, `titleOptionSortsCaseInsensitively`) stay green
+- [x] `./scripts/test.sh --unit-only` passes — all six new list-grouping cases **and** every pre-existing unmodified chain test (`sortsByPriorityThenDateThenTitle`, `sortsWithinSamePriorityByDateThenTitle`, `dueDateOptionSortsSoonestFirst`, `titleOptionSortsCaseInsensitively`) stay green
 - [ ] Fast loop (optional during iteration): `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=<ver>' -only-testing:SingleThreadTests/ReminderSortTests test`
 
 #### Manual
