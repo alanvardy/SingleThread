@@ -1436,6 +1436,47 @@
         }
       }
     },
+    "Only today's and overdue reminders show here — press the refresh button in the top left corner.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only today's and overdue reminders show here — press the refresh button in the top left corner."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "这里只显示今天和过期的提醒——请按左上角的刷新按钮。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aquí solo se muestran los recordatorios de hoy y vencidos: pulsa el botón de actualizar en la esquina superior izquierda."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ここには今日と期限切れのリマインダーだけが表示されます。左上隅の更新ボタンを押してください。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hier werden nur heutige und überfällige Erinnerungen angezeigt — drücke die Aktualisieren-Taste oben links."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seuls les rappels d'aujourd'hui et en retard s'affichent ici — appuyez sur le bouton d'actualisation en haut à gauche."
+          }
+        }
+      }
+    },
     "Photo by %@ on Unsplash": {
       "extractionState": "manual",
       "localizations": {
@@ -1637,6 +1678,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "Tirez pour actualiser et revoir tous vos rappels."
+          }
+        }
+      }
+    },
+    "Press the refresh button in the top left corner to see all your reminders again.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press the refresh button in the top left corner to see all your reminders again."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按左上角的刷新按钮即可再次查看所有提醒。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulsa el botón de actualizar en la esquina superior izquierda para volver a ver todos tus recordatorios."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "左上隅の更新ボタンを押すと、すべてのリマインダーを再表示できます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Drücke die Aktualisieren-Taste oben links, um wieder alle Erinnerungen zu sehen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appuyez sur le bouton d'actualisation en haut à gauche pour revoir tous vos rappels."
           }
         }
       }
