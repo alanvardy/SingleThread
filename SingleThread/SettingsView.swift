@@ -8,6 +8,10 @@ import SwiftUI
 ///
 /// `excludedLists` is the one store-backed value and is passed separately as
 /// a `Binding<Set<String>>` (see the note in `SettingsBindings`).
+///
+/// Every navigation destination below must end with `.settingsSubscreenLayout()`
+/// to top-align pushed content on macOS; omitting it silently reintroduces
+/// the vertical-centering bug on that platform.
 struct SettingsView: View {
     // MARK: Lifecycle
 
