@@ -270,9 +270,9 @@ struct SettingsCaptionTests {
 ### Verification
 
 #### Automated
-- [ ] `make build && make lint` — both new files compile, SwiftLint clean
-- [ ] `xcodebuild -only-testing:SingleThreadTests/SettingsCaptionTests -destination "$SIM"` — three `@Test`s green
-- [ ] `make periphery` — no dead code (SettingsCaption used in Phase 3)
+- [x] `make build && make lint` — both new files compile, SwiftLint clean
+- [x] `xcodebuild -only-testing:SingleThreadTests/SettingsCaptionTests -destination "$SIM"` — three `@Test`s green
+- [x] `make periphery` — no dead code (SettingsCaption used in Phase 3)
 
 ---
 
