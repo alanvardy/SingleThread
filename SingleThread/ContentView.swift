@@ -112,25 +112,6 @@ struct ContentView: View {
         @AppStorage(NotificationPreference.intervalDefaultsKey)
         var notificationIntervalHours = 48
     #endif
-    @AppStorage(ShowUndatedRemindersPreference.defaultsKey, store: AppGroup.defaults)
-    var showUndatedReminders = false
-
-    @AppStorage(SortOption.defaultsKey, store: AppGroup.defaults)
-    var sortOption = SortOption.priority
-
-    @AppStorage(ShowDatePreference.defaultsKey, store: AppGroup.defaults)
-    var showDate = true
-
-    @AppStorage(ShowListPreference.defaultsKey, store: AppGroup.defaults)
-    var showList = false
-
-    @AppStorage(ShowRecurrencePreference.defaultsKey, store: AppGroup.defaults)
-    var showRecurrence = true
-    @AppStorage(ShowAlarmsPreference.defaultsKey, store: AppGroup.defaults)
-    var showAlarms = true
-
-    @AppStorage(ShowCompletionGlowPreference.defaultsKey, store: AppGroup.defaults)
-    var showCompletionGlow = true
 
     /// Drives the skip-nudge sheet (iOS only), shown when the user taps the
     /// in-card nudge banner after a reminder has been skipped 6 times.
@@ -153,6 +134,11 @@ struct ContentView: View {
     #endif
 
     let viewModel: ContentViewModel
+
+    /// Observable snapshot of the App-Group preferences, refreshed on any
+    /// `UserDefaults.didChangeNotification` for the suite. Replaces the former
+    /// `@AppStorage(..., store: AppGroup.defaults)` declarations.
+    var preferences = PreferenceHolder()
 
     var excludedListsBinding: Binding<Set<String>> {
         Binding(
@@ -236,15 +222,15 @@ struct ContentView: View {
         }
         .task {
             await viewModel.backgroundImage.setPinned(backgroundPinned)
-            await viewModel.task(showUndatedReminders: showUndatedReminders)
+            await viewModel.task(showUndatedReminders: preferences.showUndatedReminders)
         }
         .onChange(of: backgroundPinned) { _, newValue in
             setBackgroundPinned(newValue)
         }
-        .onChange(of: showUndatedReminders) { _, newValue in
+        .onChange(of: preferences.showUndatedReminders) { _, newValue in
             viewModel.handleShowUndatedReminders(newValue)
         }
-        .onChange(of: sortOption) { _, newValue in
+        .onChange(of: preferences.sortOption) { _, newValue in
             viewModel.handleSortOption(newValue)
         }
         .onChange(of: appearanceMode) { _, newValue in
@@ -429,10 +415,10 @@ struct ContentView: View {
                             let openNudgeSheet = { isShowingNudgeSheet = true }
                             ReminderCardView(
                                 display: ReminderDisplay(reminder: reminder),
-                                showDate: showDate,
-                                showList: showList,
-                                showRecurrence: showRecurrence,
-                                showAlarms: showAlarms,
+                                showDate: preferences.showDate,
+                                showList: preferences.showList,
+                                showRecurrence: preferences.showRecurrence,
+                                showAlarms: preferences.showAlarms,
                                 showSwipePrompt: swipePromptBinding,
                                 // The nudge args are harmless on non-iOS: the
                                 // 6th-skip interrupt (and thus `nudgeIdentifier`)

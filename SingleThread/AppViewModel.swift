@@ -275,7 +275,10 @@ final class AppViewModel {
             // XCTest seam on a test-only destination.
             if arguments.contains("--ui-testing") {
                 if arguments.contains("--reset-glow-preference") {
-                    UserDefaults.standard.removeObject(forKey: ShowCompletionGlowPreference.defaultsKey)
+                    // Glow lives in the App Group suite (the store type reads it
+                    // there); removing the `.standard` key left the prior test's
+                    // value polluting later launches on the shared simulator.
+                    AppGroup.defaults.removeObject(forKey: ShowCompletionGlowPreference.defaultsKey)
                 }
                 if arguments.contains("--reset-swipe-preference") {
                     UserDefaults.standard.removeObject(forKey: "showSwipePrompt")

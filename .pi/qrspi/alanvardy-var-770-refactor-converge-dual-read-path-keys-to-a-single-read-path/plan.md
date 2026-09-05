@@ -791,13 +791,13 @@ struct PreferenceHolderTests {
 ```
 
 ### Verification
-- [ ] `make build` green — all targets compile without AG @AppStorage
-- [ ] `make test` green — PreferenceHolderTests pass; existing tests updated for new references
-- [ ] `make lint` green
-- [ ] `make ui-test` — settings sheet opens and displays current AG-key values
+- [x] `make build` green — all targets compile without AG @AppStorage
+- [x] `make test` green — PreferenceHolderTests pass; existing tests updated for new references
+- [x] `make lint` green
+- [x] `make ui-test` — settings sheet opens and displays current AG-key values
 - [ ] Manual: toggle showDate in settings, dismiss sheet, reopen — value displayed correctly (but NOT persisted across this stage — fixed in Stage 5)
 - [ ] Manual: reminder list refreshes when showDate/showList etc. are toggled
-- [ ] No `@AppStorage` for AG keys remains in any target (grep verification)
+- [x] No `@AppStorage` for AG keys remains in any target (grep verification)
 
 ---
 
@@ -918,10 +918,10 @@ The 7 AG-key `.onChange` handlers were removed in Stage 4.4.5. No further change
 `settingsSheetWritebacks` now only has `.onChange` handlers for STD keys.
 
 ### Verification
-- [ ] `make build` green
-- [ ] `make test` green — SettingsViewModelTests updated
-- [ ] `make lint` green
-- [ ] `make ui-test` green — settings persistence flows pass
+- [x] `make build` green
+- [x] `make test` green — SettingsViewModelTests updated
+- [x] `make lint` green
+- [x] `make ui-test` green — settings persistence flows pass
 - [ ] Manual: open settings, toggle each AG key, dismiss sheet, reopen — values preserved
 - [ ] Manual: toggle showDate → reminder list immediately shows/hides dates
 - [ ] Manual: change sort option → list re-sorts immediately

@@ -201,13 +201,7 @@ struct SettingsView: View {
         enableActionButtons: false,
         showMicrophoneButton: false,
         backgroundEnabled: true,
-        backgroundFadePercent: 50,
-        showUndatedReminders: true,
-        sortOption: .dueDate,
-        showDate: false,
-        showList: true,
-        showRecurrence: true,
-        showAlarms: true)
+        backgroundFadePercent: 50)
     SettingsView(
         bindings: bag,
         backgroundImage: BackgroundImageStore(),

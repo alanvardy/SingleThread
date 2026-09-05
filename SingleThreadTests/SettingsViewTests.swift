@@ -11,10 +11,15 @@ struct SettingsViewTests {
 
     @Test
     func settingsBindingsCarriesShowCompletionGlow() {
+        // The AG-key property is store-backed now; pin a known value so the
+        // assertion does not depend on whatever the shared App Group suite holds.
+        let original = ShowCompletionGlowPreference().isEnabled
+        defer { ShowCompletionGlowPreference().set(original) }
+        ShowCompletionGlowPreference().set(true)
         let bag = SettingsBindings()
-        #expect(bag.showCompletionGlow) // default enabled
-        let off = SettingsBindings(showCompletionGlow: false)
-        #expect(!off.showCompletionGlow) // explicit false round-trips
+        #expect(bag.showCompletionGlow) // reads true from store
+        bag.showCompletionGlow = false
+        #expect(!bag.showCompletionGlow) // setter round-trips through the store
     }
 
     @Test
