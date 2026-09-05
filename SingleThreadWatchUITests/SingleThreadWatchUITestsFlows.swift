@@ -102,6 +102,87 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
             "Skipping the only reminder should show the All Done state")
     }
 
+    // MARK: - Action menu (toggle synced ON via --ui-testing-action-menu)
+
+    /// Toggle ON: the Skip tap presents the three-action menu instead of
+    /// skipping directly; choosing Skip advances the card.
+    @MainActor
+    func testActionMenuShowsWhenToggleSyncedOn() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-action-menu"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        let skip = app.buttons["skipButton"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 3), "Skip button should be present")
+        skip.tap()
+
+        // watchOS dialog actions expose their label, not the identifier.
+        let dialogSkip = app.buttons["Skip"]
+        XCTAssertTrue(
+            dialogSkip.waitForExistence(timeout: 3),
+            "Toggle ON: Skip should present the action menu, not skip directly")
+        dialogSkip.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
+            "The menu's Skip should advance to the All Done state")
+    }
+
+    /// Toggle ON: the menu's Delete removes the reminder.
+    @MainActor
+    func testActionMenuDeleteRemovesWhenToggleSyncedOn() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-action-menu"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        let skip = app.buttons["skipButton"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 3))
+        skip.tap()
+
+        let delete = app.buttons["Delete"]
+        XCTAssertTrue(
+            delete.waitForExistence(timeout: 3),
+            "The action menu should offer Delete")
+        delete.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
+            "Deleting the only reminder should show the empty state")
+    }
+
+    /// Toggle ON: the menu's Reschedule opens the date-picker sheet; confirming
+    /// fires the watch→phone reschedule relay and dismisses the sheet with the
+    /// card still on screen.
+    @MainActor
+    func testActionMenuReschedulePresentsSheetWhenToggleSyncedOn() {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-action-menu"]
+        app.launch()
+        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
+
+        let skip = app.buttons["skipButton"]
+        XCTAssertTrue(skip.waitForExistence(timeout: 3))
+        skip.tap()
+
+        let reschedule = app.buttons["Reschedule"]
+        XCTAssertTrue(
+            reschedule.waitForExistence(timeout: 3),
+            "The action menu should offer Reschedule")
+        reschedule.tap()
+
+        let confirm = app.buttons["rescheduleConfirmButton"]
+        XCTAssertTrue(
+            confirm.waitForExistence(timeout: 3),
+            "Reschedule should open the date-picker sheet")
+        confirm.tap()
+
+        XCTAssertTrue(
+            app.staticTexts["Buy groceries"].waitForExistence(timeout: 5),
+            "After confirming the relay, the card stays on screen")
+    }
+
     // MARK: - Skip nudge
 
     @MainActor

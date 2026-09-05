@@ -136,6 +136,20 @@ struct ContentView: View {
     /// in-card nudge banner after a reminder has been skipped 6 times.
     @State var isShowingNudgeSheet = false
 
+    /// Drives the action-menu reschedule sheet (iOS + macOS).
+    @State var isShowingRescheduleSheet = false
+
+    #if os(iOS)
+        /// Drives the three-action confirmation dialog (Skip / Reschedule /
+        /// Delete) presented from the bottom-bar Skip button when the
+        /// action-buttons toggle is on.
+        @State var isShowingActionMenu = false
+
+        /// The reminder the action menu was opened for, so the reschedule
+        /// sheet can tailor its picker (date-only vs date+time).
+        @State var actionMenuReminder: EKReminder?
+    #endif
+
     // Deep link last opened via the ``--url-opener-spy`` UI-test seam. Rendered
     // back as an accessible element so an XCUITest can read it. Always nil in
     // production (the spy launch arg is absent), so this never affects real
@@ -268,6 +282,9 @@ struct ContentView: View {
                 isPresented: $isShowingPurchase,
                 entitlementStore: viewModel.store.entitlementStore)
         }
+        .sheet(isPresented: $isShowingRescheduleSheet) {
+            actionMenuRescheduleSheet
+        }
         #if os(iOS)
         .sheet(isPresented: $isShowingNudgeSheet, onDismiss: { viewModel.dismissNudge() }) {
             nudgeSheetContent
@@ -320,51 +337,6 @@ struct ContentView: View {
             .constant(false)
         #endif
     }
-
-    #if os(macOS)
-        private var actionButtons: some View {
-            HStack(spacing: 32) {
-                Button {
-                    Task { await viewModel.completeCurrentReminder() }
-                } label: {
-                    Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
-                        .labelStyle(.iconOnly)
-                        .font(.title)
-                }
-                .tint(.green)
-                .keyboardShortcut("c", modifiers: [])
-                .accessibilityLabel(SharedStrings.completeReminderAccessibility)
-                .accessibilityIdentifier("completeButton")
-                .accessibilityAddTraits(.isButton)
-
-                Button {
-                    viewModel.skipCurrentReminder()
-                } label: {
-                    Label(SharedStrings.skipAction, systemImage: "circle.slash")
-                        .labelStyle(.iconOnly)
-                        .font(.title)
-                }
-                .tint(.orange)
-                .keyboardShortcut("s", modifiers: [])
-                .accessibilityLabel(SharedStrings.skipReminderAccessibility)
-                .accessibilityIdentifier("skipButton")
-                .accessibilityAddTraits(.isButton)
-
-                Button {
-                    Task { await viewModel.deleteCurrentReminder() }
-                } label: {
-                    Label(SharedStrings.deleteAction, systemImage: "trash")
-                        .labelStyle(.iconOnly)
-                        .font(.title)
-                }
-                .tint(.red)
-                .accessibilityLabel(SharedStrings.deleteReminderAccessibility)
-                .accessibilityIdentifier("deleteButton")
-                .accessibilityAddTraits(.isButton)
-            }
-            .padding(.bottom, 8)
-        }
-    #endif
 
     @ViewBuilder private var authGatedContent: some View {
         switch viewModel.store.authorizationStatus {
@@ -506,6 +478,9 @@ struct ContentView: View {
     }
 
     #if os(iOS)
+
+        // MARK: - Complete / Skip / Action menu
+
         private var completeButton: some View {
             Button {
                 Task { await viewModel.completeCurrentReminder() }
@@ -516,19 +491,6 @@ struct ContentView: View {
             }
             .accessibilityLabel(SharedStrings.completeReminderAccessibility)
             .accessibilityIdentifier("completeButton")
-            .accessibilityAddTraits(.isButton)
-        }
-
-        private var skipButton: some View {
-            Button {
-                viewModel.skipCurrentReminder()
-            } label: {
-                Label(SharedStrings.skipAction, systemImage: "circle.slash")
-                    .labelStyle(.iconOnly)
-                    .controlPlate()
-            }
-            .accessibilityLabel(SharedStrings.skipReminderAccessibility)
-            .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
         }
 

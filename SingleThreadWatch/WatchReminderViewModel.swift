@@ -57,6 +57,16 @@ final class WatchReminderViewModel {
     /// tapped.
     var isShowingNudgeDialog = false
 
+    /// Drives the three-action menu (Skip / Reschedule / Delete) presented from
+    /// the Skip button when the action-buttons toggle is synced ON.
+    var isShowingActionMenu = false
+
+    /// Drives the Reschedule sheet presented from the action menu.
+    var isShowingRescheduleSheet = false
+
+    /// The reschedule date picker's selection (defaults to tomorrow).
+    var rescheduleDate = Date().addingTimeInterval(86400)
+
     /// When `true`, the completion glow is playing out and the card should
     /// stay visible as a "ghost" even though the store is already empty.
     var isShowingCompletionTransition = false
