@@ -1,0 +1,135 @@
+# Research Findings
+
+Research for the dictation subsystem: `SingleThread/DictationViewModel.swift` + `SingleThread/ReminderDictation.swift`, their injection points, the SwiftUI surface in `SingleThread/ContentView.swift:bottomBar`, and the Swift Testing suites. All line numbers verified against the working tree (`cat -n`).
+
+---
+
+## Q1: Flag lifecycles and the complete flow
+
+### Findings
+
+- **Trigger chain**: `micButton` (`ContentView.swift:546-557`) fires an unstructured `Task { await viewModel.dictation.startDictation() }` (`:548`) → `DictationViewModel.startDictation()` (`DictationViewModel.swift:44-88`) → `ReminderDictation.transcribe()` (`ReminderDictation.swift:72-97`) → `awaitFinalResult` (`:159-211`). Wiring: `ContentViewModel` builds `dictation = DictationViewModel(speechTranscriber:store:)` (`ContentViewModel.swift:24`, property `:41`); `AppViewModel.makeContentViewModel` supplies the concrete recorder `speechTranscriber: ReminderDictation()` (`AppViewModel.swift:241`).
+- **`isDictating` write/read sites** (property `private(set) var isDictating = false`, `DictationViewModel.swift:22`):
+  - true: `DictationViewModel.swift:62`; false: `:87` (final statement of `startDictation`).
+  - Sole production read: `ContentView.swift:662` (bottomBar else-chain). Test read: `ReminderDictationTests.swift:203` (`#expect(!viewModel.isDictating)` post-flow). `private(set)` — no external writes.
+- **`isRecording` write/read sites** (property `private var isRecording = false`, `ReminderDictation.swift:107`):
+  - true: `:93` (only after `prepareRecording()` succeeds); false: `:153` inside `tearDownRecording()` (`:147-157`) — the **only** false write.
+  - Reads: `:74` (re-entry guard → `DictationError.alreadyRecording`) and `:202` (5 s-timeout liveness guard). **Zero production reads outside `ReminderDictation`** (repo-wide `rg`; watch/widget/Core untouched by either flag).
+- **Sibling state**: `dictationText` writes `:63` (reset), `:67` (partial); reads `ContentView.swift:663-664`. `dictationError` writes `:48-51`, `:56-59`, `:64` (nil), `:85` (catch); read `ContentView.swift:653-656`. `creationFeedback` writes `:77` (.success), `:79` (.failure), `:82` (nil); read `ContentView.swift:660-661`. `partialText` (`ReminderDictation.swift:108`) writes `:80` (reset), `:187`; no production read — surfaced only via `onPartialResult` (`:188`).
+- **Exit paths of `startDictation()`** vs flag clearing:
+  - A — notDetermined → request → denied (`:45-53`): sets `dictationError` `:48-51`, returns `:52`. **No flag written.**
+  - B — denied/restricted at entry (`:55-60`): sets `dictationError` `:56-59`, returns `:60`. **No flag written.**
+  - C — empty parsed title (`:70`): skips `:71-83`, falls to `:87`.
+  - D — `store.addReminder` returns false (`:78-80`): `.failure` `:79` → sleep `:81` → nil `:82` → `:87`.
+  - E — transcribe throws (`:84-85`): catch sets `dictationError` `:85` → falls past do/catch → `:87`.
+  - F — success: `.success` `:77` → sleep `:81` → nil `:82` → `:87`.
+  - **No early return exists between `:62` and `:87`** (the `if` at `:70` has no else/return), so every path that sets `isDictating = true` reaches the `:87` clear; paths A/B never set it. No path leaves `isDictating` true on normal completion.
+- **`transcribe()` exit paths vs `isRecording`**: `:74` (alreadyRecording) and `:75-78` (recognizer unavailable / microphone denied) throw **before** any flag write; `prepareRecording()` throw is caught, `tearDownRecording()` called explicitly, rethrown (`:87-92` — `isRecording` stays false); after `isRecording = true` (`:93`) every exit runs `defer { tearDownRecording() }` (`:94`), which clears it at `:153`. No path leaves `isRecording` true.
+- **Reachable transient windows** (both documented as contradictions):
+  - `isDictating = true ∧ isRecording = false`: from `transcribe` return until `DictationViewModel.swift:87` (parse `:69` + add `:71-75` + 1 s feedback sleep `:81-82`). UI at `ContentView.swift:662-670` renders the "Recording" indicator with the mic already off. This is exactly the prior audit's **T1.1** (`.pi/qrspi/alanvardy-var-759-do-a-full-audit-of-state/audit/findings.md`, T1.1 section).
+  - `isDictating = false ∧ isRecording = true` (interleaving only): two concurrent `startDictation()` tasks are not serialized — Task 2's `transcribe` throws `.alreadyRecording` (`:74`), its catch sets `dictationError` (`:85`) and its `:87` clears `isDictating` while Task 1 still records.
+
+## Q2: UI rendering derivation and precedence
+
+### Findings
+
+- `bottomBar` (`ContentView.swift:646-707`) is rendered from `reminderList` in two spots (`:419`, `:497`) via `ZStack(alignment: .bottom)`; **not** rendered in the `allSkipped` branch (`:403-409`).
+- VStack children in order: (a) macOS-only `actionButtons` (`:648-651`, when `store.visibleReminders.first != nil`); (b) **standalone `if`** on `dictationError` (`:653-659`) — because it is a separate `if` and appears earlier in the VStack, error text renders **above** whatever the else-if chain picks (vertical layout order, not overlay z-order); `dictationError` and a chain branch can coexist, and nothing enforces mutual exclusion with `creationFeedback` (in practice their writes are on disjoint paths — `:48/:56/:85` vs `:77-79`).
+- Then an **if/else-if/else-if/else-if chain** (`:660-703`), first match wins:
+  1. `creationFeedback != nil` → `creationFeedbackView(for:)` (`:660-661`; sub-view `:601-606`; enum `SingleThread/CreationFeedback.swift:7-9`, `.success` checkmark/green, `.failure` xmark/red). **Precedence proof**: `isDictating` stays true through the feedback window, so `creationFeedback != nil ∧ isDictating == true` is reachable, and the feedback plate wins — the recording indicator is not rendered simultaneously.
+  2. `isDictating` → transcript `Text` (only when `dictationText` non-empty, `:663-664`) **plus** `recordingIndicator` (`:670`, unconditional). `recordingIndicator` (`:559-566`) is a red pulsing `mic.fill` (`.symbolEffect(.pulse, options: .repeating)`), a11y label "Recording", identifier `recordingIndicator`. **It is driven solely by `isDictating` — never by `ReminderDictation.isRecording`** (which no production code reads).
+  3. `canDictate && showMicrophoneButton` (`:671-684`): `canDictate` = `authorizationStatus == .authorized || .notDetermined` (`DictationViewModel.swift:27-31`; `.notDetermined` counts because permission is requested lazily on tap, `:45-53`). `showMicrophoneButton` is `@AppStorage("showMicrophoneButton")` (`ContentView.swift:83-84`), default `true` registered in `AppViewModel.registerDefaults()` (`AppViewModel.swift:205-209`). iOS inner gates (`:673-681`): `!hasResolvedEntitlement` → `EmptyView` (`:673-674`; flag `EntitlementStore.swift:67`, flipped in `refreshEntitlement()` `:112`); `!canMutate` → `upgradePrompt` (`:675-676`, `UpgradePromptButton` `:539-541`/`PurchaseSettingsView.swift:174-190`; `canMutate` `ReminderStore.swift:157-159`, freemium cap 100 `EntitlementStore.swift:57`); `showsActionButtons` → `actionCluster` (`:677-678` = Complete + mic + Skip, `:530-536`; `showsActionButtons` `ContentViewModel.swift:57-60` reads `UserDefaults` directly); else `micButton` (`:679-680`). Non-iOS: `micButton` unconditionally (`:682-683`).
+  4. `!canDictate && authorizationStatus != .notDetermined && showMicrophoneButton` → "Speech recognition is unavailable." VStack with iOS-only "Open Settings" button (`:685-703`; `authorizationStatus` passthrough `DictationViewModel.swift:35-37`).
+- **Element ↔ flag ownership**: error text ← `dictationError`; feedback plate ← `creationFeedback`; transcript ← `isDictating` ∧ non-empty `dictationText`; `recordingIndicator` ← `isDictating` alone; mic cluster/upgrade/empty ← `canDictate` ∧ `showMicrophoneButton` (+ iOS entitlement gates); unavailable message ← `!canDictate` ∧ `status != .notDetermined` ∧ `showMicrophoneButton`.
+- **Observability split**: `DictationViewModel` is `@MainActor @Observable` (`DictationViewModel.swift:8-10`) so `bottomBar` reads observe it; the recorder is deliberately **non-observable** — `isRecording`/`partialText` sit in the `@ObservationIgnored` cluster (`ReminderDictation.swift:101-109`), so the UI can only ever see the view-model flags.
+
+## Q3: Post-transcribe tail, timing, and task lifetime
+
+### Findings
+
+- **Tail structure**: the `do/catch` spans `DictationViewModel.swift:65-85`; `isDictating = false` at `:87` is **outside** it and runs on every path.
+- **Ordered tail from `transcribe` returning**:
+  1. `:66-68` awaited `speechTranscriber.transcribe { [weak self] ... }` returns the final string.
+  2. `:69` `ReminderDictationParser.parse(result)` — synchronous, no suspension (parser in `SingleThreadCore/Sources/SingleThreadCore/ReminderDictationParser.swift`).
+  3. `:70` empty-title check — if empty, the whole `:71-83` block is skipped and control jumps to `:87` (near-instant tail, no feedback).
+  4. `:71-75` `await store.addReminder(...)` — `ReminderStore.swift:306-325` (`save` → `await settle()` → `await reload()`); production settle default is **200 ms** sleep (`ReminderStore.swift:38-39`), reload at `:416`.
+  5. `:76-79` `creationFeedback = .success/.failure` — synchronous, immediately after addReminder.
+  6. `:81` `try? await Task.sleep(nanoseconds: 1_000_000_000)` — exactly **1 s** with feedback on screen; `try?` swallows `CancellationError`.
+  7. `:82` `creationFeedback = nil`; `:87` `isDictating = false`.
+  - Feedback window: empty title ≈ 0 s; non-empty title from ≥200 ms post-transcribe until 1 s later.
+- **Launch & lifetime**: the view's `Task { ... }` (`ContentView.swift:548`) is unstructured fire-and-forget; **no Task handle stored anywhere** (no `Task`-typed `@State`/property in `ContentView`/`ContentViewModel`); it strongly captures `viewModel` for its full duration.
+- **Cancellation surface — effectively none**:
+  - No `deinit` in `DictationViewModel`/`ReminderDictation` (repo's only `deinit` is `EntitlementStore.swift:43`, unrelated).
+  - **No `.onDisappear` anywhere in the app** (repo grep: zero hits).
+  - Scene-phase hooks: `.onChange(of: scenePhase)` (`ContentView.swift:234-235`, env `:309-310`) → `handleScenePhaseChange` (`:622-640`): `.background` schedules iOS notifications (`:626-629`); `.active` cancels iOS notifications (`:632-635`) **and** `viewModel.dictation.refreshAuthorizationStatus()` on all platforms (`:636`). **No phase handler touches `isDictating`, `creationFeedback`, `dictationText`, the engine, or the task.** `AppDelegate` active hook only re-applies appearance (`AppDelegate.swift:56-60`).
+  - So a backgrounding/view-teardown cannot cut the flow short; it self-terminates only via recognition final/error or the 5 s timeout.
+- **Re-entry during tail**: the mic is not rendered while `isDictating` (`:660-670`); `recordingIndicator` is an `Image` with no tap target; so UI re-entry is impossible. `ReminderDictation.transcribe`'s `guard !isRecording` (`:74`) is an **engine-level** guard that only fires once `isRecording == true` (not during the `ensureMicrophoneAccess` await at `:78`); `startDictation` has **no `guard !isDictating`** — concurrent programmatic calls would overwrite shared state and clobber `:87`.
+- **`awaitFinalResult` cancellation semantics** (`ReminderDictation.swift:159-211`): plain `withCheckedThrowingContinuation` (`:169`) — **no `withTaskCancellationHandler`, no `checkCancellation`** (repo grep: zero hits). Three mutually-exclusive resume sources, claimed once via `ResumptionGate` (`SingleThreadCore/Sources/SingleThreadCore/ResumptionGate.swift:19-37`, `tryResume` main-actor check-and-set): callback error (`:180-181`), `isFinal` (`:193-194`), and a **separate unstructured timeout Task** (`:200-209`, `[weak self]`, `try? await Task.sleep(5s)` `:201`, `guard ... isRecording` `:202`, resumes `.noSpeechDetected` :`205` or accumulated text `:207`). The timeout task is not a child of the awaiting task and is not stored/cancelled; its guards make it a no-op after the main path finishes. Only cancellation anywhere: `recognitionTask?.cancel()` in `tearDownRecording()` (`:151`), which runs after the continuation was already resumed.
+
+## Q4: Teardown and state-reset conventions
+
+### Findings
+
+- **`transcribe()` exit paths** (`ReminderDictation.swift:72-97`): `:74` alreadyRecording; `:75-77` recognizer unavailable; `:78` `ensureMicrophoneAccess` (mic denied) — all throw before state mutation; `:80` `partialText = ""` reset; `:87-92` `do { try prepareRecording() } catch { tearDownRecording(); throw error }` (documented comment `:82-86`: partial setup must be torn down or `isRecording == true` sticks and every later call fails `.alreadyRecording`); `:93` `isRecording = true`; `:94` `defer { tearDownRecording() }`; `:96` `awaitFinalResult` (can still throw `recognizerUnavailable` at `:163`, callback error `:181`, timeout `:205` — all exit through the defer).
+- **`tearDownRecording()` reset list** (`:147-157`): `audioEngine.stop()` `:148`; `inputNode.removeTap(onBus: 0)` `:149`; `recognitionRequest = nil` `:150`; `recognitionTask?.cancel()` `:151` + `recognitionTask = nil` `:152`; `isRecording = false` `:153`; iOS `AVAudioSession.setActive(false, .notifyOthersOnDeactivation)` (error swallowed) `:154-156`. Called only from the `:89-91` catch and the `:94` defer.
+- **`prepareRecording()`** (`:125-145`): iOS session `setCategory(.record, mode: .measurement, options: .duckOthers)` + `setActive(true, ...)` `:126-130`; `SFSpeechAudioBufferRecognitionRequest` with partials + on-device (`:132-135`); tap install (`:137-141`); `prepare()`/`start()` `:143-144`.
+- **`ensureMicrophoneAccess()`** (`:111-123`): `AVCaptureDevice` status switch, `requestAccess` await, `.microphoneDenied` throws.
+- **Conventions elsewhere**:
+  - `defer` — only 3 app-target sites: `BackgroundImageStore.swift:104` (`isFetching` reset in `refreshIfNeeded`), `:126-129` (`isRefreshing`/`isFetching` reset in `forceRefresh`); `ReminderDictation.swift:94`. **None in SingleThreadCore or watch.**
+  - `defer`-UserDefaults cleanup is the uniform **test** convention (write unique key, `defer { removeObject }`): `MicrophoneToggleTests.swift:77,94,110,185,200,212,224,237,250`; `ReminderStoreTests.swift:905,924,943,963,984`; `ActionButtonTests.swift:28,38,49,66`; watch tests `ReminderStoreWatchTests.swift:33,52,73,91`, `ShowCompletionGlowStateTests.swift:35,54,64,130` (comment `ReminderStoreWatchTests.swift:24`).
+  - `deinit` — exactly one in the repo: `EntitlementStore.swift:43` `deinit { observationTask?.cancel() }`; task started weak-self in init (`:36`), stored `nonisolated(unsafe)` (`:88`); test inits set it nil (`:26-35`).
+  - **`CompletionGlow`** (`SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift:53` lines): `isActive` `:19`; injectable `duration` `:25` (default 0.5); `trigger()` `:32-45` — `dismissTask?.cancel()` on retrigger, new `Task { [weak self] ... sleep(duration) ... }` self-reset; `dismissTask` `:49`. Consumers: `ContentViewModel.swift:50, 136-140`; `ContentView.swift:220-221` overlay, `:232-233` animation; `AppViewModel.swift:246` UI-test duration seam (2.0).
+  - **Watch completion-transition flags** (`SingleThreadWatch/WatchReminderViewModel.swift`): `isShowingCompletionTransition` `:59`, `transitionReminder` `:63`, `completionTransitionBuffer` `:67` (0.5); `completeCurrentReminder()` `:83-106` — re-entry guard `:84`, snapshot `:85`, `:88` flag true + `completionGlow.trigger()` `:89`, `Task { [weak self] ... sleep(duration + buffer) ... flag/reminder nil }` `:91-102` (time-based self-reset, not defer); ghost card render `WatchReminderView.swift:79-88`, glow overlay `:96-99`.
+  - `.onDisappear` — zero uses; the only life-cycle hooks are `.task` (`ContentView.swift:237-238`; `WatchReminderView.swift:65-67`) and scene-phase `onChange` (`ContentView.swift:234-236`).
+  - `ResumptionGate` one-shot claim (`ResumptionGate.swift:19-37`) is the "claim-once flag" pattern for continuation mutual exclusion.
+  - `PendingCompletionStore.swift` expiry is data-driven (drops entries past 300 s), no task/lifecycle cleanup.
+- **Refresh vs recording coherence**: `.active` → `refreshAuthorizationStatus()` (`ContentView.swift:636` → `DictationViewModel.swift:40-42` → `ReminderDictation.swift:65-67`) writes **only** `authorizationStatus`; it never touches `isRecording`/engine/`isDictating`. Recording is terminated only by the defer teardown, the timeout (`:202`), or a callback error; the UI derives purely from `authorizationStatus`/`canDictate`.
+
+## Q5: Test seams for the async dictation flow
+
+### Findings
+
+- **`FakeSpeechTranscriber`** (`ReminderDictationTests.swift:10-66`, `@MainActor private`): preset `authorizationStatus`/`transcriptionResult`/`transcriptionError`/`partialUpdates` (`:14-17`); call counters `requestAuthorizationCallCount`/`transcribeCallCount` (`:34-35`); **its own `isRecording` mirror** (`private(set)` `:26`) — set true at `:45` *before* the partial loop, false at `:60` *after*; each partial delivered with `try? await Task.sleep(nanoseconds: 50_000_000)` (`:52`, single "Listening…" fallback `:54-59` with same sleep `:58`); error thrown after the flag clears (`:61-62`).
+- **`DetachedAuthorizationRequiring`** (`:70-90`): `requestAuthorization(completion:)` invokes the completion from `Task.detached` (`:84`) to replay the real framework's off-main delivery; test `requestAuthorizationResumesOnMainActorFromOffMainQueue` (`:112-119`) drives real `ReminderDictation.requestAuthorization` (`ReminderDictation.swift:48-60`) through the injected `authorizationSource`, exercising the `ResumptionGate` + `resumeOnMainActor` hop (`:51-56`, `ResumptionGate.swift:40-45`).
+- **Store seams**: `InMemoryEventStore` (`SingleThreadCore/Sources/SingleThreadCore/InMemoryEventStore.swift:13`, `allReminders` `:40`, `save` appends `:87`, `authorizationStatus` returns `.fullAccess` `:42-44`, scratch `EKEventStore` `:126`); `ReminderStore` single init with injectable `settle:` (`ReminderStore.swift:23-40`). Dictation tests use `loadsReminders: false` (`ReminderDictationTests.swift:170, 197, 275/280` in MicrophoneToggleTests helpers) and a seeded-reminders variant (`:181-186`).
+- **What they assert and when — all post-window**: the only `isDictating`/`isRecording` asserts are pre/post (`ReminderDictationTests.swift:149, 151` before/after `transcribe`; `:203` after full `startDictation`). `startDictationAddsReminderAndFlowsText` (`:191-207`) awaits the whole flow (`:201`) then asserts flags + `eventStore.allReminders` (`:206`). **No test observes the in-window `isDictating == true` or `isRecording == true` state.**
+- **Mid-async observation patterns elsewhere in the suite** (none dictation):
+  - The only mid-window assertion in the entire suite: `BackgroundImageStoreTests.swift:241-253` (`isRefreshingToggledDuringForceRefresh`, parked on a `GatedBackgroundFetcher`) and `:315+` (`pinBlocksRefreshIfNeeded`).
+  - `withCheckedContinuation` rendezvous on store-hook fires, asserting after resolution: `ReminderStoreTests.swift:263,275,295,325,526,598,624`; `ReminderStoreGateTests.swift:121`; `BackgroundImageStoreTests.swift:459,466`.
+  - Injected clock: `PendingCompletionStoreTests.swift:29-40` (`var clock`, advance simulation, no sleeps).
+  - Timing-tolerant polling: `CompletionGlowTests.swift:26-42` (injected `duration = 0.05`, poll ≤100×20 ms for invariant).
+  - Sleep-free settle: `noopSettle` (`ReminderStoreTests.swift:10-12`, `ReminderStoreGateTests.swift:6-8`).
+  - `@Suite(.serialized)` on `ReminderStoreTests.swift:15,511`, `ReminderStoreGateTests.swift:11`, `CompletionGlowTests.swift:13`.
+- **`MicrophoneToggleTests`** (284 lines): `MicToggleFakeTranscriber` (`:9-41`) with mutable `liveStatus` (`:24`) simulating a Settings change and `refreshCallCount` (`:26`); `String(describing: view.body / view.bottomBar)` rendering assertions (`:53, :80, :98, :114, :193, :205, :217, :229, :242, :257`) with documented depth limits (`:55-59` SF-Symbol serialization caveat; `:190-192` bottomBar is shallow enough, body is not; sibling docs `ActionButtonTests.swift:12-16`, `CardPlateModifierTests.swift:7-9`, `BackgroundCardTests.swift:26-30`); `UserDefaults` toggle manipulation with `defer` cleanup; scene-phase tests call `handleScenePhaseChange(.active/.background)` directly (`:148-156, :171-179`).
+- **Never-occurrence assertions**: `MicrophoneToggleTests.swift:81-83` (denied + toggle on ⇒ no `mic.fill`), `:217`, `:229` (`.notDetermined` not "unavailable"), `:178` (background ⇒ no refresh); `ReminderDictationTests.swift:138,142` never-paths. **None of them cover dictation in-window state.**
+- Generation of `creationFeedback` (the 1 s feedback sleep) and the real 5 s timeout are **never exercised** by tests; `ContentViewModelTests` constructs real `ReminderDictation()` but never calls transcription (`ContentViewModelTests.swift:21,40,60,76,94`).
+
+## Q6: Non-injectable audio dependencies
+
+### Findings
+
+- **Injectable seams**: `SpeechTranscribing` protocol (`ReminderDictation.swift:9-17`) + default no-op `refreshAuthorizationStatus()` (`:19-23`); `AuthorizationRequiring`/`SpeechAuthorizationRequiring` (`AuthorizationRequiring.swift:7-11, 14-18`); injectable init `locale`/`authorizationSource` (`ReminderDictation.swift:34-40`); lazy `speechRecognizer` (`:103`, locale injectable but class not); `audioEngine` (`:104`) — hard-coded, no seam.
+- **Non-injectable**: `@preconcurrency` imports (`:1, :3`); init-time static `SFSpeechRecognizer.authorizationStatus()` read (`:39`, runs on every real construction); `ensureMicrophoneAccess` AVCaptureDevice path (`:111-123`); `prepareRecording` AVAudioSession config (`:126-130`), request + tap + engine start (`:132-144`); `tearDownRecording` (`:147-157`); `awaitFinalResult` real `recognitionTask` + 5 s timeout (`:170, :200-209`).
+- **Test bypass — complete**: **no test ever calls `ReminderDictation.transcribe()`** (grep: only `fake.transcribe` at `ReminderDictationTests.swift:126,137,150,160`). The one real-class method exercised is `requestAuthorization` (`:116`, with injected fake source). Real `ReminderDictation()` instances appear only construction-side (`SingleThreadTests.swift:13,25`; `ContentViewModelTests.swift` list above). The entire microphone/permission/audio-session half is bypassed; **no test reaches any production `DictationError` throw site (`:74, :76, :116, :119, :163, :205`)**. UI-test targets have zero dictation references.
+- **Authorization-state split**: view-model side `canDictate`/`authorizationStatus`/`refreshAuthorizationStatus` (`DictationViewModel.swift:27-42`) delegate to the injected transcriber; recorder side `private(set) authorizationStatus` (`ReminderDictation.swift:44`) seeded at init (`:39`), mutated in `requestAuthorization` (`:58`), re-read in `refreshAuthorizationStatus` (`:65-67`). The scene `.active` refresh (`ContentView.swift:636`) covers **speech-recognition** authorization only; **microphone permission is never re-read on foreground** — it is lazily checked inside `transcribe` via `ensureMicrophoneAccess` (`:78, :111-123`).
+- **`DictationError` → non-injectable path map** (`ReminderDictation.swift:216-241`): `alreadyRecording` (`:217`) ← `:74`; `recognizerUnavailable` (`:218`) ← `:76`/`:163` (SFSpeechRecognizer availability); `microphoneDenied` (`:219`) ← `:116`/`:119` (AVCaptureDevice); `noSpeechDetected` (`:220`) ← `:205` (5 s timeout over real engine). All errors are collapsed to `error.localizedDescription` at `DictationViewModel.swift:84-85` (no per-case branching).
+
+---
+
+## Cross-Cutting Observations
+
+- **Two-flag split mirrors an observability split**: the UI-observable, `@Observable` view-model flag (`isDictating`) and the deliberately non-observable recorder flag (`isRecording`, in the `@ObservationIgnored` cluster `ReminderDictation.swift:101-109`). The UI can only ever render `isDictating`; the two flags live in different objects and nothing couples them (`DictationViewModel` never reads `isRecording`).
+- **The `isDictating`-outlives-`isRecording` gap is pre-documented**: it is the prior audit's T1.1 (`.pi/qrspi/alanvardy-var-759-do-a-full-audit-of-state/audit/findings.md`, T1.1, citing `DictationViewModel.swift:62,87`, `ReminderDictation.swift:93,94,153`).
+- **bottomBar precedence is structural**: `dictationError` is a separate `if` (coexists above the chain); the rest is a strict if/else-if ladder. Reachable overlaps: error+chain-branch; `creationFeedback ∧ isDictating` (feedback wins); `isDictating ∧ !isRecording` (indicator shows with mic off).
+- **No cancellation infrastructure anywhere in the dictation path**: unstructured fire-and-forget view Tasks (same pattern as `completeCurrentReminder`/`skip`, `ContentView.swift:505-540`), no stored handles, no `deinit`, no `.onDisappear`, no scene-phase intervention, no `withTaskCancellationHandler`. The only re-entry backstop is the engine-level `.alreadyRecording` guard.
+- **Teardown conventions are minimal and consistent**: one repo-wide `deinit` (EntitlementStore observation), three app-target `defer`s, zero `.onDisappear`; transient flags are reset by time-based `Task { [weak self] ... }` self-resets (CompletionGlow, watch transition) or by normal control flow (isDictating `:87`, BackgroundImageStore defers). Continuation mutual exclusion uses the claim-once `ResumptionGate`.
+- **Test discipline**: all dictation asserts are post-await; the suite's only mid-window observation technique (gated fetcher) lives in `BackgroundImageStoreTests`, not dictation; rendering is asserted via `String(describing:)` with documented limits; async seams are injected clocks/settles/timeouts, never real timers.
+- **Bypass strategy**: tests inject at the `SpeechTranscribing` boundary, so the entire non-injectable engine half is untested by construction; `AuthorizationRequiring` is the one real-class seam exercised (for the main-actor hop regression).
+
+## Open Areas
+
+- **No test observes dictation state inside the async window** — neither that `isDictating == true` occurs mid-flow nor that "Recording"-with-mic-off never occurs; the suite has no dictation-specific mid-window seam (the gated-fetcher pattern exists only in `BackgroundImageStoreTests.swift:241-253`).
+- The **5 s timeout** and the **1 s feedback sleep** are entirely unexercised; the fake's 50 ms partial pacing and production's real `Task.sleep` values are never calibrated to any assertion.
+- **Line numbers in the questions** (`ContentView.swift:653-701` etc.) are stale relative to the working tree — `bottomBar` is actually `ContentView.swift:646-707`; the questions' `:@"=true"`-style markers were resolved to concrete sites enumerated above.
+- The **mic-slot rendering during entitlement resolution** (`EmptyView` at `ContentView.swift:673-674` until `hasResolvedEntitlement`) is untested; watch/widget targets never touch dictation (iOS-only surface).
+- `refreshAuthorizationStatus` covers speech-recognition only; **mic-permission state has no foreground refresh path** — it is checked lazily in `transcribe` (`ReminderDictation.swift:78`).
