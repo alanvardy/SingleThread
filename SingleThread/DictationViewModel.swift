@@ -20,6 +20,7 @@ final class DictationViewModel {
     // MARK: Internal
 
     private(set) var isDictating = false
+    var isProcessing = false
     var dictationText = ""
     var dictationError: String?
     var creationFeedback: CreationFeedback?
@@ -42,6 +43,7 @@ final class DictationViewModel {
     }
 
     func startDictation() async {
+        guard !isDictating else { return }
         if speechTranscriber.authorizationStatus == .notDetermined {
             let status = await speechTranscriber.requestAuthorization()
             guard status == .authorized else {
@@ -66,6 +68,8 @@ final class DictationViewModel {
             let result = try await speechTranscriber.transcribe { [weak self] text in
                 self?.dictationText = text
             }
+            isDictating = false
+            isProcessing = true
             let parsed = ReminderDictationParser.parse(result)
             if !parsed.title.isEmpty {
                 let saved = await store.addReminder(
@@ -83,8 +87,10 @@ final class DictationViewModel {
             }
         } catch {
             dictationError = error.localizedDescription
+            isDictating = false
+            isProcessing = true
         }
-        isDictating = false
+        isProcessing = false
     }
 
     // MARK: Private
