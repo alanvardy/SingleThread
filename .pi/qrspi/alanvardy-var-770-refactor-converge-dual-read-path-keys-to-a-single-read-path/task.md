@@ -1,0 +1,5 @@
+# Task
+
+Twelve `UserDefaults`-backed preference keys (`enableActionButtons`, `notificationsEnabled`, `notificationIntervalHours`, `allowsLandscape`, `appearanceMode`, `showDate`, `showList`, `showRecurrence`, `showAlarms`, `showCompletionGlow`, `showUndatedReminders`, `sortOption`) are currently read through two mechanisms simultaneously: SwiftUI-observed `@AppStorage` bindings and raw `UserDefaults.*` reads at various call sites. Because `@AppStorage` refreshes on `UserDefaults.didChangeNotification` while raw reads reflect the value at call time, a write landing between the two can produce transient divergence.
+
+The goal is to converge each key to a single authoritative read path — deciding per key which mechanism owns the read (and documenting the choice) — so the divergence window is eliminated. The change spans the iOS app, the `SingleThreadCore` preference stores, the watch app, and the widget, and must preserve existing behavior. Source: VAR-759 state audit finding T3.1 (Dual-Read-Path table), VAR-770.
