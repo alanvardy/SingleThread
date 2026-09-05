@@ -62,7 +62,7 @@ struct ListContentTests {
     @Test
     func emptyStoreNeverReturnsAllDone() {
         // Pin the mutual-exclusivity invariant: `allSkipped` requires a non-empty
-        // store (ReminderStore.swift:139), so an empty store must resolve `.empty`.
+        // store (ReminderStore.swift:150-151), so an empty store must resolve `.empty`.
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
