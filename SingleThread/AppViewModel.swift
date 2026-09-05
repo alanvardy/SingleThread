@@ -25,62 +25,16 @@ final class AppViewModel {
         store.sortOption = SortOptionStore().load()
         Self.registerDefaults()
 
+        backgroundImage = BackgroundImageStore()
+
         #if os(iOS)
-            if WCSession.isSupported(), !usesInMemoryStore {
-                let service = SkippedReminderSyncService(
-                    session: WCSession.default,
-                    skipStore: SkippedReminderStore(),
-                    showDateStore: Self.showPreferenceStore(.showDate, fallback: true),
-                    showRecurrenceStore: Self.showPreferenceStore(.showRecurrence, fallback: true),
-                    showAlarmsStore: Self.showPreferenceStore(.showAlarms, fallback: true),
-                    showCompletionGlowStore: Self.showPreferenceStore(.showCompletionGlow, fallback: true),
-                    entitlementStore: store.entitlementStore,
-                    sendsShowDate: true,
-                    sendsEntitled: true)
-                // Assign the handler before activating: the service documents a
-                // write-once-before-activate invariant, and a completion message
-                // delivered right after activation must not observe a nil (or an
-                // unsynchronized) handler. `[weak store]` breaks the retain cycle
-                // otherwise formed with the hooks below.
-                service.onCompleteReminderReceived = { [weak store] identifier in
-                    Task { await store?.completeReminder(identifier: identifier) }
-                }
-                // Receive-side: a watch Delete arrives and is executed on the phone.
-                service.onDeleteReminderReceived = { [weak store] identifier in
-                    Task { await store?.deleteReminder(identifier: identifier) }
-                }
-                // Receive-side: a watch exclusion toggle arrives and re-filters the local list.
-                service.onExcludedListTitlesReceived = { [weak store] titles in
-                    Task { @MainActor in store?.refreshExcludedListTitles(Set(titles)) }
-                }
-                // A watch skip-count map lands and applies via reload (authoritative save).
-                service.onSkipCountsReceived = { [weak store] _ in Task { @MainActor in await store?.reload() } }
-                service.activate()
-                syncService = service
-                store.onSkipSetChanged = { _ in service.pushAll() }
-                store.onShowUndatedRemindersChanged = { _ in service.pushAll() }
-                store.onExcludedListsChanged = { _ in service.pushAll() }
-                store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
-                // Send-side (defensive/consistent): a phone-side delete relays to the
-                // watch. The iPhone's `deleteReminder` never fires `onDeleteReminder`
-                // (only the watchOS branch does), so this is inert on iOS but kept for
-                // symmetry with the completion path.
-                store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
-                // The old sort push persisted the option itself; that responsibility
-                // moves here so the pushed snapshot always matches what was just saved.
-                store.onSortOptionChanged = { option in
-                    SortOptionStore().save(option)
-                    service.pushAll()
-                }
-            }
+            setupSyncService(with: store)
         #endif
         #if os(iOS) || os(macOS)
             store.onRemindersChanged = {
                 WidgetCenter.shared.reloadAllTimelines()
             }
         #endif
-
-        backgroundImage = BackgroundImageStore()
 
         // Observe showDate/showRecurrence/showAlarms changes in AppGroup.defaults
         // so syncService.pushAll() fires without duplicating @AppStorage keys.
@@ -392,6 +346,65 @@ final class AppViewModel {
         }
         return store
     }
+
+    #if os(iOS)
+        /// Wires the WatchConnectivity sync service onto the store: creates the
+        /// service, assigns its receive-side handlers before activation, and hooks
+        /// the store's mutation events back onto the service. Skipped for in-memory
+        /// (UI-test) stores — there is no paired device in the test harness.
+        private func setupSyncService(with store: ReminderStore) {
+            guard WCSession.isSupported(), !usesInMemoryStore else { return }
+            let service = SkippedReminderSyncService(
+                session: WCSession.default,
+                skipStore: SkippedReminderStore(),
+                showDateStore: Self.showPreferenceStore(.showDate, fallback: true),
+                showRecurrenceStore: Self.showPreferenceStore(.showRecurrence, fallback: true),
+                showAlarmsStore: Self.showPreferenceStore(.showAlarms, fallback: true),
+                showCompletionGlowStore: Self.showPreferenceStore(.showCompletionGlow, fallback: true),
+                entitlementStore: store.entitlementStore,
+                sendsShowDate: true,
+                sendsEntitled: true)
+            // Assign the handler before activating: the service documents a
+            // write-once-before-activate invariant, and a completion message
+            // delivered right after activation must not observe a nil (or an
+            // unsynchronized) handler. `[weak store]` breaks the retain cycle
+            // otherwise formed with the hooks below.
+            service.onCompleteReminderReceived = { [weak store] identifier in
+                Task { await store?.completeReminder(identifier: identifier) }
+            }
+            // Receive-side: a watch Delete arrives and is executed on the phone.
+            service.onDeleteReminderReceived = { [weak store] identifier in
+                Task { await store?.deleteReminder(identifier: identifier) }
+            }
+            // Receive-side: a watch Reschedule arrives and is executed on the phone.
+            service.onRescheduleReminderReceived = { [weak store] identifier, components in
+                Task { await store?.rescheduleReminder(identifier: identifier, to: components) }
+            }
+            // Receive-side: a watch exclusion toggle arrives and re-filters the local list.
+            service.onExcludedListTitlesReceived = { [weak store] titles in
+                Task { @MainActor in store?.refreshExcludedListTitles(Set(titles)) }
+            }
+            // A watch skip-count map lands and applies via reload (authoritative save).
+            service.onSkipCountsReceived = { [weak store] _ in Task { @MainActor in await store?.reload() } }
+            service.activate()
+            syncService = service
+            store.onSkipSetChanged = { _ in service.pushAll() }
+            store.onShowUndatedRemindersChanged = { _ in service.pushAll() }
+            store.onExcludedListsChanged = { _ in service.pushAll() }
+            store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
+            // Send-side (defensive/consistent): a phone-side delete relays to the
+            // watch. The iPhone's `deleteReminder` never fires `onDeleteReminder`
+            // (only the watchOS branch does), so this is inert on iOS but kept for
+            // symmetry with the completion path.
+            store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
+            // The old sort push persisted the option itself; that responsibility
+            // moves here so the pushed snapshot always matches what was just saved.
+            store.onSortOptionChanged = { option in
+                SortOptionStore().save(option)
+                service.pushAll()
+            }
+        }
+    #endif
 
     #if os(iOS)
         /// Refreshes `pendingSummary` from the notification center, but only
