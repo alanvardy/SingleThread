@@ -25,5 +25,8 @@ final class ShowDateState {
 
     // MARK: Private
 
-    private let preference = ShowDatePreference(defaults: .standard)
+    private let preference = BoolPreferenceStore(
+        defaults: .standard,
+        key: BoolPreferenceKey.showDate.rawValue,
+        fallback: true)
 }

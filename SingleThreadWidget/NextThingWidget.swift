@@ -54,14 +54,20 @@ struct NextThingProvider: TimelineProvider {
     @MainActor
     private static func makeEntry() async -> NextThingEntry {
         let date = Date()
-        let showsDate = ShowDatePreference().isEnabled
-        let showsList = ShowListPreference().isEnabled
-        let showsRecurrence = ShowRecurrencePreference().isEnabled
-        let showsAlarms = ShowAlarmsPreference().isEnabled
+        let showsDate = BoolPreferenceStore(key: BoolPreferenceKey.showDate.rawValue, fallback: true).isEnabled
+        let showsList = BoolPreferenceStore(key: BoolPreferenceKey.showList.rawValue, fallback: false).isEnabled
+        let showsRecurrence = BoolPreferenceStore(
+            key: BoolPreferenceKey.showRecurrence.rawValue,
+            fallback: true).isEnabled
+        let showsAlarms = BoolPreferenceStore(
+            key: BoolPreferenceKey.showAlarms.rawValue,
+            fallback: true).isEnabled
         switch EKEventStore.authorizationStatus(for: .reminder) {
         case .fullAccess:
             let store = ReminderStore(loadsReminders: true)
-            store.showsUndatedReminders = AppGroup.defaults.bool(forKey: "showUndatedReminders")
+            store.showsUndatedReminders = BoolPreferenceStore(
+                key: BoolPreferenceKey.showUndatedReminders.rawValue,
+                fallback: false).isEnabled
             store.setSortOption(SortOptionStore().load())
             await store.reload()
             return NextThingEntry(

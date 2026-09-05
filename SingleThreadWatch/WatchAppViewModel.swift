@@ -31,7 +31,8 @@ final class WatchAppViewModel {
         store.sortOption = SortOptionStore().load()
         // Restore the last-received show-undated preference the same way. Direct
         // assignment fires the didSet hook, which is unwired on the watch — no echo.
-        store.showsUndatedReminders = ShowUndatedRemindersPreference(defaults: .standard).load()
+        store.showsUndatedReminders = BoolPreferenceStore(
+            defaults: .standard, key: BoolPreferenceKey.showUndatedReminders.rawValue, fallback: false).isEnabled
 
         showDateState = ShowDateState()
         showRecurrenceState = ShowRecurrenceState()
@@ -163,12 +164,18 @@ final class WatchAppViewModel {
         let service = SkippedReminderSyncService(
             session: WCSession.default,
             skipStore: SkippedReminderStore(),
-            showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard),
-            showDateStore: ShowDatePreference(defaults: .standard),
-            showRecurrenceStore: ShowRecurrencePreference(defaults: .standard),
-            showAlarmsStore: ShowAlarmsPreference(defaults: .standard),
-            showListStore: ShowListPreference(defaults: .standard),
-            showCompletionGlowStore: ShowCompletionGlowPreference(defaults: .standard),
+            showUndatedStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showUndatedReminders.rawValue, fallback: false),
+            showDateStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showDate.rawValue, fallback: true),
+            showRecurrenceStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showRecurrence.rawValue, fallback: true),
+            showAlarmsStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showAlarms.rawValue, fallback: true),
+            showListStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showList.rawValue, fallback: false),
+            showCompletionGlowStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showCompletionGlow.rawValue, fallback: true),
             completionCounter: CompletionCounterStore(defaults: .standard),
             entitlementStore: EntitlementStore(),
             sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false,
