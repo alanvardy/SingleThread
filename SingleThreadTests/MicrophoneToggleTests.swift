@@ -267,6 +267,45 @@ struct MicrophoneToggleTests {
         }
     }
 
+    #if os(iOS)
+        @Test
+        func processingIndicatorRendersWhenIsProcessingIsTrue() {
+            let fake = MicToggleFakeTranscriber()
+            let contentViewModel = makeContentViewModel(fake)
+            contentViewModel.dictation.isProcessing = true
+            let view = ContentView(viewModel: contentViewModel)
+
+            let bodyDescription = String(describing: view.bottomBar)
+            #expect(bodyDescription.contains("Processing…"))
+            #expect(!bodyDescription.contains("Recording"))
+            #expect(!bodyDescription.contains("mic.fill"))
+        }
+
+        @Test
+        func processingIndicatorNotRenderedWhenIsProcessingIsFalse() {
+            let fake = MicToggleFakeTranscriber()
+            let contentViewModel = makeContentViewModel(fake)
+            // isProcessing defaults to false
+            let view = ContentView(viewModel: contentViewModel)
+
+            let bodyDescription = String(describing: view.bottomBar)
+            #expect(!bodyDescription.contains("Processing…"))
+        }
+
+        @Test
+        func recordingIndicatorNotRenderedWithProcessingTrue() {
+            let fake = MicToggleFakeTranscriber()
+            let contentViewModel = makeContentViewModel(fake)
+            contentViewModel.dictation.isProcessing = true
+            contentViewModel.dictation.dictationText = "Hello"
+            let view = ContentView(viewModel: contentViewModel)
+
+            let bodyDescription = String(describing: view.bottomBar)
+            #expect(bodyDescription.contains("Hello"))
+            #expect(!bodyDescription.contains("Recording"))
+        }
+    #endif
+
     // MARK: Private
 
     private func makeViewModel(_ fake: MicToggleFakeTranscriber) -> DictationViewModel {

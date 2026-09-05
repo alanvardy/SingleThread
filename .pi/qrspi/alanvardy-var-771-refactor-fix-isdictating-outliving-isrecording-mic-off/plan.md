@@ -381,16 +381,16 @@ Gate with `#if os(iOS)` matching the existing convention at `MicrophoneToggleTes
 
 ### Verification
 #### Automated
-- [ ] Both suites pass together:
+- [x] Both suites pass together:
   ```fish
   xcodebuild -scheme SingleThread -destination "platform=iOS Simulator,id=$SIM" -configuration Debug test \
     -only-testing:SingleThreadTests/ReminderDictationTests \
     -only-testing:SingleThreadTests/MicrophoneToggleTests
   ```
-- [ ] New `MicrophoneToggleTests` pass individually:
-  - [ ] `processingIndicatorRendersWhenIsProcessingIsTrue`
-  - [ ] `processingIndicatorNotRenderedWhenIsProcessingIsFalse`
-  - [ ] `recordingIndicatorNotRenderedWithProcessingTrue`
+- [x] New `MicrophoneToggleTests` pass individually:
+  - [x] `processingIndicatorRendersWhenIsProcessingIsTrue`
+  - [x] `processingIndicatorNotRenderedWhenIsProcessingIsFalse`
+  - [x] `recordingIndicatorNotRenderedWithProcessingTrue`
 
 #### Manual
 - [ ] `grep 'isProcessing' SingleThread/ContentView.swift` → one hit: the `else if viewModel.dictation.isProcessing` branch
