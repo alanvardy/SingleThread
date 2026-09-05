@@ -1005,9 +1005,9 @@ No other source changes.
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` — the ONE full gate (format, lint, build iOS/watch/mac, deployment-target guard, unit + UI tests)
-- [ ] `make periphery` green
-- [ ] `make lint` green
+- [x] `./scripts/test.sh` — the ONE full gate (format, lint, build iOS/watch/mac, deployment-target guard, unit + UI tests)
+- [x] `make periphery` green
+- [x] `make lint` green
 
 #### Manual
 - [ ] Complete/skip a reminder in the watch app → complication refreshes promptly (no 15-min wait)

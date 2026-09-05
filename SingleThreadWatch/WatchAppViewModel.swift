@@ -191,17 +191,24 @@ final class WatchAppViewModel {
             Task {
                 store?.showsUndatedReminders = value
                 await store?.reload()
+                WidgetCenter.shared.reloadAllTimelines()
             }
         }
         // A watchlist skip lands and applies to this watch's live list without a
         // relaunch — reload() re-reads the just-persisted skip store and prunes IDs
         // whose reminders no longer exist.
         service.onSkippedIdentifiersReceived = { [weak store] _ in
-            Task { await store?.reload() }
+            Task {
+                await store?.reload()
+                WidgetCenter.shared.reloadAllTimelines()
+            }
         }
         wireStateReceiveHooks(service)
         service.onSortOptionReceived = { [weak store] option in
-            Task { @MainActor in store?.setSortOption(option) }
+            Task { @MainActor in
+                store?.setSortOption(option)
+                WidgetCenter.shared.reloadAllTimelines()
+            }
         }
         // A phone-side completion-count push lands and becomes the watch's local
         // counter so `store.canMutate` gates on the phone's real lifetime count.
@@ -213,15 +220,33 @@ final class WatchAppViewModel {
         // A phone-side exclusion toggle arrives and re-filters this watch's live list.
         // Same write-before-activate invariant as shared onShowUndatedRemindersReceived.
         service.onExcludedListTitlesReceived = { [weak store] titles in
-            Task { @MainActor in store?.refreshExcludedListTitles(Set(titles)) }
+            Task { @MainActor in
+                store?.refreshExcludedListTitles(Set(titles))
+                WidgetCenter.shared.reloadAllTimelines()
+            }
         }
         service.activate()
-        store.onSkipSetChanged = { _ in service.pushAll() }
+        wireMutationHooks(service)
+        scheduleUITestLiveExcludedDelivery(service: service, arguments: arguments)
+    }
+
+    /// Wires the store's local mutation relay hooks onto the sync service. Each
+    /// watch-side mutation pushes to the phone and refreshes the complication
+    /// immediately (the widget timeline reads the same App Group state). Lives
+    /// in its own helper so `setupSyncService` stays within SwiftLint's
+    /// 50-line function-body limit.
+    private func wireMutationHooks(_ service: SkippedReminderSyncService) {
+        store.onSkipSetChanged = { _ in
+            service.pushAll()
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         // Exclusions sync phone→watch only: nothing on watch edits exclusions, so no
         // push hook is wired here. The receive path above applies incoming exclusions.
-        store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
+        store.onCompleteReminder = { identifier in
+            service.requestCompleteReminder(identifier)
+            WidgetCenter.shared.reloadAllTimelines()
+        }
         store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
-        scheduleUITestLiveExcludedDelivery(service: service, arguments: arguments)
     }
 
     /// Wires the show-* preference receive hooks onto the sync service. Each
