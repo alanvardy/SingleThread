@@ -197,7 +197,7 @@ if UserDefaults.standard.object(forKey: "enableActionButtons") != nil,
 
 #### Automated
 - [x] `make build` compiles clean (iOS + watch targets)
-- [ ] `make test` (unit suite) passes — new tests + all 552 existing
+- [x] `make test` (unit suite) passes — new tests + all existing (517/517 in final gate)
 - [x] `make watch-build` compiles clean
 
 #### New Unit Tests
@@ -207,7 +207,7 @@ if UserDefaults.standard.object(forKey: "enableActionButtons") != nil,
 
 #### Existing Must Stay Green
 - [x] `ActionButtonTests.swift` (reads toggle — now from AppGroup)
-- [ ] All 552 unit tests pass
+- [x] All unit tests pass (517/517 in final gate; 552 was a stale estimate)
 
 #### Manual
 - [ ] Toggle ON in Settings → relaunch → toggle still ON (persists via AppGroup)
@@ -328,7 +328,7 @@ public enum ActionMenuGate {
 
 #### Automated
 - [x] `make build` compiles clean
-- [ ] `make test` passes
+- [x] `make test` passes (517/517 in final gate)
 
 #### New Unit Tests
 - [x] `ActionMenuGateTests.swift`: 2×2×2 table — toggle on/off × canMutate true/false × hasReminder true/false
@@ -458,7 +458,7 @@ func rescheduleReminder(identifier: String, to components: DateComponents) async
 
 #### Automated
 - [x] `make build` complies
-- [ ] `make test` + `make ui-test` pass
+- [x] `make test` + `make ui-test` pass (unit 517/517, iOS UI 49/49 in final gate)
 - [x] `SkipNudgeUITests.swift` — nudge flow unchanged, `nudgeRescheduleButton` id → `rescheduleConfirmButton` id
 - [x] `SkipNudgeUITests.swift` — update selectors if ids changed
 
