@@ -7,15 +7,8 @@ import WidgetKit
 // MARK: - Timeline entry
 
 struct NextThingEntry: TimelineEntry {
-    enum State {
-        case noAccess
-        case empty(Bool) // hasHidden — true when reminders exist but are out-of-window
-        case allDone
-        case reminder(ReminderDisplay)
-    }
-
     let date: Date
-    let state: State
+    let state: ReminderWidgetState
     let showsDate: Bool
     let showsList: Bool
     let showsRecurrence: Bool
@@ -65,46 +58,16 @@ struct NextThingProvider: TimelineProvider {
         let showsList = ShowListPreference().isEnabled
         let showsRecurrence = ShowRecurrencePreference().isEnabled
         let showsAlarms = ShowAlarmsPreference().isEnabled
-        switch EKEventStore.authorizationStatus(for: .reminder) {
-        case .fullAccess:
-            let store = ReminderStore(loadsReminders: true)
-            store.showsUndatedReminders = AppGroup.defaults.bool(forKey: "showUndatedReminders")
-            store.setSortOption(SortOptionStore().load())
-            await store.reload()
-            if store.reminders.isEmpty {
-                return NextThingEntry(
-                    date: date,
-                    state: .empty(store.hasHidden),
-                    showsDate: showsDate,
-                    showsList: showsList,
-                    showsRecurrence: showsRecurrence,
-                    showsAlarms: showsAlarms)
-            }
-            guard let current = store.visibleReminders.first else {
-                return NextThingEntry(
-                    date: date,
-                    state: .allDone,
-                    showsDate: showsDate,
-                    showsList: showsList,
-                    showsRecurrence: showsRecurrence,
-                    showsAlarms: showsAlarms)
-            }
-            return NextThingEntry(
-                date: date,
-                state: .reminder(ReminderDisplay(reminder: current)),
-                showsDate: showsDate,
-                showsList: showsList,
-                showsRecurrence: showsRecurrence,
-                showsAlarms: showsAlarms)
-        default:
-            return NextThingEntry(
-                date: date,
-                state: .noAccess,
-                showsDate: showsDate,
-                showsList: showsList,
-                showsRecurrence: showsRecurrence,
-                showsAlarms: showsAlarms)
-        }
+        let store = ReminderStore(loadsReminders: true)
+        store.showsUndatedReminders = AppGroup.defaults.bool(forKey: "showUndatedReminders")
+        store.setSortOption(SortOptionStore().load())
+        let state = await ReminderWidgetState.makeWidgetState(
+            store: store,
+            authorization: EKEventStore.authorizationStatus(for: .reminder))
+        return NextThingEntry(
+            date: date, state: state,
+            showsDate: showsDate, showsList: showsList,
+            showsRecurrence: showsRecurrence, showsAlarms: showsAlarms)
     }
 }
 

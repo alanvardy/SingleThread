@@ -183,9 +183,9 @@ Note: the `settle: { }` (noop) injection mirrors the repo's `noopSettle` convent
 ### Verification
 
 #### Automated
-- [ ] `make test` passes (full iOS+macOS unit gate; covers new `ReminderWidgetStateTests`)
-- [ ] Targeted, if iterating: `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath DerivedData test -only-testing:SingleThreadTests/ReminderWidgetStateTests` (pin `,OS=`/`,id=` if the name is ambiguous)
-- [ ] `make build` passes (iOS widget refactor still compiles; behavior unchanged)
+- [x] `make test` passes (full iOS+macOS unit gate; covers new `ReminderWidgetStateTests`)
+- [x] Targeted, if iterating: `xcodebuild -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17' -derivedDataPath DerivedData test -only-testing:SingleThreadTests/ReminderWidgetStateTests` (pin `,OS=`/`,id=` if the name is ambiguous)
+- [x] `make build` passes (iOS widget refactor still compiles; behavior unchanged)
 
 #### Manual
 - [ ] iOS widget still renders the same four states on the home screen (no-access lock, empty, all-done, reminder card) — no visual diff.
