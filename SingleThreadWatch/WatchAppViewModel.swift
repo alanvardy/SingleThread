@@ -31,7 +31,7 @@ final class WatchAppViewModel {
         store.sortOption = SortOptionStore().load()
         // Restore the last-received show-undated preference the same way. Direct
         // assignment fires the didSet hook, which is unwired on the watch — no echo.
-        store.showsUndatedReminders = ShowUndatedRemindersPreference(defaults: .standard).load()
+        store.showsUndatedReminders = ShowUndatedRemindersPreference(defaults: .standard).isEnabled
 
         showDateState = ShowDateState()
         showRecurrenceState = ShowRecurrenceState()

@@ -1,8 +1,7 @@
 import Foundation
 
-/// Persists the user's "show undated reminders" preference, mirroring
-/// `SortOptionStore`. An absent key resolves to `false` (today's behavior —
-/// undated reminders start hidden).
+/// Persists the user's "show undated reminders" preference. An absent key
+/// resolves to `false` (today's behavior — undated reminders start hidden).
 public struct ShowUndatedRemindersPreference {
     // MARK: Lifecycle
 
@@ -18,11 +17,12 @@ public struct ShowUndatedRemindersPreference {
     /// Single shared key used by the store, `@AppStorage`, and sync payload.
     public static let defaultsKey = "showUndatedReminders"
 
-    public func load() -> Bool {
+    /// Whether undated reminders are shown. `nil` (missing key) → `false`.
+    public var isEnabled: Bool {
         defaults.object(forKey: key) as? Bool ?? false
     }
 
-    public func save(_ enabled: Bool) {
+    public func set(_ enabled: Bool) {
         defaults.set(enabled, forKey: key)
     }
 

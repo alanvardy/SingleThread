@@ -82,7 +82,7 @@
             let excludeStore = ExcludedListStore(defaults: .standard, key: "test-all-excl-\(suffix)")
             excludeStore.save(["Work"])
             let showUndatedStore = ShowUndatedRemindersPreference(defaults: .standard, key: "test-all-und-\(suffix)")
-            showUndatedStore.save(true)
+            showUndatedStore.set(true)
             let sortStore = SortOptionStore(defaults: .standard, key: "test-all-sort-\(suffix)")
             sortStore.save(.dueDate)
             let showDateStore = ShowDatePreference(defaults: .standard, key: "test-all-date-\(suffix)")
@@ -138,7 +138,7 @@
             var received: [Bool] = []
             service.onShowUndatedRemindersReceived = { received.append($0) }
             service.session(WCSession.default, didReceiveApplicationContext: ["showUndatedReminders": true])
-            #expect(showUndatedStore.load()) // persisted (was hook-only before this phase)
+            #expect(showUndatedStore.isEnabled) // persisted (was hook-only before this phase)
             #expect(received == [true]) // still notified
         }
 
@@ -154,7 +154,7 @@
                 showUndatedStore: ShowUndatedRemindersPreference(defaults: .standard, key: key))
             service.session(WCSession.default, didReceiveApplicationContext: ["showUndatedReminders": true])
             let freshStore = ShowUndatedRemindersPreference(defaults: .standard, key: key)
-            #expect(freshStore.load())
+            #expect(freshStore.isEnabled)
         }
 
         @Test

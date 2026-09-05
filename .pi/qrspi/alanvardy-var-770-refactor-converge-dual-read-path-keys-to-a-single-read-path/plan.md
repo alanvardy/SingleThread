@@ -277,11 +277,11 @@ struct ShowUndatedRemindersPreferenceTests {
 ```
 
 ### Verification
-- [ ] `make test` green — new ShowUndatedRemindersPreferenceTests pass; all existing tests still green
-- [ ] `make lint` green
-- [ ] `make build` green — all callers compile
-- [ ] `SkippedReminderSyncServiceTests` — pushAll/apply round-trips still byte-identical
-- [ ] `WatchSyncPipelineTests` — watch receive still persists correctl
+- [x] `make test` green — new ShowUndatedRemindersPreferenceTests pass; all existing tests still green
+- [x] `make lint` green
+- [x] `make build` green — all callers compile
+- [x] `SkippedReminderSyncServiceTests` — pushAll/apply round-trips still byte-identical
+- [x] `WatchSyncPipelineTests` — watch receive still persists correctly
 
 ---
 

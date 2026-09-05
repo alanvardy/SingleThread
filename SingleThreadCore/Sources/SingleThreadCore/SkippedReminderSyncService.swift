@@ -179,7 +179,7 @@ import os
                     PayloadKey.skippedReminderIdentifiers: skipStore.load(),
                     PayloadKey.skipCounts: countStore.load(),
                     PayloadKey.excludedListTitles: excludeStore.load(),
-                    PayloadKey.showUndatedReminders: showUndatedStore.load(),
+                    PayloadKey.showUndatedReminders: showUndatedStore.isEnabled,
                     PayloadKey.sortOption: sortStore.load().rawValue,
                     PayloadKey.completionCount: completionCounter.count
                 ]
@@ -337,7 +337,7 @@ import os
                 handler?(receivedTitles)
             }
             if let received = context[PayloadKey.showUndatedReminders] as? Bool {
-                showUndatedStore.save(received)
+                showUndatedStore.set(received)
                 let handler = onShowUndatedRemindersReceived
                 handler?(received)
             }
