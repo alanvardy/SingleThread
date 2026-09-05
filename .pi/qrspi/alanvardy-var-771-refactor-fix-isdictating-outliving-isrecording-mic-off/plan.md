@@ -276,15 +276,15 @@ The new tests use the default `ReminderStore` init (with the production 200ms `s
 
 ### Verification
 #### Automated
-- [ ] Full `ReminderDictationTests` suite passes:
+- [x] Full `ReminderDictationTests` suite passes:
   ```fish
   xcodebuild -scheme SingleThread -destination "platform=iOS Simulator,id=$SIM" -configuration Debug test -only-testing:SingleThreadTests/ReminderDictationTests
   ```
-- [ ] New tests pass individually:
-  - [ ] `isDictatingClearsAfterTranscribeBeforeParseAddAndSleep`
-  - [ ] `isProcessingSetDuringPostTranscribeTail`
-  - [ ] `reentryGuardBlocksConcurrentCalls`
-  - [ ] `startDictationAddsReminderAndFlowsText` (updated assertion)
+- [x] New tests pass individually:
+  - [x] `isDictatingClearsAfterTranscribeBeforeParseAddAndSleep`
+  - [x] `isProcessingSetDuringPostTranscribeTail`
+  - [x] `reentryGuardBlocksConcurrentCalls`
+  - [x] `startDictationAddsReminderAndFlowsText` (updated assertion)
 
 #### Manual
 - [ ] `grep 'isProcessing' SingleThread/DictationViewModel.swift` → property at ~line 23, set `true` at ~lines 69 + 86, set `false` at ~line 88
