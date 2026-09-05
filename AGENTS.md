@@ -155,7 +155,6 @@ SingleThread/                  # git root
   parent (or a dedicated final phase), after phases commit — workers
   re-running the full multi-hour gate exceed run caps and orphan unverified
   changes.
-
 - Conflict-laden rebases are NOT resolution-edited mid-review: stop, and
   resolve (`git checkout --theirs` / manual continue) in a separate scoped
   fix commit before review resumes.
