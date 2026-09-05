@@ -225,15 +225,23 @@ final class WatchAppViewModel {
             Task { @MainActor in store?.refreshExcludedListTitles(Set(titles)) }
         }
         service.activate()
+        wireStoreSyncHooks(store: store, service: service)
+        scheduleUITestLiveExcludedDelivery(service: service, arguments: arguments)
+    }
+
+    /// Wires the store's mutation hooks onto the sync service so watch-side
+    /// edits push to the paired phone. Exclusions sync phone→watch only: nothing
+    /// on watch edits exclusions, so no push hook is wired here — the receive
+    /// path in `setupSyncService` applies incoming exclusions.
+    /// Lives in its own helper so `setupSyncService` stays within SwiftLint's
+    /// 50-line function-body limit.
+    private func wireStoreSyncHooks(store: ReminderStore, service: SkippedReminderSyncService) {
         store.onSkipSetChanged = { _ in service.pushAll() }
-        // Exclusions sync phone→watch only: nothing on watch edits exclusions, so no
-        // push hook is wired here. The receive path above applies incoming exclusions.
         store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
         store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
         store.onRescheduleReminder = { identifier, components in
             service.requestRescheduleReminder(identifier: identifier, dueDateComponents: components)
         }
-        scheduleUITestLiveExcludedDelivery(service: service, arguments: arguments)
     }
 
     /// Wires the show-* preference receive hooks onto the sync service. Each
