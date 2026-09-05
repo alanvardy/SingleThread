@@ -24,5 +24,8 @@ final class ShowCompletionGlowState {
 
     // MARK: Private
 
-    private let preference = ShowCompletionGlowPreference(defaults: .standard)
+    private let preference = BoolPreferenceStore(
+        defaults: .standard,
+        key: BoolPreferenceKey.showCompletionGlow.rawValue,
+        fallback: true)
 }

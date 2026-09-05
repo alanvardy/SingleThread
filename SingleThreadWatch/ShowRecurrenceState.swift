@@ -25,5 +25,8 @@ final class ShowRecurrenceState {
 
     // MARK: Private
 
-    private let preference = ShowRecurrencePreference(defaults: .standard)
+    private let preference = BoolPreferenceStore(
+        defaults: .standard,
+        key: BoolPreferenceKey.showRecurrence.rawValue,
+        fallback: true)
 }

@@ -30,10 +30,10 @@ final class AppViewModel {
                 let service = SkippedReminderSyncService(
                     session: WCSession.default,
                     skipStore: SkippedReminderStore(),
-                    showDateStore: ShowDatePreference(),
-                    showRecurrenceStore: ShowRecurrencePreference(),
-                    showAlarmsStore: ShowAlarmsPreference(),
-                    showCompletionGlowStore: ShowCompletionGlowPreference(),
+                    showDateStore: Self.showPreferenceStore(.showDate, fallback: true),
+                    showRecurrenceStore: Self.showPreferenceStore(.showRecurrence, fallback: true),
+                    showAlarmsStore: Self.showPreferenceStore(.showAlarms, fallback: true),
+                    showCompletionGlowStore: Self.showPreferenceStore(.showCompletionGlow, fallback: true),
                     entitlementStore: store.entitlementStore,
                     sendsShowDate: true,
                     sendsEntitled: true)
@@ -206,6 +206,16 @@ final class AppViewModel {
     /// `bool(forKey:)` reads, so registration removes the silent divergence.
     static func registerDefaults() {
         UserDefaults.standard.register(defaults: ["showMicrophoneButton": true])
+    }
+
+    /// Builds an App Group–backed store for one of the synced show-* preferences:
+    /// each is a `BoolPreferenceStore` under its named key with the fallback the
+    /// old concrete `Show*Preference` types encoded (date/recurrence/alarms/glow
+    /// default true; list/undated default false). Kept in one place so the
+    /// sync-service wiring stays compact.
+    static func showPreferenceStore(
+        _ key: BoolPreferenceKey, fallback: Bool) -> BoolPreferenceStore {
+        BoolPreferenceStore(key: key.rawValue, fallback: fallback)
     }
 
     /// The root view model. Rebuilt on demand so the view always reflects the
@@ -430,11 +440,20 @@ final class AppViewModel {
         /// Compares the current App Group suite values against the last observed
         /// state and pushes a fresh snapshot to a paired watch when any changed.
         private func handlePreferencesChanged() {
-            let currentShowDate = ShowDatePreference().isEnabled
-            let currentShowRecurrence = ShowRecurrencePreference().isEnabled
-            let currentShowAlarms = ShowAlarmsPreference().isEnabled
-            let currentShowList = ShowListPreference().isEnabled
-            let currentShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
+            let currentShowDate = BoolPreferenceStore(
+                key: BoolPreferenceKey.showDate.rawValue, fallback: true).isEnabled
+            let currentShowRecurrence = BoolPreferenceStore(
+                key: BoolPreferenceKey.showRecurrence.rawValue,
+                fallback: true).isEnabled
+            let currentShowAlarms = BoolPreferenceStore(
+                key: BoolPreferenceKey.showAlarms.rawValue,
+                fallback: true).isEnabled
+            let currentShowList = BoolPreferenceStore(
+                key: BoolPreferenceKey.showList.rawValue,
+                fallback: false).isEnabled
+            let currentShowCompletionGlow = BoolPreferenceStore(
+                key: BoolPreferenceKey.showCompletionGlow.rawValue,
+                fallback: true).isEnabled
             if currentShowDate != lastShowDate
                 || currentShowRecurrence != lastShowRecurrence
                 || currentShowAlarms != lastShowAlarms
@@ -450,11 +469,21 @@ final class AppViewModel {
         }
 
         /// Last-seen values from the App Group suite, used to detect changes.
-        private var lastShowDate = ShowDatePreference().isEnabled
-        private var lastShowRecurrence = ShowRecurrencePreference().isEnabled
-        private var lastShowAlarms = ShowAlarmsPreference().isEnabled
-        private var lastShowList = ShowListPreference().isEnabled
-        private var lastShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
+        private var lastShowDate = BoolPreferenceStore(
+            key: BoolPreferenceKey.showDate.rawValue,
+            fallback: true).isEnabled
+        private var lastShowRecurrence = BoolPreferenceStore(
+            key: BoolPreferenceKey.showRecurrence.rawValue,
+            fallback: true).isEnabled
+        private var lastShowAlarms = BoolPreferenceStore(
+            key: BoolPreferenceKey.showAlarms.rawValue,
+            fallback: true).isEnabled
+        private var lastShowList = BoolPreferenceStore(
+            key: BoolPreferenceKey.showList.rawValue,
+            fallback: false).isEnabled
+        private var lastShowCompletionGlow = BoolPreferenceStore(
+            key: BoolPreferenceKey.showCompletionGlow.rawValue,
+            fallback: true).isEnabled
 
         private var syncDefaultsObserver: NSObjectProtocol?
     #endif

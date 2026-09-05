@@ -25,5 +25,8 @@ final class ShowListState {
 
     // MARK: Private
 
-    private let preference = ShowListPreference(defaults: .standard)
+    private let preference = BoolPreferenceStore(
+        defaults: .standard,
+        key: BoolPreferenceKey.showList.rawValue,
+        fallback: false)
 }
