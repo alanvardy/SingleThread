@@ -59,7 +59,9 @@ final class ContentViewModel {
         /// bar: the toggle must be on AND a visible reminder must exist. Injected
         /// via ``enableActionButtons``; testable without a live view.
         var showsActionButtons: Bool {
-            enableActionButtons && store.visibleReminders.first != nil
+            let value = enableActionButtons && store.visibleReminders.first != nil
+            print("[PROBE] showsActionButtons=\(value) flag=\(enableActionButtons) vis=\(store.visibleReminders.count)")
+            return value
         }
     #endif
 

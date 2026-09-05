@@ -221,10 +221,12 @@ struct ContentView: View {
             handleScenePhaseChange(phase)
         }
         .task {
-            await viewModel.backgroundImage.setPinned(backgroundPinned)
             #if os(iOS)
-                viewModel.enableActionButtons = enableActionButtons
+                // PROBE: hardcoded true to isolate value vs mechanism
+                print("[PROBE] task ran, appstorage=\(enableActionButtons), setting true")
+                viewModel.enableActionButtons = true
             #endif
+            await viewModel.backgroundImage.setPinned(backgroundPinned)
             await viewModel.task(showUndatedReminders: preferences.showUndatedReminders)
         }
         .onChange(of: backgroundPinned) { _, newValue in
@@ -554,7 +556,7 @@ struct ContentView: View {
                 .font(.title2)
                 .controlPlate()
         }
-        .accessibilityLabel("Dictate reminder")
+        .accessibilityLabel("Dictate reminder \(viewModel.enableActionButtons ? "FLAGON" : "FLAGOFF")")
         .accessibilityIdentifier("dictateButton")
         .accessibilityAddTraits(.isButton)
     }
