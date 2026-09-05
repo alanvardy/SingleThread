@@ -49,6 +49,11 @@ final class ContentViewModel {
     /// Drives the brief full-screen green flash after a successful completion.
     let completionGlow = CompletionGlow()
 
+    /// True while `refreshManual()` is running, so the button can show a
+    /// disabled/spinner state and re-entrant taps are dropped. Matches the
+    /// watch pattern (`WatchReminderViewModel.isRefreshing`).
+    var isRefreshing = false
+
     #if os(iOS)
         /// Whether the Complete/Skip cluster replaces the plain mic in the bottom
         /// bar: the toggle must be on AND a visible reminder must exist. Readable
@@ -155,6 +160,20 @@ final class ContentViewModel {
 
     func reload(clearSkipped: Bool = false) async {
         await store.reload(clearSkipped: clearSkipped)
+    }
+
+    /// Manual refresh entry point for the macOS button. Guards against re-entrant
+    /// taps, toggles `isRefreshing`, and holds the spinner for at least the
+    /// minimum display duration so the user sees the feedback.
+    func refreshManual() async {
+        guard !isRefreshing else { return }
+        isRefreshing = true
+        defer { isRefreshing = false }
+        let startedAt = Date()
+        await store.reload(clearSkipped: store.allSkipped)
+        let elapsed = Date().timeIntervalSince(startedAt)
+        try? await Task.sleep(
+            for: .seconds(MinimumDisplayDuration.remainingSleep(elapsed: elapsed, minimum: 1)))
     }
 
     func setExcludedListTitles(_ titles: Set<String>) {
