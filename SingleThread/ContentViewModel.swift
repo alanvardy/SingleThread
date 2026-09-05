@@ -87,7 +87,7 @@ final class ContentViewModel {
                 title: String(localized: "Nothing due", table: "Localizable", bundle: .main),
                 systemImage: "calendar",
                 description: String(
-                    localized: "Only today's and overdue reminders show here — pull to refresh.",
+                    localized: hiddenRemindersDescription,
                     table: "Localizable",
                     bundle: .main))
         }
@@ -105,7 +105,7 @@ final class ContentViewModel {
             title: SharedStrings.allDone,
             systemImage: "checkmark.circle",
             description: String(
-                localized: "Pull to refresh to see all your reminders again.",
+                localized: allDoneDescription,
                 table: "Localizable",
                 bundle: .main))
     }
@@ -233,6 +233,25 @@ final class ContentViewModel {
     }
 
     // MARK: Private
+
+    /// How to surface the full reminder set differs by platform: iOS pulls to
+    /// refresh, macOS presses the dedicated refresh button in the top-left
+    /// corner. The copy names the actual mechanism so it never misleads.
+    private static var hiddenRemindersDescription: String.LocalizationValue {
+        #if os(macOS)
+            "Only today's and overdue reminders show here — press the refresh button in the top left corner."
+        #else
+            "Only today's and overdue reminders show here — pull to refresh."
+        #endif
+    }
+
+    private static var allDoneDescription: String.LocalizationValue {
+        #if os(macOS)
+            "Press the refresh button in the top left corner to see all your reminders again."
+        #else
+            "Pull to refresh to see all your reminders again."
+        #endif
+    }
 
     /// Preference read at trigger time so a settings toggle takes effect
     /// without rebuilding the view model.

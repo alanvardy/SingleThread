@@ -41,9 +41,15 @@ struct SingleThreadTests {
         let nothingDueCopy = ContentViewModel.emptyStateCopy(hasHidden: true)
         #expect(nothingDueCopy.title == String.en("Nothing due", bundle: .main))
         #expect(nothingDueCopy.systemImage == "calendar")
-        #expect(nothingDueCopy.description == String.en(
-            "Only today's and overdue reminders show here — pull to refresh.",
-            bundle: .main, table: "Localizable"))
+        #if os(macOS)
+            #expect(nothingDueCopy.description == String.en(
+                "Only today's and overdue reminders show here — press the refresh button in the top left corner.",
+                bundle: .main, table: "Localizable"))
+        #else
+            #expect(nothingDueCopy.description == String.en(
+                "Only today's and overdue reminders show here — pull to refresh.",
+                bundle: .main, table: "Localizable"))
+        #endif
         #expect(emptyCopy.title != nothingDueCopy.title)
     }
 
@@ -52,9 +58,15 @@ struct SingleThreadTests {
         let allDoneCopy = ContentViewModel.allDoneStateCopy()
         #expect(allDoneCopy.title == String.en("All Done", bundle: .core))
         #expect(allDoneCopy.systemImage == "checkmark.circle")
-        #expect(allDoneCopy.description == String.en(
-            "Pull to refresh to see all your reminders again.",
-            bundle: .main, table: "Localizable"))
+        #if os(macOS)
+            #expect(allDoneCopy.description == String.en(
+                "Press the refresh button in the top left corner to see all your reminders again.",
+                bundle: .main, table: "Localizable"))
+        #else
+            #expect(allDoneCopy.description == String.en(
+                "Pull to refresh to see all your reminders again.",
+                bundle: .main, table: "Localizable"))
+        #endif
     }
 
     @Test
