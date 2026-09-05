@@ -55,7 +55,7 @@ final class ContentViewModel {
         /// outside a live view (unit-test seam); inside the app it reads the live
         /// `@AppStorage` value.
         var showsActionButtons: Bool {
-            UserDefaults.standard.bool(forKey: "enableActionButtons")
+            AppGroup.defaults.bool(forKey: "enableActionButtons")
                 && store.visibleReminders.first != nil
         }
     #endif
@@ -145,6 +145,15 @@ final class ContentViewModel {
 
     func deleteCurrentReminder() async {
         await store.deleteCurrentReminder()
+    }
+
+    /// Forwards to ``ReminderStore/rescheduleReminder(identifier:to:)`` for
+    /// arbitrary reminders (the action-menu path). The nudge variant
+    /// ``rescheduleNudgedReminder(to:)`` clears the banner; this one is a plain
+    /// forward.
+    @discardableResult
+    func rescheduleReminder(identifier: String, to components: DateComponents) async -> Bool {
+        await store.rescheduleReminder(identifier: identifier, to: components)
     }
 
     /// Forwards to ``ReminderStore/undoLastCompletion()``.

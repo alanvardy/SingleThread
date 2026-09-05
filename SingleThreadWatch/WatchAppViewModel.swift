@@ -39,6 +39,7 @@ final class WatchAppViewModel {
         showListState = ShowListState()
         showCompletionGlowState = ShowCompletionGlowState()
         entitlementState = EntitlementState()
+        showEnableActionButtonsState = ShowEnableActionButtonsState()
 
         // --ui-testing-glow-disabled: pre-disable the state so the disabled-flow
         // watch UI test doesn't need a settings screen. --ui-testing-glow:
@@ -56,6 +57,14 @@ final class WatchAppViewModel {
             // `waitForExistence` assertion (production duration is 0.5 s).
             reminderViewModel.completionGlow.duration = 2.0
         }
+        // --ui-testing-action-menu: force the action-menu toggle ON so the watch
+        // action-menu flow is testable without a paired phone. Every other
+        // --ui-testing launch resets it OFF: the default is off, and the value
+        // persists in the App Group across relaunches, so an earlier ON test
+        // would otherwise leak into the direct-skip flows.
+        if isUITesting {
+            showEnableActionButtonsState.apply(arguments.contains("--ui-testing-action-menu"))
+        }
 
         setupSyncService(arguments: arguments)
     }
@@ -69,6 +78,7 @@ final class WatchAppViewModel {
     let showListState: ShowListState
     let showCompletionGlowState: ShowCompletionGlowState
     let entitlementState: EntitlementState
+    let showEnableActionButtonsState: ShowEnableActionButtonsState
 
     /// True when the `--ui-testing-glow` launch argument is present (watch
     /// completion-glow UI tests). The seam extends the glow duration to 2 s so
@@ -87,7 +97,8 @@ final class WatchAppViewModel {
         showAlarmsState: showAlarmsState,
         showListState: showListState,
         showCompletionGlowState: showCompletionGlowState,
-        entitlementState: entitlementState)
+        entitlementState: entitlementState,
+        showEnableActionButtonsState: showEnableActionButtonsState)
 
     // MARK: Private
 
@@ -212,6 +223,9 @@ final class WatchAppViewModel {
         // push hook is wired here. The receive path above applies incoming exclusions.
         store.onCompleteReminder = { identifier in service.requestCompleteReminder(identifier) }
         store.onDeleteReminder = { identifier in service.requestDeleteReminder(identifier) }
+        store.onRescheduleReminder = { identifier, components in
+            service.requestRescheduleReminder(identifier: identifier, dueDateComponents: components)
+        }
         scheduleUITestLiveExcludedDelivery(service: service, arguments: arguments)
     }
 
@@ -243,6 +257,10 @@ final class WatchAppViewModel {
         let entitlementState = entitlementState
         service.onEntitlementReceived = { [weak entitlementState] value in
             Task { @MainActor in entitlementState?.apply(value) }
+        }
+        let showEnableActionButtonsState = showEnableActionButtonsState
+        service.onEnableActionButtonsReceived = { [weak showEnableActionButtonsState] value in
+            Task { @MainActor in showEnableActionButtonsState?.apply(value) }
         }
     }
 

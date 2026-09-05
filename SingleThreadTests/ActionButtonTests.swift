@@ -24,8 +24,8 @@ import Testing
         @Test
         func buttonsShowWhenToggleOnAndReminderVisible() {
             let key = "enableActionButtons"
-            UserDefaults.standard.set(true, forKey: key)
-            defer { UserDefaults.standard.removeObject(forKey: key) }
+            AppGroup.defaults.set(true, forKey: key)
+            defer { AppGroup.defaults.removeObject(forKey: key) }
 
             let viewModel = makeViewModel(store: storeWithReminder())
             #expect(viewModel.showsActionButtons)
@@ -34,8 +34,8 @@ import Testing
         @Test
         func buttonsHiddenWhenToggleOff() {
             let key = "enableActionButtons"
-            UserDefaults.standard.set(false, forKey: key)
-            defer { UserDefaults.standard.removeObject(forKey: key) }
+            AppGroup.defaults.set(false, forKey: key)
+            defer { AppGroup.defaults.removeObject(forKey: key) }
 
             let viewModel = makeViewModel(store: storeWithReminder())
             #expect(!viewModel.showsActionButtons)
@@ -45,8 +45,8 @@ import Testing
         func buttonsHiddenWhenNoVisibleReminder() {
             // Toggle on, but an empty store -> no visible reminder -> plain mic.
             let key = "enableActionButtons"
-            UserDefaults.standard.set(true, forKey: key)
-            defer { UserDefaults.standard.removeObject(forKey: key) }
+            AppGroup.defaults.set(true, forKey: key)
+            defer { AppGroup.defaults.removeObject(forKey: key) }
 
             let store = ReminderStore(
                 eventStore: InMemoryEventStore(),
@@ -62,8 +62,8 @@ import Testing
         func buttonsHiddenWhenAllSkipped() {
             // Toggle on, but every reminder skipped -> visibleReminders empty.
             let key = "enableActionButtons"
-            UserDefaults.standard.set(true, forKey: key)
-            defer { UserDefaults.standard.removeObject(forKey: key) }
+            AppGroup.defaults.set(true, forKey: key)
+            defer { AppGroup.defaults.removeObject(forKey: key) }
 
             // Construction only — never saved through EventKit.
             let eventStore = EKEventStore()

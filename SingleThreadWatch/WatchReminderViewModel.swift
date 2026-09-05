@@ -16,7 +16,8 @@ final class WatchReminderViewModel {
         showAlarmsState: ShowAlarmsState,
         showListState: ShowListState,
         showCompletionGlowState: ShowCompletionGlowState,
-        entitlementState: EntitlementState) {
+        entitlementState: EntitlementState,
+        showEnableActionButtonsState: ShowEnableActionButtonsState) {
         self.store = store
         self.showDateState = showDateState
         self.showRecurrenceState = showRecurrenceState
@@ -24,6 +25,7 @@ final class WatchReminderViewModel {
         self.showListState = showListState
         self.showCompletionGlowState = showCompletionGlowState
         self.entitlementState = entitlementState
+        self.showEnableActionButtonsState = showEnableActionButtonsState
         // 6th-skip nudge: surface the in-card banner and track the dialog state.
         store.onSkipNudgeRequested = { [weak self] identifier in
             self?.nudgeIdentifier = identifier
@@ -39,6 +41,7 @@ final class WatchReminderViewModel {
     let showListState: ShowListState
     let showCompletionGlowState: ShowCompletionGlowState
     let entitlementState: EntitlementState
+    let showEnableActionButtonsState: ShowEnableActionButtonsState
 
     /// Drives the brief full-screen green flash after a successful completion.
     let completionGlow = CompletionGlow()
@@ -53,6 +56,16 @@ final class WatchReminderViewModel {
     /// Drives the Delete confirmation dialog presented when the nudge banner is
     /// tapped.
     var isShowingNudgeDialog = false
+
+    /// Drives the three-action menu (Skip / Reschedule / Delete) presented from
+    /// the Skip button when the action-buttons toggle is synced ON.
+    var isShowingActionMenu = false
+
+    /// Drives the Reschedule sheet presented from the action menu.
+    var isShowingRescheduleSheet = false
+
+    /// The reschedule date picker's selection (defaults to tomorrow).
+    var rescheduleDate = Date().addingTimeInterval(86400)
 
     /// When `true`, the completion glow is playing out and the card should
     /// stay visible as a "ghost" even though the store is already empty.

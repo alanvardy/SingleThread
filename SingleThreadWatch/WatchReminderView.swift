@@ -22,7 +22,8 @@ struct WatchReminderView: View {
         showAlarmsState: ShowAlarmsState = ShowAlarmsState(),
         showListState: ShowListState = ShowListState(),
         showCompletionGlowState: ShowCompletionGlowState = ShowCompletionGlowState(),
-        entitlementState: EntitlementState = EntitlementState()) {
+        entitlementState: EntitlementState = EntitlementState(),
+        showEnableActionButtonsState: ShowEnableActionButtonsState = ShowEnableActionButtonsState()) {
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: loadsReminders,
@@ -37,7 +38,8 @@ struct WatchReminderView: View {
             showAlarmsState: showAlarmsState,
             showListState: showListState,
             showCompletionGlowState: showCompletionGlowState,
-            entitlementState: entitlementState)
+            entitlementState: entitlementState,
+            showEnableActionButtonsState: showEnableActionButtonsState)
     }
 
     // MARK: Internal
@@ -70,6 +72,16 @@ struct WatchReminderView: View {
     /// overlay from accessibility (unchanged behavior for real users).
     private var isGlowUITesting: Bool {
         ProcessInfo.processInfo.arguments.contains("--ui-testing-glow")
+    }
+
+    /// True when the Skip button presents the three-action menu instead of
+    /// skipping directly: the phone-side action-buttons toggle is synced ON,
+    /// mutation is allowed, and a reminder is visible. All three gates are
+    /// required so the toggle-off path is identical to the pre-menu behavior.
+    private var canShowActionMenu: Bool {
+        viewModel.showEnableActionButtonsState.isEnabled
+            && viewModel.store.canMutate
+            && viewModel.store.visibleReminders.first != nil
     }
 
     // MARK: - Content
@@ -128,7 +140,11 @@ struct WatchReminderView: View {
             .accessibilityAddTraits(.isButton)
 
             Button {
-                viewModel.store.skipCurrentReminder()
+                if canShowActionMenu {
+                    viewModel.isShowingActionMenu = true
+                } else {
+                    viewModel.store.skipCurrentReminder()
+                }
             } label: {
                 Label(SharedStrings.skipAction, systemImage: "circle.slash")
                     .labelStyle(.iconOnly)
@@ -188,6 +204,21 @@ struct WatchReminderView: View {
         }
         .disabled(viewModel.isRefreshing)
         .accessibilityIdentifier("refreshButton")
+    }
+
+    /// The three action-menu buttons presented in the Skip confirmation dialog:
+    /// Skip, Reschedule (opens the reschedule sheet), and Delete.
+    @ViewBuilder private var actionMenuDialogButtons: some View {
+        Button(SharedStrings.skipAction) {
+            viewModel.store.skipCurrentReminder()
+        }
+        Button("Reschedule") {
+            viewModel.isShowingActionMenu = false
+            viewModel.isShowingRescheduleSheet = true
+        }
+        Button(SharedStrings.deleteAction, role: .destructive) {
+            Task { await viewModel.store.deleteCurrentReminder() }
+        }
     }
 
     private func noRemindersState(hasHidden: Bool) -> some View {
@@ -250,6 +281,49 @@ struct WatchReminderView: View {
             }
         }
         .padding()
+        .confirmationDialog("Reminder", isPresented: $viewModel.isShowingActionMenu) {
+            actionMenuDialogButtons
+        }
+        .sheet(isPresented: $viewModel.isShowingRescheduleSheet) {
+            actionMenuRescheduleSheet()
+        }
+    }
+
+    /// The Reschedule sheet body: a date-only picker plus a confirm button,
+    /// wrapped in a NavigationStack with a Cancel toolbar item. Confirming
+    /// fires the watch→phone reschedule relay (``ReminderStore`` watchOS
+    /// branch → `onRescheduleReminder`). Kept out of `reminderCard` so that
+    /// function stays within SwiftLint's 50-line body limit.
+    private func actionMenuRescheduleSheet() -> some View {
+        @Bindable var viewModel = viewModel
+        return NavigationStack {
+            VStack(spacing: 12) {
+                DatePicker(
+                    "Reschedule to",
+                    selection: $viewModel.rescheduleDate,
+                    displayedComponents: [.date])
+                Button("Reschedule") {
+                    let components = Calendar.current.dateComponents(
+                        [.year, .month, .day],
+                        from: viewModel.rescheduleDate)
+                    if let id = viewModel.store.visibleReminders.first?.calendarItemIdentifier {
+                        Task {
+                            await viewModel.store.rescheduleReminder(identifier: id, to: components)
+                            viewModel.isShowingRescheduleSheet = false
+                        }
+                    } else {
+                        viewModel.isShowingRescheduleSheet = false
+                    }
+                }
+                .accessibilityIdentifier("rescheduleConfirmButton")
+            }
+            .padding()
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { viewModel.isShowingRescheduleSheet = false }
+                }
+            }
+        }
     }
 
     private func reminderDetails(_ display: ReminderDisplay) -> some View {

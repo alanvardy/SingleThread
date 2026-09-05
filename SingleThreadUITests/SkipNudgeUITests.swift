@@ -76,7 +76,7 @@ final class SkipNudgeUITests: SingleThreadUITestCase {
             app.staticTexts["nudgeSheetTitle"].waitForExistence(timeout: 3),
             "Tapping the banner should open the nudge sheet")
 
-        let reschedule = app.buttons["nudgeRescheduleButton"]
+        let reschedule = app.buttons["rescheduleConfirmButton"]
         XCTAssertTrue(reschedule.waitForExistence(timeout: 3), "Nudge sheet should offer Reschedule")
         reschedule.tap()
 
