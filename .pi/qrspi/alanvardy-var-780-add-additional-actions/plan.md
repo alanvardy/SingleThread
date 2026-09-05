@@ -327,14 +327,14 @@ public enum ActionMenuGate {
 ### Verification
 
 #### Automated
-- [ ] `make build` compiles clean
+- [x] `make build` compiles clean
 - [ ] `make test` passes
 
 #### New Unit Tests
-- [ ] `ActionMenuGateTests.swift`: 2×2×2 table — toggle on/off × canMutate true/false × hasReminder true/false
-- [ ] `SkippedReminderSyncServiceTests` additions: `requestRescheduleReminderSendsMessage`, `receiveRescheduleReminder`
-- [ ] `EventKitStoringTests.reschedule` suite stays green
-- [ ] `ReminderStoreWatchTests` updated for `onRescheduleReminder` hook
+- [x] `ActionMenuGateTests.swift`: 2×2×2 table — toggle on/off × canMutate true/false × hasReminder true/false
+- [x] `SkippedReminderSyncServiceTests` additions: `requestRescheduleReminderSendsMessage`, `receiveRescheduleReminder` (implemented as `RescheduleSyncTests.swift` — new file to avoid pushing the existing suite past the `file_length` threshold)
+- [x] `EventKitStoringTests.reschedule` suite stays green
+- [x] `ReminderStoreWatchTests` updated for `onRescheduleReminder` hook
 
 ---
 

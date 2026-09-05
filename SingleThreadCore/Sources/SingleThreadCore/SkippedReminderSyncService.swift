@@ -89,6 +89,12 @@ import os
         /// `nonisolated(unsafe)` rationale as `onCompleteReminderReceived`.
         public nonisolated(unsafe) var onDeleteReminderReceived: ((String) -> Void)?
 
+        /// Hook invoked on the iPhone when the watch asks to reschedule a reminder.
+        /// Passes the reminder's identifier and the new due-date components. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onCompleteReminderReceived`.
+        public nonisolated(unsafe) var onRescheduleReminderReceived: ((String, DateComponents) -> Void)?
+
         /// Hook invoked on the watch when the iPhone's "show undated reminders"
         /// preference arrives in a combined application context. Passes the new value.
         /// Same write-once-before-activate / `nonisolated(unsafe)` rationale as
@@ -243,6 +249,34 @@ import os
                 }
         }
 
+        /// Ask the iPhone to reschedule a reminder (watch-side action). The due-date
+        /// components travel as a plist-safe `[String: Int]` dictionary — only the
+        /// user-picked fields are populated, so other calendar subsystems (month/day
+        /// boundaries, timezone) resolve on the phone.
+        public func requestRescheduleReminder(identifier: String, dueDateComponents: DateComponents) {
+            var payload: [String: Any] = [PayloadKey.rescheduleReminderIdentifier: identifier]
+            var dueComponents: [String: Int] = [:]
+            if let year = dueDateComponents.year {
+                dueComponents["year"] = year
+            }
+            if let month = dueDateComponents.month {
+                dueComponents["month"] = month
+            }
+            if let day = dueDateComponents.day {
+                dueComponents["day"] = day
+            }
+            if let hour = dueDateComponents.hour {
+                dueComponents["hour"] = hour
+            }
+            if let minute = dueDateComponents.minute {
+                dueComponents["minute"] = minute
+            }
+            payload["dueDateComponents"] = dueComponents
+            session.sendMessage(payload, replyHandler: nil) { error in
+                Self.logger.error("Failed to send reschedule request: \(error.localizedDescription, privacy: .public)")
+            }
+        }
+
         // MARK: WCSessionDelegate
 
         public func session(
@@ -259,6 +293,17 @@ import os
             if let identifier = message[PayloadKey.deleteReminderIdentifier] as? String {
                 let handler = onDeleteReminderReceived
                 handler?(identifier)
+            }
+            if let identifier = message[PayloadKey.rescheduleReminderIdentifier] as? String,
+               let dueComponents = message["dueDateComponents"] as? [String: Int] {
+                var components = DateComponents()
+                components.year = dueComponents["year"]
+                components.month = dueComponents["month"]
+                components.day = dueComponents["day"]
+                components.hour = dueComponents["hour"]
+                components.minute = dueComponents["minute"]
+                let handler = onRescheduleReminderReceived
+                handler?(identifier, components)
             }
         }
 
@@ -288,6 +333,7 @@ import os
             static let excludedListTitles = "excludedListTitles"
             static let completeReminderIdentifier = "completeReminderIdentifier"
             static let deleteReminderIdentifier = "deleteReminderIdentifier"
+            static let rescheduleReminderIdentifier = "rescheduleReminderIdentifier"
             static let showUndatedReminders = "showUndatedReminders"
             static let sortOption = "sortOption"
             static let showDate = "showDate"

@@ -105,6 +105,66 @@ struct ReminderStoreWatchTests {
         #expect(pendingStore(key: key).load().contains("prior-id"))
     }
 
+    // MARK: - Reschedule relay
+
+    @Test
+    func rescheduleFiresRelayHookAndReturnsTrue() async {
+        let key = "watch-resched-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        let rem = watchReminder("A")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        var receivedIdentifier: String?
+        var receivedComponents: DateComponents?
+        store.onRescheduleReminder = { identifier, components in
+            receivedIdentifier = identifier
+            receivedComponents = components
+        }
+        let due = DateComponents(year: 2027, month: 1, day: 2)
+
+        let rescheduled = await store.rescheduleReminder(
+            identifier: rem.calendarItemIdentifier,
+            to: due)
+
+        // The watch prizes the relay over a local EventKit write: the hook fires
+        // with the exact components and the call reports success.
+        #expect(rescheduled)
+        #expect(receivedIdentifier == rem.calendarItemIdentifier)
+        #expect(receivedComponents?.year == 2027)
+        #expect(receivedComponents?.month == 1)
+        #expect(receivedComponents?.day == 2)
+    }
+
+    @Test
+    func rescheduleNoOpWhenGated() async {
+        let key = "watch-resched-gated-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        UserDefaults.standard.set(EntitlementStore.freemiumCap, forKey: key)
+        let rem = watchReminder("A")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            completionCounter: CompletionCounterStore(defaults: .standard, key: key),
+            entitlementStore: EntitlementStore(testingWithEntitled: false))
+        var fired = false
+        store.onRescheduleReminder = { _, _ in fired = true }
+
+        let rescheduled = await store.rescheduleReminder(
+            identifier: rem.calendarItemIdentifier,
+            to: DateComponents(year: 2027, month: 1, day: 2))
+
+        // `canMutate` gates before the relay — same guard as every other write.
+        #expect(!rescheduled)
+        #expect(!fired)
+    }
+
     // MARK: Private
 
     private func pendingStore(key: String) -> PendingCompletionStore {
