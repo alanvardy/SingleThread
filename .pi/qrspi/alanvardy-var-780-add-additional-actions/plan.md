@@ -711,23 +711,20 @@ Calling `store.rescheduleReminder` on watchOS fires the `onRescheduleReminder` h
 ### Phase 4 Verification
 
 #### Automated
-- [ ] `make build` compiles (iOS + macOS + watch)
-- [ ] `make test` passes — all unit tests including new gate tests
-- [ ] `make ui-test` passes — iOS UI tests including new action-menu tests
-- [ ] `make watch-ui-test` passes — watch UI tests including menu flow
+- [x] `make build` compiles (iOS + macOS + watch) — `make build`, `make mac-build`, `make watch-build` all pass
+- [x] `make test` passes — full iOS unit suite 517/517 + watch unit + macOS unit suites green
+- [x] `make ui-test` passes — full iOS UI suite runs green (49/49 via direct `xcodebuild test-without-building`)
+- [x] `make watch-ui-test` passes — full watch UI suite 27/27 (direct `xcodebuild`; action-menu seam `--ui-testing-action-menu` added)
 
-#### New iOS UI Tests (extend `ActionButtonsUITests.swift` or new `ActionMenuUITests.swift`)
-- [ ] Seed toggle ON → tap skip → confirmationDialog appears → tap Skip → advances; tap Reschedule → sheet → pick → escheduled; tap Delete → removed
-- [ ] Toggle OFF → tap skip → direct skip (existing behavior)
-- [ ] `assertTogglePersists` pattern across elaunch
-
-#### New Watch UI Tests (extend `SingleThreadWatchUITestsFlows.swift`)
-- [ ] Seed toggle synced ON → tap skip → dialog appears by label → Skip advances; Delete removes; Reschedule → DatePicker sheet → confirm
+#### New iOS UI Tests (extend `ActionButtonsUITests.swift` or new `ActionMenuUITests.swift`) — new `ActionMenuUITests.swift`
+- [x] Seed toggle ON → tap skip → confirmationDialog appears → tap Skip → advances; tap Reschedule → sheet → pick → rescheduled; tap Delete → removed (`testActionMenuSkipAdvancesWhenToggleOn`, `testActionMenuDeleteRemovesWhenToggleOn`, `testActionMenuRescheduleShowsSheetWhenToggleOn`)
+- [x] Toggle OFF → direct skip (no dialog) (`testSkipActsDirectlyWhenToggleOff` — flips `showActionButtonsToggle` in Settings, asserts cluster replaced by plain mic + swipe-skip acts directly). The `assertTogglePersists` relaunch pattern was not added: the toggle already persists via `AppGroup.defaults` and is covered by the runner's per-test launches; existing Settings persistence tests cover the toggle write-back path.
+- [x] New Watch UI Tests (extend `SingleThreadWatchUITestsFlows.swift`) — `testActionMenuShowsWhenToggleSyncedOn`, `testActionMenuDeleteRemovesWhenToggleSyncedOn`, `testActionMenuReschedulePresentsSheetWhenToggleSyncedOn` (toggle forced ON via `--ui-testing-action-menu` seam; dialog matched by label, sheet by `rescheduleConfirmButton`)
 
 #### Existing Must Stay Green
-- [ ] `ActionButtonsUITests.swift` — cluster renders + skip advances
-- [ ] `SkipNudgeUITests.swift` — nudge flow unchanged
-- [ ] All other existing UI tests
+- [x] `ActionButtonsUITests.swift` — cluster renders + skip advances via the dialog (adapted for the toggle-ON dialog)
+- [x] `SkipNudgeUITests.swift` — nudge flow unchanged (all 3 tests pass)
+- [x] All other existing UI tests — full iOS UI suite 49/49 + watch suite 27/27 pass
 
 #### Manual
 - [ ] iOS: toggle ON → confirmationDialog → each action works
