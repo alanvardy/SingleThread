@@ -20,6 +20,9 @@ public nonisolated enum ReminderSort {
             if let rank = comparePriorities(lhs, rhs) {
                 return rank == .orderedAscending
             }
+            if let list = compareLists(lhs, rhs) {
+                return list == .orderedAscending
+            }
             if let date = compareDueDates(lhs, rhs) {
                 return date == .orderedAscending
             }
@@ -28,11 +31,17 @@ public nonisolated enum ReminderSort {
             if let date = compareDueDates(lhs, rhs) {
                 return date == .orderedAscending
             }
+            if let list = compareLists(lhs, rhs) {
+                return list == .orderedAscending
+            }
             return titleComparison(lhs, rhs) == .orderedAscending
         case .title:
             let comparison = titleComparison(lhs, rhs)
             if comparison != .orderedSame {
                 return comparison == .orderedAscending
+            }
+            if let list = compareLists(lhs, rhs) {
+                return list == .orderedAscending
             }
             if let date = compareDueDates(lhs, rhs) {
                 return date == .orderedAscending
@@ -69,6 +78,22 @@ public nonisolated enum ReminderSort {
         case (.none, .some):
             return .orderedDescending
         default:
+            return nil
+        }
+    }
+
+    private static func compareLists(_ lhs: EKReminder, _ rhs: EKReminder) -> ComparisonResult? {
+        let lhsList = lhs.calendar?.title
+        let rhsList = rhs.calendar?.title
+        switch (lhsList, rhsList) {
+        case let (.some(left), .some(right)):
+            let comparison = left.localizedCaseInsensitiveCompare(right)
+            return comparison == .orderedSame ? nil : comparison
+        case (.some, .none):
+            return .orderedAscending
+        case (.none, .some):
+            return .orderedDescending
+        case (.none, .none):
             return nil
         }
     }
