@@ -30,14 +30,17 @@ struct ShowCompletionGlowStateTests {
 
     @Test
     func stateReadsAndAppliesPreference() {
-        // The holder hardcodes `.standard` + key "showCompletionGlow"; seed that.
-        UserDefaults.standard.set(false, forKey: "showCompletionGlow")
-        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
+        // The holder hardcodes `.standard` + the glow key; seed that.
+        UserDefaults.standard.set(false, forKey: BoolPreferenceKey.showCompletionGlow.rawValue)
+        defer { UserDefaults.standard.removeObject(forKey: BoolPreferenceKey.showCompletionGlow.rawValue) }
         let state = ShowCompletionGlowState()
         #expect(!state.isEnabled, "initial value comes from the persisted preference")
         state.apply(false)
         #expect(
-            !ShowCompletionGlowPreference(defaults: .standard).isEnabled,
+            !BoolPreferenceStore(
+                defaults: .standard,
+                key: BoolPreferenceKey.showCompletionGlow.rawValue,
+                fallback: true).isEnabled,
             "apply persists into the preference store")
         #expect(!state.isEnabled, "apply republishes false through the state")
         state.apply(true)
@@ -51,8 +54,8 @@ struct ShowCompletionGlowStateTests {
     func uiTestingGlowFlagsPreSetState(_ arg: (flag: String, expectedEnabled: Bool)) {
         // A persisted `false` from an earlier disabled-flow test in the same
         // UI-test session must not suppress the glow for the enabled-flow test.
-        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
-        UserDefaults.standard.set(false, forKey: "showCompletionGlow")
+        defer { UserDefaults.standard.removeObject(forKey: BoolPreferenceKey.showCompletionGlow.rawValue) }
+        UserDefaults.standard.set(false, forKey: BoolPreferenceKey.showCompletionGlow.rawValue)
         let appViewModel = WatchAppViewModel(arguments: [arg.flag])
         #expect(
             appViewModel.showCompletionGlowState.isEnabled == arg.expectedEnabled,
@@ -61,7 +64,7 @@ struct ShowCompletionGlowStateTests {
 
     @Test
     func watchGateControlsGlowBasedOnState() async {
-        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
+        defer { UserDefaults.standard.removeObject(forKey: BoolPreferenceKey.showCompletionGlow.rawValue) }
 
         // Disabled branch: the gate suppresses the glow so the disabled flow
         // needs no settings screen interference.
@@ -127,7 +130,7 @@ struct ShowCompletionGlowStateTests {
     @Test
     func transitionFlagNotSetWhenGlowDisabled() async {
         let glowState = ShowCompletionGlowState()
-        defer { UserDefaults.standard.removeObject(forKey: "showCompletionGlow") }
+        defer { UserDefaults.standard.removeObject(forKey: BoolPreferenceKey.showCompletionGlow.rawValue) }
         glowState.apply(false)
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),

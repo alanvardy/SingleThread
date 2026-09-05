@@ -15,7 +15,9 @@ final class ContentViewModel {
         store: ReminderStore,
         backgroundImage: BackgroundImageStore,
         speechTranscriber: any SpeechTranscribing,
-        showCompletionGlow: ShowCompletionGlowPreference = ShowCompletionGlowPreference(),
+        showCompletionGlow: BoolPreferenceStore = BoolPreferenceStore(
+            key: BoolPreferenceKey.showCompletionGlow.rawValue,
+            fallback: true),
         urlOpener: (any URLOpening)? = nil) {
         self.store = store
         self.backgroundImage = backgroundImage
@@ -215,5 +217,5 @@ final class ContentViewModel {
 
     /// Preference read at trigger time so a settings toggle takes effect
     /// without rebuilding the view model.
-    private let showCompletionGlow: ShowCompletionGlowPreference
+    private let showCompletionGlow: BoolPreferenceStore
 }

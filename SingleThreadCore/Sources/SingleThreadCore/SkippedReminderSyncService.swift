@@ -29,12 +29,24 @@ import os
             countStore: SkipCountStore = SkipCountStore(),
             excludeStore: ExcludedListStore = ExcludedListStore(),
             sortStore: SortOptionStore = SortOptionStore(),
-            showUndatedStore: ShowUndatedRemindersPreference = ShowUndatedRemindersPreference(),
-            showDateStore: ShowDatePreference = ShowDatePreference(),
-            showRecurrenceStore: ShowRecurrencePreference = ShowRecurrencePreference(),
-            showAlarmsStore: ShowAlarmsPreference = ShowAlarmsPreference(),
-            showListStore: ShowListPreference = ShowListPreference(),
-            showCompletionGlowStore: ShowCompletionGlowPreference = ShowCompletionGlowPreference(),
+            showUndatedStore: BoolPreferenceStore = BoolPreferenceStore(
+                key: BoolPreferenceKey.showUndatedReminders.rawValue,
+                fallback: false),
+            showDateStore: BoolPreferenceStore = BoolPreferenceStore(
+                key: BoolPreferenceKey.showDate.rawValue,
+                fallback: true),
+            showRecurrenceStore: BoolPreferenceStore = BoolPreferenceStore(
+                key: BoolPreferenceKey.showRecurrence.rawValue,
+                fallback: true),
+            showAlarmsStore: BoolPreferenceStore = BoolPreferenceStore(
+                key: BoolPreferenceKey.showAlarms.rawValue,
+                fallback: true),
+            showListStore: BoolPreferenceStore = BoolPreferenceStore(
+                key: BoolPreferenceKey.showList.rawValue,
+                fallback: false),
+            showCompletionGlowStore: BoolPreferenceStore = BoolPreferenceStore(
+                key: BoolPreferenceKey.showCompletionGlow.rawValue,
+                fallback: true),
             completionCounter: CompletionCounterStore = CompletionCounterStore(),
             entitlementStore: EntitlementStore? = nil,
             sendsShowDate: Bool = true,
@@ -179,7 +191,7 @@ import os
                     PayloadKey.skippedReminderIdentifiers: skipStore.load(),
                     PayloadKey.skipCounts: countStore.load(),
                     PayloadKey.excludedListTitles: excludeStore.load(),
-                    PayloadKey.showUndatedReminders: showUndatedStore.load(),
+                    PayloadKey.showUndatedReminders: showUndatedStore.isEnabled,
                     PayloadKey.sortOption: sortStore.load().rawValue,
                     PayloadKey.completionCount: completionCounter.count
                 ]
@@ -299,12 +311,12 @@ import os
         private let countStore: SkipCountStore
         private let excludeStore: ExcludedListStore
         private let sortStore: SortOptionStore
-        private let showUndatedStore: ShowUndatedRemindersPreference
-        private let showDateStore: ShowDatePreference
-        private let showRecurrenceStore: ShowRecurrencePreference
-        private let showAlarmsStore: ShowAlarmsPreference
-        private let showListStore: ShowListPreference
-        private let showCompletionGlowStore: ShowCompletionGlowPreference
+        private let showUndatedStore: BoolPreferenceStore
+        private let showDateStore: BoolPreferenceStore
+        private let showRecurrenceStore: BoolPreferenceStore
+        private let showAlarmsStore: BoolPreferenceStore
+        private let showListStore: BoolPreferenceStore
+        private let showCompletionGlowStore: BoolPreferenceStore
         private let completionCounter: CompletionCounterStore
         private let entitlementStore: EntitlementStore
         private let sendsShowDate: Bool
@@ -337,7 +349,7 @@ import os
                 handler?(receivedTitles)
             }
             if let received = context[PayloadKey.showUndatedReminders] as? Bool {
-                showUndatedStore.save(received)
+                showUndatedStore.set(received)
                 let handler = onShowUndatedRemindersReceived
                 handler?(received)
             }

@@ -25,5 +25,8 @@ final class ShowAlarmsState {
 
     // MARK: Private
 
-    private let preference = ShowAlarmsPreference(defaults: .standard)
+    private let preference = BoolPreferenceStore(
+        defaults: .standard,
+        key: BoolPreferenceKey.showAlarms.rawValue,
+        fallback: true)
 }
