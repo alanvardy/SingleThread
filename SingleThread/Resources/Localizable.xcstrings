@@ -546,31 +546,31 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancel"
+            "value": "取消"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancel"
+            "value": "Cancelar"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancel"
+            "value": "キャンセル"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancel"
+            "value": "Abbrechen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cancel"
+            "value": "Annuler"
           }
         }
       }
@@ -1981,31 +1981,31 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reschedule"
+            "value": "重新安排"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reschedule"
+            "value": "Reprogramar"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reschedule"
+            "value": "再スケジュール"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reschedule"
+            "value": "Neu planen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reschedule"
+            "value": "Reprogrammer"
           }
         }
       }
@@ -2022,31 +2022,31 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reschedule to"
+            "value": "重新安排到"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reschedule to"
+            "value": "Reprogramar para"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reschedule to"
+            "value": "再スケジュール先"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reschedule to"
+            "value": "Neu planen auf"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Reschedule to"
+            "value": "Reprogrammer à"
           }
         }
       }
@@ -2924,31 +2924,31 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "This reminder keeps coming back."
+            "value": "此提醒会反复出现。"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "This reminder keeps coming back."
+            "value": "Este recordatorio sigue volviendo."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "This reminder keeps coming back."
+            "value": "このリマインダーは何度も戻ってきます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "This reminder keeps coming back."
+            "value": "Diese Erinnerung kommt immer wieder zurück."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "This reminder keeps coming back."
+            "value": "Ce rappel ne cesse de revenir."
           }
         }
       }

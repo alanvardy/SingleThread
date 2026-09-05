@@ -136,6 +136,10 @@ struct ReminderCardView: View {
 
     /// Tappable nudge banner. Unlike the swipe hint, NOT `.accessibilityHidden` —
     /// the nudge is actionable and must be screen-reader reachable.
+    ///
+    /// Sizes to its label (like the watch nudge) instead of `.frame(maxWidth:
+    /// .infinity)`: an unbounded banner would stretch this compact content-hugging
+    /// card plate edge-to-edge across the whole screen.
     private var nudgeBanner: some View {
         Button(action: onNudgeTap) {
             HStack(spacing: 6) {
@@ -144,7 +148,6 @@ struct ReminderCardView: View {
                     .font(.caption.bold())
             }
             .foregroundStyle(.orange)
-            .frame(maxWidth: .infinity)
             .padding(.vertical, 8)
         }
         .buttonStyle(.borderedProminent)
