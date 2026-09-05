@@ -677,6 +677,23 @@ extension ContentView {
                         .padding(.horizontal)
                 }
                 recordingIndicator
+            } else if viewModel.dictation.isProcessing {
+                VStack(spacing: 6) {
+                    if !viewModel.dictation.dictationText.isEmpty {
+                        Text(viewModel.dictation.dictationText)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .lineLimit(2)
+                    }
+                    HStack(spacing: 4) {
+                        ProgressView()
+                            .scaleEffect(0.7)
+                        Text("Processing…")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    .accessibilityLabel("Processing")
+                }
             } else if viewModel.dictation.canDictate, showMicrophoneButton {
                 #if os(iOS)
                     if !viewModel.store.hasResolvedEntitlement {

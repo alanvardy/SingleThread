@@ -29,6 +29,7 @@ private final class FakeSpeechTranscriber: SpeechTranscribing {
 
     var transcriptionResult: String?
     var transcriptionError: (any Error)?
+    var recordingEndedGate: CheckedContinuation<Void, Never>?
     var partialUpdates: [String]?
     var partialResults: [String] = []
     var requestAuthorizationCallCount = 0
@@ -58,6 +59,8 @@ private final class FakeSpeechTranscriber: SpeechTranscribing {
             try? await Task.sleep(nanoseconds: 50_000_000)
         }
         isRecording = false
+        recordingEndedGate?.resume()
+        recordingEndedGate = nil
         if let error = transcriptionError {
             throw error
         }
@@ -162,6 +165,19 @@ struct ReminderDictationTests {
         #expect(fake.partialText == "Buy milk today")
     }
 
+    @Test
+    func gateResumesAfterRecordingEnds() async {
+        let fake = FakeSpeechTranscriber(transcriptionResult: "Hello")
+        #expect(!fake.isRecording)
+        await withCheckedContinuation { (gate: CheckedContinuation<Void, Never>) in
+            fake.recordingEndedGate = gate
+            Task {
+                _ = try? await fake.transcribe { _ in }
+            }
+        }
+        #expect(!fake.isRecording)
+    }
+
     // MARK: - DictationViewModel integration
 
     @Test
@@ -201,9 +217,93 @@ struct ReminderDictationTests {
         await viewModel.startDictation()
 
         #expect(!viewModel.isDictating)
+        #expect(!viewModel.isProcessing)
         #expect(viewModel.dictationText == "Buy milk")
         #expect(viewModel.dictationError == nil)
         #expect(eventStore.allReminders.contains { $0.title == "Buy milk" })
+    }
+
+    @Test
+    func isDictatingClearsAfterTranscribeBeforeParseAddAndSleep() async {
+        let fake = FakeSpeechTranscriber(transcriptionResult: "Buy milk")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(), loadsReminders: false)
+        let viewModel = DictationViewModel(speechTranscriber: fake, store: store)
+
+        // The gate fires inside transcribe() after isRecording = false.
+        // After transcribe() returns, startDictation() synchronously sets
+        // isDictating = false on @MainActor before any suspension point (parse
+        // is sync; the first await is addReminder). The test's continuation
+        // resumes at that first suspension point, so isDictating is already
+        // false.
+        await withCheckedContinuation { (gate: CheckedContinuation<Void, Never>) in
+            fake.recordingEndedGate = gate
+            Task {
+                await viewModel.startDictation()
+            }
+        }
+        #expect(!viewModel.isDictating)
+        #expect(!fake.isRecording)
+        #expect(viewModel.isProcessing)
+    }
+
+    @Test
+    func isProcessingSetDuringPostTranscribeTail() async {
+        let fake = FakeSpeechTranscriber(transcriptionResult: "Buy milk")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(), loadsReminders: false)
+        let viewModel = DictationViewModel(speechTranscriber: fake, store: store)
+
+        await withCheckedContinuation { (gate: CheckedContinuation<Void, Never>) in
+            fake.recordingEndedGate = gate
+            Task {
+                await viewModel.startDictation()
+            }
+        }
+        #expect(viewModel.isProcessing)
+        #expect(!viewModel.isDictating)
+
+        // Let the flow complete (production settle is 200ms).
+        // Poll for isProcessing to clear.
+        for _ in 0 ..< 50 {
+            if !viewModel.isProcessing {
+                break
+            }
+            try? await Task.sleep(nanoseconds: 50_000_000)
+        }
+        #expect(!viewModel.isProcessing)
+    }
+
+    @Test
+    func reentryGuardBlocksConcurrentCalls() async {
+        let fake = FakeSpeechTranscriber(
+            transcriptionResult: "First",
+            // Six 50ms sleeps keep the recording phase ~300ms so the probe
+            // below lands well inside the window — the default single 50ms
+            // sleep is shorter than the 100ms probe and would let task1 clear
+            // isDictating before the probe runs.
+            partialUpdates: Array(repeating: "First", count: 6))
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(), loadsReminders: false)
+        let viewModel = DictationViewModel(speechTranscriber: fake, store: store)
+
+        // task1 sets isDictating = true and enters transcribe().
+        let task1 = Task { await viewModel.startDictation() }
+        // Give task1 time to reach the recording phase.
+        try? await Task.sleep(nanoseconds: 100_000_000)
+        #expect(viewModel.isDictating)
+
+        // Concurrent re-entry while task1 is still recording bounces at the
+        // guard — it never reaches transcribe().
+        let task2 = Task { await viewModel.startDictation() }
+        await task2.value
+        #expect(fake.transcribeCallCount == 1)
+
+        // Let task1 complete normally.
+        await task1.value
+        #expect(!viewModel.isDictating)
+        #expect(!fake.isRecording)
+        #expect(fake.transcribeCallCount == 1)
     }
 }
 
