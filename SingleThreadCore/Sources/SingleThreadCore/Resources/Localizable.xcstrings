@@ -1278,31 +1278,31 @@
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skipped 6 times"
+            "value": "已跳过 6 次"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skipped 6 times"
+            "value": "Omitido 6 veces"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skipped 6 times"
+            "value": "6回スキップ済み"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skipped 6 times"
+            "value": "6-mal übersprungen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Skipped 6 times"
+            "value": "Ignoré 6 fois"
           }
         }
       }
