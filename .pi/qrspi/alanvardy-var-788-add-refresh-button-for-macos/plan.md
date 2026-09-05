@@ -289,6 +289,15 @@ Append after `contentViewAllDoneShowsAllDoneCopy` (after line ~48):
 
 ## Layer3: macOS UI test infrastructure + end-to-end tests
 
+> **DECISION (2026-09-05, user): Layer 3 REMOVED — no macOS UI tests.**
+> macOS UI tests spawn a host-GUI app on the machine running the suite; the
+> repo frequently runs multiple test suites in sequence (iOS sim, watch,
+> macOS) and these host-app launches conflict with that. All Layer 3 work is
+> reverted: `SingleThreadUITestsMacOS.swift`, the Makefile `mac-ui-test`
+> target, the `scripts/test.sh` step, and the CI `mac-ui-tests` job are **not**
+> added. The refresh button ships with Layer 1 unit tests (5) + Layer 2
+> view-structure test only; the macOS UI-test automated items below are N/A.
+
 ### Changes
 
 #### 1. New macOS UI test class
@@ -470,19 +479,19 @@ The cache key prefix is `derived-data-mac-ui-` so it does not collide with the `
 
 ### Verification
 #### Automated
-- [ ] `make mac-ui-test` — new target +3 macOS UI tests green locally
-- [ ] `./scripts/test.sh` — full pipeline green (all layers, all platforms, lint + unit + UI)
+- [x] ~~`make mac-ui-test` — new target +3 macOS UI tests green locally~~ — **N/A, Layer 3 removed** (see decision note above)
+- [x] ~~`./scripts/test.sh` — full pipeline green (all layers, all platforms, lint + unit + UI)~~ — **N/A, Layer 3 removed** (only the plan's Layer 3 additions would have been gated by this)
 
 #### Manual
-- [ ] N/A (tests cover existence, accessibility, and tap behavior)
+- [ ] N/A (Layer 3 removed — no macOS UI tests to run manually)
 
 ---
 
 ## Risk Mitigations Check list
 
-- [ ] **`type_body_length`**: After Layer2, run `make lint`. If it fails with `type_body_length` warning/error on `ContentView.swift`, extract to `ContentView+macOS.swift` (see fallback in Layer2 §1).
-- [ ] **`UITestingSeed.makeDefault()`**: If this static method does not exist, define the seed inline in `SingleThreadUITestsMacOS.swift` using the `UITestingSeed` init signature from `UITestingSeed.swift:7-28`.
-- [ ] **Cache key collision**: The CI job uses a distinct `derived-data-mac-ui-` cache prefix so it does not clobber the `mac-tests` cache.
+- [x] **`type_body_length`**: After Layer2, run `make lint`. If it fails with `type_body_length` warning/error on `ContentView.swift`, extract to `ContentView+macOS.swift` (see fallback in Layer2 §1). — **Passed**: inline overlay kept, `make lint` 0 violations.
+- [x] ~~**`UITestingSeed.makeDefault()`**~~ — **N/A, Layer 3 removed** (see decision note above).
+- [x] ~~**Cache key collision**~~ — **N/A, Layer 3 removed** (no `derived-data-mac-ui-` CI job).
 - [ ] **Duplicate-tap during hold**: The `guard !isRefreshing` drops a second tap silently —same behavior as `WatchReminderViewModel`. If user feedback warrants a visuual acknowledgment of rejected taps,, that is a follow-up.
 
 ---
@@ -495,8 +504,8 @@ The cache key prefix is `derived-data-mac-ui-` so it does not collide with the `
 | `SingleThreadTests/ContentViewModelTests.swift` | Add5 tests |1 |
 | `SingleThread/ContentView.swift` | Add macOS refresh button overlay |2 |
 | `SingleThreadTests/SingleThreadTests.swift` | Add view-structure test |2 |
-| `SingleThreadUITests/SingleThreadUITestsMacOS.swift` | **Create** —3 XCTest tests |3 |
-| `Makefile` | Add `mac-ui-test` target |3 |
-| `scripts/test.sh` | Add macOS UI step |3 |
-| `.github/workflows/ci.yml` | Add `mac-ui-tests` job |3 |
+| ~~`SingleThreadUITests/SingleThreadUITestsMacOS.swift`~~ | ~~**Create** —3 XCTest tests~~ **removed** |3 |
+| ~~`Makefile`~~ | ~~Add `mac-ui-test` target~~ **removed** |3 |
+| ~~`scripts/test.sh`~~ | ~~Add macOS UI step~~ **removed** |3 |
+| ~~`.github/workflows/ci.yml`~~ | ~~Add `mac-ui-tests` job~~ **removed** |3 |
 | `SingleThread/ContentView+macOS.swift` | **Create** (fallback only — if `type_body_length` breaches) |2 |
