@@ -134,27 +134,28 @@ SingleThread/                  # git root
 
 ## Testing Requirements
 
-- **Every new feature or behavior change must ship with tests.** A change is
-  not "done" until it is covered by:
-  - a **unit test** (`SingleThreadTests`, Swift Testing) for any new logic —
-    persistence, filtering, sorting, parsing, formatting, state transitions;
-  - a **UI test** (`SingleThreadUITests` / `SingleThreadWatchUITests`, XCTest)
-    for any new end-to-end user flow — e.g. view, complete, skip, delete,
-    settings. This is the regression guard for the user-facing use cases.
+- **Every new feature and bug must ship with a unit test** (`SingleThreadTests`,
+  Swift Testing). A change is not "done" until its logic is covered —
+  persistence, filtering, sorting, parsing, formatting, state transitions.
+- Bug fixes must add (or fix) a unit test that reproduces the bug before the
+  fix, so the fix is proven to hold.
+- **UI tests are the exception, not the default.** Use them sparingly, only
+  when justified — e.g. a new end-to-end user flow whose value can't be
+  captured by a unit test, or a regression that only manifests at the UI layer
+  (accessibility, navigation). UI tests are slow and flaky-prone, so each one
+  must earn its place; say why a UI test is added or skipped in the PR rather
+  than staying silent.
 - The `--seed '<json>'` launch-arg seam (backed by `InMemoryEventStore`) is the
   standard way to drive deterministic iOS UI tests for write flows (complete /
-  delete) without a real `EKEventStore` or a TCC prompt. Use it for new iOS UI
-  tests; reuse the existing `--ui-testing` seam on watchOS.
-- Bug fixes must add (or fix) a test that reproduces the bug before the fix, so
-  the fix is proven to hold.
+  delete) without a real `EKEventStore` or a TCC prompt. Use it for the rare
+  UI tests that are justified; reuse the existing `--ui-testing` seam on
+  watchOS.
 - **Gate staging**: phase subagents verify with a build plus targeted
   `-only-testing:` suites only. The full `./scripts/test.sh` runs ONCE, by the
   parent (or a dedicated final phase), after phases commit — workers
   re-running the full multi-hour gate exceed run caps and orphan unverified
   changes.
-- If a feature genuinely can't be UI-tested (e.g. dictation/speech, which is
-  handled by unit tests only), say so explicitly in the PR rather than silently
-  skipping it.
+
 - Conflict-laden rebases are NOT resolution-edited mid-review: stop, and
   resolve (`git checkout --theirs` / manual continue) in a separate scoped
   fix commit before review resumes.
@@ -186,8 +187,9 @@ SingleThread/                  # git root
   build + test + lint pipeline).
 - New test suites must be added to `Makefile`'s `test` target and
   `scripts/test.sh` if they need explicit `-only-testing` filters.
-- Confirm the feature ships with both unit and UI test coverage (see
-  [Testing Requirements](#testing-requirements)) before marking work "done".
+- Confirm the change ships with unit-test coverage (see
+  [Testing Requirements](#testing-requirements)) before marking work "done";
+  UI tests only where justified per that policy.
 - A test failure your diff didn't touch is likely pre-existing on
   `origin/main` — verify with git blame / CI history before debugging it, and
   fix it in a separate scoped commit.
