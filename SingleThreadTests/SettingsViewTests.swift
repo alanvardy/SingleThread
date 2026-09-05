@@ -319,7 +319,7 @@ struct SettingsViewTests {
 
     @Test
     func purchaseSettingsViewContainsTopAnchor() {
-        let view = PurchaseSettingsView(entitlementStore: EntitlementStore())
+        let view = PurchaseSettingsView(entitlementStore: EntitlementStore(testingWithEntitled: false))
         let bodyDescription = String(describing: view.body)
 
         // The `.navigationTitle("Unlock")` string does not survive SwiftUI
@@ -331,6 +331,7 @@ struct SettingsViewTests {
             #expect(bodyDescription.contains("SettingsSubscreenLayout"))
         #endif
     }
+
     // MARK: Private
 
     /// Builds a store whose fetch pipeline has already populated a photo and
