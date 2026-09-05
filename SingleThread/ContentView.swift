@@ -69,14 +69,14 @@ struct ContentView: View {
 
     // MARK: - Creation Feedback
 
-    @AppStorage("appearanceMode")
+    @AppStorage(AppearanceModePreference.defaultsKey)
     var appearanceMode = AppearanceMode.system
 
     @AppStorage("textSize")
     var textSize = TextSize.system
 
     #if os(iOS)
-        @AppStorage("allowsLandscape")
+        @AppStorage(OrientationPreference.defaultsKey)
         var allowsLandscape = true
     #endif
 
@@ -106,10 +106,10 @@ struct ContentView: View {
         @AppStorage("showUndoButton")
         var showUndoButton = true
 
-        @AppStorage(AppViewModel.NotificationKeys.enabled)
+        @AppStorage(NotificationPreference.enabledDefaultsKey)
         var notificationsEnabled = false
 
-        @AppStorage(AppViewModel.NotificationKeys.intervalHours)
+        @AppStorage(NotificationPreference.intervalDefaultsKey)
         var notificationIntervalHours = 48
     #endif
     @AppStorage(ShowUndatedRemindersPreference.defaultsKey, store: AppGroup.defaults)

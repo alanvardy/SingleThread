@@ -90,11 +90,11 @@ public struct UITestingSeed {
         "backgroundEnabled", // cosmetic, no store type
         "backgroundFadePercent", // cosmetic, no store type
         "backgroundPinned", // cosmetic, no store type
-        "allowsLandscape", // Stage 3: replace with store constant
+        OrientationPreference.defaultsKey,
         "textSize", // cosmetic, no store type
-        "appearanceMode", // Stage 3: replace with store constant
-        "notificationsEnabled", // Stage 3: replace with store constant
-        "notificationIntervalHours" // Stage 3: replace with store constant
+        AppearanceModePreference.defaultsKey,
+        NotificationPreference.enabledDefaultsKey,
+        NotificationPreference.intervalDefaultsKey
     ]
 }
 

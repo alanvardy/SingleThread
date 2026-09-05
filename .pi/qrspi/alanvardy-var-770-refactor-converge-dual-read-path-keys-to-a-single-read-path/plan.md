@@ -568,11 +568,11 @@ struct AppearanceModePreferenceTests {
 ```
 
 ### Verification
-- [ ] `make test` green — new OrientationPreferenceTests, NotificationPreferenceTests, AppearanceModePreferenceTests pass
-- [ ] `make lint` green
-- [ ] `make build` + `make watch-build` + `make mac-build` green
-- [ ] `AppDelegateTests` — orientation read still returns correct default (true)
-- [ ] `NotificationSchedulingUITests` — background notification scheduling still correct
+- [x] `make test` green — new OrientationPreferenceTests, NotificationPreferenceTests, AppearanceModePreferenceTests pass
+- [x] `make lint` green
+- [x] `make build` + `make watch-build` + `make mac-build` green
+- [x] `AppDelegateTests` — orientation read still returns correct default (true)
+- [x] `NotificationSchedulingUITests` — background notification scheduling still correct
 - [ ] Manual: rotate device with landscape enabled/disabled — orientation lock follows preference
 
 ---

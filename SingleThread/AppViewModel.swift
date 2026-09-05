@@ -93,13 +93,6 @@ final class AppViewModel {
     // MARK: Internal
 
     #if os(iOS)
-        /// Notification-preference UserDefaults keys, shared between
-        /// AppViewModel reads and the @AppStorage declarations in ContentView.
-        enum NotificationKeys {
-            static let enabled = "notificationsEnabled"
-            static let intervalHours = "notificationIntervalHours"
-        }
-
         /// The single pending notification-request identifier — stable across
         /// schedules so each cycle replaces the previous one.
         static let idleReminderIdentifier = "app.alanvardy.SingleThread.idle-reminder"
@@ -126,12 +119,11 @@ final class AppViewModel {
             let center = UNUserNotificationCenter.current()
             center.removeAllPendingNotificationRequests()
 
-            guard UserDefaults.standard.bool(forKey: NotificationKeys.enabled) else { return }
+            guard NotificationPreference().isEnabled else { return }
             let count = store.visibleReminders.count
             guard count > 0 || store.hasHidden else { return }
 
-            let intervalHours = UserDefaults.standard.integer(forKey: NotificationKeys.intervalHours)
-            let effectiveHours = intervalHours > 0 ? intervalHours : 48
+            let effectiveHours = NotificationPreference().intervalHours
 
             let content = UNMutableNotificationContent()
             content.title = String(localized: "SingleThread", table: "Localizable", bundle: .main)
@@ -182,11 +174,11 @@ final class AppViewModel {
                 do {
                     granted = try await center.requestAuthorization(options: [.alert, .badge])
                 } catch {
-                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
+                    NotificationPreference().setEnabled(false)
                     return
                 }
                 if !granted {
-                    UserDefaults.standard.set(false, forKey: NotificationKeys.enabled)
+                    NotificationPreference().setEnabled(false)
                 }
             default:
                 break
