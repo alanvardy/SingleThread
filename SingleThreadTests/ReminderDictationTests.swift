@@ -29,6 +29,7 @@ private final class FakeSpeechTranscriber: SpeechTranscribing {
 
     var transcriptionResult: String?
     var transcriptionError: (any Error)?
+    var recordingEndedGate: CheckedContinuation<Void, Never>?
     var partialUpdates: [String]?
     var partialResults: [String] = []
     var requestAuthorizationCallCount = 0
@@ -58,6 +59,8 @@ private final class FakeSpeechTranscriber: SpeechTranscribing {
             try? await Task.sleep(nanoseconds: 50_000_000)
         }
         isRecording = false
+        recordingEndedGate?.resume()
+        recordingEndedGate = nil
         if let error = transcriptionError {
             throw error
         }
@@ -160,6 +163,19 @@ struct ReminderDictationTests {
         _ = try await fake.transcribe { _ in }
         #expect(fake.partialResults == updates)
         #expect(fake.partialText == "Buy milk today")
+    }
+
+    @Test
+    func gateResumesAfterRecordingEnds() async {
+        let fake = FakeSpeechTranscriber(transcriptionResult: "Hello")
+        #expect(!fake.isRecording)
+        await withCheckedContinuation { (gate: CheckedContinuation<Void, Never>) in
+            fake.recordingEndedGate = gate
+            Task {
+                _ = try? await fake.transcribe { _ in }
+            }
+        }
+        #expect(!fake.isRecording)
     }
 
     // MARK: - DictationViewModel integration
