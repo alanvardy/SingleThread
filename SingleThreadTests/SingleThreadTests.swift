@@ -56,6 +56,34 @@ struct SingleThreadTests {
             "Pull to refresh to see all your reminders again.",
             bundle: .main, table: "Localizable"))
     }
+
+    @Test
+    func contentViewBodyContainsRefreshButtonOnMacOS() {
+        let viewModel = ContentViewModel(
+            store: ReminderStore(loadsReminders: false),
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation())
+        let view = ContentView(viewModel: viewModel)
+        let bodyValue = view.body
+        let description = String(describing: bodyValue)
+        // The button only exists when compiled for macOS. On iOS the
+        // assertion is vacuously true (no-op) — the test compiles on both
+        // platforms and just verifies the view renders without crashing.
+        #if os(macOS)
+            // `String(describing:)` reflects the view's generic structure,
+            // not accessibility values, so the "refreshButton" identifier is
+            // not printed. The refresh overlay's structural signature is
+            // unique on macOS: a control-plate Button wrapped by
+            // `.disabled(isRefreshing)` (printed as an environment key
+            // transform) and then the accessibility attachment. The gear
+            // button shares the plate but adds `.contentShape`, and no other
+            // button uses `.disabled`, so this substring pins the overlay.
+            let refreshButtonSignature =
+                "Button<ModifiedContent<ModifiedContent<Image, _EnvironmentKeyWritingModifier<Optional<Font>>>, "
+                    + "ControlPlateModifier>>, _EnvironmentKeyTransformModifier<Bool>>, AccessibilityAttachmentModifier"
+            #expect(description.contains(refreshButtonSignature))
+        #endif
+    }
 }
 
 struct ReminderDateFilterTests {

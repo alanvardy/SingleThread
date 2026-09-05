@@ -279,8 +279,8 @@ Append after `contentViewAllDoneShowsAllDoneCopy` (after line ~48):
 
 ### Ver ification
 #### Automated
-- [ ] `make lint` — SwiftLint `--strict` green (confirms no `type_body_length` breach)
-- [ ] `xcodebuild -scheme SingleThread -destination 'platform=macOS' CODE_SIGNING_ALLOWED=N O test -only-testing:SingleThreadTests` — Layer1 + Layer2 tests all green
+- [x] `make lint` — SwiftLint `--strict` green (confirms no `type_body_length` breach)
+- [x] `xcodebuild -scheme SingleThread -destination 'platform=macOS' CODE_SIGNING_ALLOWED=N O test -only-testing:SingleThreadTests` — Layer1 + Layer2 tests all green
 
 #### Manual
 - [ ] N/A (view-structure test is the verification)
