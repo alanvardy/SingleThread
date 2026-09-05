@@ -136,10 +136,6 @@ struct ContentView: View {
     /// in-card nudge banner after a reminder has been skipped 6 times.
     @State var isShowingNudgeSheet = false
 
-    /// The due date the nudge sheet's reschedule action writes to, defaulting
-    /// to tomorrow so the sheet is pre-populated with a valid date.
-    @State var rescheduleDate = Date().addingTimeInterval(86400)
-
     // Deep link last opened via the ``--url-opener-spy`` UI-test seam. Rendered
     // back as an accessible element so an XCUITest can read it. Always nil in
     // production (the spy launch arg is absent), so this never affects real

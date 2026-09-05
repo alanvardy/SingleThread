@@ -457,13 +457,13 @@ func rescheduleReminder(identifier: String, to components: DateComponents) async
 ### Verifcation
 
 #### Automated
-- [ ] `make build` complies
+- [x] `make build` complies
 - [ ] `make test` + `make ui-test` pass
-- [ ] `SkipNudgeUITests.swift` — nudge flow unchanged, `nudgeRescheduleButton` id → `rescheduleConfirmButton` id
-- [ ] `SkipNudgeUITests.swift` — update selectors if ids changed
+- [x] `SkipNudgeUITests.swift` — nudge flow unchanged, `nudgeRescheduleButton` id → `rescheduleConfirmButton` id
+- [x] `SkipNudgeUITests.swift` — update selectors if ids changed
 
 #### New Tests
-- [ ] `RescheduleSheetTests.swift`: verify `displayedComponents` logic — date-only reminder → `.date`, timed → `[.date, .hourAndMinute]`
+- [x] `RescheduleSheetTests.swift`: verify `displayedComponents` logic — date-only reminder → `.date`, timed → `[.date, .hourAndMinute]` (static helpers `hasDueTime`/`displayedComponents`/`dateComponentsMask` on `RescheduleSheet` make the picker logic unit-testable)
 
 ---
 
