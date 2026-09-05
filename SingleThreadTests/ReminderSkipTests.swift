@@ -202,12 +202,18 @@ struct ReminderSortTests {
     private func makeReminder(
         title: String,
         priority: Int = 0,
-        dateComponents: DateComponents? = nil) -> EKReminder {
+        dateComponents: DateComponents? = nil,
+        calendarTitle: String? = nil) -> EKReminder {
         let store = EKEventStore()
         let reminder = EKReminder(eventStore: store)
         reminder.title = title
         reminder.priority = priority
         reminder.dueDateComponents = dateComponents
+        if let calendarTitle {
+            let calendar = EKCalendar(for: .reminder, eventStore: store)
+            calendar.title = calendarTitle
+            reminder.calendar = calendar
+        }
         return reminder
     }
 
