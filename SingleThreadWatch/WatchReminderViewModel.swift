@@ -16,7 +16,8 @@ final class WatchReminderViewModel {
         showAlarmsState: ShowAlarmsState,
         showListState: ShowListState,
         showCompletionGlowState: ShowCompletionGlowState,
-        entitlementState: EntitlementState) {
+        entitlementState: EntitlementState,
+        showEnableActionButtonsState: ShowEnableActionButtonsState) {
         self.store = store
         self.showDateState = showDateState
         self.showRecurrenceState = showRecurrenceState
@@ -24,6 +25,7 @@ final class WatchReminderViewModel {
         self.showListState = showListState
         self.showCompletionGlowState = showCompletionGlowState
         self.entitlementState = entitlementState
+        self.showEnableActionButtonsState = showEnableActionButtonsState
         // 6th-skip nudge: surface the in-card banner and track the dialog state.
         store.onSkipNudgeRequested = { [weak self] identifier in
             self?.nudgeIdentifier = identifier
@@ -39,6 +41,7 @@ final class WatchReminderViewModel {
     let showListState: ShowListState
     let showCompletionGlowState: ShowCompletionGlowState
     let entitlementState: EntitlementState
+    let showEnableActionButtonsState: ShowEnableActionButtonsState
 
     /// Drives the brief full-screen green flash after a successful completion.
     let completionGlow = CompletionGlow()

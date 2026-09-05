@@ -93,7 +93,7 @@ struct ContentView: View {
     var backgroundPinned = false
 
     #if os(iOS)
-        @AppStorage("enableActionButtons")
+        @AppStorage("enableActionButtons", store: AppGroup.defaults)
         var enableActionButtons = false
     #endif
 

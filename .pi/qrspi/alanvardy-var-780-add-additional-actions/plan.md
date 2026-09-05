@@ -196,17 +196,17 @@ if UserDefaults.standard.object(forKey: "enableActionButtons") != nil,
 ### Verification
 
 #### Automated
-- [ ] `make build` compiles clean (iOS + watch targets)
+- [x] `make build` compiles clean (iOS + watch targets)
 - [ ] `make test` (unit suite) passes — new tests + all 552 existing
-- [ ] `make watch-build` compiles clean
+- [x] `make watch-build` compiles clean
 
 #### New Unit Tests
-- [ ] `ShowEnableActionButtonsPreferenceTests.swift`: nil-key reads `false` (default-off), `set(true)`/`set(false)` round-trip, serialized to `.standard`
-- [ ] `SkippedReminderSyncServiceTests.swift`: push context includes `enableActionButtons` key + value; receive decodes it and fires hook
-- [ ] `WatchSyncPipelineTests.swift`: `apply(context:)` with the new key persists to `.standard`; absent key is a no-op
+- [x] `ShowEnableActionButtonsPreferenceTests.swift`: nil-key reads `false` (default-off), `set(true)`/`set(false)` round-trip, serialized to `.standard` (implemented as `ShowEnableActionButtonsStateTests.swift` in the watch test bundle)
+- [x] `SkippedReminderSyncServiceTests.swift`: push context includes `enableActionButtons` key + value; receive decodes it and fires hook (new `EnableActionButtonsSyncTests` — own file to stay under `file_length`)
+- [x] `WatchSyncPipelineTests.swift`: `apply(context:)` with the new key persists to `.standard`; absent key is a no-op (persists via `AppGroup.defaults`, which falls back to `.standard` on watchOS)
 
 #### Existing Must Stay Green
-- [ ] `ActionButtonTests.swift` (reads toggle — now from AppGroup)
+- [x] `ActionButtonTests.swift` (reads toggle — now from AppGroup)
 - [ ] All 552 unit tests pass
 
 #### Manual

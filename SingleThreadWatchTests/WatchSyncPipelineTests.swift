@@ -462,6 +462,50 @@ struct WatchSyncPipelineTests {
     }
 }
 
+/// Watch-target compile + behavior tests for the `enableActionButtons` sync
+/// preference. Serialized because every test writes the same real App Group
+/// key the service persists on receive; running them in parallel would let one
+/// test's write race another's assertion.
+@MainActor
+@Suite(.serialized)
+struct WatchEnableActionButtonsSyncTests {
+    @Test
+    func receiveEnableActionButtonsPersistsAndFiresHook() {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-aab-recv-ids-\(suffix)"))
+        var received: [Bool] = []
+        service.onEnableActionButtonsReceived = { received.append($0) }
+        defer { AppGroup.defaults.removeObject(forKey: "enableActionButtons") }
+        service.session(WCSession.default, didReceiveApplicationContext: ["enableActionButtons": true])
+        #expect(AppGroup.defaults.bool(forKey: "enableActionButtons")) // persisted first
+        #expect(received == [true]) // then notified
+    }
+
+    @Test
+    func receiveAbsentEnableActionButtonsKeyIsNoOp() {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-aab-noop-ids-\(suffix)"))
+        var fired = false
+        service.onEnableActionButtonsReceived = { _ in fired = true }
+        defer { AppGroup.defaults.removeObject(forKey: "enableActionButtons") }
+        AppGroup.defaults.set(true, forKey: "enableActionButtons")
+
+        // Push only skip IDs — the enableActionButtons key is absent.
+        service.session(
+            WCSession.default,
+            didReceiveApplicationContext: ["skippedReminderIdentifiers": ["X"]])
+
+        #expect(AppGroup.defaults.bool(forKey: "enableActionButtons")) // unchanged
+        #expect(!fired)
+    }
+}
+
 /// Builds a reminder that lives in a calendar titled `list`, so exclusion
 /// filtering (which matches `calendar.title`) can be exercised.
 /// Construction only — never saved through EventKit.

@@ -204,8 +204,17 @@ final class AppViewModel {
     /// Registers fallback `UserDefaults` values for keys whose offline default is
     /// not `false`. `@AppStorage` initializers are invisible to raw
     /// `bool(forKey:)` reads, so registration removes the silent divergence.
+    /// Also runs one-time storage migrations: `enableActionButtons` moved from
+    /// `.standard` to `AppGroup.defaults` (shared with the watch), and existing
+    /// users' value is copied over once; fresh installs stay default-off.
     static func registerDefaults() {
         UserDefaults.standard.register(defaults: ["showMicrophoneButton": true])
+        if UserDefaults.standard.object(forKey: "enableActionButtons") != nil,
+           AppGroup.defaults.object(forKey: "enableActionButtons") == nil {
+            AppGroup.defaults.set(
+                UserDefaults.standard.bool(forKey: "enableActionButtons"),
+                forKey: "enableActionButtons")
+        }
     }
 
     /// The root view model. Rebuilt on demand so the view always reflects the
@@ -279,8 +288,8 @@ final class AppViewModel {
             // store so the reminder card presents without requesting EventKit access.
             // Also seeds the action-buttons toggle ON so the Complete/Skip cluster
             // renders for the interaction + accessibility-audit UI tests. The trade-off
-            // (a persistent `.standard` value on the test simulator) is isolated to the
-            // XCTest seam on a test-only destination.
+            // (a persistent App Group suite value on the test simulator) is isolated to
+            // the XCTest seam on a test-only destination.
             if arguments.contains("--ui-testing") {
                 if arguments.contains("--reset-glow-preference") {
                     UserDefaults.standard.removeObject(forKey: "showCompletionGlow")
@@ -288,7 +297,7 @@ final class AppViewModel {
                 if arguments.contains("--reset-swipe-preference") {
                     UserDefaults.standard.removeObject(forKey: "showSwipePrompt")
                 }
-                UserDefaults.standard.set(true, forKey: "enableActionButtons")
+                AppGroup.defaults.set(true, forKey: "enableActionButtons")
                 // Build the reminder through `InMemoryEventStore.makeReminder` so it is
                 // backed by the store's persistent `EKEventStore`. A local `EKEventStore()`
                 // would be deallocated when this scope exits, crashing any later reads of
@@ -347,7 +356,7 @@ final class AppViewModel {
         // Mirror the `--ui-testing` seam: enable the action-buttons toggle so
         // the Complete/Skip/Mic cluster (not just the mic) renders over a
         // visible reminder in seeded UI tests.
-        UserDefaults.standard.set(true, forKey: "enableActionButtons")
+        AppGroup.defaults.set(true, forKey: "enableActionButtons")
         let entitlementStore = if seed.entitlementUnresolved {
             EntitlementStore(testingWithEntitlementUnresolved: ())
         } else if seed.isEntitled {
@@ -435,16 +444,19 @@ final class AppViewModel {
             let currentShowAlarms = ShowAlarmsPreference().isEnabled
             let currentShowList = ShowListPreference().isEnabled
             let currentShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
+            let currentEnableActionButtons = AppGroup.defaults.bool(forKey: "enableActionButtons")
             if currentShowDate != lastShowDate
                 || currentShowRecurrence != lastShowRecurrence
                 || currentShowAlarms != lastShowAlarms
                 || currentShowList != lastShowList
-                || currentShowCompletionGlow != lastShowCompletionGlow {
+                || currentShowCompletionGlow != lastShowCompletionGlow
+                || currentEnableActionButtons != lastEnableActionButtons {
                 lastShowDate = currentShowDate
                 lastShowRecurrence = currentShowRecurrence
                 lastShowAlarms = currentShowAlarms
                 lastShowList = currentShowList
                 lastShowCompletionGlow = currentShowCompletionGlow
+                lastEnableActionButtons = currentEnableActionButtons
                 syncService?.pushAll()
             }
         }
@@ -455,6 +467,7 @@ final class AppViewModel {
         private var lastShowAlarms = ShowAlarmsPreference().isEnabled
         private var lastShowList = ShowListPreference().isEnabled
         private var lastShowCompletionGlow = ShowCompletionGlowPreference().isEnabled
+        private var lastEnableActionButtons = AppGroup.defaults.bool(forKey: "enableActionButtons")
 
         private var syncDefaultsObserver: NSObjectProtocol?
     #endif

@@ -131,6 +131,12 @@ import os
         /// `onShowCompletionGlowReceived`.
         public nonisolated(unsafe) var onEntitlementReceived: ((Bool) -> Void)?
 
+        /// Hook fired on the counterpart when the "enable action buttons" preference
+        /// arrives in an application context. Passes the received value. Same
+        /// write-once-before-activate / `nonisolated(unsafe)` rationale as
+        /// `onShowCompletionGlowReceived`.
+        public nonisolated(unsafe) var onEnableActionButtonsReceived: ((Bool) -> Void)?
+
         /// Hook fired on the counterpart when the lifetime completion count
         /// arrives in an application context. Passes the received count. Same
         /// write-once-before-activate / `nonisolated(unsafe)` rationale as
@@ -181,7 +187,8 @@ import os
                     PayloadKey.excludedListTitles: excludeStore.load(),
                     PayloadKey.showUndatedReminders: showUndatedStore.load(),
                     PayloadKey.sortOption: sortStore.load().rawValue,
-                    PayloadKey.completionCount: completionCounter.count
+                    PayloadKey.completionCount: completionCounter.count,
+                    PayloadKey.enableActionButtons: AppGroup.defaults.bool(forKey: "enableActionButtons")
                 ]
                 if sendsShowDate {
                     context[PayloadKey.showDate] = showDateStore.isEnabled
@@ -290,6 +297,7 @@ import os
             static let showCompletionGlow = "showCompletionGlow"
             static let completionCount = "completionCount"
             static let entitled = "isEntitled"
+            static let enableActionButtons = "enableActionButtons"
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")
@@ -375,10 +383,15 @@ import os
             applyRemaining(context: context)
         }
 
-        /// Decodes the remaining keys (skip counts + freemium entitlement/completion
-        /// count). Kept in its own method so `apply(context:)` stays within
-        /// SwiftLint's 50-line function-body limit.
+        /// Decodes the remaining keys (skip counts + enable-action-buttons +
+        /// freemium entitlement/completion count). Kept in its own method so
+        /// `apply(context:)` stays within SwiftLint's 50-line function-body limit.
         private func applyRemaining(context: [String: Any]) {
+            if let enableActionButtons = context[PayloadKey.enableActionButtons] as? Bool {
+                AppGroup.defaults.set(enableActionButtons, forKey: "enableActionButtons")
+                let handler = onEnableActionButtonsReceived
+                handler?(enableActionButtons)
+            }
             if let received = context[PayloadKey.skipCounts] as? [String: Int] {
                 countStore.save(received)
                 let handler = onSkipCountsReceived
