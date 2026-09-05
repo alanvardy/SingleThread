@@ -56,15 +56,12 @@ struct BackgroundSettingsView: View {
                 Button {
                     Task { await backgroundImage.forceRefresh() }
                 } label: {
-                    VStack(alignment: .leading) {
-                        HStack {
-                            Label("Refresh wallpaper", systemImage: "arrow.triangle.2.circlepath")
-                            Spacer()
-                            if backgroundImage.isRefreshing {
-                                ProgressView()
-                            }
+                    HStack {
+                        Label("Refresh wallpaper", systemImage: "arrow.triangle.2.circlepath")
+                        Spacer()
+                        if backgroundImage.isRefreshing {
+                            ProgressView()
                         }
-                        SettingsCaption(text: "Fetch a new wallpaper now.")
                     }
                 }
                 .disabled(backgroundImage.isRefreshing)

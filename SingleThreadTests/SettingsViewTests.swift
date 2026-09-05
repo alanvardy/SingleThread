@@ -191,8 +191,7 @@ struct SettingsViewTests {
         let expectedCaptions = [
             "Show a wallpaper behind the reminder list.",
             "How much the wallpaper fades for readability.",
-            "Prevents the background from refreshing automatically.",
-            "Fetch a new wallpaper now."
+            "Prevents the background from refreshing automatically."
         ]
         for caption in expectedCaptions {
             #expect(bodyDescription.contains(caption))
