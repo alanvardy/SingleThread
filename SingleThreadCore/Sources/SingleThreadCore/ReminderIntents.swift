@@ -14,13 +14,33 @@ public struct CompleteReminderIntent: AppIntent {
     public static let title: LocalizedStringResource = "Complete Reminder"
     public static let isDiscoverable = false
 
+    #if os(watchOS)
+        /// The Smart Stack button opens the watch app, whose `.task` drains the
+        /// mailbox and relays through the already-wired `onCompleteReminder` hook.
+        public static var openAppWhenRun: Bool {
+            true
+        }
+    #endif
+
     @MainActor
     public func perform() async throws -> some IntentResult {
-        let store = ReminderStore(loadsReminders: true)
-        store.setSortOption(SortOptionStore().load())
-        await store.reload()
-        await store.completeCurrentReminder()
-        return .result()
+        #if os(watchOS)
+            let store = ReminderStore(loadsReminders: true)
+            store.setSortOption(SortOptionStore().load())
+            await store.reload()
+            guard let identifier = store.visibleReminders.first?.calendarItemIdentifier else {
+                return .result()
+            }
+            PendingReminderActionStore().save(
+                PendingReminderAction(kind: .complete, identifier: identifier))
+            return .result()
+        #else
+            let store = ReminderStore(loadsReminders: true)
+            store.setSortOption(SortOptionStore().load())
+            await store.reload()
+            await store.completeCurrentReminder()
+            return .result()
+        #endif
     }
 }
 
@@ -37,16 +57,36 @@ public struct SkipReminderIntent: AppIntent {
     public static let title: LocalizedStringResource = "Skip Reminder"
     public static let isDiscoverable = false
 
+    #if os(watchOS)
+        /// The Smart Stack button opens the watch app, whose `.task` drains the
+        /// mailbox and relays through the already-wired `onSkipSetChanged` hook.
+        public static var openAppWhenRun: Bool {
+            true
+        }
+    #endif
+
     @MainActor
     public func perform() async throws -> some IntentResult {
-        let store = ReminderStore(loadsReminders: true)
-        store.setSortOption(SortOptionStore().load())
-        await store.reload()
-        // Route the skip through the store like `CompleteReminderIntent` so the
-        // write goes through the same code path (persistence plus the
-        // onSkipSetChanged / onRemindersChanged hooks) instead of duplicating the
-        // skip logic and writing UserDefaults directly.
-        store.skipCurrentReminderImmediately()
-        return .result()
+        #if os(watchOS)
+            let store = ReminderStore(loadsReminders: true)
+            store.setSortOption(SortOptionStore().load())
+            await store.reload()
+            guard let identifier = store.visibleReminders.first?.calendarItemIdentifier else {
+                return .result()
+            }
+            PendingReminderActionStore().save(
+                PendingReminderAction(kind: .skip, identifier: identifier))
+            return .result()
+        #else
+            let store = ReminderStore(loadsReminders: true)
+            store.setSortOption(SortOptionStore().load())
+            await store.reload()
+            // Route the skip through the store like `CompleteReminderIntent` so the
+            // write goes through the same code path (persistence plus the
+            // onSkipSetChanged / onRemindersChanged hooks) instead of duplicating the
+            // skip logic and writing UserDefaults directly.
+            store.skipCurrentReminderImmediately()
+            return .result()
+        #endif
     }
 }

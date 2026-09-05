@@ -772,8 +772,8 @@ Notes:
 ### Verification
 
 #### Automated
-- [ ] `make test` green (iOS + macOS; covers `PendingReminderActionTests`)
-- [ ] `make watch-test` green (covers `PendingActionDrainTests` + existing watch suites)
+- [x] `make test` green (iOS + macOS; covers `PendingReminderActionTests`)
+- [x] `make watch-test` green (covers `PendingActionDrainTests` + existing watch suites)
 
 #### Manual
 - [ ] (deferred to Phase 4's smoke test — mutations can't be exercised until the Smart Stack buttons exist)

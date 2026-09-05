@@ -13,6 +13,7 @@ struct SingleThreadWatchApp: App {
     var body: some Scene {
         WindowGroup {
             WatchReminderView(viewModel: viewModel.reminderViewModel)
+                .task { await viewModel.drainPendingReminderAction() }
         }
     }
 

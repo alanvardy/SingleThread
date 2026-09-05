@@ -2,6 +2,7 @@ import EventKit
 import SingleThreadCore
 import SwiftUI
 import WatchConnectivity
+import WidgetKit
 
 /// Owns the watch composition root: building the ``ReminderStore`` from launch
 /// arguments (with the `--ui-testing` seam), wiring the ``SkippedReminderSyncService``
@@ -88,6 +89,30 @@ final class WatchAppViewModel {
         showListState: showListState,
         showCompletionGlowState: showCompletionGlowState,
         entitlementState: entitlementState)
+
+    /// Static so the watch unit tests can drive it with an injected store + isolated
+    /// mailbox defaults (mirrors WatchSyncPipelineTests' fake-session pattern).
+    static func drainPendingReminderAction(
+        store: ReminderStore,
+        actionStore: PendingReminderActionStore = PendingReminderActionStore()) async {
+        guard let action = actionStore.load() else { return }
+        switch action.kind {
+        case .complete:
+            await store.completeReminder(identifier: action.identifier)
+        case .skip:
+            store.skipCurrentReminder()
+        }
+        actionStore.clear()
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    /// Drains the widget-process mailbox on launch. The store's relay hooks are
+    /// already wired in `setupSyncService`, so completing fires
+    /// `onCompleteReminder` → `requestCompleteReminder`, and skipping fires
+    /// `onSkipSetChanged` → `pushAll()`.
+    func drainPendingReminderAction() async {
+        await Self.drainPendingReminderAction(store: store)
+    }
 
     // MARK: Private
 
