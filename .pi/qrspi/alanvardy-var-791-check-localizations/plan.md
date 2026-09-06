@@ -192,8 +192,8 @@ If any proves to be a genuine mistranslation (unlikely — "System", "Interface"
 ### Verification
 
 #### Automated
-- [ ] `SIM='platform=iOS Simulator,name=iPhone 17,OS=latest' xcodebuild -scheme SingleThread -destination "$SIM" test -only-testing:SingleThreadTests/LocalizationTests/nonEnglishValuesDifferFromEnglish` — 0 failures (exclusion list covers all intentional identities; `Copyright` translations make the rest differ)
-- [ ] `make build` succeeds
+- [x] `SIM='platform=iOS Simulator,name=iPhone 17,OS=latest' xcodebuild -scheme SingleThread -destination "$SIM" test -only-testing:SingleThreadTests/LocalizationTests/nonEnglishValuesDifferFromEnglish` — 0 failures (exclusion list covers all intentional identities; `Copyright` translations make the rest differ)
+- [x] `make build` succeeds
 
 #### Manual
 - [ ] Confirm exclusion list comment accurately describes each entry's justification
