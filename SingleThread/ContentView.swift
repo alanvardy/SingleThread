@@ -201,6 +201,7 @@ struct ContentView: View {
                     .controlPlate()
                     .contentShape(Rectangle())
             }
+            .singleThreadButton()
             .accessibilityLabel("Settings")
             .accessibilityIdentifier("settingsButton")
             .accessibilityAddTraits(.isButton)
@@ -216,6 +217,7 @@ struct ContentView: View {
                     .font(.title3)
                     .controlPlate()
             }
+            .singleThreadButton()
             .disabled(viewModel.isRefreshing)
             .accessibilityLabel("Refresh")
             .accessibilityIdentifier("refreshButton")
@@ -538,6 +540,7 @@ struct ContentView: View {
                 .font(.title2)
                 .controlPlate()
         }
+        .singleThreadButton()
         .accessibilityLabel("Dictate reminder")
         .accessibilityIdentifier("dictateButton")
         .accessibilityAddTraits(.isButton)

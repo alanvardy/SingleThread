@@ -92,9 +92,63 @@ struct SingleThreadTests {
             // button uses `.disabled`, so this substring pins the overlay.
             let refreshButtonSignature =
                 "Button<ModifiedContent<ModifiedContent<Image, _EnvironmentKeyWritingModifier<Optional<Font>>>, "
-                    + "ControlPlateModifier>>, _EnvironmentKeyTransformModifier<Bool>>, AccessibilityAttachmentModifier"
+                    + "ControlPlateModifier>>, SingleThreadButtonModifier>, "
+                    + "_EnvironmentKeyTransformModifier<Bool>>, AccessibilityAttachmentModifier"
             #expect(description.contains(refreshButtonSignature))
         #endif
+    }
+
+    @Test
+    func contentViewBodyContainsBorderlessSettingsGearOnMacOS() {
+        let view = ContentView(viewModel: ContentViewModel(
+            store: ReminderStore(loadsReminders: false),
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation()))
+        let description = String(describing: view.body)
+        #if os(macOS)
+            // The gear's label is Image.font(.title3).controlPlate().contentShape(Rectangle()),
+            // wrapped by `.singleThreadButton()` then `.accessibilityLabel`. The
+            // `_ContentShapeModifier<Rectangle>` distinguishes it from the refresh
+            // button (which uses `.disabled` instead).
+            let gearSignature =
+                "Button<ModifiedContent<ModifiedContent<ModifiedContent<Image, "
+                    + "_EnvironmentKeyWritingModifier<Optional<Font>>>, ControlPlateModifier>, "
+                    + "_ContentShapeModifier<Rectangle>>>, SingleThreadButtonModifier>, "
+                    + "AccessibilityAttachmentModifier"
+            #expect(description.contains(gearSignature))
+        #endif
+    }
+
+    @Test
+    func contentViewBodyContainsBorderlessDictateButtonOnMacOS() {
+        let view = ContentView(viewModel: ContentViewModel(
+            store: ReminderStore(loadsReminders: false),
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation()))
+        let description = String(describing: view.body)
+        #if os(macOS)
+            // The mic button (shared across platforms) keeps `.title2` + `.controlPlate()`,
+            // wrapped by `.singleThreadButton()` directly before `.accessibilityLabel`. No
+            // `.disabled`/`.contentShape`, so `SingleThreadButtonModifier>, Accessibility…`
+            // (no intervening transform) is unique to the mic.
+            let micSignature =
+                "Button<ModifiedContent<ModifiedContent<Image, _EnvironmentKeyWritingModifier<Optional<Font>>>, "
+                    + "ControlPlateModifier>>, SingleThreadButtonModifier>, AccessibilityAttachmentModifier"
+            #expect(description.contains(micSignature))
+        #endif
+    }
+
+    @Test
+    func rescheduleSheetTextButtonsKeepNativeChrome() {
+        let view = ContentView(viewModel: ContentViewModel(
+            store: ReminderStore(loadsReminders: false),
+            backgroundImage: BackgroundImageStore(),
+            speechTranscriber: ReminderDictation()))
+        // Scope boundary: the sheet's text "Cancel" button stays native and is
+        // never routed through the new modifier.
+        let sheetDescription = String(describing: view.actionMenuRescheduleSheet)
+        #expect(sheetDescription.contains("Cancel"))
+        #expect(!sheetDescription.contains("SingleThreadButtonModifier"))
     }
 }
 

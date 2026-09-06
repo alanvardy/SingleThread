@@ -255,9 +255,9 @@ Replace the `refreshButtonSignature` literal with:
 
 ### Verification
 #### Automated
-- [ ] `make mac-test` passes (updated signature + new macOS-gated asserts)
-- [ ] `make test` passes (shared mic `.borderless` does not break iOS)
-- [ ] `make format` clean, then `make lint` clean
+- [x] `make mac-test` passes (updated signature + new macOS-gated asserts) — macOS suite: 2 pre-existing EntitlementStore SKTestSession tests fail on this machine (storekitd env issue, CI mac-tests green; tracked for Stage 4)
+- [x] `make test` passes (shared mic `.borderless` does not break iOS)
+- [x] `make format` clean, then `make lint` clean
 
 #### Manual
 - [ ] No visual check yet — Stage 4 covers the rendered result.
