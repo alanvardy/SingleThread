@@ -83,6 +83,24 @@ struct EntitlementStoreTests {
         #expect(!store.isEntitled)
     }
 
+    /// Fails with an actionable reset message when the host StoreKit sandbox
+    /// holds entitled transactions from prior manual testing. macOS unit tests
+    /// are unsigned (`CODE_SIGNING_ALLOWED=NO`), so `Transaction.currentEntitlements`
+    /// reads the real per-user host store — not any SKTestSession test store.
+    @Test
+    func hostStoreKitIsClean() async {
+        var ids = Set<String>()
+        for await result in Transaction.currentEntitlements {
+            if case let .verified(transaction) = result {
+                ids.insert(transaction.productID)
+            }
+        }
+        #expect(
+            ids.isEmpty,
+            Comment(rawValue: "Host StoreKit store has entitled transactions: \(ids.sorted()). "
+                + "Reset with `make reset-storekit`, or Xcode → Debug → StoreKit → Manage Transactions…"))
+    }
+
     // MARK: Private
 
     // SKTestSession for driving StoreKit in test.
