@@ -154,10 +154,10 @@ Delete the `promptBoxFillIsDarkGrey()` test (constant pin). The Phase-1 `promptB
 ### Verification
 
 #### Automated
-- [ ] `grep -rn "promptBoxFill" --include='*.swift' SingleThread SingleThreadTests` — before deleting the constant, confirm every hit is either the `static func promptBoxFill(for` definition or a `promptBoxFill(for:` call. After the edits, confirm **zero** bare `promptBoxFill` (non-`(for:`) references remain.
-- [ ] `./scripts/test.sh --unit-only` passes — reflected-body snaps in `SwipePromptTests` unchanged (`"style: orange"`, `"style: green"`, `"Dismiss"`, `"CardPlateModifier"`, `"BorderedProminentButtonStyle"`, `"Button<"`, `"AccessibilityAttachmentModifier"` all still present).
-- [ ] `make format` — SwiftFormat `organizeDeclarations` settles the reordered `CardPlate` members; SwiftFormat + `swiftlint --fix` apply.
-- [ ] `make lint` passes (`swiftformat --lint` + `swiftlint lint --strict`).
+- [x] `grep -rn "promptBoxFill" --include='*.swift' SingleThread SingleThreadTests` — before deleting the constant, confirm every hit is either the `static func promptBoxFill(for` definition or a `promptBoxFill(for:` call. After the edits, confirm **zero** bare `promptBoxFill` (non-`(for:`) references remain.
+- [x] `./scripts/test.sh --unit-only` passes — reflected-body snaps in `SwipePromptTests` unchanged (`"style: orange"`, `"style: green"`, `"Dismiss"`, `"CardPlateModifier"`, `"BorderedProminentButtonStyle"`, `"Button<"`, `"AccessibilityAttachmentModifier"` all still present).
+- [x] `make format` — SwiftFormat `organizeDeclarations` settles the reordered `CardPlate` members; SwiftFormat + `swiftlint --fix` apply.
+- [x] `make lint` passes (`swiftformat --lint` + `swiftlint lint --strict`).
 
 #### Manual
 - [ ] Run the app and flip **Settings → Appearance → Light/Dark**; the prompt box turns light/dark live (no restart), with the separator and dismiss button inverting contrast against the box.

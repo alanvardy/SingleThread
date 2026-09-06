@@ -36,8 +36,8 @@ extension View {
     ///
     /// - Parameters:
     ///   - fill: The plate background colour. Use `CardPlate.plateFill(for:)`
-    ///     for the adaptive card-text fill or `CardPlate.promptBoxFill` for
-    ///     the fixed dark-grey prompt fill.
+    ///     for the adaptive card-text fill or `CardPlate.promptBoxFill(for:)`
+    ///     for the adaptive prompt fill.
     ///   - padding: Inset before the background is drawn (default 12).
     ///   - restoresGeometry: When `true`, applies a negative-padding undo
     ///     after the background so the outer frame is unchanged. Only correct

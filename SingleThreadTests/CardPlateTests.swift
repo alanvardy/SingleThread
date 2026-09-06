@@ -13,11 +13,6 @@ struct CardPlateTests {
     }
 
     @Test
-    func promptBoxFillIsDarkGrey() {
-        #expect(CardPlate.promptBoxFill == Color(red: 0.16, green: 0.17, blue: 0.18))
-    }
-
-    @Test
     func promptBoxFillOffWhiteInLightMode() {
         #expect(CardPlate.promptBoxFill(for: .light) == Color(white: 0.92))
     }
