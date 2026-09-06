@@ -11,9 +11,9 @@ STORE_DIR="$HOME/Library/Group Containers/group.com.apple.storekit/Library/Cache
 STORE_FILES=(storeUser.db storeUser.db-wal storeUser.db-shm)
 AGENT="gui/$(id -u)/com.apple.storekitagent"
 
-echo "==> Locating the host StoreKit store…"
+echo "==> Locating the host StoreKit store..."
 if [ ! -d "$STORE_DIR" ]; then
-    echo "    No StoreKit store at $STORE_DIR — nothing to clear."
+    echo "    No StoreKit store at $STORE_DIR -- nothing to clear."
     echo "    (legacy fallbacks checked historically:"
     echo "      ~/Library/Application Support/App Store/StoreKit.db"
     echo "      ~/Library/Caches/com.apple.storekitagent/Octane/"
@@ -30,7 +30,7 @@ for f in "${STORE_FILES[@]}"; do
 done
 
 if [ "${#present[@]}" -eq 0 ]; then
-    echo "    No store files found in $STORE_DIR — nothing to clear."
+    echo "    No store files found in $STORE_DIR -- nothing to clear."
     echo "    (the store directory contains:)"
     ls -la "$STORE_DIR"
     echo "    The host store may already be clean."
@@ -67,7 +67,7 @@ release_lock() {
     sleep 3
     for pid in $pids; do
         if kill -0 "$pid" 2>/dev/null; then
-            echo "    PID $pid still alive after SIGTERM — sending SIGKILL."
+            echo "    PID $pid still alive after SIGTERM -- sending SIGKILL."
             kill -KILL "$pid" 2>/dev/null || true
         fi
     done
@@ -94,7 +94,7 @@ release_lock
 # the next agent launch creates a fresh, empty store.
 # ---------------------------------------------------------------------------
 STAMP="$(date +%s)"
-echo "==> Backing up store files to *.bak-$STAMP…"
+echo "==> Backing up store files to *.bak-$STAMP..."
 for f in "${STORE_FILES[@]}"; do
     if [ -e "$STORE_DIR/$f" ]; then
         mv "$STORE_DIR/$f" "$STORE_DIR/$f.bak-$STAMP"
@@ -102,7 +102,7 @@ for f in "${STORE_FILES[@]}"; do
     fi
 done
 
-echo "==> Restarting the StoreKit agent…"
+echo "==> Restarting the StoreKit agent..."
 if launchctl kickstart "$AGENT" 2>/dev/null; then
     echo "    Agent restarted via 'launchctl kickstart $AGENT'."
 else
@@ -113,4 +113,4 @@ else
 fi
 
 echo ""
-echo "==> Done. Run 'make mac-test' to verify — hostStoreKitIsClean should now pass."
+echo "==> Done. Run 'make mac-test' to verify -- hostStoreKitIsClean should now pass."
