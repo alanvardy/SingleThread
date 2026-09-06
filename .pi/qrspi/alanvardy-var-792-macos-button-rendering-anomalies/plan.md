@@ -426,9 +426,9 @@ struct MacOSActionButtonChromeTests {
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild -scheme SingleThread -destination 'platform=macOS' -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO test -only-testing:SingleThreadTests/MacOSActionButtonChromeTests` passes
-- [ ] `make test` passes (iOS unaffected)
-- [ ] `make format` clean, then `make lint` clean (watch for `accessibility_label_for_image` — all four controls keep their `.accessibilityLabel` on the control, and `deprecated .menuStyle` — the modern `.menuStyle(.borderlessButton)` spelling is used)
+- [x] `xcodebuild -scheme SingleThread -destination 'platform=macOS' -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO test -only-testing:SingleThreadTests/MacOSActionButtonChromeTests` passes
+- [x] `make test` passes (iOS unaffected)
+- [x] `make format` clean, then `make lint` clean (watch for `accessibility_label_for_image` — all four controls keep their `.accessibilityLabel` on the control, and `deprecated .menuStyle` — the modern `.menuStyle(.borderlessButton)` spelling is used)
 
 #### Manual
 - [ ] None yet — Stage 4 covers the rendered result.
