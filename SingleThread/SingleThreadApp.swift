@@ -30,6 +30,16 @@ struct SingleThreadApp: App {
                 showAbout: $showAbout)
         }
         #endif
+        #if os(macOS)
+            // Always-present menu-bar extra; the plan's conditional scene
+            // (`if !visibleReminders.isEmpty`) crashes the Swift 6 compiler
+            // (SceneBuilder expression bug), so the documented fallback applies:
+            // `MenuBarExtraOptions` renders empty content when nothing is due.
+            MenuBarExtra("SingleThread", systemImage: "checkmark.circle") {
+                MenuBarExtraOptions(store: viewModel.store)
+            }
+            .menuBarExtraStyle(.menu)
+        #endif
     }
 
     // MARK: Private
