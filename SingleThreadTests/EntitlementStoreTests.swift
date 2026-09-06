@@ -7,7 +7,7 @@ import Testing
 @MainActor
 @Suite(.serialized)
 struct EntitlementStoreTests {
-    // SKTestSession for driving StoreKit in test.
+    // MARK: Internal
 
     @Test
     func isEntitledIsFalseByDefault() {
@@ -54,7 +54,7 @@ struct EntitlementStoreTests {
         let second = EntitlementStore()
         // The init task performs an initial entitlement refresh, but needs a
         // beat to deliver.
-        try await Task.sleep(nanoseconds: 200_000_000)
+        _ = await wait(for: second.hasResolvedEntitlement)
         #expect(!second.isEntitled)
     }
 
@@ -78,12 +78,26 @@ struct EntitlementStoreTests {
         session.disableDialogs = true
 
         let store = EntitlementStore()
-        var waited: UInt64 = 0
-        while !store.hasResolvedEntitlement, waited < 2_000_000_000 {
-            try await Task.sleep(nanoseconds: 50_000_000)
-            waited += 50_000_000
-        }
+        _ = await wait(for: store.hasResolvedEntitlement)
         #expect(store.hasResolvedEntitlement)
         #expect(!store.isEntitled)
+    }
+
+    // MARK: Private
+
+    // SKTestSession for driving StoreKit in test.
+
+    /// Polls `condition` every 50 ms until it returns `true` or `timeout`
+    /// nanoseconds elapse. Returns `true` if the condition was met, `false` on
+    /// timeout.
+    private func wait(
+        for condition: @autoclosure @escaping () -> Bool,
+        timeout nanoseconds: UInt64 = 2_000_000_000) async -> Bool {
+        var waited: UInt64 = 0
+        while !condition(), waited < nanoseconds {
+            try? await Task.sleep(nanoseconds: 50_000_000)
+            waited += 50_000_000
+        }
+        return condition()
     }
 }
