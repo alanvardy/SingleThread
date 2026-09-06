@@ -30,8 +30,13 @@ final class AppViewModel {
             setupSyncService(with: store)
         #endif
         #if os(iOS) || os(macOS)
-            store.onRemindersChanged = {
+            store.onRemindersChanged = { [weak self] in
                 WidgetCenter.shared.reloadAllTimelines()
+                #if os(macOS)
+                Task { @MainActor in
+                    await self?.scheduleNotificationsForMacOS()
+                }
+                #endif
             }
         #endif
 
@@ -52,11 +57,6 @@ final class AppViewModel {
             static let enabled = "notificationsEnabled"
             static let intervalHours = "notificationIntervalHours"
         }
-
-        /// Schedules / cancels the local idle-notification reminder against the
-        /// real `UNUserNotificationCenter`, surfaced through the
-        /// `UserNotificationCentering` protocol seam.
-        let notificationScheduler = NotificationScheduler()
 
         /// Current pending notification requests, rendered as a stable status
         /// string ONLY under the UI-test flag. Delegates to the scheduler.
@@ -96,9 +96,31 @@ final class AppViewModel {
         }
     #endif
 
+    #if os(macOS)
+        /// Schedules (or cancels) the macOS idle-reminder notification on every
+        /// reminders change — which also fires at launch, since `start()` →
+        /// `reload()` ends with `onRemindersChanged`. macOS has no in-app
+        /// notifications toggle, so the enabled key defaults to on (registered
+        /// in `registerDefaults`); permission is requested lazily, at most once
+        /// (self-guards on `.notDetermined`), and only when something is due.
+        /// Cancellation when nothing is due lives in `NotificationScheduler`.
+        private func scheduleNotificationsForMacOS() async {
+            if store.visibleReminders.count > 0 || store.hasHidden {
+                await notificationScheduler.requestPermissionIfNeeded()
+            }
+            await notificationScheduler.scheduleIfNeeded(
+                reminderCount: store.visibleReminders.count,
+                hasHidden: store.hasHidden)
+        }
+    #endif
+
     let store: ReminderStore
     let backgroundImage: BackgroundImageStore
     let usesInMemoryStore: Bool
+    /// Schedules / cancels the idle-notification reminder against the real
+    /// `UNUserNotificationCenter` through the `UserNotificationCentering` seam.
+    /// Shared by the iOS toggle-driven wrappers and the macOS scheduling trigger.
+    let notificationScheduler = NotificationScheduler()
     #if os(iOS)
         private(set) var syncService: SkippedReminderSyncService?
     #endif
@@ -111,6 +133,13 @@ final class AppViewModel {
     /// users' value is copied over once; fresh installs stay default-off.
     static func registerDefaults() {
         UserDefaults.standard.register(defaults: ["showMicrophoneButton": true])
+        #if os(macOS)
+            // macOS has no in-app notifications toggle, so the scheduler's
+            // enabled key defaults to on; a denied macOS permission prompt
+            // still flips it off and stops future scheduling (iOS keeps its
+            // toggle-driven default).
+            UserDefaults.standard.register(defaults: ["notificationsEnabled": true])
+        #endif
         if UserDefaults.standard.object(forKey: "enableActionButtons") != nil,
            AppGroup.defaults.object(forKey: "enableActionButtons") == nil {
             AppGroup.defaults.set(

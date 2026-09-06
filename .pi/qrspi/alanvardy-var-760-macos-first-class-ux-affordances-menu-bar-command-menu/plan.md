@@ -483,9 +483,9 @@ Add the macOS helper (in a new `#if os(macOS)` region):
 ### Verification
 
 #### Automated
-- [ ] `make mac-build` passes (macOS compiles the reimporting + trigger)
-- [ ] `make mac-test` passes (macOS unit run green)
-- [ ] Targeted iOS regression: `xcodebuild -only-testing:SingleThreadUITests/NotificationSchedulingUITests -only-testing:SingleThreadUITests/NotificationsUITests -only-testing:SingleThreadUITests/NotificationsSettingsUITests` with a pinned destination (`id=` from `xcrun simctl list devices available`) — these UI tests pass unchanged, proving the extraction preserved iOS semantics.
+- [x] `make mac-build` passes (macOS compiles the reimporting + trigger)
+- [x] `make mac-test` passes (macOS unit run green — all tests pass except the two pre-existing StoreKit `EntitlementStoreTests` failures documented in Phase 1)
+- [x] Targeted iOS regression: `xcodebuild -only-testing:SingleThreadUITests/NotificationSchedulingUITests -only-testing:SingleThreadUITests/NotificationsUITests -only-testing:SingleThreadUITests/NotificationsSettingsUITests` with a pinned destination (`id=D7AC0D41-275E-47C5-B603-BC7FA08D1BB4`) — all 8 tests pass unchanged, proving the extraction preserved iOS semantics.
 
 #### Manual
 - [ ] `make mac-run` — on first launch with a due reminder, macOS shows the notification permission prompt; after granting and with a signed/entitled build (see design Open Risk: sandbox + hardened runtime), a notification is scheduled for the due reminder.
