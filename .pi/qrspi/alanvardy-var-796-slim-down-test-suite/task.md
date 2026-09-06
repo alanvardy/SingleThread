@@ -1,0 +1,3 @@
+# Task — Slim down test suite
+
+The local test suite takes a long time to run, slowing feature development and issue diagnosis. This ticket: (1) profiles the suite to find where the big costs live, (2) refactors app code so behaviors currently covered only by integration/UI tests can be unit-tested instead, (3) removes lower-value integration and UI tests — especially where unit coverage already exists — and (4) lowers how often the Reminders access dialog is triggered during local runs.
