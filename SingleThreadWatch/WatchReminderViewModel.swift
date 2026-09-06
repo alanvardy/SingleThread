@@ -47,7 +47,6 @@ final class WatchReminderViewModel {
     let completionGlow = CompletionGlow()
 
     var isRefreshing = false
-    var isShowingRefreshConfirmation = false
 
     /// Identifier of the reminder that just crossed the 6-skip threshold. Drives
     /// the in-card nudge banner; cleared on delete/dismiss/refresh.

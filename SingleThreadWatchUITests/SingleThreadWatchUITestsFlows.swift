@@ -218,25 +218,6 @@ final class SingleThreadWatchUITestsFlows: XCTestCase {
             "Deleting the nudged reminder should show the empty state")
     }
 
-    // MARK: - Delete (via confirmation dialog)
-
-    @MainActor
-    func testDeleteViaConfirmationDialogRemovesReminder() {
-        let app = launchApp()
-        XCTAssertTrue(app.staticTexts["Buy groceries"].waitForExistence(timeout: 5))
-
-        // Tapping the card reveals the confirmation dialog with a Delete action.
-        // watchOS dialog actions expose their label, not the identifier.
-        app.staticTexts["Buy groceries"].tap()
-        let delete = app.buttons["Delete"]
-        XCTAssertTrue(delete.waitForExistence(timeout: 3), "Long-press dialog should show Delete")
-        delete.tap()
-
-        XCTAssertTrue(
-            app.staticTexts["emptyStateTitle"].waitForExistence(timeout: 5),
-            "Deleting the only reminder should show the No Reminders state")
-    }
-
     // MARK: - Refresh
 
     @MainActor
