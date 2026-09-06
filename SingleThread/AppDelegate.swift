@@ -1,4 +1,5 @@
 #if os(iOS)
+    import SingleThreadCore
     import UIKit
 
     /// Bridges UIKit orientation locking into the SwiftUI `App` lifecycle.
@@ -50,10 +51,7 @@
         func application(
             _: UIApplication,
             supportedInterfaceOrientationsFor _: UIWindow?) -> UIInterfaceOrientationMask {
-            let keyExists = UserDefaults.standard.object(forKey: "allowsLandscape") != nil
-            let allowsLandscape = keyExists
-                ? UserDefaults.standard.bool(forKey: "allowsLandscape")
-                : true
+            let allowsLandscape = OrientationPreference().isLandscapeEnabled
             return allowsLandscape ? .allButUpsideDown : .portrait
         }
     }

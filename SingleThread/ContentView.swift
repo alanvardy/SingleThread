@@ -104,10 +104,10 @@ struct ContentView: View {
         @AppStorage("showUndoButton")
         var showUndoButton = true
 
-        @AppStorage(AppViewModel.NotificationKeys.enabled)
+        @AppStorage(NotificationPreference.enabledDefaultsKey)
         var notificationsEnabled = false
 
-        @AppStorage(AppViewModel.NotificationKeys.intervalHours)
+        @AppStorage(NotificationPreference.intervalDefaultsKey)
         var notificationIntervalHours = 48
     #endif
     @AppStorage("showUndatedReminders", store: AppGroup.defaults)

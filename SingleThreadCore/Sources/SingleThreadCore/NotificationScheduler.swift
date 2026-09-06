@@ -9,8 +9,8 @@ public final class NotificationScheduler {
 
     public init(
         center: any UserNotificationCentering = UNUserNotificationCenter.current(),
-        enabledKey: String = "notificationsEnabled",
-        intervalHoursKey: String = "notificationIntervalHours",
+        enabledKey: String = NotificationPreference.enabledDefaultsKey,
+        intervalHoursKey: String = NotificationPreference.intervalDefaultsKey,
         idleIdentifier: String = "app.alanvardy.SingleThread.idle-reminder",
         defaults: UserDefaults = UserDefaults.standard) {
         self.center = center
