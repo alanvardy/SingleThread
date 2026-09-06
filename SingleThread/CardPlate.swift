@@ -29,4 +29,12 @@ enum CardPlate {
     static func plateFill(for colorScheme: ColorScheme) -> Color {
         colorScheme == .dark ? Color.black : Color(red: 0.96, green: 0.95, blue: 0.94)
     }
+
+    /// Plate behind the swipe instructions and Dismiss button so the coloured
+    /// hints read as one dismissible prompt on the card. Light mode uses a
+    /// mid-light fill (`0.92`, the control-plate light fill) that sits slightly
+    /// darker than the card plate; dark mode keeps the original dark grey.
+    static func promptBoxFill(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? Color(red: 0.16, green: 0.17, blue: 0.18) : Color(white: 0.92)
+    }
 }
