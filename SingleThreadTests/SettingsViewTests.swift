@@ -90,6 +90,7 @@ struct SettingsViewTests {
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
                 showMicrophoneButton: .constant(true),
+                enableActionButtons: .constant(false),
                 viewModel: SettingsViewModel())
         #endif
         let bodyDescription = String(describing: view.body)
@@ -331,6 +332,30 @@ struct SettingsViewTests {
             #expect(bodyDescription.contains("SettingsSubscreenLayout"))
         #endif
     }
+
+    #if os(macOS)
+        @Test
+        func macOSBagIncludesEnableActionButtons() {
+            let enabled = SettingsBindings(enableActionButtons: true)
+            #expect(enabled.enableActionButtons)
+            let disabled = SettingsBindings(enableActionButtons: false)
+            #expect(!disabled.enableActionButtons)
+        }
+
+        @Test
+        func macOSEnableActionButtonsRoundTripsThroughAppGroup() {
+            let key = "enableActionButtons"
+            AppGroup.defaults.set(false, forKey: key)
+            #expect(!AppGroup.defaults.bool(forKey: key))
+
+            // Simulate the write-back: bag value → @AppStorage setter path.
+            AppGroup.defaults.set(true, forKey: key)
+            #expect(AppGroup.defaults.bool(forKey: key))
+
+            // Clean up so a prior run's leftover can't pollute a subsequent run.
+            AppGroup.defaults.removeObject(forKey: key)
+        }
+    #endif
 
     // MARK: Private
 

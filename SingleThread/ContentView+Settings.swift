@@ -28,6 +28,7 @@ extension ContentView {
                 .onChange(of: bag.notificationIntervalHours) { _, new in notificationIntervalHours = new }
         #elseif os(macOS)
             let withIOSPreferences = withAppearance
+                .onChange(of: bag.enableActionButtons) { _, new in enableActionButtons = new }
         #endif
         return withIOSPreferences
             .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
@@ -72,6 +73,7 @@ extension ContentView {
             SettingsBindings(
                 appearanceMode: appearanceMode,
                 textSize: textSize,
+                enableActionButtons: enableActionButtons,
                 showMicrophoneButton: showMicrophoneButton,
                 backgroundEnabled: backgroundEnabled,
                 backgroundFadePercent: backgroundFadePercent,
