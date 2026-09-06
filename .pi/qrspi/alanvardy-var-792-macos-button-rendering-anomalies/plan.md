@@ -123,7 +123,7 @@ struct SingleThreadButtonModifierTests {
 #### Automated
 - [x] `xcodebuild -scheme SingleThread -destination 'platform=macOS' -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO test -only-testing:SingleThreadTests/SingleThreadButtonModifierTests` passes (macOS binary)
 - [x] `make test` passes (iOS unit binary runs the same suite)
-- [ ] `make lint` clean
+- [x] `make lint` clean
 
 #### Manual
 - [ ] None beyond the above — the modifier is not wired to any control yet.
