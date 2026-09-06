@@ -194,7 +194,7 @@ public final class NotificationScheduler {
         enabledKey: String = "notificationsEnabled",
         intervalHoursKey: String = "notificationIntervalHours",
         idleIdentifier: String = "app.alanvardy.SingleThread.idle-reminder",
-        defaults: UserDefaults = AppGroup.defaults) {
+        defaults: UserDefaults = UserDefaults.standard) {
         self.center = center
         self.enabledKey = enabledKey
         self.intervalHoursKey = intervalHoursKey
@@ -506,7 +506,7 @@ If `UNUserNotificationCenter` is no longer directly referenced, remove the `impo
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild -scheme "$SCHEME" -destination "$SIM" -derivedDataPath "$DERIVED_DATA" test-without-building -only-testing:SingleThreadTests/NotificationSchedulerTests` — 9 tests green
+- [x] `xcodebuild -scheme "$SCHEME" -destination "$SIM" -derivedDataPath "$DERIVED_DATA" test-without-building -only-testing:SingleThreadTests/NotificationSchedulerTests` — 9 tests green
 - [ ] `./scripts/test.sh` — full gate (format, lint, build, Periphery, all unit + UI + watch + macOS). All existing tests pass; no regressions from the wiring change.
 
 #### Manual
