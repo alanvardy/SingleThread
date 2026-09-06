@@ -100,8 +100,8 @@ func reschedulePreservesRecurrenceOnRepeatingReminder() async {
 ### Verification
 
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26' -only-testing:SingleThreadTests/ReminderStoreTests/reschedulePreservesRecurrenceOnRepeatingReminder -derivedDataPath DerivedData` passes
-- [ ] Full suite: `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26' -only-testing:SingleThreadTests/ReminderStoreTests -derivedDataPath DerivedData` — new + all existing tests pass
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26' -only-testing:SingleThreadTests/ReminderStoreTests/reschedulePreservesRecurrenceOnRepeatingReminder -derivedDataPath DerivedData` passes
+- [x] Full suite: `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=26' -only-testing:SingleThreadTests/ReminderStoreTests -derivedDataPath DerivedData` — new + all existing tests pass
 
 #### Manual
 - [ ] Confirm the test name appears green in Xcode Test Navigator under `ReminderStoreTests`

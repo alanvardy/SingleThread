@@ -693,6 +693,34 @@ struct ReminderStoreSkipCountTests {
     #endif
 
     @Test
+    func reschedulePreservesRecurrenceOnRepeatingReminder() async {
+        let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
+        let rem = makeReminder(
+            title: "Weekly standup",
+            dateComponents: DateComponents(year: 2025, month: 6, day: 1))
+        rem.addRecurrenceRule(rule)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [rem]),
+            loadsReminders: true,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess,
+            settle: noopSettle)
+        let due = DateComponents(year: 2027, month: 1, day: 2)
+
+        let rescheduled = await store.rescheduleReminder(
+            identifier: rem.calendarItemIdentifier,
+            to: due)
+
+        #expect(rescheduled)
+        // InMemoryEventStore.save appends without dedup; find by identifier, not by count.
+        let found = store.reminders.first { $0.calendarItemIdentifier == rem.calendarItemIdentifier }
+        #expect(found != nil)
+        #expect(found?.recurrenceRules?.count == 1)
+        #expect(found?.dueDateComponents?.year == 2027)
+    }
+
+    @Test
     func reconcilePrunesSkipCountForAbsentIdentifier() async {
         let rem = makeReminder(title: "A")
         let key = "skipCounts-\(UUID().uuidString)"
