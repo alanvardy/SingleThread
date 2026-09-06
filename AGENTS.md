@@ -4,8 +4,7 @@
 
 - The command tool runs **fish** — see `~/.pi/agent/AGENTS.md` "Shell
   environment" and the `fish-shell` skill; for bash-only constructs write
-  `/tmp/x.sh` FIRST and run `bash /tmp/x.sh` (applies to the parent's own
-  tool calls too).
+  `/tmp/x.sh` FIRST and run `bash /tmp/x.sh` (applies to the parent too).
 
 ## Build & Test
 
@@ -15,8 +14,7 @@
   either is unavailable.
 - **Destination pinning**: the name-only `iPhone 17` destination is ambiguous
   when multiple runtimes exist — a bare `name=` hangs.
-  Pin `,OS=<ver>` or `,id=<UDID>` (from `xcrun simctl list devices available`).
-  `scripts/test.sh`/`Makefile` accept `SIM=`.
+  Pin `,OS=<ver>` or `,id=<UDID>`; `scripts/test.sh`/`Makefile` accept `SIM=`.
 - **One xcodebuild test process at a time** (simulator contention). On
   `Busy`/`RequestDenied` runner-launch failures: shutdown sims (`xcrun
   simctl shutdown all`) and kill orphaned `xcodebuild`/`xctest` processes.
@@ -58,8 +56,8 @@
   seams.
 - Previews and tests inject a pre-populated `ReminderStore` (or use
   `loadsReminders: false`) instead of a real `EKEventStore`.
-- `UserDefaults` (incl. `AppGroup.defaults`) is **not** `Sendable` in this
-  SDK — verify concurrency claims for shared types against the compiler.
+- `UserDefaults` (incl. `AppGroup.defaults`) is **not** `Sendable` — verify
+  concurrency claims for shared types against the compiler.
 
 ## Purchases (StoreKit)
 
@@ -97,14 +95,11 @@ SingleThread/                  # git root
 - QRSPI pipeline: `/1_spec` → `/2_clarify` → `/3_design` → `/4_research` →
   `/5_plan` → `/6_implement` (see `~/.pi/agent/AGENTS.md` and `.pi/skills/qrspi/SKILL.md`).
 - All QRSPI work — decompose, research, design, plan — happens directly on
-  the main ticket's current branch. **No child subtasks** and **no separate
-  design PR/branch**. Artifacts live under `.pi/qrspi/<current-branch>/` and
-  are committed alongside the ticket's other work (each phase commits its own
-  artifact before moving on).
-- Plans are consumed literally: verify every snippet, file path, test name,
-  and `SIM=…,OS=` destination this session (compile / `ls` / `rg` /
-  `xcrun simctl list runtimes`); unproven red-first premises must be marked
-  `UNVALIDATED` for the implementer to verify first.
+  the main ticket's current branch. **No child subtasks** / **no separate
+  design PR/branch**. Artifacts live under `.pi/qrspi/<current-branch>/`
+  (each phase commits its own artifact before moving on).
+- Plans are consumed literally — verify every snippet, file path, test name,
+  `SIM=…,OS=` this session; unproven red-first premises → `UNVALIDATED`.
 
 ## Adding New Files and Targets
 
@@ -148,8 +143,7 @@ SingleThread/                  # git root
 - Bug fixes must add (or fix) a unit test that reproduces the bug before the
   fix, so the fix is proven to hold. A bug-fix ticket is done only when a
   test reproduces the *reported symptom* and the plan's manual/on-device
-  verification items actually ran — proving a supporting fact is not fixing
-  the bug.
+  checks actually ran — proving a supporting fact is not fixing the bug.
 - **UI tests are the exception, not the default.** Use them sparingly, only
   when justified — e.g. a new end-to-end user flow whose value can't be
   captured by a unit test, or a regression that only manifests at the UI layer
@@ -164,13 +158,11 @@ SingleThread/                  # git root
 - **Gate staging**: phase subagents verify with a build plus targeted
   `-only-testing:` suites only. The full `./scripts/test.sh` runs ONCE, by the
   parent (or a dedicated final phase), after phases commit — workers
-  re-running the full multi-hour gate exceed run caps and orphan unverified
+  re-running the multi-hour gate exceed run caps and orphan unverified
   changes. Plan per-phase Verification lists as targeted `-only-testing:`
-  suites (never the full UI suite); launch the full gate detached
-  (`nohup bash scripts/test.sh > /tmp/gate.log 2>&1 & echo $last_pid`) so it
-  outlives a capped worker. After two consecutive UI-stage contention
-  failures with a passing sequential rerun, stop re-running the local gate —
-  CI is authoritative.
+  suites (never the full UI suite); run the full gate detached
+  (`nohup … > /tmp/gate.log 2>&1 & echo $last_pid`); after two UI-stage
+  contention failures, stop re-running locally — CI is authoritative.
 - Conflict-laden rebases are NOT resolution-edited mid-review: stop, and
   resolve (`git checkout --theirs` / manual continue) in a separate scoped
   fix commit before review resumes.
@@ -195,9 +187,8 @@ SingleThread/                  # git root
   [Testing Requirements](#testing-requirements)) before marking work "done";
   UI tests only where justified per that policy.
 - A test failure your diff didn't touch is likely pre-existing on
-  `origin/main` — verify with git blame / CI history before debugging it, and
-  fix it in a separate scoped commit. Known local-only: the two macOS
-  `EntitlementStoreTests` SKTestSession tests fail on this machine (CI
-  mac-tests is green) — don't debug, treat as pre-existing and annotate.
+  `origin/main` — verify with git blame / CI history before debugging it.
+  Known local-only: the two macOS `EntitlementStoreTests` SKTestSession tests
+  fail here (CI mac-tests green) — don't debug, annotate as pre-existing.
   Never `git stash` to baseline (stashes span branches) — use `git show
-  origin/main:<path>` or a throwaway `git worktree add`.
+  origin/main:<path>` or a throwaway worktree.
