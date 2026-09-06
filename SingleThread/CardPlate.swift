@@ -31,4 +31,20 @@ enum CardPlate {
     static func promptBoxFill(for colorScheme: ColorScheme) -> Color {
         colorScheme == .dark ? Color(red: 0.16, green: 0.17, blue: 0.18) : Color(white: 0.92)
     }
+
+    /// Adaptive tint for the "Swipe left to skip" hint. Light mode uses a
+    /// slightly darkened orange so the caption stays legible on the mid-light
+    /// prompt box; dark mode keeps the semantic `.orange` that matches the
+    /// swipe action's own tint. Extracted because the rendered paint can't be
+    /// asserted headlessly — tests assert this decision instead.
+    static func skipHintColor(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? .orange : Color(red: 0.78, green: 0.35, blue: 0.0)
+    }
+
+    /// Adaptive tint for the "Swipe right to complete" hint (darkened green in
+    /// light mode, semantic `.green` in dark mode — same rationale as
+    /// `skipHintColor(for:)`).
+    static func completeHintColor(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? .green : Color(red: 0.10, green: 0.58, blue: 0.24)
+    }
 }

@@ -23,6 +23,26 @@ struct CardPlateTests {
     }
 
     @Test
+    func skipHintColorOrangeInDarkMode() {
+        #expect(CardPlate.skipHintColor(for: .dark) == .orange)
+    }
+
+    @Test
+    func skipHintColorDarkenedOrangeInLightMode() {
+        #expect(CardPlate.skipHintColor(for: .light) == Color(red: 0.78, green: 0.35, blue: 0.0))
+    }
+
+    @Test
+    func completeHintColorGreenInDarkMode() {
+        #expect(CardPlate.completeHintColor(for: .dark) == .green)
+    }
+
+    @Test
+    func completeHintColorDarkenedGreenInLightMode() {
+        #expect(CardPlate.completeHintColor(for: .light) == Color(red: 0.10, green: 0.58, blue: 0.24))
+    }
+
+    @Test
     func plateFillOffWhiteInLightMode() {
         let fill = CardPlate.plateFill(for: .light)
         #expect(fill == Color(red: 0.96, green: 0.95, blue: 0.94))
