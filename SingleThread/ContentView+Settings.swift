@@ -13,9 +13,10 @@ extension ContentView {
             excludedLists: excludedListsBinding,
             entitlementStore: viewModel.store.entitlementStore,
             viewModel: SettingsViewModel())
-            // The bag is a plain in-memory holder; write each changed value
-            // back to the @AppStorage-backed property so settings survive
-            // relaunch (mirrors the old direct-bind behavior).
+            // Standard-suite keys are plain in-memory values; write each change
+            // back to the @AppStorage-backed property so settings survive relaunch.
+            // App-Group keys write straight through their store types instead
+            // (computed props on the bag), so no write-back handlers exist for them.
             .onChange(of: bag.appearanceMode) { _, new in appearanceMode = new }
             .onChange(of: bag.textSize) { _, new in textSize = new }
         #if os(iOS)
@@ -35,17 +36,11 @@ extension ContentView {
             .onChange(of: bag.backgroundEnabled) { _, new in backgroundEnabled = new }
             .onChange(of: bag.backgroundFadePercent) { _, new in backgroundFadePercent = new }
             .onChange(of: bag.backgroundPinned) { _, new in backgroundPinned = new }
-            .onChange(of: bag.showUndatedReminders) { _, new in showUndatedReminders = new }
-            .onChange(of: bag.sortOption) { _, new in sortOption = new }
-            .onChange(of: bag.showDate) { _, new in showDate = new }
-            .onChange(of: bag.showList) { _, new in showList = new }
-            .onChange(of: bag.showRecurrence) { _, new in showRecurrence = new }
-            .onChange(of: bag.showAlarms) { _, new in showAlarms = new }
-            .onChange(of: bag.showCompletionGlow) { _, new in showCompletionGlow = new }
     }
 
-    /// Builds a fresh bindings bag from the current `@AppStorage`-backed
-    /// preference values.
+    /// Builds a fresh bindings bag. Standard-suite values come from the current
+    /// `@AppStorage`-backed properties; App-Group AG keys are computed on the bag
+    /// from their store types, so they need no arguments here.
     @MainActor
     func makeSettingsBag() -> SettingsBindings {
         #if os(iOS)
@@ -61,14 +56,7 @@ extension ContentView {
                 showMicrophoneButton: showMicrophoneButton,
                 backgroundEnabled: backgroundEnabled,
                 backgroundFadePercent: backgroundFadePercent,
-                backgroundPinned: backgroundPinned,
-                showUndatedReminders: showUndatedReminders,
-                sortOption: sortOption,
-                showDate: showDate,
-                showList: showList,
-                showRecurrence: showRecurrence,
-                showAlarms: showAlarms,
-                showCompletionGlow: showCompletionGlow)
+                backgroundPinned: backgroundPinned)
         #elseif os(macOS)
             SettingsBindings(
                 appearanceMode: appearanceMode,
@@ -77,14 +65,7 @@ extension ContentView {
                 showMicrophoneButton: showMicrophoneButton,
                 backgroundEnabled: backgroundEnabled,
                 backgroundFadePercent: backgroundFadePercent,
-                backgroundPinned: backgroundPinned,
-                showUndatedReminders: showUndatedReminders,
-                sortOption: sortOption,
-                showDate: showDate,
-                showList: showList,
-                showRecurrence: showRecurrence,
-                showAlarms: showAlarms,
-                showCompletionGlow: showCompletionGlow)
+                backgroundPinned: backgroundPinned)
         #endif
     }
 }
