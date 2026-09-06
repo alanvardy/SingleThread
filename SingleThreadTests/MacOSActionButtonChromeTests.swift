@@ -1,9 +1,8 @@
-@testable import SingleThread
-@testable import SingleThreadCore
-import SwiftUI
-import Testing
-
 #if os(macOS)
+    @testable import SingleThread
+    @testable import SingleThreadCore
+    import SwiftUI
+    import Testing
 
     @MainActor
     struct MacOSActionButtonChromeTests {
