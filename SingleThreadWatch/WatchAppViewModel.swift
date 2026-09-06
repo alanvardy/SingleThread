@@ -172,25 +172,7 @@ final class WatchAppViewModel {
     private func setupSyncService(arguments: [String]) {
         guard WCSession.isSupported() else { return }
         let store = store
-        let service = SkippedReminderSyncService(
-            session: WCSession.default,
-            skipStore: SkippedReminderStore(),
-            showUndatedStore: BoolPreferenceStore(
-                defaults: .standard, key: BoolPreferenceKey.showUndatedReminders.rawValue, fallback: false),
-            showDateStore: BoolPreferenceStore(
-                defaults: .standard, key: BoolPreferenceKey.showDate.rawValue, fallback: true),
-            showRecurrenceStore: BoolPreferenceStore(
-                defaults: .standard, key: BoolPreferenceKey.showRecurrence.rawValue, fallback: true),
-            showAlarmsStore: BoolPreferenceStore(
-                defaults: .standard, key: BoolPreferenceKey.showAlarms.rawValue, fallback: true),
-            showListStore: BoolPreferenceStore(
-                defaults: .standard, key: BoolPreferenceKey.showList.rawValue, fallback: false),
-            showCompletionGlowStore: BoolPreferenceStore(
-                defaults: .standard, key: BoolPreferenceKey.showCompletionGlow.rawValue, fallback: true),
-            completionCounter: CompletionCounterStore(defaults: .standard),
-            entitlementStore: EntitlementStore(),
-            sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false,
-            sendsShowCompletionGlow: false, sendsEntitled: false)
+        let service = makeSyncService()
         service.onShowUndatedRemindersReceived = { [weak store] value in
             Task {
                 store?.showsUndatedReminders = value
@@ -238,6 +220,31 @@ final class WatchAppViewModel {
         store.onRescheduleReminder = { identifier, components in
             service.requestRescheduleReminder(identifier: identifier, dueDateComponents: components)
         }
+    }
+
+    /// Builds the sync service with the watch-mirrored preference stores.
+    /// Lives in its own helper so `setupSyncService` stays within SwiftLint's
+    /// 50-line function-body limit (same split pattern as `wireStateReceiveHooks`).
+    private func makeSyncService() -> SkippedReminderSyncService {
+        SkippedReminderSyncService(
+            session: WCSession.default,
+            skipStore: SkippedReminderStore(),
+            showUndatedStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showUndatedReminders.rawValue, fallback: false),
+            showDateStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showDate.rawValue, fallback: true),
+            showRecurrenceStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showRecurrence.rawValue, fallback: true),
+            showAlarmsStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showAlarms.rawValue, fallback: true),
+            showListStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showList.rawValue, fallback: false),
+            showCompletionGlowStore: BoolPreferenceStore(
+                defaults: .standard, key: BoolPreferenceKey.showCompletionGlow.rawValue, fallback: true),
+            completionCounter: CompletionCounterStore(defaults: .standard),
+            entitlementStore: EntitlementStore(),
+            sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false,
+            sendsShowCompletionGlow: false, sendsEntitled: false)
     }
 
     /// Wires the show-* preference receive hooks onto the sync service. Each
