@@ -196,7 +196,9 @@ SingleThread/                  # git root
   UI tests only where justified per that policy.
 - A test failure your diff didn't touch is likely pre-existing on
   `origin/main` — verify with git blame / CI history before debugging it.
-  Known local-only: the two macOS `EntitlementStoreTests` SKTestSession tests
-  fail here (CI mac-tests green) — don't debug, annotate as pre-existing.
+  Known local-only: three macOS `EntitlementStoreTests` fail here —
+  `isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`,
+  and the `hostStoreKitIsClean` canary (CI mac-tests green on fresh runners)
+  — don't debug, annotate as pre-existing.
   Never `git stash` to baseline (stashes span branches) — use `git show
   origin/main:<path>` or a throwaway worktree.
