@@ -177,9 +177,9 @@ None (verification only).
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` — full CI-identical gate green: format, lint, build, periphery, unit (iOS + macOS), watch, and UI tests.
-- [ ] The four swipe-prompt flows in `SingleThreadUITestsFlows.swift:517-599` pass (`testSwipePromptAppearsUnderUITesting`, `testDismissSwipePromptHidesItAndPersistsAcrossRelaunch`, `testSwipePromptToggleRoundTripsViaSettings`).
-- [ ] `testAccessibilityAudit` (`SingleThreadUITests.swift:23-66`, launched with `--ui-testing --reset-swipe-preference`) passes.
+- [x] `./scripts/test.sh` — full CI-identical gate green: format, lint, build, periphery, unit (iOS + macOS), watch, and UI tests.
+- [x] The four swipe-prompt flows in `SingleThreadUITestsFlows.swift:517-599` pass (`testSwipePromptAppearsUnderUITesting`, `testDismissSwipePromptHidesItAndPersistsAcrossRelaunch`, `testSwipePromptToggleRoundTripsViaSettings`).
+- [x] `testAccessibilityAudit` (`SingleThreadUITests.swift:23-66`, launched with `--ui-testing --reset-swipe-preference`) passes.
 
 #### Manual
 - [ ] (Optional, local-only) `make ui-test` with the audit's extra strictness categories — `.dynamicType` / `.hitRegion` — to confirm the new light box/button contrast. A local-only hit-region failure is documented (`SingleThreadUITests.swift:54-60`) and is not a CI break.
