@@ -370,7 +370,7 @@ Add before the final line:
 ### Verification
 
 #### Automated
-- [ ] `make lint` passes (no Swift changes)
+- [x] `make lint` passes (no Swift changes)
 
 #### Manual
 - [ ] `make reset-storekit` runs without errors, finds and clears the store
