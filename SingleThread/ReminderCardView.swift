@@ -34,17 +34,21 @@ struct ReminderCardView: View {
     // MARK: Internal
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            content
-            if showNudge {
-                nudgeBanner
+        VStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 4) {
+                content
+                if showNudge {
+                    nudgeBanner
+                }
             }
+            .frame(maxWidth: maxWidth, alignment: .leading)
+            .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 12, restoresGeometry: true)
+
             if showSwipePrompt {
                 prompt
             }
         }
-        .frame(maxWidth: maxWidth, alignment: .leading)
-        .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 12, restoresGeometry: true)
+        .frame(maxWidth: maxWidth)
     }
 
     // MARK: Private
@@ -167,11 +171,12 @@ struct ReminderCardView: View {
     }
 
     /// Instructs the user that swiping left skips and swiping right completes.
-    /// The two hints stack on their own lines — "Swipe right to complete"
-    /// above "Swipe left to skip" — so the caption text no longer truncates
-    /// on narrow phones. Visual-only: the text is hidden from accessibility
-    /// (VoiceOver users know the swipe-gesture vocabulary), but the Dismiss
-    /// button stays reachable.
+    /// Rendered as a separate plate BELOW the card (same fill, centred, small
+    /// gap), so it no longer nests inside the card plate and no longer
+    /// truncates on narrow phones: the two hints stack on their own lines,
+    /// "Swipe right to complete" above "Swipe left to skip". Visual-only: the
+    /// text is hidden from accessibility (VoiceOver users know the
+    /// swipe-gesture vocabulary), but the Dismiss button stays reachable.
     private var prompt: some View {
         VStack(spacing: 10) {
             VStack(spacing: 4) {
@@ -211,7 +216,7 @@ struct ReminderCardView: View {
             .accessibilityLabel("Dismiss swipe prompt")
             .accessibilityIdentifier("swipePromptDismissButton")
         }
-        .cardPlate(fill: CardPlate.promptBoxFill(for: colorScheme))
+        .cardPlate(fill: CardPlate.plateFill(for: colorScheme))
     }
 
     private func priorityColor(_ level: ReminderPriority.Level) -> Color {
