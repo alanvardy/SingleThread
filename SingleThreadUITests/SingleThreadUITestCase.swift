@@ -19,7 +19,11 @@ class SingleThreadUITestCase: XCTestCase {
 
     @MainActor
     func launchSeeded(_ json: String, extra: [String] = []) -> XCUIApplication {
-        launchApp(arguments: ["--seed", json] + extra)
+        launchApp(arguments: [
+            "--seed", json,
+            "--ui-testing-noop-settle",
+            "--ui-testing-reduced-glow"
+        ] + extra)
     }
 
     /// SwiftUI Form rows expose a nested switch; tap the inner control until

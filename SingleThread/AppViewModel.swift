@@ -166,6 +166,11 @@ final class AppViewModel {
             // deterministic `exists` assertion (production duration is 0.50 s).
             viewModel.completionGlow.duration = 2.0
         }
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing-reduced-glow") {
+            // UI-test seam: shorten the glow (production duration is 0.50 s)
+            // so UI tests spend less wall-clock time on the overlay.
+            viewModel.completionGlow.duration = 0.1
+        }
         return viewModel
     }
 
@@ -192,8 +197,9 @@ final class AppViewModel {
     /// Otherwise falls back to the production EventKit-backed store (suppressing
     /// load for `--ui-testing`/`--no-reminders`).
     private static func makeStore(arguments: [String]) -> (store: ReminderStore, usesInMemory: Bool) {
+        let useNoopSettle = arguments.contains("--ui-testing-noop-settle")
         if let seed = UITestingSeed.fromLaunchArguments(arguments) {
-            return (seededStore(seed), true)
+            return (seededStore(seed, useNoopSettle: useNoopSettle), true)
         }
         #if os(iOS)
             // Mirrors the watch `--ui-testing` seam: a deterministic single-reminder
@@ -223,6 +229,21 @@ final class AppViewModel {
                     dueDate: nil,
                     recurrenceRule: nil)
                 reminder.priority = 5
+                // `--ui-testing-noop-settle` skips EventKit's 200ms post-save
+                // settle so write-flow UI tests run deterministically and fast.
+                // Without the flag the init default (production 200ms timing)
+                // is left in place, so the relaunch-persistence trio that
+                // launches via `--ui-testing` still exercises the real settle.
+                if useNoopSettle {
+                    return (ReminderStore(
+                        eventStore: inMemoryStore,
+                        loadsReminders: false,
+                        reminders: [reminder],
+                        skippedIDs: [],
+                        authorizationStatus: .fullAccess,
+                        entitlementStore: EntitlementStore(testingWithEntitled: false),
+                        settle: {}), false)
+                }
                 return (ReminderStore(
                     eventStore: inMemoryStore,
                     loadsReminders: false,
@@ -247,7 +268,7 @@ final class AppViewModel {
     /// but the seed accepts any `Int` so UI tests can stage the free-tier gate
     /// (99 = near-cap, 100 = gated) that production never produces. Gating
     /// scenarios seeded here drive `canMutate` exactly as the real counter does.
-    private static func seededStore(_ seed: UITestingSeed) -> ReminderStore {
+    private static func seededStore(_ seed: UITestingSeed, useNoopSettle: Bool) -> ReminderStore {
         UITestingSeed.resetPersistedState()
         let inMemoryStore = InMemoryEventStore(
             reminders: seed.reminders,
@@ -281,14 +302,30 @@ final class AppViewModel {
         // `hasHidden` from the broad fetch, and `InMemoryEventStore` returns the
         // same list for narrow and broad fetches — resetting `hasHidden` to false.
         let emptyWithHidden = seed.reminders.isEmpty && seed.hasHidden
-        let store = ReminderStore(
-            eventStore: inMemoryStore,
-            loadsReminders: !emptyWithHidden,
-            hasHidden: seed.hasHidden,
-            completionCounter: CompletionCounterStore(
-                defaults: AppGroup.defaults,
-                key: "completionCount"),
-            entitlementStore: entitlementStore)
+        // `--ui-testing-noop-settle` skips EventKit's 200ms post-save settle
+        // for deterministic seeded write flows; absent the flag the init
+        // default (production 200ms timing) applies.
+        let store: ReminderStore
+        if useNoopSettle {
+            store = ReminderStore(
+                eventStore: inMemoryStore,
+                loadsReminders: !emptyWithHidden,
+                hasHidden: seed.hasHidden,
+                completionCounter: CompletionCounterStore(
+                    defaults: AppGroup.defaults,
+                    key: "completionCount"),
+                entitlementStore: entitlementStore,
+                settle: {})
+        } else {
+            store = ReminderStore(
+                eventStore: inMemoryStore,
+                loadsReminders: !emptyWithHidden,
+                hasHidden: seed.hasHidden,
+                completionCounter: CompletionCounterStore(
+                    defaults: AppGroup.defaults,
+                    key: "completionCount"),
+                entitlementStore: entitlementStore)
+        }
         if !seed.excludedListTitles.isEmpty {
             store.setExcludedListTitles(seed.excludedListTitles)
         }

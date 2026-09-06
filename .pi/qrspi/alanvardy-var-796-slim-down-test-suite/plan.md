@@ -585,9 +585,9 @@ xcodebuild -scheme "$SCHEME" -destination "$SIM" -derivedDataPath "$DERIVED_DATA
 ### Verification
 
 #### Automated
-- [ ] `make build` — compiles with new arg parsing
-- [ ] `make test` — all 470+ unit tests green (including the new ones from Layers 1-2)
-- [ ] One smoke UI test with new args passes (timing assertions out of scope — success = doesn't timeout)
+- [x] `make build` — compiles with new arg parsing
+- [x] `make test` — all 470+ unit tests green (including the new ones from Layers 1-2)
+- [x] One smoke UI test with new args passes (timing assertions out of scope — success = doesn't timeout)
 
 #### Manual
 - [ ] None
