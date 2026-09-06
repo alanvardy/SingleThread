@@ -39,7 +39,10 @@ struct EntitlementStoreTests {
     }
 
     @Test
-    func isEntitledSurvivesStoreRecreation() async {
+    func isEntitledSurvivesStoreRecreation() async throws {
+        let session = try SKTestSession(configurationFileNamed: "Products")
+        session.disableDialogs = true
+
         // The purchase path is exercised through the test seam
         // (`testingWithEntitled:`) because `SKTestSession.buyProduct` cannot
         // complete via `xcodebuild test` on Xcode 26.6 (config never reaches
@@ -56,7 +59,10 @@ struct EntitlementStoreTests {
     }
 
     @Test
-    func nonMatchingProductIDDoesNotSetEntitlement() {
+    func nonMatchingProductIDDoesNotSetEntitlement() throws {
+        let session = try SKTestSession(configurationFileNamed: "Products")
+        session.disableDialogs = true
+
         // No purchase exists, so the entitlement stays false regardless of
         // which product IDs are present in the storekit file.
         let store = EntitlementStore()
@@ -67,7 +73,10 @@ struct EntitlementStoreTests {
     /// `hasResolvedEntitlement` even on an empty account, so the UI never
     /// strands on the pre-resolution blank slot.
     @Test
-    func initialRefreshSettlesResolvedFlag() async {
+    func initialRefreshSettlesResolvedFlag() async throws {
+        let session = try SKTestSession(configurationFileNamed: "Products")
+        session.disableDialogs = true
+
         let store = EntitlementStore()
         _ = await wait(for: store.hasResolvedEntitlement)
         #expect(store.hasResolvedEntitlement)
@@ -77,14 +86,6 @@ struct EntitlementStoreTests {
     // MARK: Private
 
     // SKTestSession for driving StoreKit in test.
-
-    private static let testSession: SKTestSession = {
-        // swiftlint:disable:next force_try
-        let session = try! SKTestSession(configurationFileNamed: "Products")
-        session.disableDialogs = true
-        session.clearTransactions()
-        return session
-    }()
 
     /// Polls `condition` every 50 ms until it returns `true` or `timeout`
     /// nanoseconds elapse. Returns `true` if the condition was met, `false` on
