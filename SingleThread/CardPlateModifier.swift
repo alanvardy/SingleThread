@@ -8,8 +8,8 @@ import SwiftUI
 /// uses this; the prompt and empty-state plates occupy genuine layout.
 ///
 /// - Parameters:
-///   - fill: The plate background colour. Call sites resolve the adaptive or
-///     fixed fill — the modifier is a pure shape/padding machine.
+///   - fill: The plate background colour. Call sites resolve the adaptive
+///     fill — the modifier is a pure shape/padding machine.
 ///   - padding: Inset applied before the background is drawn. Defaults to 12.
 ///   - restoresGeometry: When `true`, applies `-padding` after the background
 ///     so the outer frame is net-zero. Only correct inside a `List` row; misuse
@@ -36,8 +36,7 @@ extension View {
     ///
     /// - Parameters:
     ///   - fill: The plate background colour. Use `CardPlate.plateFill(for:)`
-    ///     for the adaptive card-text fill or `CardPlate.promptBoxFill(for:)`
-    ///     for the adaptive prompt fill.
+    ///     for the adaptive fill.
     ///   - padding: Inset before the background is drawn (default 12).
     ///   - restoresGeometry: When `true`, applies a negative-padding undo
     ///     after the background so the outer frame is unchanged. Only correct
