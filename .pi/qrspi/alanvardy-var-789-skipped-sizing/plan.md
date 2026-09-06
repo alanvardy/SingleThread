@@ -264,12 +264,14 @@ Size the nudge sheet and the standalone reschedule sheet to their content so the
 #### 2. Documented fallback (do not start here)
 **Fallback only** if `fitted` misbehaves with the `ToolbarItem` cancel or the embedded `DatePicker` (design Decision 3, Stage 3 open risk): swap to `.presentationDetents([.height(...)])` with a per-sheet value (e.g. `.height(320)` for the reschedule sheet, `.height(420)` for the nudge sheet), sized for the content including large Dynamic Type. Never a hardcoded device-conditional `frame`; size from content.
 
+> **Fallback applied (Phase 3)**: `presentationSizing(.fitted)` was implemented first and the iPad `SkipNudgeUITests` failed — `nudgeDeleteButton` and `nudgeViewInRemindersButton` existed in the accessibility tree but computed hit point `{-1,-1}` (clipped by the fitted sheet's height on iPad), so Delete / View-in-Reminders taps never landed. Confirmed pre-change code passes the same suite. Swapped to the documented fallback `.presentationDetents([.height(320)])` (reschedule) / `.presentationDetents([.height(420)])` (nudge); full iPad + iPhone suites then passed.
+
 ### Verification
 
 #### Automated
-- [ ] `make build` passes
-- [ ] `make ui-test` on the pinned iPad destination — existing `SkipNudgeUITests` reschedule path and `ActionMenuUITests` reschedule path stay green through the newly fitted presentation
-- [ ] `make ui-test` on `iPhone 17` — full `SingleThreadUITests` still green (fitted should not change iPhone page-sheet behavior)
+- [x] `make build` passes
+- [x] `make ui-test` on the pinned iPad destination — existing `SkipNudgeUITests` reschedule path and `ActionMenuUITests` reschedule path stay green through the detent-sized presentation (fallback; `fitted` clipped lower sheet buttons — see note above)
+- [x] `make ui-test` on `iPhone 17` — full `SingleThreadUITests` still green (detents: skip/reschedule flows unchanged; one parallel-load flake in `testSkipWithCrossDeviceCompletionShowsOnlyRemainingReminder` passed in isolation and on full re-run)
 
 #### Manual
 - [ ] On iPad sim: tap the nudge banner — sheet is content-sized (no blank bands); open the action-menu Reschedule sheet — also content-sized; Cancel and the `DatePicker` both render and dismiss correctly

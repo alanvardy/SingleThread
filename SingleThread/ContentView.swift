@@ -301,10 +301,12 @@ struct ContentView: View {
         }
         .sheet(isPresented: $isShowingRescheduleSheet) {
             actionMenuRescheduleSheet
+                .presentationDetents([.height(320)])
         }
         #if os(iOS)
         .sheet(isPresented: $isShowingNudgeSheet, onDismiss: { viewModel.dismissNudge() }) {
             nudgeSheetContent
+                .presentationDetents([.height(420)])
         }
         .overlay {
             if isURLSpyUITesting,
