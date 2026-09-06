@@ -51,13 +51,6 @@ final class AppViewModel {
     // MARK: Internal
 
     #if os(iOS)
-        /// Notification-preference UserDefaults keys, shared between
-        /// AppViewModel reads and the @AppStorage declarations in ContentView.
-        enum NotificationKeys {
-            static let enabled = "notificationsEnabled"
-            static let intervalHours = "notificationIntervalHours"
-        }
-
         /// Current pending notification requests, rendered as a stable status
         /// string ONLY under the UI-test flag. Delegates to the scheduler.
         var pendingSummary: String? {
