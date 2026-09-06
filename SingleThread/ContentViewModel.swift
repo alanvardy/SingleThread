@@ -57,13 +57,16 @@ final class ContentViewModel {
     var isRefreshing = false
 
     #if os(iOS)
+        /// Mirrors ContentView's `@AppStorage("enableActionButtons")`. Driven from
+        /// the view via `.task`/`.onChange` (see `ContentView`). Defaults false so
+        /// the placeholder state is the plain mic until the view injects the value.
+        var enableActionButtons = false
+
         /// Whether the Complete/Skip cluster replaces the plain mic in the bottom
-        /// bar: the toggle must be on AND a visible reminder must exist. Readable
-        /// outside a live view (unit-test seam); inside the app it reads the live
-        /// `@AppStorage` value.
+        /// bar: the toggle must be on AND a visible reminder must exist. Injected
+        /// via ``enableActionButtons``; testable without a live view.
         var showsActionButtons: Bool {
-            AppGroup.defaults.bool(forKey: "enableActionButtons")
-                && store.visibleReminders.first != nil
+            enableActionButtons && store.visibleReminders.first != nil
         }
     #endif
 
