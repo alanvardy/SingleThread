@@ -85,8 +85,8 @@ The existing pre-boot of the iOS sim (`preboot_sim` on lines ~44-51) stays as-is
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh --unit-only` → sequential two runs both pass (lock released between runs, sims re-prepared each time)
-- [ ] `./scripts/test.sh --unit-only && ./scripts/test.sh --unit-only` — both pass, no contention on the second run
+- [x] `./scripts/test.sh --unit-only` → sequential two runs both pass (lock released between runs, sims re-prepared each time)
+- [x] `./scripts/test.sh --unit-only && ./scripts/test.sh --unit-only` — both pass, no contention on the second run
 
 #### Manual
 - [ ] Unpair watch: `xcrun simctl unpair <watchUDID>` → `./scripts/test.sh --unit-only` → pairing re-established
