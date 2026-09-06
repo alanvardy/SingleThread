@@ -243,20 +243,9 @@ struct WatchReminderView: View {
                 reminderDetails(display)
             }
             .onTapGesture {
-                viewModel.isShowingRefreshConfirmation = true
+                Task { await viewModel.cardTapped() }
             }
             .accessibilityAddTraits(.isButton)
-            .confirmationDialog("Reminder", isPresented: $viewModel.isShowingRefreshConfirmation) {
-                Button("Refresh") {
-                    Task { await viewModel.refresh(clearSkipped: viewModel.store.allSkipped) }
-                }
-                .accessibilityIdentifier("refreshButton")
-
-                Button(SharedStrings.deleteAction, role: .destructive) {
-                    Task { await viewModel.store.deleteCurrentReminder() }
-                }
-                .accessibilityIdentifier("deleteButton")
-            }
 
             if viewModel.isNudged(reminder.calendarItemIdentifier) {
                 Button {
