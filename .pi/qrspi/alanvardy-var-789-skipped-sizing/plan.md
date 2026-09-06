@@ -290,9 +290,11 @@ None (verification only). No watch/widget source touched — `ReminderCardView` 
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` fully green (CI-identical: swiftformat → swiftlint `--fix` → swiftformat `--lint` → swiftlint `--strict` → iOS build → watch build → periphery → iOS unit `SingleThreadTests` → iOS UI `SingleThreadUITests` → watch unit+UI → macOS unit)
-- [ ] `SingleThreadWatchTests` / `SingleThreadWatchUITests` green unchanged
-- [ ] `make periphery` clean
+- [ ] `./scripts/test.sh` fully green — CLEARED EXCEPT ONE ENVIRONMENT-CAUSED ITEM, see note below. All components passed: swiftformat → swiftlint `--fix` → swiftformat `--lint` → swiftlint `--strict` → iOS build → watch build → periphery → iOS unit `SingleThreadTests` (609 passed / 0 failed) → iOS UI `SingleThreadUITests` (51/51) → watch unit+UI (both `TEST EXECUTE SUCCEEDED`). macOS unit: 489/491 — two `EntitlementStoreTests` fail **on this host only**.
+- [x] `SingleThreadWatchTests` / `SingleThreadWatchUITests` green unchanged
+- [x] `make periphery` clean
+
+> **Environment-caused failure (not our diff) — macOS `EntitlementStoreTests` (2 tests)**: `isEntitledSurvivesStoreRecreation` + `initialRefreshSettlesResolvedFlag` fail locally with `!isEntitled` receiving `true` — the host's StoreKitTest/storekitd leaks an entitled sandbox state into `Transaction.currentEntitlements`. Proven pre-existing and environmental, three independent ways: (1) identical failure on a clean `origin/main` worktree on this machine; (2) CI's `mac-tests` job on `origin/main` is green (✓ in run 33993949555); (3) the previous ticket's full gate on this machine (var-780) passed these tests — the condition appeared since. Also observed `[SKTestSession] Error saving configuration file: SKServiceErrorDomain Code=2` on this host; a serial-mode run aborted outright; bouncing `storekitd` did not help. An in-test `clearTransactions()` made the two tests pass in isolation, and the full suite re-creates the leak — no test purchases or `AppStore.sync()` calls exist in the suite, so this is host StoreKit sandbox state, not test/source logic. Suggested follow-ups (out of scope for this ticket): reset the host sandbox account, or pin the macOS test step in CI to the already-default serial behavior. Do not treat the gate summary as fully green on this machine until resolved.
 
 #### Manual
 - [ ] Confirm watch and Today-widget still render their cards centered and hugged (sanity spot-check, no regression expected)
