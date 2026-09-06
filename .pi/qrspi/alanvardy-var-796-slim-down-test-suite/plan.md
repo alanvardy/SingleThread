@@ -507,7 +507,7 @@ If `UNUserNotificationCenter` is no longer directly referenced, remove the `impo
 
 #### Automated
 - [x] `xcodebuild -scheme "$SCHEME" -destination "$SIM" -derivedDataPath "$DERIVED_DATA" test-without-building -only-testing:SingleThreadTests/NotificationSchedulerTests` — 9 tests green
-- [ ] `./scripts/test.sh` — full gate (format, lint, build, Periphery, all unit + UI + watch + macOS). All existing tests pass; no regressions from the wiring change.
+- [x] `./scripts/test.sh` — full gate (format, lint, build, Periphery, all unit + UI + watch + macOS). All existing tests pass; no regressions from the wiring change.
 
 #### Manual
 - [ ] Build and run on iOS simulator — toggle notifications in Settings, background the app, verify notification is scheduled (check in Notification Center).
@@ -686,7 +686,7 @@ No changes needed. `scripts/test.sh` uses broad `-only-testing:SingleThreadUITes
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` — full gate passes. All remaining ~22 iOS UI tests + all unit + watch + macOS tests green.
+- [x] `./scripts/test.sh` — full gate passes. All remaining ~22 iOS UI tests + all unit + watch + macOS tests green.
 - [x] `make lint` — no dead code warnings for the cut tests.
 - [x] `make periphery` — no new dead-code detections from the scheduler wiring.
 
