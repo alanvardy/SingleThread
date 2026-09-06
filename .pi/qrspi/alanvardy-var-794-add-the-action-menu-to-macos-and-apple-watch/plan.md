@@ -35,7 +35,7 @@ The `#if os(iOS)` / `#endif` guards are removed; the declaration itself is uncha
 ### Verification
 
 #### Automated
-- [ ] `SIM=platform=macOS make mac-test` passes (all existing macOS unit tests green)
+- [x] `SIM=platform=macOS make mac-test` passes (all existing macOS unit tests green) — **on this host, the two known pre-existing `EntitlementStoreTests` fail** (host-local StoreKit sandbox leak, same as Stage 4 note below; reproduced on clean `origin/main`, CI green). Everything else green.
 
 #### Manual
 - [ ] macOS app builds and launches — no visible change (flag defaults to `false`)
