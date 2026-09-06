@@ -762,12 +762,12 @@ Note: `visibleReminders` filters only by `skippedIDs` + `excludedListTitles` (ve
 ### Verification
 
 #### Automated
-- [ ] `make mac-build` passes
-- [ ] `make mac-test` passes (new `MenuBarExtraOptionsTests` runs on macOS; empty on iOS)
-- [ ] `make format` then `make lint` pass (new files)
+- [x] `make mac-build` passes (via the documented fallback — the plan's conditional `if !visibleReminders.isEmpty` scene crashes the Swift 6 compiler with "failed to produce diagnostic for expression" in the SceneBuilder, so the extra is always included and `MenuBarExtraOptions` returns empty content when nothing is due)
+- [x] `make mac-test` passes (new `MenuBarExtraOptionsTests` both green on macOS; only the two pre-existing StoreKit `EntitlementStoreTests` fail)
+- [x] `make format` then `make lint` pass (new files)
 
 #### Manual
-- [ ] `make mac-run` — the menu-bar item appears only when a reminder is due; Completing/Skipping mutates the reminder and clears the strip; "Open SingleThread" activates and fronts the window; with zero due reminders the item is fully hidden.
+- [ ] `make mac-run` — the menu-bar item (always present under the compiler-crash fallback) shows the next due reminder's title/actions when one is due and an empty menu when none is due; Completing/Skipping mutates the reminder and clears the strip; "Open SingleThread" activates and fronts the window.
 
 ---
 
