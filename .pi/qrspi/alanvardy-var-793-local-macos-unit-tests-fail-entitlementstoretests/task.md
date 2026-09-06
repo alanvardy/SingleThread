@@ -1,0 +1,5 @@
+# Task
+
+Two `EntitlementStoreTests` in `SingleThreadTests` (`isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`) fail on the local macOS test host: the machine's StoreKit transaction store still holds an entitled transaction left over from earlier manual Mac testing, so a fresh real `EntitlementStore()` derives `isEntitled == true` after its init-time refresh. CI is green because GitHub Actions runners are fresh.
+
+Goal: make the local macOS unit-test stage of `./scripts/test.sh` pass without weakening real-StoreKit coverage — the two tests must keep exercising the real StoreKit entitlement-refresh path (init-time refresh settling correctly on an empty account). Candidate approaches to evaluate: per-test StoreKit state reset/injection (e.g. `SKTestSession` teardown revoking transactions), detecting and clearing the stale entitled transaction before the tests run, or documenting a manual reset procedure if no automated fix is feasible.
