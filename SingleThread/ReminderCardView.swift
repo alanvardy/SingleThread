@@ -34,7 +34,7 @@ struct ReminderCardView: View {
     // MARK: Internal
 
     var body: some View {
-        VStack(spacing: 8) {
+        VStack(spacing: 20) {
             VStack(alignment: .leading, spacing: 4) {
                 content
                 if showNudge {
