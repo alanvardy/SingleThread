@@ -40,10 +40,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/DerivedData
-          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
+          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
           restore-keys: |
-            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
-            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-${{ github.ref_name }}-
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-
 
       - name: Pre-boot simulator
         run: |
@@ -108,10 +108,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/DerivedData
-          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
+          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
           restore-keys: |
-            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
-            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-${{ github.ref_name }}-
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-
 
       - name: Pre-boot simulator
         run: |
@@ -169,10 +169,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/DerivedData
-          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
+          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
           restore-keys: |
-            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
-            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-${{ github.ref_name }}-
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-
 
       - name: Pre-boot simulator
         run: |
@@ -228,10 +228,10 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ${{ github.workspace }}/DerivedData
-          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
+          key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
           restore-keys: |
-            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-
-            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-${{ github.ref_name }}-
+            derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ matrix.device }}-
 
       - name: Pre-boot simulator
         run: |
