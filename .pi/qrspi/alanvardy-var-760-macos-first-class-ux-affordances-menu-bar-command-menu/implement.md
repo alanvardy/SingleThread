@@ -4,33 +4,43 @@ Ticket: var-760 — macOS first-class UX affordances (menu bar, command menu, no
 Branch: `alanvardy-var-760-macos-first-class-ux-affordances-menu-bar-command-menu`
 PR: #159
 
+> **Post-rebase integration**: while this branch was in flight, `origin/main` absorbed the var-792 branch
+> (which had received this ticket's `NotificationScheduler.swift` + `NotificationSchedulerTests.swift` through a
+> cross-worktree stash incident and then **evolved them** into a key-injected scheduler API with
+> `UserNotificationCentering` + `FakeUserNotificationCenter` extracted into Core) and the var-796 branch
+> (which **deleted the iOS notification UI tests**). The conflict resolution adopted main's merged scheduler +
+> iOS wrappers wholesale and kept only this ticket's unique macOS work, adapted to main's API. See plan.md's
+> integration note for detail.
+
 ## Commits
 
 | Phase | Commit | Description |
 |-------|--------|-------------|
-| 1     | `c4dd6d1` | NotificationScheduler foundation (SingleThreadCore) — `UserNotificationCentering` protocol seam + `@MainActor` scheduler (decideAction / schedule / cancel / permission / pending) + 13 unit tests |
-| 2     | `0e463fa` | AppViewModel rewiring + macOS scheduling triggers — scheduler replaces the iOS notification blob; `onRemindersChanged` triggers macOS schedule-on-data-change (covers launch via initial `start() → reload()`) |
-| 3     | `2c1eeda` | App commands — `CommandMenu` ("Reminder" Complete/Skip, "Appearance" System/Light/Dark Picker), About/Quit app-menu groups via `appCommands` (`@CommandsBuilder` adaptation), `@State` view model + `@AppStorage` appearance |
-| 4     | `66d213e` | MenuBarExtra — live next-reminder dropdown (`MenuBarExtraOptions`) + headless content tests |
-
-All phases pushed to `origin` (branch is on top of current `origin/main` `bcea150`; one rebase absorbed main's mid-session moves — var-789 commits + the watch lint fix).
+| base  | `3463ee9` | macOS first-class UX affordances (ticket base commit, replayed on new main) |
+| —     | `1640acc` | chore: questions for var-760 |
+| 1     | `dc14c3d` | Phase 1: NotificationScheduler foundation — **superseded by main** (adopted main's merged `NotificationScheduler` + scheduler tests; this commit now carries only the QRSPI plan.md) |
+| 2     | `abb21b9` | Phase 2: AppViewModel rewiring + macOS scheduling triggers — iOS wrappers from main; this ticket contributes the shared scheduler property, the `scheduleNotificationsForMacOS()` trigger on `onRemindersChanged`, and the macOS enabled-key default |
+| 3     | `2fa80b5` | Phase 3: App commands — `CommandMenu` (Reminder Complete/Skip, Appearance System/Light/Dark Picker), About/Quit app-menu groups via `appCommands` (`@CommandsBuilder`), `@State` view model + `@AppStorage` appearance |
+| 4     | `8cde055` | Phase 4: MenuBarExtra — live next-reminder dropdown (`MenuBarExtraOptions`) + headless content tests |
+| docs  | `6c970eb` | docs: implementation summary + plan checkboxes |
 
 ## Automated Checks
 
-- [x] `make mac-build` passes (Phases 2-4)
-- [x] `make mac-test` passes on macOS — all tests green **except 2 pre-existing StoreKit `EntitlementStoreTests`** (`isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`), proven to fail identically on the clean tree (Phase 1 worker verified) and untouched by this branch; CI's `mac-tests` job passes those on main, so they are a local macOS StoreKit-sandbox host quirk
-- [x] `make test` passes (iOS unit run, Phase 1)
-- [x] Targeted iOS notification UI regression (Phase 2): `NotificationSchedulingUITests` / `NotificationsUITests` / `NotificationsSettingsUITests` — all 8 tests pass **unchanged**, proving the extraction preserved iOS semantics
-- [x] `make format` + `make lint` pass (0 violations, `--strict`; phases 1, 3, 4)
-- [x] Full `./scripts/test.sh` gate run ONCE (parent, after all phases): format ✅ SwiftFormat check ✅ SwiftLint ✅ build ✅ watch build ✅ Periphery ✅ iOS unit ✅ iOS UI ✅ watch UI ✅ watch unit ✅ macOS unit — failed only on the 2 pre-existing `EntitlementStoreTests` above (GATE_EXIT 65, local-environment-only). CI (`.github/workflows/ci.yml`, run 34009151847) is running on the pushed head with all jobs queued/in-progress.
+- [x] `make mac-build` passes (post-rebase, against main's evolved codebase)
+- [x] `make mac-test` passes — `MenuBarExtraOptionsTests` (this ticket) + main's `NotificationSchedulerTests`/`UserNotificationCenteringTests` all green; only the 2 pre-existing local StoreKit `EntitlementStoreTests` fail (identical on clean main; CI's `mac-tests` job passes them)
+- [x] `make test` passes (iOS unit run — shared scheduler + iOS notification wrappers compile and pass on iOS)
+- [x] `make format` + `make lint` pass (0 violations, `--strict`)
+- [x] Full gate: previously run on the pre-rebase head (only the same 2 StoreKit tests failed); post-rebase phase-verified via mac-build/mac-test/make test. (Full `./scripts/test.sh` re-run still warranted by CI on the new head.)
+- [ ] ~~iOS notification UI regression suite~~ — **superseded**: the suites were deleted on main by var-796 before this branch landed; iOS scheduling semantics are guarded by `NotificationSchedulerTests` + the iOS unit run.
 
-## Deviations from the plan (documented, all within plan intent)
+## Deviations from the plan (documented)
 
-1. **Scheduler API is `public`** (plan snippets showed internal): Phase 2 constructs it from the app target via plain `import SingleThreadCore`, matching `ReminderStore`/`EventKitStoring` conventions. `@MainActor` is also on the protocol (Swift 6 strict-concurrency requirement when awaiting the non-Sendable existential).
-2. **`appCommands` uses `@CommandsBuilder`** (Phase 3): the plan's multi-`CommandGroup`/`CommandMenu` free function returning `some Commands` doesn't compile without the result-builder attribute — the standard SwiftUI mechanism for exactly this shape.
-3. **MenuBarExtra is always-present, empty-content when nothing due** (Phase 4): the plan's primary "hide entirely" design — `if !visibleReminders.isEmpty { MenuBarExtra … }` inside the `@SceneBuilder` — crashes the Swift 6 compiler with an internal error ("failed to produce diagnostic for expression") on `SingleThreadApp.swift:14`. This is exactly the plan's documented fallback (design amendment 4); the extra's content view already returns empty content when no reminder is due. Both new files untouched by SwiftFormat.
-4. **`lastScheduleSummary` survives an add failure** (Phase 2): old iOS code zeroed it on `center.add` throw; the scheduler wrapper leaves it untouched. Unreachable via UI tests; documented divergence.
-5. **macOS scheduling trigger** follows the plan's deviation note: schedule-on-data-change (initial `reload()` fires `onRemindersChanged` at launch) instead of a `MacAppDelegate` `applicationDidFinishLaunching` hook; permission request folded into the same trigger (lazy, self-guarding on `.notDetermined`, macOS always `enabled: true`, 48h interval fallback).
+1. **Scheduler foundation adopted from main** (see integration note): main's merged `NotificationScheduler` API is `scheduleIfNeeded(reminderCount:, hasHidden:)` / `cancelAll()` / `requestPermissionIfNeeded()` with key-injected `UserDefaults`; the plan's own scheduler design was superseded by the merged evolution of this ticket's own Phase 1 files (post-stash-incident).
+2. **macOS "always enabled"** via a macOS-only `UserDefaults.standard.register(defaults: ["notificationsEnabled": true])` in `registerDefaults` instead of passing `enabled: true` (main's API reads the key itself). A denied macOS permission prompt still flips the key off, matching iOS semantics.
+3. **macOS permission options** are `.alert + .badge` (main's unified `requestPermissionIfNeeded()`), not the plan's `.alert, .sound` — a consequence of adopting main's scheduler; one unified behavior.
+4. **`appCommands` uses `@CommandsBuilder`** (Phase 3): the plan's multi-`CommandGroup`/`CommandMenu` free function doesn't compile without the SwiftUI result-builder attribute.
+5. **MenuBarExtra is always-present, empty-content when nothing due** (Phase 4): the plan's primary "hide entirely" conditional scene crashes the Swift 6 compiler (internal error in the `@SceneBuilder`); applied the plan's documented fallback.
+6. **iOS UI-test verification impossible post-var-796** (was: 8 notification UI tests pass unchanged) — suites deleted on main; documented in plan.md.
 
 ## Manual Verification Items (from the plan)
 
@@ -40,7 +50,7 @@ All phases pushed to `origin` (branch is on top of current `origin/main` `bcea15
 
 ## Observations for review
 
-- **StoreKit local quirk**: any reviewer running `./scripts/test.sh` locally will see the 2 `EntitlementStoreTests` fail on the macOS host; CI is authoritative for those.
-- **Concurrency incident (resolved)**: during Phase 1, a concurrent var-792 worktree agent crossed `git stash` push/pop on the shared `refs/stash`; all work was recovered (backup `/tmp/concurrent_wip_backup_1788663562.patch`), nothing lost. Until var-792 finishes, avoid `git stash` on this repo.
-- **Periphery** ran clean in the full gate — no dead code introduced.
-- No macOS UI tests per var-788 decision (macOS verified by unit run + `make mac-run` manual items); no `UNUserNotificationCenterDelegate`/foreground banner per resolved amendment 3; no WidgetKit macOS work, no new persistence keys, no repeating timer (out of scope).
+- **StoreKit local quirk**: the 2 `EntitlementStoreTests` fail on the local macOS host only (StoreKit sandbox); CI is authoritative.
+- **Stash caution**: a concurrent var-792 worktree shared `refs/stash` during this work (one crossing incident, all work recovered). Avoid `git stash` on this repo until that branch finishes.
+- Periphery ran clean in the earlier full gate; no dead code introduced by this ticket's deltas.
+- No macOS UI tests per var-788 decision; no `UNUserNotificationCenterDelegate`/foreground banner per resolved amendment 3; no WidgetKit macOS work, no new persistence keys, no repeating timer.

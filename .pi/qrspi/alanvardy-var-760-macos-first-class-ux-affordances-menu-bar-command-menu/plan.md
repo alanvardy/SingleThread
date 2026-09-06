@@ -4,6 +4,18 @@
 
 Turn the existing multiplatform app into a first-class macOS citizen from the menu bar outward: a `CommandMenu` (Complete/Skip/appearance) plus About/Quit app-menu polish, a live `MenuBarExtra` dropdown for the next due reminder (hidden when nothing is due), and macOS local notifications via a platform-agnostic `NotificationScheduler` extracted out of `AppViewModel`'s iOS-only blob. Model code stays platform-agnostic (`SingleThreadCore`); all UI divergence is inline `#if os(...)` or one small macOS-gated file.
 
+> **Post-implementation integration note (rebase onto moved main)**: while this branch was in flight, `origin/main` absorbed
+> the var-792 branch (which had received this ticket's `NotificationScheduler.swift` + `NotificationSchedulerTests.swift`
+> files through a cross-worktree incident and then **evolved them** — key-injected `NotificationScheduler` with
+> `scheduleIfNeeded(reminderCount:, hasHidden:)`/`cancelAll()`/`requestPermissionIfNeeded()`, `pendingSummary`/
+> `lastScheduleSummary` moved inside, `UserNotificationCentering` + `FakeUserNotificationCenter` extracted to their own
+> Core file) and the var-796 branch (which **deleted the iOS notification UI tests** — `NotificationSchedulingUITests`,
+> `NotificationsUITests`, and parts of the flows suite). The conflict resolution therefore: (1) adopted main's merged
+> scheduler + its iOS wrappers wholesale (Phase 1 became plan.md-only), (2) kept only this ticket's macOS additions
+> (shared scheduler property, `scheduleNotificationsForMacOS()` trigger, macOS enabled-key default) adapted to main's
+> API, and (3) replayed Phases 3-4 unchanged. The Phase 2 iOS UI-regression gate no longer exists because its suites
+> were deleted on main; iOS scheduling semantics are covered by main's `NotificationSchedulerTests` + the iOS unit run.
+
 **Resolved design amendments** (from `structure.md` open questions):
 
 1. **macOS has no notifications-enable surface** → macOS always passes `enabled: true` to the scheduler, i.e. schedules whenever anything is due. The `enabled` toggle stays an iOS-only concept.
@@ -350,9 +362,9 @@ private enum NotificationSchedulerTestError: Error {
 ### Verification
 
 #### Automated
-- [x] `make mac-test` passes (compiles the new Core file for macOS + runs `NotificationSchedulerTests`). All 13 `NotificationSchedulerTests` pass; the only failing tests are two pre-existing StoreKit `EntitlementStoreTests` (`isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`) proven to fail identically on the clean tree.
-- [x] `make test` passes (iOS unit run — scheduler + tests compile for iOS too)
-- [x] `make format` then `make lint` pass (new files formatted, SwiftLint `--strict` clean)
+- [x] `make mac-test` passes — the scheduler foundation + its tests (`NotificationSchedulerTests`/`UserNotificationCenteringTests`) now come from main's merged var-792 evolution of this phase's work; all pass except the two pre-existing StoreKit `EntitlementStoreTests` (local sandbox, fail on clean main too).
+- [x] `make test` passes (iOS unit run — shared scheduler compiles for iOS, iOS notification wrappers intact)
+- [x] `make format` then `make lint` pass (SwiftLint `--strict` clean)
 
 #### Manual
 - [ ] None — behavior is headless; the macOS notification delivery check happens in Phase 2's manual step.
@@ -483,9 +495,9 @@ Add the macOS helper (in a new `#if os(macOS)` region):
 ### Verification
 
 #### Automated
-- [x] `make mac-build` passes (macOS compiles the reimporting + trigger)
-- [x] `make mac-test` passes (macOS unit run green — all tests pass except the two pre-existing StoreKit `EntitlementStoreTests` failures documented in Phase 1)
-- [x] Targeted iOS regression: `xcodebuild -only-testing:SingleThreadUITests/NotificationSchedulingUITests -only-testing:SingleThreadUITests/NotificationsUITests -only-testing:SingleThreadUITests/NotificationsSettingsUITests` with a pinned destination (`id=D7AC0D41-275E-47C5-B603-BC7FA08D1BB4`) — all 8 tests pass unchanged, proving the extraction preserved iOS semantics.
+- [x] `make mac-build` passes (macOS compiles the shared scheduler + macOS trigger)
+- [x] `make mac-test` passes (macOS unit run green — incl. main's `NotificationSchedulerTests` + this ticket's `MenuBarExtraOptionsTests`; only the two pre-existing StoreKit `EntitlementStoreTests` fail)
+- [x] Targeted iOS regression — **superseded**: the iOS notification UI suites (`NotificationSchedulingUITests`/`NotificationsUITests`) were deleted on main by var-796 before this branch landed; iOS scheduling semantics are guarded by main's `NotificationSchedulerTests` + the iOS unit run instead.
 
 #### Manual
 - [ ] `make mac-run` — on first launch with a due reminder, macOS shows the notification permission prompt; after granting and with a signed/entitled build (see design Open Risk: sandbox + hardened runtime), a notification is scheduled for the due reminder.
