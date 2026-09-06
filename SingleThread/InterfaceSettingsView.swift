@@ -16,9 +16,7 @@ struct InterfaceSettingsView: View {
 
     @Binding var showMicrophoneButton: Bool
 
-    #if os(iOS)
-        @Binding var enableActionButtons: Bool
-    #endif
+    @Binding var enableActionButtons: Bool
 
     #if os(iOS)
         @Binding var showSwipePrompt: Bool
@@ -144,6 +142,7 @@ struct InterfaceSettingsView: View {
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
                 showMicrophoneButton: .constant(true),
+                enableActionButtons: .constant(false),
                 viewModel: SettingsViewModel())
         #endif
     }

@@ -52,6 +52,7 @@ struct SettingsView: View {
                                 appearanceMode: $bindings.appearanceMode,
                                 textSize: $bindings.textSize,
                                 showMicrophoneButton: $bindings.showMicrophoneButton,
+                                enableActionButtons: $bindings.enableActionButtons,
                                 viewModel: viewModel)
                         #endif
                     } label: {
