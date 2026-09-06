@@ -12,8 +12,9 @@ struct SwipePromptTests {
         let description = String(describing: makeCard(showSwipePrompt: true).body)
         #expect(description.contains("Swipe left to skip"))
         #expect(description.contains("Swipe right to complete"))
-        // The hints sit on a rounded dark-grey plate with the skip hint orange
-        // and the complete hint green (the swipe actions' own tint colors). The
+        // The hints sit on an adaptive plate (mid-light grey in light mode,
+        // dark grey in dark mode) with the skip hint orange and the complete
+        // hint green (the swipe actions' own tint colors). The
         // filled shape is drawn by `CardPlateModifier` — SwiftUI does not inline
         // a ViewModifier's body into the host view's static type, so the presence
         // of the modifier in the reflected chain pins the plate composition.
@@ -29,13 +30,13 @@ struct SwipePromptTests {
         #expect(!description.contains("Swipe left to skip"))
     }
 
-    /// The prompt sits on a dark grey plate so the coloured hints read against
-    /// both the off-white (light) and black (dark) card plates. The rendered
-    /// paint can't be asserted headlessly, so the decision is asserted directly
-    /// (same rationale as `plateFill`).
+    /// The prompt box uses the adaptive `promptBoxFill(for:)` decision so the
+    /// coloured hints read against both the off-white (light) and black (dark)
+    /// card plates. The rendered paint can't be asserted headlessly, so the
+    /// decision is asserted directly (same rationale as `plateFill`).
     @Test
-    func promptBoxIsDarkGrey() {
-        #expect(CardPlate.promptBoxFill == Color(red: 0.16, green: 0.17, blue: 0.18))
+    func promptBoxFillDarkGreyInDarkMode() {
+        #expect(CardPlate.promptBoxFill(for: .dark) == Color(red: 0.16, green: 0.17, blue: 0.18))
     }
 
     @Test

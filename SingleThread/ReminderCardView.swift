@@ -179,7 +179,7 @@ struct ReminderCardView: View {
                 .foregroundStyle(.orange)
 
                 Text("|")
-                    .foregroundStyle(.white.opacity(0.5))
+                    .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.5) : Color.black.opacity(0.5))
 
                 HStack(spacing: 4) {
                     Text("Swipe right to complete")
@@ -195,12 +195,12 @@ struct ReminderCardView: View {
             } label: {
                 Text("Dismiss")
                     .font(.caption.bold())
-                    .foregroundStyle(.black)
+                    .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
                     .padding(.horizontal, 24)
                     .padding(.vertical, 8)
             }
             .buttonStyle(.borderedProminent)
-            .tint(.white)
+            .tint(colorScheme == .dark ? Color.white : Color.black)
             // Caption-sized text alone falls below the 44pt accessibility
             // hit-region minimum; stretch the button's frame vertically so
             // the hit area passes the audit. Padding on the label content
@@ -211,7 +211,7 @@ struct ReminderCardView: View {
             .accessibilityLabel("Dismiss swipe prompt")
             .accessibilityIdentifier("swipePromptDismissButton")
         }
-        .cardPlate(fill: CardPlate.promptBoxFill)
+        .cardPlate(fill: CardPlate.promptBoxFill(for: colorScheme))
     }
 
     private func priorityColor(_ level: ReminderPriority.Level) -> Color {
