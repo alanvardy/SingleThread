@@ -241,8 +241,7 @@ final class AppViewModel {
                         reminders: [reminder],
                         skippedIDs: [],
                         authorizationStatus: .fullAccess,
-                        entitlementStore: EntitlementStore(testingWithEntitled: false),
-                        settle: {}), false)
+                        entitlementStore: EntitlementStore(testingWithEntitled: false)) {}, false)
                 }
                 return (ReminderStore(
                     eventStore: inMemoryStore,
@@ -305,19 +304,17 @@ final class AppViewModel {
         // `--ui-testing-noop-settle` skips EventKit's 200ms post-save settle
         // for deterministic seeded write flows; absent the flag the init
         // default (production 200ms timing) applies.
-        let store: ReminderStore
-        if useNoopSettle {
-            store = ReminderStore(
+        let store = if useNoopSettle {
+            ReminderStore(
                 eventStore: inMemoryStore,
                 loadsReminders: !emptyWithHidden,
                 hasHidden: seed.hasHidden,
                 completionCounter: CompletionCounterStore(
                     defaults: AppGroup.defaults,
                     key: "completionCount"),
-                entitlementStore: entitlementStore,
-                settle: {})
+                entitlementStore: entitlementStore) {}
         } else {
-            store = ReminderStore(
+            ReminderStore(
                 eventStore: inMemoryStore,
                 loadsReminders: !emptyWithHidden,
                 hasHidden: seed.hasHidden,
