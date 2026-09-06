@@ -125,9 +125,9 @@ Four identical replacements: one per iOS job. `mac-tests` and `watch-ui-tests` j
 
 ### Verification
 
-- [ ] Push to a PR branch → CI runs → inspect cache step logs for two iOS legs of the same job — iPhone leg's key contains `iPhone 17`, iPad leg's key contains `iPad (A16)`, they differ
+- [x] Push to a PR branch → CI runs → inspect cache step logs for two iOS legs of the same job — iPhone leg's key contains `iPhone 17`, iPad leg's key contains `iPad (A16)`, they differ
 - [ ] First push is a cache miss on both (expected — new keys). Second push → cache hit on each leg's own device-scoped key
-- [ ] `mac-tests` and `watch-ui-tests` cache keys unchanged
+- [x] `mac-tests` and `watch-ui-tests` cache keys unchanged
 
 ---
 
