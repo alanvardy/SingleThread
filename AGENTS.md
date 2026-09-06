@@ -18,7 +18,11 @@
 - **One xcodebuild test process at a time** (simulator contention). On
   `Busy`/`RequestDenied` runner-launch failures: shutdown sims (`xcrun
   simctl shutdown all`) and kill orphaned `xcodebuild`/`xctest` processes.
-  Watch UI tests need a paired sim: `xcrun simctl pair <watchUDID> <phoneUDID>`.
+  Watch UI tests use a standalone (unpaired) watch simulator by default —
+  `scripts/test.sh` pins `platform=watchOS Simulator,name=…`, and CI creates an
+  unpaired watch sim. Pairing (`xcrun simctl pair <watchUDID> <phoneUDID>`) is
+  only a troubleshooting step for runner-launch failures (see the
+  `simulator-pairing` skill).
 - **Build & tests via `make`**: `make build` / `make test` / `make
   ui-test` / `make periphery` / `make lint` / `make format`; pin a
   destination with `SIM=`. `make periphery` reads a stale build index after
@@ -80,6 +84,8 @@ SingleThread/                  # git root
 ├── SingleThreadWidget/        # widget extension
 ├── SingleThreadTests/         # unit tests (Swift Testing)
 ├── SingleThreadUITests/       # UI tests (XCTest, accessibility audit)
+├── SingleThreadWatchTests/    # watch unit tests (Swift Testing)
+├── SingleThreadWatchUITests/  # watch UI tests (XCTest, accessibility audit)
 ├── scripts/                   # CI-identical test gate; run-devices.sh = devicectl install/launch
 ├── .github/workflows/ci.yml   # GitHub Actions
 ├── AGENTS.md
@@ -116,7 +122,9 @@ SingleThread/                  # git root
   `blankLinesAroundMark`, and `preferSwiftTesting`, and disables
   `trailingCommas`, `trailingClosures`, and `isEmpty`. Run `make format` (or
   `swiftformat SingleThread/ SingleThreadTests/ SingleThreadUITests/`) to apply.
-  UI tests are excluded (`--exclude SingleThreadUITests`).
+  iOS UI tests are excluded (`--exclude SingleThreadUITests`); watch UI tests
+  (`SingleThreadWatchUITests/`) are not excluded but keep `test…` names because
+  they are XCTest, not Swift Testing.
 - SwiftLint runs with `--strict` in CI, so every warning is an error. Run
   `swiftlint lint --strict` before committing. The config is auto-discovered
   from the repo root (`.swiftlint.yml`).
