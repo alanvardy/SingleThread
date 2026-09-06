@@ -160,7 +160,9 @@ to:
 
 #### Automated
 - [ ] `make mac-test` — **all 7 `EntitlementStoreTests` pass in the full suite**, not isolated. Gate requirement: full-suite pass. If `clearTransactions()` holds, proceed to Phase 3. If the host leak re-appears in the full suite, skip Phase 3 and escalate to Phase 4.
-- [ ] `make lint` passes
+- [x] `make lint` passes
+
+> **Gate outcome (var-793 final)**: the shared-session hypothesis was DISPROVEN. With `testSession` force-touched so `clearTransactions()` provably executed, the full suite still failed the two tests (`isEntitled → true`). Phase 2 was reverted (commit `0affbae`). The mechanism fails because the macOS test run is unsigned and reads the real host/account store; the entitled transaction is re-created during the run from account-scoped sandbox state and survives daemon kills + wiping both Group Containers stores (verified via probe). See implement.md.
 
 #### Manual
 - [ ] Verify that `isEntitledIsFalseByDefault` and `hasResolvedEntitlementIsFalseByDefault` (which never created sessions before) now also see an empty store and pass
@@ -262,7 +264,9 @@ Insert after the static properties and before `isEntitledIsFalseByDefault`:
 
 #### Automated
 - [ ] `make mac-test` — canary passes when host is clean; produces actionable failure with transaction IDs when host is dirty. Existing 7 tests continue to pass.
-- [ ] `make lint` passes (`DispatchSemaphore` is fine — no `async`/`await` in the static init)
+- [x] `make lint` passes (`DispatchSemaphore` is fine — no `async`/`await` in the static init)
+
+> **Final state**: the static-snapshot design was adapted (shared session removed) to a direct async `for await` over `Transaction.currentEntitlements` — equivalent because reads are host-bound. The canary `hostStoreKitIsClean` is committed and verified to fail with an actionable message listing `["app.alanvardy.SingleThread.unlimited"]`. It does NOT pass on a clean-in-the-files sense on this host because the run re-seeds the entitlement from account state; keep unchecked accordingly.
 
 #### Manual
 - [ ] On a dirty host: confirm the canary failure message lists the specific product IDs and the Xcode reset instruction
@@ -372,6 +376,8 @@ Add before the final line:
 #### Automated
 - [x] `make lint` passes (no Swift changes)
 
+> The script works (verified: stops the agent, backs up + clears the store, restarts) but is **necessary-not-sufficient**: the run re-seeds the entitlement from account state (see the SKILL.md var-793 note). Keep the two mac-test manual items unchecked.
+
 #### Manual
 - [ ] `make reset-storekit` runs without errors, finds and clears the store
 - [ ] `make mac-test` — 7/7 `EntitlementStoreTests` pass on the previously-dirty host
@@ -382,5 +388,7 @@ Add before the final line:
 ## Final Gate
 
 - [ ] `./scripts/test.sh` — full CI-identical pipeline passes locally (includes macOS unit tests last)
-- [ ] `make lint` passes
-- [ ] All changes committed on the ticket branch
+- [x] `make lint` passes
+- [x] All changes committed on the ticket branch
+
+> **Diagnostic-only end state (accepted, option A)**: Phase 1 (bounded poll) and Phase 3 (canary) ship as the deliverables. The two real-StoreKit tests and the canary are EXPECTED to fail on this host (`isEntitled → true` re-seeded from account-scoped sandbox state); the canary makes that failure actionable. The full `./scripts/test.sh` gate will fail at its macOS stage with exactly these 3 known failures — everything else must pass. The remaining avenue is the untested Xcode → Debug → StoreKit → Manage Transactions… reset (see SKILL.md).
