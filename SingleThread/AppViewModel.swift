@@ -50,6 +50,17 @@ final class AppViewModel {
 
     // MARK: Internal
 
+    let store: ReminderStore
+    let backgroundImage: BackgroundImageStore
+    let usesInMemoryStore: Bool
+    /// Schedules / cancels the idle-notification reminder against the real
+    /// `UNUserNotificationCenter` through the `UserNotificationCentering` seam.
+    /// Shared by the iOS toggle-driven wrappers and the macOS scheduling trigger.
+    let notificationScheduler = NotificationScheduler()
+    #if os(iOS)
+        private(set) var syncService: SkippedReminderSyncService?
+    #endif
+
     #if os(iOS)
         /// Current pending notification requests, rendered as a stable status
         /// string ONLY under the UI-test flag. Delegates to the scheduler.
@@ -87,17 +98,6 @@ final class AppViewModel {
         func requestNotificationPermissionIfNeeded() async {
             await notificationScheduler.requestPermissionIfNeeded()
         }
-    #endif
-
-    let store: ReminderStore
-    let backgroundImage: BackgroundImageStore
-    let usesInMemoryStore: Bool
-    /// Schedules / cancels the idle-notification reminder against the real
-    /// `UNUserNotificationCenter` through the `UserNotificationCentering` seam.
-    /// Shared by the iOS toggle-driven wrappers and the macOS scheduling trigger.
-    let notificationScheduler = NotificationScheduler()
-    #if os(iOS)
-        private(set) var syncService: SkippedReminderSyncService?
     #endif
 
     /// Registers fallback `UserDefaults` values for keys whose offline default is
