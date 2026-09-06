@@ -118,6 +118,13 @@ final class WatchReminderViewModel {
         }
     }
 
+    /// A tap on the reminder card refreshes the list directly (no dialog),
+    /// pruning skip state without un-skipping a still-visible window. Inherits
+    /// `refresh`'s `guard !isRefreshing` re-entrancy absorption — no new state.
+    func cardTapped() async {
+        await refresh(clearSkipped: store.allSkipped)
+    }
+
     func refresh(clearSkipped: Bool) async {
         guard !isRefreshing else { return }
         isRefreshing = true

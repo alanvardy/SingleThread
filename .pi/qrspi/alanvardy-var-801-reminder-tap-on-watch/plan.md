@@ -140,8 +140,8 @@ Fixture notes (verified against the tree):
 
 ### Verification
 #### Automated
-- [ ] `make watch-test` passes — `WatchReminderViewModelTests.cardTappedTriggersRefreshCycle` green, and all existing `SingleThreadWatchTests` suites stay green.
-- [ ] `make watch-build` passes (watch app target compiles with the new method, warnings-as-errors applies only where the file belongs).
+- [x] `make watch-test` passes — `WatchReminderViewModelTests.cardTappedTriggersRefreshCycle` green, and all existing `SingleThreadWatchTests` suites stay green.
+- [x] `make watch-build` passes (watch app target compiles with the new method, warnings-as-errors applies only where the file belongs).
 
 #### Manual
 - [ ] Open the watch app in the simulator: tapping the card still opens the Refresh/Delete dialog (unchanged — Stage 1 is additive); refresh still works behind the dialog.
