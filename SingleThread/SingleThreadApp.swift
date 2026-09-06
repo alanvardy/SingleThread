@@ -1,4 +1,3 @@
-import SingleThreadCore
 import SwiftUI
 #if os(iOS)
     import UIKit
@@ -48,8 +47,10 @@ struct SingleThreadApp: App {
     private var openURL
 
     @State private var viewModel = AppViewModel()
-    @AppStorage("appearanceMode")
-    private var appearanceMode = AppearanceMode.system
+    #if os(macOS)
+        @AppStorage("appearanceMode")
+        private var appearanceMode = AppearanceMode.system
+    #endif
 
     #if os(iOS)
         @UIApplicationDelegateAdaptor(AppDelegate.self)
