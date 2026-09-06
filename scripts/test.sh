@@ -52,6 +52,65 @@ preboot_sim() {
     xcrun simctl bootstatus "$udid" -b
 }
 
+# Bring simulators to a deterministic state before the gate: shutdown all, boot
+# the resolved iPhone and watch, and verify the watch pair. Safe to run because
+# the whole script is already serialized under the lockf test-gate lock.
+prepare_simulators() {
+    echo "==> Preparing simulators…"
+
+    # 1. Shutdown everything for a clean slate.
+    xcrun simctl shutdown all 2>/dev/null || true
+    echo "    All simulators shut down."
+
+    # `shutdown all` killed the pre-booted iOS sim too, so re-boot it to keep
+    # the pre-boot's purpose (first test run doesn't pay a cold boot).
+    if [[ "$SIM" == *",id="* ]]; then
+        preboot_sim "${SIM##*id=}"
+    fi
+
+    # 2. Resolve and pre-boot the watch sim (iOS sim re-booted above).
+    local watch_udid
+    if [[ "$WATCH_TEST_SIM" == *",id="* ]]; then
+        watch_udid="${WATCH_TEST_SIM##*id=}"
+    else
+        local watch_name
+        watch_name="${WATCH_TEST_SIM##*name=}"; watch_name="${watch_name%%,*}"
+        watch_udid="$(resolve_sim_udid "$watch_name")"
+        if [[ -n "$watch_udid" ]]; then
+            WATCH_TEST_SIM="platform=watchOS Simulator,id=$watch_udid"
+        fi
+    fi
+
+    if [[ -n "${watch_udid:-}" ]]; then
+        xcrun simctl boot "$watch_udid" 2>/dev/null || true
+        xcrun simctl bootstatus "$watch_udid" -b
+        echo "    Watch pre-booted: $watch_udid"
+    else
+        echo "    ⚠️  Could not resolve watch UDID — watch tests may fail."
+    fi
+
+    # 3. Assert the watch-phone pair exists for watch UI tests.
+    if [[ -n "${watch_udid:-}" && "$SIM" == *",id="* ]]; then
+        local phone_udid="${SIM##*id=}"
+        if ! xcrun simctl list pairs | grep -q "$watch_udid"; then
+            echo "    Pairing watch ($watch_udid) with phone ($phone_udid)…"
+            if xcrun simctl pair "$watch_udid" "$phone_udid" 2>/dev/null; then
+                echo "    ✓ Watch paired."
+            else
+                echo "    ❌ Failed to pair watch with phone." >&2
+                echo "    Manual pairing needed:" >&2
+                echo "    xcrun simctl pair $watch_udid $phone_udid" >&2
+                # Don't exit — let the gate proceed and fail at the watch UI phase
+                # with a clearer xcodebuild error.
+            fi
+        else
+            echo "    ✓ Watch-phone pair verified."
+        fi
+    fi
+
+    echo "==> Simulators ready."
+}
+
 cd "$(dirname "$0")/.."
 
 # Resolve the destination to a concrete ID once, then pre-boot it for all modes.
@@ -119,6 +178,9 @@ esac
 # only entries older than RUNTIME_AGE_HOURS are removed, and APFS keeps open
 # handles alive anyway, so an in-flight UI test is never disturbed.
 cleanup_xctest_runtimes
+
+# Bring simulators to a deterministic state. Safe under the lockf test-gate lock.
+prepare_simulators
 
 # ── Deployment-target consistency guard ──────────────────────────────────────
 # Enforces the settled floor set for this change (18.7 is NOT a valid watchOS or
