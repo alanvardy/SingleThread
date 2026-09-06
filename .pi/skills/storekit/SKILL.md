@@ -19,3 +19,8 @@ description: Set up and debug StoreKit in SingleThread — the premium product I
   store shows nothing to tap and `SKProductsRequest` returns empty.
 - Debug with `PaymentQueue` / transaction logs; the product id flows from
   `PurchaseSettingsView` through `ReminderStore`/`EntitlementStore`.
+- **Local host reset**: `make reset-storekit` stops `storekitd`, clears the
+  local sandbox transaction store for `app.alanvardy.SingleThread`, and
+  restarts the daemon. Use when `make mac-test` fails with
+  `isEntitled == true` on a development Mac that has completed purchases
+  (see `EntitlementStoreTests.hostStoreKitIsClean` for the canary guard).

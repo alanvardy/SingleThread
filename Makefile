@@ -12,7 +12,7 @@ COVERAGE_UI_RESULT := build/Coverage.UI.xcresult
 COVERAGE_ALL_RESULT := build/Coverage.All.xcresult
 export SIM
 
-.PHONY: build watch-build test ui-test simverify mac-build mac-test mac-run mac-distribute coverage coverage-ui coverage-all check clean lint format periphery watch-ui-test watch-test
+.PHONY: build watch-build test ui-test simverify mac-build mac-test mac-run mac-distribute reset-storekit coverage coverage-ui coverage-all check clean lint format periphery watch-ui-test watch-test
 
 build:
 	xcodebuild -scheme SingleThread -destination '$(SIM)' -configuration Debug -derivedDataPath '$(DERIVED_DATA)' build-for-testing
@@ -33,6 +33,9 @@ mac-run:
 
 mac-distribute:
 	bash scripts/distribute-macos.sh
+
+reset-storekit:
+	bash scripts/reset-storekit.sh
 
 coverage:
 	rm -rf '$(COVERAGE_RESULT)'
