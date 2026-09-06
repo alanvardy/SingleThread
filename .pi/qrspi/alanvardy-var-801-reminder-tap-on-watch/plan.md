@@ -256,10 +256,10 @@ section stays.
 - [x] `make format` applies cleanly (SwiftFormat reorders per `organizeDeclarations`; run it, then commit its result).
 - [x] `make lint` passes — `swiftformat --lint` + `swiftlint lint --strict` both clean (the removed flag/dialog leave no dead identifiers; the retained `@Bindable` avoids the unused-binding warnings-as-errors failure).
 - [x] `make watch-test` passes (Stage 1 test still green).
-- [x] `make watch-ui-test` passes — the 12 remaining `SingleThreadWatchUITestsFlows` tests + `testAccessibilityAudit` + `testLaunch` are green; `testTapRevealsConfirmationDialog` and `testDeleteViaConfirmationDialogRemovesReminder` are gone.
+- [x] `make watch-ui-test` passes — the 13 remaining `SingleThreadWatchUITestsFlows` tests + `testAccessibilityAudit` + `testLaunch` are green; `testTapRevealsConfirmationDialog` and `testDeleteViaConfirmationDialogRemovesReminder` are gone.
 
 #### Manual
-- [ ] `.pi/qrspi/…/structure.md` checkpoint obedience: action-menu delete (`Flows:134-159`), nudge-delete (`Flows:189-222`), empty/all-done refresh (`Flows:255`), a11y audit, and the remaining 12 flow tests all pass (covered by `make watch-ui-test`).
+- [ ] `.pi/qrspi/…/structure.md` checkpoint obedience: action-menu delete (`Flows:134-159`), nudge-delete (`Flows:189-222`), empty/all-done refresh (`Flows:255`), a11y audit, and the remaining 13 flow tests all pass (covered by `make watch-ui-test`).
 - [ ] On the simulator: tapping the reminder card directly triggers the refresh (spinner appears briefly, list re-fetches) — no dialog. Delete is still reachable via the action menu (`--ui-testing-action-menu`) and the 6-skip nudge banner.
 
 ---
@@ -286,5 +286,5 @@ None.
 | After Stage | Command | What must pass |
 |---|---|---|
 | 1 | `make watch-test` | `WatchReminderViewModelTests.cardTappedTriggersRefreshCycle` green; all existing `SingleThreadWatchTests` green |
-| 2 | `make format && make lint && make watch-ui-test && make watch-test` | 12 remaining Flows + a11y audit + launch green; format/lint clean; Stage 1 test green |
+| 2 | `make format && make lint && make watch-ui-test && make watch-test` | 13 remaining Flows + a11y audit + launch green; format/lint clean; Stage 1 test green |
 | 3 | `./scripts/test.sh` | Full CI gate green — all platforms, all suites, no dead code |
