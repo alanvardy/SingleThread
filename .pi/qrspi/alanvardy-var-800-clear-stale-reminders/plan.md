@@ -213,9 +213,9 @@ Remaining cases, each following the same shape:
 ### Verification — Stage 1
 
 #### Automated
-- [ ] `make format` (then `git diff` — confirm no phantom renames of the new test names)
-- [ ] `make lint` (SwiftFormat `--lint` + SwiftLint `--strict`) passes
-- [ ] `xcodebuild -only-testing:SingleThreadTests/StaleReminderRecheckerTests` green (pin the destination: resolve a UDID via `xcrun simctl list devices available` and pass `-destination 'platform=iOS Simulator,id=<udid>'` — a bare `name=iPhone 17` hangs with multiple runtimes)
+- [x] `make format` (then `git diff` — confirm no phantom renames of the new test names)
+- [x] `make lint` (SwiftFormat `--lint` + SwiftLint `--strict`) passes
+- [x] `xcodebuild -only-testing:SingleThreadTests/StaleReminderRecheckerTests` green (pin the destination: resolve a UDID via `xcrun simctl list devices available` and pass `-destination 'platform=iOS Simulator,id=<udid>'` — a bare `name=iPhone 17` hangs with multiple runtimes)
 
 #### Manual
 - [ ] Sanity-read the coalescing branch: a second tick while `reload()` is in flight sets `reloadPending` and produces exactly one trailing reload, no more.
