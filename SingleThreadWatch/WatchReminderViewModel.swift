@@ -49,7 +49,8 @@ final class WatchReminderViewModel {
     var isRefreshing = false
 
     /// Identifier of the reminder that just crossed the 6-skip threshold. Drives
-    /// the in-card nudge banner; cleared on delete/dismiss/refresh.
+    /// the in-card nudge banner; on watch it disappears when the reminder leaves
+    /// the visible list, while iOS clears it explicitly on delete/dismiss/refresh.
     var nudgeIdentifier: String?
 
     /// Drives the Delete confirmation dialog presented when the nudge banner is
@@ -82,16 +83,16 @@ final class WatchReminderViewModel {
         await store.start()
     }
 
-    /// Completes the visible reminder, captures a snapshot for the ghost card,
-    /// and triggers the glow. Holds the card visible for the full glow + buffer,
-    /// then relinquishes to the normal state branches — the next reminder (if
-    /// any) or the empty/done state.
     /// True when `identifier` is the reminder that just crossed the 6-skip
     /// threshold, so the view renders the nudge banner on its card.
     func isNudged(_ identifier: String) -> Bool {
         nudgeIdentifier == identifier
     }
 
+    /// Completes the visible reminder, captures a snapshot for the ghost card,
+    /// and triggers the glow. Holds the card visible for the full glow + buffer,
+    /// then relinquishes to the normal state branches — the next reminder (if
+    /// any) or the empty/done state.
     func completeCurrentReminder() async {
         guard !isShowingCompletionTransition else { return }
         transitionReminder = store.visibleReminders.first
@@ -118,15 +119,21 @@ final class WatchReminderViewModel {
     }
 
     /// A tap on the reminder card refreshes the list directly (no dialog),
-    /// pruning skip state without un-skipping a still-visible window. Inherits
-    /// `refresh`'s `guard !isRefreshing` re-entrancy absorption — no new state.
-    func cardTapped() async {
+    /// pruning skip state without un-skipping a still-visible window. When every
+    /// loaded reminder is skipped (`store.allSkipped`), the skip set is fully
+    /// cleared so a tap can exit the all-done state. Inherits `refresh`'s
+    /// `guard !isRefreshing` re-entrancy absorption — no new state.
+    func refreshFromCardTap() async {
+        // The ghost card stays tappable during the completion transition; a
+        // refresh then could hit the "All Done" clear path and un-skip everything.
+        guard !isShowingCompletionTransition else { return }
         await refresh(clearSkipped: store.allSkipped)
     }
 
     func refresh(clearSkipped: Bool) async {
         guard !isRefreshing else { return }
         isRefreshing = true
+        defer { isRefreshing = false }
         let startedAt = Date()
         await store.reload(clearSkipped: clearSkipped)
         let remaining = MinimumDisplayDuration.remainingSleep(
@@ -135,7 +142,6 @@ final class WatchReminderViewModel {
         if remaining > 0 {
             try? await Task.sleep(nanoseconds: UInt64(remaining * 1_000_000_000))
         }
-        isRefreshing = false
     }
 
     // MARK: Private
