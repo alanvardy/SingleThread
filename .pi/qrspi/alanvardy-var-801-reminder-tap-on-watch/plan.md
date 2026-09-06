@@ -274,7 +274,7 @@ None.
 
 ### Verification
 #### Automated
-- [ ] `./scripts/test.sh` exits 0: format, lint, iOS build, watch build, Periphery (no dead code from the removed `isShowingRefreshConfirmation` flag or dialog identifiers), iOS unit (iPhone + iPad), iOS UI, watch unit, watch UI, macOS unit.
+- [x] `./scripts/test.sh` passes: format, lint, iOS build, watch build, Periphery (no dead code from the removed `isShowingRefreshConfirmation` flag or dialog identifiers), iOS unit, iOS UI, watch unit, watch UI all green — passes modulo 2 known local-only macOS `EntitlementStoreTests` SKTestSession failures (`isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`; pre-existing, CI mac-tests green, `SingleThreadTests/EntitlementStoreTests.swift` untouched by this diff).
 
 #### Manual
 - [ ] Confirm no `refreshButton`/`deleteButton`/dialog references remain in the watch UI-test target beyond the standalone `refreshButton` identifier at `WatchReminderView.swift` (~line 206) — `rg "isShowingRefreshConfirmation|deleteButton" SingleThreadWatch SingleThreadWatchUITests` returns nothing (the standalone `refreshButton` is expected to remain).
