@@ -12,15 +12,23 @@ struct SwipePromptTests {
         let description = String(describing: makeCard(showSwipePrompt: true).body)
         #expect(description.contains("Swipe left to skip"))
         #expect(description.contains("Swipe right to complete"))
+        // The two hints stack, complete above skip, so the caption no longer
+        // truncates on narrow phones. Skim the source order: the reflected body
+        // preserves document order, so the "complete" label must precede the
+        // "skip" label.
+        if let complete = description.range(of: "Swipe right to complete"),
+           let skip = description.range(of: "Swipe left to skip") {
+            #expect(complete.lowerBound < skip.lowerBound)
+        } else {
+            Issue.record("Expected both swipe hint labels in the prompt body")
+        }
         // The hints sit on an adaptive plate (mid-light grey in light mode,
-        // dark grey in dark mode) with the skip hint orange and the complete
-        // hint green (the swipe actions' own tint colors). The
+        // dark grey in dark mode) with adaptive hint colours (darkened
+        // orange/green in light mode, semantic orange/green in dark mode). The
         // filled shape is drawn by `CardPlateModifier` — SwiftUI does not inline
         // a ViewModifier's body into the host view's static type, so the presence
         // of the modifier in the reflected chain pins the plate composition.
         #expect(description.contains("CardPlateModifier"))
-        #expect(description.contains("style: orange"))
-        #expect(description.contains("style: green"))
         #expect(description.contains("Dismiss"))
     }
 

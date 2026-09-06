@@ -167,25 +167,25 @@ struct ReminderCardView: View {
     }
 
     /// Instructs the user that swiping left skips and swiping right completes.
-    /// Visual-only: the text is hidden from accessibility (VoiceOver users know
-    /// the swipe-gesture vocabulary), but the Dismiss button stays reachable.
+    /// The two hints stack on their own lines — "Swipe right to complete"
+    /// above "Swipe left to skip" — so the caption text no longer truncates
+    /// on narrow phones. Visual-only: the text is hidden from accessibility
+    /// (VoiceOver users know the swipe-gesture vocabulary), but the Dismiss
+    /// button stays reachable.
     private var prompt: some View {
         VStack(spacing: 10) {
-            HStack(spacing: 8) {
-                HStack(spacing: 4) {
-                    Image(systemName: "arrow.left")
-                    Text("Swipe left to skip")
-                }
-                .foregroundStyle(.orange)
-
-                Text("|")
-                    .foregroundStyle(colorScheme == .dark ? Color.white.opacity(0.5) : Color.black.opacity(0.5))
-
+            VStack(spacing: 4) {
                 HStack(spacing: 4) {
                     Text("Swipe right to complete")
                     Image(systemName: "arrow.right")
                 }
-                .foregroundStyle(.green)
+                .foregroundStyle(CardPlate.completeHintColor(for: colorScheme))
+
+                HStack(spacing: 4) {
+                    Image(systemName: "arrow.left")
+                    Text("Swipe left to skip")
+                }
+                .foregroundStyle(CardPlate.skipHintColor(for: colorScheme))
             }
             .font(.caption)
             .accessibilityHidden(true)
