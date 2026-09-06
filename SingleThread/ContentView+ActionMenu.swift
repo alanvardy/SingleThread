@@ -93,22 +93,23 @@ extension ContentView {
                 hasVisibleReminder: viewModel.store.visibleReminders.first != nil)
         }
 
-        private var macCompleteButton: some View {
+        var macCompleteButton: some View {
             Button {
                 Task { await viewModel.completeCurrentReminder() }
             } label: {
                 Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
                     .labelStyle(.iconOnly)
                     .font(.title)
+                    .controlPlate()
             }
-            .tint(.green)
+            .singleThreadButton()
             .keyboardShortcut("c", modifiers: [])
             .accessibilityLabel(SharedStrings.completeReminderAccessibility)
             .accessibilityIdentifier("completeButton")
             .accessibilityAddTraits(.isButton)
         }
 
-        private var macActionMenu: some View {
+        var macActionMenu: some View {
             Menu {
                 Button(SharedStrings.skipAction) {
                     viewModel.skipCurrentReminder()
@@ -124,38 +125,41 @@ extension ContentView {
                 Label(SharedStrings.skipAction, systemImage: "circle.slash")
                     .labelStyle(.iconOnly)
                     .font(.title)
+                    .controlPlate()
             }
-            .tint(.orange)
+            .menuStyle(.borderlessButton)
             .keyboardShortcut("s", modifiers: [])
             .accessibilityLabel(SharedStrings.skipReminderAccessibility)
             .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
         }
 
-        private var macSkipButton: some View {
+        var macSkipButton: some View {
             Button {
                 viewModel.skipCurrentReminder()
             } label: {
                 Label(SharedStrings.skipAction, systemImage: "circle.slash")
                     .labelStyle(.iconOnly)
                     .font(.title)
+                    .controlPlate()
             }
-            .tint(.orange)
+            .singleThreadButton()
             .keyboardShortcut("s", modifiers: [])
             .accessibilityLabel(SharedStrings.skipReminderAccessibility)
             .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
         }
 
-        private var macDeleteButton: some View {
+        var macDeleteButton: some View {
             Button {
                 Task { await viewModel.deleteCurrentReminder() }
             } label: {
                 Label(SharedStrings.deleteAction, systemImage: "trash")
                     .labelStyle(.iconOnly)
                     .font(.title)
+                    .controlPlate()
             }
-            .tint(.red)
+            .singleThreadButton()
             .accessibilityLabel(SharedStrings.deleteReminderAccessibility)
             .accessibilityIdentifier("deleteButton")
             .accessibilityAddTraits(.isButton)
