@@ -1,3 +1,4 @@
+import SingleThreadCore
 import SwiftUI
 #if os(iOS)
     import UIKit
@@ -8,12 +9,6 @@ import SwiftUI
 
 @main
 struct SingleThreadApp: App {
-    // MARK: Lifecycle
-
-    init() {
-        viewModel = AppViewModel()
-    }
-
     // MARK: Internal
 
     var body: some Scene {
@@ -21,13 +16,30 @@ struct SingleThreadApp: App {
             ContentView(
                 viewModel: viewModel.makeContentViewModel(openURLAction: openURL),
                 appViewModel: viewModel)
+            #if os(macOS)
+                .sheet(isPresented: $showAbout) {
+                    NavigationStack { AboutView() }
+                }
+            #endif
         }
+        #if os(macOS)
+        .commands {
+            appCommands(
+                store: viewModel.store,
+                appearanceMode: $appearanceMode,
+                showAbout: $showAbout)
+        }
+        #endif
     }
 
     // MARK: Private
 
     @Environment(\.openURL)
     private var openURL
+
+    @State private var viewModel = AppViewModel()
+    @AppStorage("appearanceMode")
+    private var appearanceMode = AppearanceMode.system
 
     #if os(iOS)
         @UIApplicationDelegateAdaptor(AppDelegate.self)
@@ -36,7 +48,6 @@ struct SingleThreadApp: App {
     #if os(macOS)
         @NSApplicationDelegateAdaptor(MacAppDelegate.self)
         private var macAppDelegate
+        @State private var showAbout = false
     #endif
-
-    private let viewModel: AppViewModel
 }

@@ -623,9 +623,9 @@ Notes:
 ### Verification
 
 #### Automated
-- [ ] `make mac-build` passes
-- [ ] `make mac-test` passes (regression: `AppearanceModeTests` `#if os(macOS)` branches unchanged)
-- [ ] `make format` then `make lint` pass (new file)
+- [x] `make mac-build` passes
+- [x] `make mac-test` passes (regression: `AppearanceModeTests` `#if os(macOS)` branches unchanged)
+- [x] `make format` then `make lint` pass (new file)
 
 #### Manual
 - [ ] `make mac-run` — Application menu has "About SingleThread" (opens the About sheet) and "Quit SingleThread" (exits); the Reminder menu's Complete/Skip mutate the current reminder; the Appearance Picker switches System/Light/Dark and the change applies immediately.
