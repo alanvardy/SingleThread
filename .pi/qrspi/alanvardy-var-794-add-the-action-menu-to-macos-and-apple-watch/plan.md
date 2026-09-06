@@ -281,7 +281,7 @@ Append after the Stage 2 tests inside `SettingsViewTests`:
 ### Verification
 
 #### Automated
-- [ ] `SIM=platform=macOS make mac-test` passes — existing + new toggle-row tests
+- [x] `SIM=platform=macOS make mac-test` passes — existing + new toggle-row tests
 
 #### Manual
 - [ ] macOS app: gear icon → Interface section → "Show action buttons" toggle is visible
