@@ -243,9 +243,13 @@ struct WatchReminderView: View {
                 reminderDetails(display)
             }
             .onTapGesture {
-                Task { await viewModel.cardTapped() }
+                Task { await viewModel.refreshFromCardTap() }
             }
             .accessibilityAddTraits(.isButton)
+            .accessibilityAction {
+                Task { await viewModel.refreshFromCardTap() }
+            }
+            .accessibilityIdentifier("reminderCard")
 
             if viewModel.isNudged(reminder.calendarItemIdentifier) {
                 Button {
