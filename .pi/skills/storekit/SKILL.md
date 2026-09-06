@@ -28,3 +28,14 @@ description: Set up and debug StoreKit in SingleThread — the premium product I
   command in its failure message. The macOS unit stage is unsigned
   (`CODE_SIGNING_ALLOWED=NO`), so it reads this real host store — not any
   `SKTestSession` store.
+- **var-793 limitation (verified 2026-09-06)**: clearing these files is
+  *necessary but not sufficient* — `make mac-test` re-seeds the store from
+  account-scoped sandbox state during the run itself, so `isEntitled`
+  (`isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`) and
+  `hostStoreKitIsClean` still fail on a dirty host even after
+  `make reset-storekit` (also after SIGKILL of all storekit daemons and wiping
+  `group.com.apple.appstoreagent` too). This is diagnosed, not silently green.
+  The remaining avenue to a locally green suite is Xcode → Debug → StoreKit →
+  Manage Transactions… while the development app runs (no CLI equivalent
+  exists). Do not chase further file-level resets for this; the entitlement is
+  account/daemon-scoped and re-created on first read in the run.

@@ -113,4 +113,13 @@ else
 fi
 
 echo ""
-echo "==> Done. Run 'make mac-test' to verify -- hostStoreKitIsClean should now pass."
+echo "==> Done. Run 'make mac-test' to verify."
+echo ""
+echo "    NOTE (var-793): clearing these files is necessary but not always"
+echo "    sufficient. The test run itself re-seeds the store from account-"
+echo "    scoped sandbox state, so a dirty host may STILL fail the two"
+echo "    real-StoreKit tests (isEntitledSurvivesStoreRecreation,"
+echo "    initialRefreshSettlesResolvedFlag) plus hostStoreKitIsClean. That"
+echo "    is expected and diagnosed by the canary. The remaining avenue is"
+echo "    Xcode -> Debug -> StoreKit -> Manage Transactions... while the"
+echo "    development app is running (no command-line equivalent exists)."
