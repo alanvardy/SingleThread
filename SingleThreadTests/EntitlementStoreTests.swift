@@ -54,7 +54,7 @@ struct EntitlementStoreTests {
         let second = EntitlementStore()
         // The init task performs an initial entitlement refresh, but needs a
         // beat to deliver.
-        _ = await wait(for: second.hasResolvedEntitlement)
+        #expect(try await wait(for: second.hasResolvedEntitlement))
         #expect(!second.isEntitled)
     }
 
@@ -78,7 +78,7 @@ struct EntitlementStoreTests {
         session.disableDialogs = true
 
         let store = EntitlementStore()
-        _ = await wait(for: store.hasResolvedEntitlement)
+        _ = try await wait(for: store.hasResolvedEntitlement)
         #expect(store.hasResolvedEntitlement)
         #expect(!store.isEntitled)
     }
@@ -98,22 +98,22 @@ struct EntitlementStoreTests {
         #expect(
             ids.isEmpty,
             Comment(rawValue: "Host StoreKit store has entitled transactions: \(ids.sorted()). "
-                + "Reset with `make reset-storekit`, or Xcode → Debug → StoreKit → Manage Transactions…"))
+                + "Clear via Xcode → Debug → StoreKit → Manage Transactions… (the only path that "
+                + "clears account-scoped state); `make reset-storekit` clears store files but is not "
+                + "sufficient on a purchased account."))
     }
 
     // MARK: Private
-
-    // SKTestSession for driving StoreKit in test.
 
     /// Polls `condition` every 50 ms until it returns `true` or `timeout`
     /// nanoseconds elapse. Returns `true` if the condition was met, `false` on
     /// timeout.
     private func wait(
         for condition: @autoclosure @escaping () -> Bool,
-        timeout nanoseconds: UInt64 = 2_000_000_000) async -> Bool {
+        timeout nanoseconds: UInt64 = 2_000_000_000) async throws -> Bool {
         var waited: UInt64 = 0
         while !condition(), waited < nanoseconds {
-            try? await Task.sleep(nanoseconds: 50_000_000)
+            try await Task.sleep(nanoseconds: 50_000_000)
             waited += 50_000_000
         }
         return condition()

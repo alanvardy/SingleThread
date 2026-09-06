@@ -29,7 +29,7 @@ host the two real-StoreKit tests + the canary are **expected to fail** with
 - [x] `make mac-test` — 5 non-StoreKit `EntitlementStoreTests` pass; the 2 StoreKit tests fail identically to pre-stage (no regression, Phase 1 gate)
 - [x] `make mac-test` — canary fires with `["app.alanvardy.SingleThread.unlimited"]` + the reset instruction (Phase 3)
 - [x] `bash -n scripts/reset-storekit.sh` — syntax clean; script validated end-to-end (stops agent, backs up + clears `storeUser.db`, restarts agent)
-- [x] `./scripts/test.sh` (full gate attempt): Formatting, SwiftFormat, SwiftLint, Build, Watch build, Periphery — **all passed**; iOS simulator unit tests — **575 passed, 0 failed**, including **all 7 `EntitlementStoreTests`** (canary + both StoreKit tests pass on the sim's clean store). The run was externally SIGKILL'd before the UI/watch stages by simulator contention with another session's run on the same iPhone 17 sim (RequestDenied loop observed) — no test failure.
+- [x] `./scripts/test.sh` (full gate attempt): Formatting, SwiftFormat, SwiftLint, Build, Watch build, Periphery — **all passed**; iOS simulator unit tests — **575 passed, 0 failed**, including **all 8 `EntitlementStoreTests`** (canary + both StoreKit tests pass on the sim's clean store). The run was externally SIGKILL'd before the UI/watch stages by simulator contention with another session's run on the same iPhone 17 sim (RequestDenied loop observed) — no test failure.
 - [ ] `./scripts/test.sh` macOS stage — **expected fail on this host**: `isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`, `hostStoreKitIsClean` (see Findings). CI (fresh runner, no account dirt) is unaffected.
 
 ## Findings (var-793 — established with evidence)
@@ -49,7 +49,7 @@ host the two real-StoreKit tests + the canary are **expected to fail** with
    (`group.com.apple.storekit` and `group.com.apple.appstoreagent`), and
    SIGKILL of every `storekitd`/`storekitagent`/`appstoreagent`. The run
    re-seeds it on first read.
-4. **The only local, green signal is the iOS simulator**: there all 7 tests
+4. **The only local, green signal is the iOS simulator**: there all 8 tests
    pass (575/575 in the full gate's unit stage), confirming the code changes
    are sound and the failures are purely host-account-specific.
 5. `-only-testing:<bundle>/<suite>/<method>` sub-suite filters execute zero

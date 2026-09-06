@@ -1,23 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Clears the local host StoreKit transaction store so macOS unit tests run
-# against a clean sandbox. The store is the per-user encrypted SQLCipher DB
-# held by the `storekitagent` LaunchAgent
+# This script targets the real per-user store under $HOME; running as root
+# (sudo) would point $HOME at /var/root and silently no-op, so refuse that.
+if [ "$(id -u)" -eq 0 ]; then
+    echo "ERROR: run this as the GUI user, not root (sudo changes \$HOME to /var/root)." >&2
+    exit 1
+fi
+
+# Clears the local per-user StoreKit transaction store. The store is the
+# encrypted SQLCipher DB held by the `storekitagent` LaunchAgent
 # (`~/Library/Group Containers/group.com.apple.storekit/Library/Caches/storeUser.db`),
 # not the plain-SQLite Octane paths that older scripts guessed at.
+# NOTE: clearing these files is necessary but NOT sufficient to clear
+# account-scoped entitlement state, which the next StoreKit read re-seeds
+# (see the var-793 note at the end of this script).
 
 STORE_DIR="$HOME/Library/Group Containers/group.com.apple.storekit/Library/Caches"
 STORE_FILES=(storeUser.db storeUser.db-wal storeUser.db-shm)
 AGENT="gui/$(id -u)/com.apple.storekitagent"
 
-echo "==> Locating the host StoreKit store..."
-if [ ! -d "$STORE_DIR" ]; then
-    echo "    No StoreKit store at $STORE_DIR -- nothing to clear."
+print_legacy_hint() {
     echo "    (legacy fallbacks checked historically:"
     echo "      ~/Library/Application Support/App Store/StoreKit.db"
     echo "      ~/Library/Caches/com.apple.storekitagent/Octane/"
     echo "      ~/Library/Caches/com.apple.appstoreagent/Octane/)"
+}
+
+echo "==> Locating the host StoreKit store..."
+if [ ! -d "$STORE_DIR" ]; then
+    echo "    No StoreKit store at $STORE_DIR -- nothing to clear."
+    print_legacy_hint
     echo "    The host store may already be clean."
     exit 0
 fi
@@ -38,10 +51,7 @@ if [ "${#present[@]}" -eq 0 ]; then
 fi
 
 echo "    Found: ${present[*]} in $STORE_DIR"
-echo "    (legacy fallbacks checked historically:"
-echo "      ~/Library/Application Support/App Store/StoreKit.db"
-echo "      ~/Library/Caches/com.apple.storekitagent/Octane/"
-echo "      ~/Library/Caches/com.apple.appstoreagent/Octane/)"
+print_legacy_hint
 
 # ---------------------------------------------------------------------------
 # Stop the daemon that holds the store. `launchctl kill`/`stop` are refused
@@ -65,7 +75,11 @@ release_lock() {
     done
 
     sleep 3
-    for pid in $pids; do
+    # Re-derive holders after the grace period: the pre-SIGTERM $pids snapshot
+    # is stale by now and a blind SIGKILL could hit a reused PID.
+    local live_pids=""
+    live_pids=$(lsof "$STORE_DIR/storeUser.db" 2>/dev/null | awk 'NR > 1 {print $2}' | sort -u || true)
+    for pid in $live_pids; do
         if kill -0 "$pid" 2>/dev/null; then
             echo "    PID $pid still alive after SIGTERM -- sending SIGKILL."
             kill -KILL "$pid" 2>/dev/null || true
@@ -75,7 +89,7 @@ release_lock() {
     local waited=0
     while [ "$waited" -lt 20 ]; do
         if ! lsof "$STORE_DIR/storeUser.db" >/dev/null 2>&1; then
-            echo "    Store released (bounded wait ~$((waited * 5))s)."
+            echo "    Store released (bounded wait ~$((waited / 2))s)."
             return 0
         fi
         sleep 0.5
@@ -88,6 +102,14 @@ release_lock() {
 }
 
 release_lock
+
+# Re-check the lock is still released immediately before renaming: the agent
+# can respawn on-demand between the bounded wait above and the backup below.
+if lsof "$STORE_DIR/storeUser.db" >/dev/null 2>&1; then
+    echo "    ERROR: store re-acquired between release and backup; aborting."
+    lsof "$STORE_DIR/storeUser.db" || true
+    exit 1
+fi
 
 # ---------------------------------------------------------------------------
 # Back up the store (the repo's .bak-<epoch> convention) then remove it so

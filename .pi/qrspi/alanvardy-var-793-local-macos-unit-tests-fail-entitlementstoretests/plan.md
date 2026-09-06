@@ -284,6 +284,13 @@ Insert after the static properties and before `isEntitledIsFalseByDefault`:
 **File**: `scripts/reset-storekit.sh` (new)
 **Action**: create
 
+> **Superseded (var-793 final)**: the draft below was replaced during
+> implementation. The shipped `scripts/reset-storekit.sh` targets the real
+> per-user store (`~/Library/Group Containers/group.com.apple.storekit/Library/Caches/storeUser.db`)
+> and kills the `storekitagent` lock-holder by PID via `lsof`, backing up by
+> rename — not `storekitd`/Octane/`sqlite3` as drafted here. The paths below
+> are the "legacy fallbacks" the shipped script references.
+
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
@@ -347,7 +354,7 @@ echo "==> Done. Run 'make mac-test' to verify."
 **File**: `Makefile`
 **Action**: modify — add `reset-storekit` to `.PHONY` and add target
 
-In the `.PHONY` line (currently `~:13`), append `reset-storekit`:
+In the `.PHONY` line (currently line 15), append `reset-storekit`:
 ```
 .PHONY: build watch-build test ui-test simverify mac-build mac-test mac-run mac-distribute coverage coverage-ui coverage-all check clean lint format periphery watch-ui-test watch-test reset-storekit
 ```
