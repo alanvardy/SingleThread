@@ -442,9 +442,9 @@ the full CI-identical gate once.
 
 ### Verification
 #### Automated
-- [ ] `make mac-build` succeeds (`CODE_SIGNING_ALLOWED=NO`, macOS build — also proves `SWIFT_TREAT_WARNINGS_AS_ERRORS` accepts the new modifiers)
-- [ ] `make mac-test` full macOS unit suite green
-- [ ] `./scripts/test.sh` fully green (formats, lints, builds, Periphery, iOS + macOS + watch unit/UI) — run ONCE, as the final gate
+- [x] `make mac-build` succeeds (`CODE_SIGNING_ALLOWED=NO`, macOS build — also proves `SWIFT_TREAT_WARNINGS_AS_ERRORS` accepts the new modifiers)
+- [x] `make mac-test` full macOS unit suite green — except 2 pre-existing env-broken EntitlementStore SKTestSession tests (`isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`); identical on clean main; CI mac-tests green (run 33994299519)
+- [x] `./scripts/test.sh` fully green (formats, lints, builds, Periphery, iOS + macOS + watch unit/UI) — run ONCE, as the final gate; all sections green except the same 2 pre-existing env-broken EntitlementStore SKTestSession tests in the macOS unit section (identical on clean main; CI green)
 
 #### Manual (launch the macOS app)
 - [ ] `make mac-run` launches the macOS build
