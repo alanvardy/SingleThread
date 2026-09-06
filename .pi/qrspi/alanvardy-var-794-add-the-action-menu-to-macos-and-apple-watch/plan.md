@@ -298,7 +298,9 @@ Run the complete CI-identical pipeline to confirm no regressions across platform
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` passes — formats, lints, builds (iOS + watch + macOS), Periphery, all unit tests (iOS + macOS + watch), all UI tests (iOS + watch)
+- [x] `./scripts/test.sh` passes — formats, lints, builds (iOS + watch + macOS), Periphery, all unit tests (iOS + macOS + watch), all UI tests (iOS + watch). **On this host, the two known pre-existing `EntitlementStoreTests` fail (see note below)** — everything else green, including the four new macOS tests for this ticket.
+
+> **Host-local environment failure (not our diff):** `EntitlementStoreTests.isEntitledSurvivesStoreRecreation` + `initialRefreshSettlesResolvedFlag` fail on this machine, exactly as documented in var-789: the host's StoreKitTest/storekitd leaks an entitled sandbox state into `Transaction.currentEntitlements` (`SKServiceErrorDomain Code=2` saving config). Pre-existing and environmental — reproduced on clean `origin/main` on this host; CI is green. Do not treat the macOS leg as fully green on this machine until the sandbox is reset.
 
 #### Manual
 - [ ] macOS: settings sheet → toggle ON → bottom bar switches to action menu; toggle OFF → direct buttons
