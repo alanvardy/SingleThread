@@ -2,7 +2,7 @@ import SingleThreadCore // periphery:ignore
 import SwiftUI
 
 /// Interface preferences: appearance, text size, and platform-gated
-/// orientation + action button toggles. Takes only the bindings it needs
+/// orientation, swipe-prompt, and undo toggles. Takes only the bindings it needs
 /// rather than the full bag so it cannot accidentally mutate unrelated
 /// preferences.
 struct InterfaceSettingsView: View {
@@ -81,18 +81,18 @@ struct InterfaceSettingsView: View {
                 }
             }
             .accessibilityIdentifier("showMicrophoneToggle")
-            #if os(iOS)
-                Toggle(isOn: $enableActionButtons) {
-                    Label {
-                        VStack(alignment: .leading) {
-                            Text("Show action buttons")
-                            SettingsCaption(text: "Show complete, skip, and delete buttons.")
-                        }
-                    } icon: {
-                        Image(systemName: "hand.tap")
+            Toggle(isOn: $enableActionButtons) {
+                Label {
+                    VStack(alignment: .leading) {
+                        Text("Show action buttons")
+                        SettingsCaption(text: "Show complete, skip, and delete buttons.")
                     }
+                } icon: {
+                    Image(systemName: "hand.tap")
                 }
-                .accessibilityIdentifier("showActionButtonsToggle")
+            }
+            .accessibilityIdentifier("showActionButtonsToggle")
+            #if os(iOS)
                 Toggle(isOn: $showSwipePrompt) {
                     Label {
                         VStack(alignment: .leading) {
