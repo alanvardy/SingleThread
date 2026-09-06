@@ -33,9 +33,9 @@ final class AppViewModel {
             store.onRemindersChanged = { [weak self] in
                 WidgetCenter.shared.reloadAllTimelines()
                 #if os(macOS)
-                Task { @MainActor in
-                    await self?.scheduleNotificationsForMacOS()
-                }
+                    Task { @MainActor in
+                        await self?.scheduleNotificationsForMacOS()
+                    }
                 #endif
             }
         #endif
@@ -93,24 +93,6 @@ final class AppViewModel {
         /// reflects reality — notifications can never fire under `.denied`.
         func requestNotificationPermissionIfNeeded() async {
             await notificationScheduler.requestPermissionIfNeeded()
-        }
-    #endif
-
-    #if os(macOS)
-        /// Schedules (or cancels) the macOS idle-reminder notification on every
-        /// reminders change — which also fires at launch, since `start()` →
-        /// `reload()` ends with `onRemindersChanged`. macOS has no in-app
-        /// notifications toggle, so the enabled key defaults to on (registered
-        /// in `registerDefaults`); permission is requested lazily, at most once
-        /// (self-guards on `.notDetermined`), and only when something is due.
-        /// Cancellation when nothing is due lives in `NotificationScheduler`.
-        private func scheduleNotificationsForMacOS() async {
-            if store.visibleReminders.count > 0 || store.hasHidden {
-                await notificationScheduler.requestPermissionIfNeeded()
-            }
-            await notificationScheduler.scheduleIfNeeded(
-                reminderCount: store.visibleReminders.count,
-                hasHidden: store.hasHidden)
         }
     #endif
 
@@ -357,6 +339,24 @@ final class AppViewModel {
         }
         return store
     }
+
+    #if os(macOS)
+        /// Schedules (or cancels) the macOS idle-reminder notification on every
+        /// reminders change — which also fires at launch, since `start()` →
+        /// `reload()` ends with `onRemindersChanged`. macOS has no in-app
+        /// notifications toggle, so the enabled key defaults to on (registered
+        /// in `registerDefaults`); permission is requested lazily, at most once
+        /// (self-guards on `.notDetermined`), and only when something is due.
+        /// Cancellation when nothing is due lives in `NotificationScheduler`.
+        private func scheduleNotificationsForMacOS() async {
+            if !store.visibleReminders.isEmpty || store.hasHidden {
+                await notificationScheduler.requestPermissionIfNeeded()
+            }
+            await notificationScheduler.scheduleIfNeeded(
+                reminderCount: store.visibleReminders.count,
+                hasHidden: store.hasHidden)
+        }
+    #endif
 
     #if os(iOS)
         /// Wires the WatchConnectivity sync service onto the store: creates the
