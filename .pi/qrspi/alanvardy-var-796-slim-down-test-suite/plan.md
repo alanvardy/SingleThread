@@ -604,15 +604,15 @@ Audit each of the duplicative UI tests against its unit coverage. Cut the ones w
 
 These are fully replaced by `NotificationSchedulerTests` (Layer 2). Delete all four test methods. Keep the file (it may be empty — that's fine with Xcode's auto-discovery; the empty class won't run tests).
 
-- [ ] `testSchedulingOnBakground`
-- [ ] `testCancelOnForeground`
-- [ ] `testNoScheduleWhenDisabled`
-- [ ] `testNoScheduleWhenNoReminders`
+- [x] `testSchedulingOnBakground`
+- [x] `testCancelOnForeground`
+- [x] `testNoScheduleWhenDisabled`
+- [x] `testNoScheduleWhenNoReminders`
 
 #### `SingleThreadUITests/NotificationsUITests.swift` — cut 1, keep 1
 
-- [ ] CUT `testFullNotificationFlow` — scheduling + interval picker round-trip covered by `NotificationSchedulerTests` + `NotificationsSettingsUITests`
-- [ ] KEEP `testAccessibilityAudit` — integration-only (a11y audit of notifications settings)
+- [x] CUT `testFullNotificationFlow` — scheduling + interval picker round-trip covered by `NotificationSchedulerTests` + `NotificationsSettingsUITests`
+- [x] KEEP `testAccessibilityAudit` — integration-only (a11y audit of notifications settings)
 
 #### `SingleThreadUITests/SingleThreadUITestsFlows.swift` — cut 17, keep 12
 
@@ -631,41 +631,41 @@ These are fully replaced by `NotificationSchedulerTests` (Layer 2). Delete all f
 - `testBackgroundRefreshButtonExists` — layout integration
 
 **CUT (17 — behavior dupliated at unit layer):**
-- [ ] `testSkipAdvancesToNextReminder` — skip, ReminderStoreTests/ReminderSkipTests
-- [ ] `testPriorityMarkerRendersForMidRangeValue` — priority marker, ReminderSkipTests
-- [ ] `testSkipAllShowsAllDoneState` — skip-to-empty, ReminderStoreTests
-- [ ] `testCompleteViaswipeRemovesReminder` — complete, ReminderStoreTests/ReminderStoreGateTests
-- [ ] `testDeleteViaContextMenuRemovesReminder` — delete, EventKitStoringTests/ReminderStoreGateTests
-- [ ] `testViewInRemindersOpensURL` — deep link, ReminderDeepLinkTests/ContentViewModelTests
-- [ ] `testSettingsOpensAndShowsControls` — settings navigation, SettingsViewTests/SettingsViewModelTests
-- [ ] `testCompletionGlowDoesNotApearWhenDisabled` — glow toggle, CompletionGlowTests
-- [ ] `testCompletionGlowFlashesWhenEnabled` — glow active, CompletionGlowTests
-- [ ] `testSwipePromptToggleRoundTripsViaSettings` — swipe prompt toggle, SwipePromptTests
-- [ ] `testUndoButtonApearsAfterCompleteAndUndoRemovesReminder` — undo, UndoStoreTests/ReminderStoreTests
-- [ ] `testUndoButtonHiddenWhenToggleOff` — undo toggle, UndoStoreTests
-- [ ] `testUndoButtonDoesNotApearWithoutComletion` — undo state, UndoStoreTests
-- [ ] `testUprgadePromptApearsWhenGated` — freemium gate, ReminderStoreGateTests (except restore button)
-- [ ] `testActionClusterApearsWhenEntitledAtCap` — freemium gate entitled, EntitlementStoreTests
-- [ ] `testUnresolvedEntitlementRendersNoUprgadeButton` — freemium gate unresolved, EntitlementStoreTests
-- [ ] `testSettingsHasPurchseRow` — purchase row exists, EntitlementStoreTests
+- [x] `testSkipAdvancesToNextReminder` — skip, ReminderStoreTests/ReminderSkipTests
+- [x] `testPriorityMarkerRendersForMidRangeValue` — priority marker, ReminderSkipTests
+- [x] `testSkipAllShowsAllDoneState` — skip-to-empty, ReminderStoreTests
+- [x] `testCompleteViaswipeRemovesReminder` — complete, ReminderStoreTests/ReminderStoreGateTests
+- [x] `testDeleteViaContextMenuRemovesReminder` — delete, EventKitStoringTests/ReminderStoreGateTests
+- [x] `testViewInRemindersOpensURL` — deep link, ReminderDeepLinkTests/ContentViewModelTests
+- [x] `testSettingsOpensAndShowsControls` — settings navigation, SettingsViewTests/SettingsViewModelTests
+- [x] `testCompletionGlowDoesNotApearWhenDisabled` — glow toggle, CompletionGlowTests
+- [x] `testCompletionGlowFlashesWhenEnabled` — glow active, CompletionGlowTests
+- [x] `testSwipePromptToggleRoundTripsViaSettings` — swipe prompt toggle, SwipePromptTests
+- [x] `testUndoButtonApearsAfterCompleteAndUndoRemovesReminder` — undo, UndoStoreTests/ReminderStoreTests
+- [x] `testUndoButtonHiddenWhenToggleOff` — undo toggle, UndoStoreTests
+- [x] `testUndoButtonDoesNotApearWithoutComletion` — undo state, UndoStoreTests
+- [x] `testUprgadePromptApearsWhenGated` — freemium gate, ReminderStoreGateTests (except restore button)
+- [x] `testActionClusterApearsWhenEntitledAtCap` — freemium gate entitled, EntitlementStoreTests
+- [x] `testUnresolvedEntitlementRendersNoUprgadeButton` — freemium gate unresolved, EntitlementStoreTests
+- [x] `testSettingsHasPurchseRow` — purchase row exists, EntitlementStoreTests
 
 #### `SingleThreadUITests/ActionMenuUITests.swift` — cut all 4
 
 All four test action-menu flows that are dupliated at the unit layer (ActionMenuGateTests, RescheduleSheetTests, EventKitStoringTests):
 
-- [ ] `testActionMenuSkipAdvancesWhenToggleOn`
-- [ ] `testActionMenuDeleteRemovesWhenToggleOn`
-- [ ] `testActionMenuRescheduleShowsSheetWhenToggleOn`
-- [ ] `testSkipActsDirectlyWhenToggleOff`
+- [x] `testActionMenuSkipAdvancesWhenToggleOn`
+- [x] `testActionMenuDeleteRemovesWhenToggleOn`
+- [x] `testActionMenuRescheduleShowsSheetWhenToggleOn`
+- [x] `testSkipActsDirectlyWhenToggleOff`
 
 Keep the file (empty class). The action buttons rendering + a11y audit live in `ActionButtonsUITests.swift` (untouched).
 
 #### `SingleThreadUITests/SkipNudgeUITests.swift` — cut 3, keep 1
 
-- [ ] CUT `testSkipNudgeBannerApearsAfterSixthSkipAndDeletes` — nudge threshold, SkipCountStoreTests/ReminderStoreTests
-- [ ] CUT `testSkipNudgeRescheduleActs` — nudge reschedule, RescheduleSheetTests
-- [ ] CUT `testSkipNudgeViewInRemindersOpensURL` — nudge deep link, ReminderDeepLinkTests
-- [ ] KEEP `testNudgedCardDoesNotSpannRowOnIPad` — iPad frame geometry (integration-only)
+- [x] CUT `testSkipNudgeBannerApearsAfterSixthSkipAndDeletes` — nudge threshold, SkipCountStoreTests/ReminderStoreTests
+- [x] CUT `testSkipNudgeRescheduleActs` — nudge reschedule, RescheduleSheetTests
+- [x] CUT `testSkipNudgeViewInRemindersOpensURL` — nudge deep link, ReminderDeepLinkTests
+- [x] KEEP `testNudgedCardDoesNotSpannRowOnIPad` — iPad frame geometry (integration-only)
 
 ---
 
@@ -687,8 +687,8 @@ No changes needed. `scripts/test.sh` uses broad `-only-testing:SingleThreadUITes
 
 #### Automated
 - [ ] `./scripts/test.sh` — full gate passes. All remaining ~22 iOS UI tests + all unit + watch + macOS tests green.
-- [ ] `make lint` — no dead code warnings for the cut tests.
-- [ ] `make periphery` — no new dead-code detections from the scheduler wiring.
+- [x] `make lint` — no dead code warnings for the cut tests.
+- [x] `make periphery` — no new dead-code detections from the scheduler wiring.
 
 #### Manual
 - [ ] Optionally: `make coverage` diff to confirm behaviors moved from UI to unit still show in the unit coverage report.
