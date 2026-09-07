@@ -14,13 +14,13 @@
         appearanceMode: Binding<AppearanceMode>,
         showAbout: Binding<Bool>) -> some Commands {
         CommandGroup(replacing: .appInfo) {
-            Button("About SingleThread") {
+            Button(String(localized: "About SingleThread", table: "Localizable", bundle: .main)) {
                 showAbout.wrappedValue = true
             }
         }
 
         CommandGroup(replacing: .appTermination) {
-            Button("Quit SingleThread") {
+            Button(String(localized: "Quit SingleThread", table: "Localizable", bundle: .main)) {
                 NSApplication.shared.terminate(nil)
             }
         }
