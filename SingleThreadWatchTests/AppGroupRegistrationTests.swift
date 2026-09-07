@@ -10,7 +10,8 @@ struct AppGroupRegistrationTests {
     @Test
     func suiteResolvesOnWatch() {
         let defaults = UserDefaults(suiteName: AppGroup.suiteName)
-        #expect(defaults != nil,
+        #expect(
+            defaults != nil,
             """
             App Group suite must resolve on a registered watch build. \
             If this fails, registration does not take effect on the \

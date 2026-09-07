@@ -1,6 +1,8 @@
+// No `@testable import SingleThreadWatch`: every symbol used here comes from
+// SingleThreadCore (AppGroup, CompletionCounterStore). A testable import would
+// be unused and fail the Periphery --strict gate.
 import Foundation
 import SingleThreadCore
-@testable import SingleThreadWatch
 import Testing
 
 /// Proves the group suite and `UserDefaults.standard` are distinct containers
@@ -12,6 +14,8 @@ import Testing
 @MainActor
 @Suite(.serialized)
 struct AppGroupDivergenceTests {
+    // MARK: Internal
+
     // MARK: Happy-path
 
     /// Write-to-group does not appear in `.standard`, and the
@@ -19,6 +23,12 @@ struct AppGroupDivergenceTests {
     @Test
     func completionCountDivergesBetweenContainers() {
         defer { clearBoth() }
+
+        // Probe-first ordering (design.md decision #3): divergence assertions
+        // are only meaningful when the group suite actually resolves.
+        #expect(
+            AppGroupHarness.suiteExists(),
+            "group suite must resolve before divergence assertions are meaningful")
 
         AppGroupHarness.seedCompletionCountInGroup(7)
 
@@ -57,6 +67,8 @@ struct AppGroupDivergenceTests {
             AppGroup.defaults.object(forKey: CompletionCounterStore.defaultsKey) == nil,
             "group must stay empty when only .standard is written")
     }
+
+    // MARK: Private
 
     // MARK: Cleanup
 
