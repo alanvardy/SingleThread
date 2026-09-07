@@ -347,8 +347,8 @@ private final class FakeChangeSource: EventStoreChangedObserving {
 ### Verification — Stage 2
 
 #### Automated
-- [ ] `make lint` passes
-- [ ] `xcodebuild -only-testing:SingleThreadTests` (Stage 1 + Stage 2 suites) green, pinned destination; no live EventKit store needed (`EventStoreChangedObserver` posts to `NotificationCenter.default` only)
+- [x] `make lint` passes
+- [x] `xcodebuild -only-testing:SingleThreadTests` (Stage 1 + Stage 2 suites) green, pinned destination; no live EventKit store needed (`EventStoreChangedObserver` posts to `NotificationCenter.default` only)
 
 #### Manual
 - [ ] None beyond automated — the observer is exercised headlessly.
