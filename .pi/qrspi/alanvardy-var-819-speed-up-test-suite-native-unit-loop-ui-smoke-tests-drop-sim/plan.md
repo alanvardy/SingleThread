@@ -6,6 +6,14 @@ Cut wall-clock time by (1) making the local unit loop run natively on macOS inst
 
 Stages are ordered bottom-up; each ships its code **and** its verification green before the next starts. Stage 4 (CI) has no local runtime gate and is verified by inspection + the PR's CI run.
 
+## Corrections (implementer, folded in during Stage 1 — user-approved option 1)
+
+Three defects surfaced while proving Stage 1 green; all are folded into the stages below (the plan's stage text reflects them):
+
+1. **`-only-testing:Target/method` shorthand silently matches zero tests on Xcode 26** — `xcodebuild … -only-testing:SingleThreadUITests/testLaunchAndRenderSmoke` reports `Selected tests` → `Executed 0 tests` → `** TEST SUCCEEDED **` (a false green; same on watch). The **full path** `-only-testing:SingleThreadUITests/SingleThreadUITests/testLaunchAndRenderSmoke` genuinely executes the test. Every filter reference below uses the full `Target/ClassName/method` form.
+2. **The plain `--ui-testing` seam left the first-launch swipe guide visible**, so on a fresh simulator the Complete/Skip/mic cluster is hidden behind the guide ("Swipe right to complete → / Swipe left to skip / Dismiss") and the smoke's `completeButton` assert fails. Fix: the `--ui-testing` seam now writes `showSwipePrompt = false` to `UserDefaults.standard` unless `--reset-swipe-preference` is present (which restores the default/guides on for the swipe-prompt UI tests).
+3. **The action cluster is a separate async region below the card**; on a cold first launch (fresh simulator) it can lag the title by a beat, so the smoke waits for `completeButton` (`waitForExistence(timeout: 5)`) before asserting the cluster — mirroring the pre-collapse Flows pattern (`complete.waitForExistence(timeout: 3)`).
+
 ---
 
 ## Stage 1: Smoke-Test Content — the new UI test surface (foundation)
@@ -119,8 +127,8 @@ final class SingleThreadWatchUITests: XCTestCase {
 ### Verification
 
 #### Automated
-- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=18.7' -only-testing:SingleThreadUITests/testLaunchAndRenderSmoke` passes
-- [x] `xcodebuild test -scheme SingleThreadWatch -destination 'platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)' -only-testing:SingleThreadWatchUITests/testLaunchAndRenderSmoke` passes
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,id=<iPhone 17 UDID>' -only-testing:SingleThreadUITests/SingleThreadUITests/testLaunchAndRenderSmoke` passes (local runtimes are iOS 26.5/27.0; CI Stage 4 uses the name matrix with the same full-path method filter)
+- [x] `xcodebuild test -scheme SingleThreadWatch -destination 'platform=watchOS Simulator,id=<Apple Watch Series 11 (46mm) UDID>' -only-testing:SingleThreadWatchUITests/SingleThreadWatchUITests/testLaunchAndRenderSmoke` passes
 - [x] `make format` produces no diff to these two files (idempotent)
 - [x] `make lint` clean
 
@@ -168,11 +176,11 @@ No pbxproj edits are required: the groups are synchronized (`objectVersion = 77`
 ### Verification
 
 #### Automated
-- [ ] Same two targeted smoke runs from Stage 1 still pass (now the sole members)
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=18.7' -only-testing:SingleThreadUITests` returns in ~1 method (not 23)
-- [ ] `make format` clean
-- [ ] `make lint` clean
-- [ ] `rm -rf DerivedData` then `make periphery` clean (catches dangling refs to deleted classes)
+- [x] Same two targeted smoke runs from Stage 1 still pass (now the sole members) — full-path method filters
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,id=<iPhone 17 UDID>' -only-testing:SingleThreadUITests` returns in ~1 method (not 23)
+- [x] `make format` clean
+- [x] `make lint` clean
+- [x] `rm -rf DerivedData` then `make periphery` clean (catches dangling refs to deleted classes)
 
 #### Manual
 - [ ] Confirm `SingleThreadUITests` and `SingleThreadWatchUITests` targets each expose exactly one `@MainActor func testLaunchAndRenderSmoke`
@@ -339,7 +347,7 @@ The build-for-testing step keeps its two target filters (`-only-testing:SingleTh
 
 #### Automated
 - [ ] `npx actionlint` (or `ruby -e "require 'yaml'; YAML.load_file('.github/workflows/ci.yml')"`) parses clean
-- [ ] `grep -n "only-testing\|UI_GROUP\|SingleThreadUITests[A-Za-z]*\|SingleThreadWatchUITests[A-Za-z]*" .github/workflows/ci.yml` shows only `SingleThreadUITests/testLaunchAndRenderSmoke` and `SingleThreadWatchUITests/testLaunchAndRenderSmoke` (plus the watch unit target name `SingleThreadWatchTests`), and **no** reference to any deleted class
+- [ ] `grep -n "only-testing\|UI_GROUP\|SingleThreadUITests[A-Za-z]*\|SingleThreadWatchUITests[A-Za-z]*" .github/workflows/ci.yml` shows only `SingleThreadUITests/SingleThreadUITests/testLaunchAndRenderSmoke` and `SingleThreadWatchUITests/SingleThreadWatchUITests/testLaunchAndRenderSmoke` (plus the watch unit target name `SingleThreadWatchTests`), and **no** reference to any deleted class
 - [ ] `grep -n "device:" .github/workflows/ci.yml` confirms the UI smoke job matrix is `["iPhone 17"]` and `unit-tests`/`mac-tests`/`lint`/`watch-ui-tests` have no matrix
 
 #### Manual
