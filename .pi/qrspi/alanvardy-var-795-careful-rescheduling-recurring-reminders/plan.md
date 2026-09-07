@@ -113,7 +113,7 @@ func reschedulePreservesRecurrenceOnRepeatingReminder() async {
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh` — full CI-identical pipeline passes (format, lint, build, Periphery, unit + UI tests)
+- [x] `./scripts/test.sh` — full CI-identical pipeline passes (format, lint, build, Periphery, unit + UI tests) (pass-equivalent locally: only the two known pre-existing macOS `EntitlementStoreTests` SKTestSession failures)
 
 #### Manual
 - [ ] On-device smoke: reschedule a repeating reminder in-app, open Apple Reminders, confirm it still shows the repeat badge with the new due date
