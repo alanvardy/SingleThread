@@ -44,12 +44,18 @@ struct NextThingProvider: TimelineProvider {
     func getTimeline(in _: Context, completion: @escaping @Sendable (Timeline<NextThingEntry>) -> Void) {
         Task {
             let entry = await Self.makeEntry()
-            let refresh = Date().addingTimeInterval(15 * 60)
+            let refresh = Date().addingTimeInterval(Self.refreshInterval)
             completion(Timeline(entries: [entry], policy: .after(refresh)))
         }
     }
 
     // MARK: Private
+
+    /// How soon to re-ask EventKit for a possibly-changed current reminder.
+    /// Was 15 min; shortened so an out-of-band completion/deletion clears the
+    /// widget sooner. This is the widget's entire staleness mechanism — no
+    /// rechecker (design decision 5).
+    private static let refreshInterval: TimeInterval = 5 * 60
 
     @MainActor
     private static func makeEntry() async -> NextThingEntry {
