@@ -91,7 +91,7 @@ struct ReminderSettingsView: View {
             }
             .accessibilityIdentifier("showCompletionGlowToggle")
         }
-        .navigationTitle("Reminder")
+        .navigationTitle(SharedStrings.reminder)
         .settingsSubscreenLayout()
     }
 }

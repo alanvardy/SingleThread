@@ -140,7 +140,71 @@ struct LocalizationTests {
         }
     }
 
+    // MARK: - Regression guard
+
+    /// Every non-English value in the App and Core catalogs must differ from the
+    /// English source. Intentional identities (brand names, format strings, and
+    /// validated computing cognates) are listed in `excludedIdentities`.
+    ///
+    /// Watch and Widget catalogs are excluded — research confirms zero
+    /// English-identity flags in their 4 / 5 keys.
+    @Test
+    func nonEnglishValuesDifferFromEnglish() throws {
+        for (name, url) in Self.guardedCatalogs {
+            let data = try Data(contentsOf: url)
+            let root = try #require(try JSONSerialization.jsonObject(with: data) as? [String: Any])
+            let strings = try #require(root["strings"] as? [String: Any])
+            for (key, value) in strings {
+                let entry = try #require(value as? [String: Any], "\(name)/\(key) malformed")
+                let localizations = try #require(entry["localizations"] as? [String: Any])
+                let enEntry = try #require(localizations["en"] as? [String: Any], "\(name)/\(key) missing en")
+                for language in Self.nonEnglishLanguages {
+                    guard let loc = localizations[language] as? [String: Any] else {
+                        continue
+                    }
+                    if Self.excludedIdentities.contains(ExclusionEntry(catalog: name, key: key)) {
+                        continue
+                    }
+                    if let unit = loc["stringUnit"] as? [String: Any] {
+                        let enValue = try Self.englishValue(from: enEntry, key: key, catalog: name)
+                        let locValue = try #require(
+                            unit["value"] as? String,
+                            "\(name)/\(key) \(language) stringUnit has no value")
+                        #expect(
+                            locValue != enValue,
+                            "\(name)/\(key) \(language) value is identical to English: \"\(locValue)\"")
+                    } else if let variations = loc["variations"] as? [String: Any],
+                              let plural = variations["plural"] as? [String: Any] {
+                        let enVariations = try #require(
+                            enEntry["variations"] as? [String: Any],
+                            "\(name)/\(key) en missing variations for plural comparison")
+                        let enPlural = try #require(
+                            enVariations["plural"] as? [String: Any],
+                            "\(name)/\(key) en missing plural for plural comparison")
+                        for (category, variation) in plural {
+                            guard let variant = variation as? [String: Any],
+                                  let unit = variant["stringUnit"] as? [String: Any],
+                                  let locValue = unit["value"] as? String else { continue }
+                            guard let enVariant = enPlural[category] as? [String: Any],
+                                  let enUnit = enVariant["stringUnit"] as? [String: Any],
+                                  let enValue = enUnit["value"] as? String else { continue }
+                            #expect(
+                                locValue != enValue,
+                                "\(name)/\(key) \(language) \(category) identical to English: \"\(locValue)\"")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     // MARK: Private
+
+    /// A key identity within a specific catalog.
+    private struct ExclusionEntry: Hashable {
+        let catalog: String
+        let key: String
+    }
 
     /// Locales whose CLDR plural rules distinguish a singular `one` category
     /// from plural `other` for the count-based `%lld` keys.
@@ -181,6 +245,36 @@ struct LocalizationTests {
         ("Watch", ["NSRemindersFullAccessUsageDescription", "CFBundleDisplayName"]),
         ("Widget", ["NSRemindersFullAccessUsageDescription", "CFBundleDisplayName"])
     ]
+
+    /// Catalogs guarded against English-identity translations.
+    private static let guardedCatalogs: [(name: String, url: URL)] = [
+        catalogs[0], // Core
+        catalogs[1] // App
+    ]
+
+    /// All non-English languages.
+    private static let nonEnglishLanguages = ["zh-Hans", "es", "ja", "de", "fr"]
+
+    /// Keys whose non-English value may be byte-identical to the English source.
+    /// Format strings, brand names, and validated computing cognates.
+    private static let excludedIdentities: Set<ExclusionEntry> = [
+        ExclusionEntry(catalog: "App", key: "%lld%%"),
+        ExclusionEntry(catalog: "App", key: "SingleThread"),
+        ExclusionEntry(catalog: "App", key: "Copyright 2026 Alan Vardy"),
+        // de "System" — standard German computing term, same spelling as English
+        ExclusionEntry(catalog: "App", key: "System"),
+        // fr "Interface" — standard French computing term, same spelling as English
+        ExclusionEntry(catalog: "App", key: "Interface"),
+        // fr "Notifications" — standard French UI term, same spelling as English
+        ExclusionEntry(catalog: "App", key: "Notifications"),
+        // de/fr "Version" — same spelling in German and French
+        ExclusionEntry(catalog: "Core", key: "Version %@")
+    ]
+
+    // Note: "Medium" stays in both guarded catalogs — App (font-size
+    // picker, es "Mediano") and Core (priority level, es "Media") — same
+    // English word, different UI contexts and translations. Not an exclusion:
+    // both entries are genuinely translated in every locale.
 
     /// True when the localization entry carries a non-empty translated value,
     /// either directly (`stringUnit`) or across all plural variations.
@@ -225,6 +319,29 @@ struct LocalizationTests {
         default:
             repoRoot
         }
+    }
+
+    /// Extracts the English `stringUnit.value` from an en localization entry.
+    /// Handles both direct stringUnit keys and keys nested under variations.plural.
+    private static func englishValue(from enEntry: [String: Any], key: String, catalog: String) throws -> String {
+        if let unit = enEntry["stringUnit"] as? [String: Any] {
+            return try #require(
+                unit["value"] as? String,
+                "\(catalog)/\(key) en stringUnit has no value")
+        }
+        // For plural-only keys, return the en `other` category value as the canonical form.
+        if let variations = enEntry["variations"] as? [String: Any],
+           let plural = variations["plural"] as? [String: Any],
+           let otherVariant = plural["other"] as? [String: Any],
+           let otherUnit = otherVariant["stringUnit"] as? [String: Any] {
+            return try #require(
+                otherUnit["value"] as? String,
+                "\(catalog)/\(key) en plural other has no value")
+        }
+        throw NSError(
+            domain: "LocalizationTests",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: "\(catalog)/\(key) en has no extractable value"])
     }
 
     // MARK: - Helpers

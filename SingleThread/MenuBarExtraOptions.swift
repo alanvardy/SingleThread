@@ -22,10 +22,10 @@
                             .foregroundStyle(.secondary)
                     }
                     Divider()
-                    Button("Complete Reminder") {
+                    Button(SharedStrings.completeReminder) {
                         Task { @MainActor in await store.completeCurrentReminder() }
                     }
-                    Button("Skip Reminder") {
+                    Button(SharedStrings.skipReminder) {
                         Task { @MainActor in store.skipCurrentReminder() }
                     }
                     Divider()
