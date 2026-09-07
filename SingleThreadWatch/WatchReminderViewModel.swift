@@ -2,6 +2,10 @@ import EventKit
 import SingleThreadCore
 import SwiftUI
 
+/// Builds the re-check coordinator from the started store. Injectable so tests
+/// can supply a recording fake; production is `StaleReminderRechecker.live`.
+typealias RecheckerFactory = @MainActor (ReminderStore) -> (any StaleReminderRechecking)?
+
 /// Holds the watch reminder card's presentation state and its refresh flow,
 /// moving the `@State` vars and the inline `refresh()` out of the view.
 @MainActor
@@ -17,7 +21,8 @@ final class WatchReminderViewModel {
         showListState: ShowListState,
         showCompletionGlowState: ShowCompletionGlowState,
         entitlementState: EntitlementState,
-        showEnableActionButtonsState: ShowEnableActionButtonsState) {
+        showEnableActionButtonsState: ShowEnableActionButtonsState,
+        makeRechecker: @escaping RecheckerFactory = { StaleReminderRechecker.live(store: $0) }) {
         self.store = store
         self.showDateState = showDateState
         self.showRecurrenceState = showRecurrenceState
@@ -26,6 +31,7 @@ final class WatchReminderViewModel {
         self.showCompletionGlowState = showCompletionGlowState
         self.entitlementState = entitlementState
         self.showEnableActionButtonsState = showEnableActionButtonsState
+        self.makeRechecker = makeRechecker
         // 6th-skip nudge: surface the in-card banner and track the dialog state.
         store.onSkipNudgeRequested = { [weak self] identifier in
             self?.nudgeIdentifier = identifier
@@ -81,6 +87,13 @@ final class WatchReminderViewModel {
 
     func task() async {
         await store.start()
+        rechecker = makeRechecker(store)
+        rechecker?.start()
+        defer { rechecker?.stop(); rechecker = nil }
+        // Suspend until SwiftUI cancels the `.task` on view disappear; the
+        // cancellation makes `Task.sleep` throw (swallowed by `try?`), which runs
+        // the `defer` above and stops the rechecker.
+        try? await Task.sleep(for: .seconds(1_000_000_000))
     }
 
     /// True when `identifier` is the reminder that just crossed the 6-skip
@@ -149,4 +162,7 @@ final class WatchReminderViewModel {
     /// The refresh spinner stays visible for at least this long so brief
     /// EventKit fetches still read as a refresh.
     private static let refreshMinimumDisplayDuration: TimeInterval = 1
+
+    private var rechecker: (any StaleReminderRechecking)?
+    private let makeRechecker: RecheckerFactory
 }

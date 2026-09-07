@@ -3,6 +3,10 @@ import SingleThreadCore
 import Speech
 import SwiftUI
 
+/// Builds the re-check coordinator from the started store. Injectable so tests
+/// can supply a recording fake; production is `StaleReminderRechecker.live`.
+typealias RecheckerFactory = @MainActor (ReminderStore) -> (any StaleReminderRechecking)?
+
 /// Owns the reminder-list screen's presentation logic: determines which
 /// empty state to show, whether the background / action-buttons gates are
 /// open, and delegates dictation to its child ``DictationViewModel``.
@@ -18,11 +22,13 @@ final class ContentViewModel {
         showCompletionGlow: BoolPreferenceStore = BoolPreferenceStore(
             key: BoolPreferenceKey.showCompletionGlow.rawValue,
             fallback: true),
-        urlOpener: (any URLOpening)? = nil) {
+        urlOpener: (any URLOpening)? = nil,
+        makeRechecker: @escaping RecheckerFactory = { StaleReminderRechecker.live(store: $0) }) {
         self.store = store
         self.backgroundImage = backgroundImage
         self.showCompletionGlow = showCompletionGlow
         self.urlOpener = urlOpener ?? SystemURLOpener.noop
+        self.makeRechecker = makeRechecker
         dictation = DictationViewModel(speechTranscriber: speechTranscriber, store: store)
         store.onSkipNudgeRequested = { [weak self] identifier in
             self?.nudgeIdentifier = identifier
@@ -118,7 +124,14 @@ final class ContentViewModel {
     func task(showUndatedReminders: Bool) async {
         store.showsUndatedReminders = showUndatedReminders
         await store.start()
+        rechecker = makeRechecker(store)
+        rechecker?.start()
+        defer { rechecker?.stop(); rechecker = nil }
         await backgroundImage.refreshIfNeeded()
+        // Suspend until SwiftUI cancels the `.task` on view disappear; the
+        // cancellation makes `Task.sleep` throw (swallowed by `try?`), which runs
+        // the `defer` above and stops the rechecker.
+        try? await Task.sleep(for: .seconds(1_000_000_000))
     }
 
     func handleShowUndatedReminders(_ value: Bool) {
@@ -264,6 +277,9 @@ final class ContentViewModel {
             "Pull to refresh to see all your reminders again."
         #endif
     }
+
+    private var rechecker: (any StaleReminderRechecking)?
+    private let makeRechecker: RecheckerFactory
 
     /// Preference read at trigger time so a settings toggle takes effect
     /// without rebuilding the view model.
