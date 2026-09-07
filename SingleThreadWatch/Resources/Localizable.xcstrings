@@ -44,6 +44,39 @@
         "de" : { "stringUnit" : { "state" : "translated", "value" : "Auf deinem iPhone\nupgraden" } },
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Améliorez sur\nton iPhone" } }
       }
+    },
+    "Cancel" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Cancel" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "取消" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Cancelar" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "キャンセル" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Abbrechen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Annuler" } }
+      }
+    },
+    "Reschedule" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reschedule" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新安排" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reprogramar" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "再スケジュール" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Neu planen" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Replanifier" } }
+      }
+    },
+    "Reschedule to" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Reschedule to" } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "重新安排到" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Reprogramar para" } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "再スケジュール:" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Neu planen auf" } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Replanifier pour" } }
+      }
     }
   },
   "version" : "1.0"

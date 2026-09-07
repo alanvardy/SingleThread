@@ -461,9 +461,9 @@ Watch catalog uses spaces-around-colons style (`"key" : { ... }`). Match the exi
 ### Verification
 
 #### Automated
-- [ ] `SIM='platform=iOS Simulator,name=iPhone 17,OS=latest' xcodebuild -scheme SingleThread -destination "$SIM" test -only-testing:SingleThreadTests/LocalizationTests/nonEnglishValuesDifferFromEnglish` — 0 failures (new entries all have non-English values differing from English source)
-- [ ] `make build` succeeds (new catalog entries compile into app binary)
-- [ ] `make watch-build` succeeds (new Watch catalog entries compile)
+- [x] `SIM='platform=iOS Simulator,name=iPhone 17,OS=latest' xcodebuild -scheme SingleThread -destination "$SIM" test -only-testing:SingleThreadTests/LocalizationTests/nonEnglishValuesDifferFromEnglish` — 0 failures (new entries all have non-English values differing from English source)
+- [x] `make build` succeeds (new catalog entries compile into app binary)
+- [x] `make watch-build` succeeds (new Watch catalog entries compile)
 
 #### Manual
 - [ ] Verify new catalog entries appear in Xcode's String Catalog editor with all 6 locales populated and marked "translated"
