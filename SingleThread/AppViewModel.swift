@@ -216,8 +216,17 @@ final class AppViewModel {
                 if arguments.contains("--reset-glow-preference") {
                     UserDefaults.standard.removeObject(forKey: "showCompletionGlow")
                 }
+                // The `--ui-testing` seam exists to render the remediation card +
+                // Complete/Skip/mic cluster deterministically. On a fresh simulator
+                // the first-launch swipe guide (`showSwipePrompt` default true) sits on
+                // the card's second plate and hides that cluster, defeating the seam —
+                // so suppress the guide by default here. `--reset-swipe-preference`
+                // restores the default (removes the key) and opts the guide back on
+                // for the dedicated swipe-prompt UI tests.
                 if arguments.contains("--reset-swipe-preference") {
                     UserDefaults.standard.removeObject(forKey: "showSwipePrompt")
+                } else {
+                    UserDefaults.standard.set(false, forKey: "showSwipePrompt")
                 }
                 AppGroup.defaults.set(true, forKey: "enableActionButtons")
                 // Build the reminder through `InMemoryEventStore.makeReminder` so it is

@@ -38,8 +38,13 @@ final class SingleThreadUITests: XCTestCase {
                       "Reminder notes should render")
         XCTAssertTrue(app.staticTexts["priorityMarker"].exists,
                       "Priority marker \"!!\" should render")
-        XCTAssertTrue(app.buttons["completeButton"].exists,
-                      "Complete action should render")
+        // The action cluster is a separate async region below the card; on a
+        // cold first launch (fresh simulator) it can lag the card by a beat, so
+        // wait for it like the title does (mirrors the pre-collapse Flows
+        // pattern, `complete.waitForExistence(timeout: 3)`).
+        XCTAssertTrue(
+            app.buttons["completeButton"].waitForExistence(timeout: 5),
+            "Complete action should render")
         XCTAssertTrue(app.buttons["skipButton"].exists,
                       "Skip action should render")
         XCTAssertTrue(app.buttons["dictateButton"].exists,
