@@ -55,8 +55,16 @@ final class SingleThreadUITests: XCTestCase {
         // GitHub's virtualized runners and are covered by unit suites
         // (TextSizeTests etc.), so they are deliberately excluded — matching the
         // former CI carve-out, now applied everywhere (local and CI alike).
-        try app.performAccessibilityAudit(
-            for: [.sufficientElementDescription, .trait]
-        )
+        #if os(iOS)
+            try app.performAccessibilityAudit(
+                for: [.sufficientElementDescription, .trait]
+            )
+        #else
+            // macOS's audit API offers a different category set, so the smoke
+            // can't use the iOS categories there. The smoke only runs on the
+            // iOS Simulator; this branch exists so the UI-test bundle still
+            // compiles for the macOS test phase.
+            try app.performAccessibilityAudit()
+        #endif
     }
 }

@@ -227,16 +227,6 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
     periphery scan --skip-build --index-store-path DerivedData/Index.noindex/DataStore --strict
 
     echo ""
-    echo "==> Unit tests…"
-    xcodebuild -scheme "$SCHEME" \
-      -destination "$SIM" \
-      -derivedDataPath "$DERIVED_DATA" \
-      -parallel-testing-enabled YES \
-      -maximum-test-execution-time-allowance 900 \
-      test-without-building \
-      -only-testing:SingleThreadTests
-
-    echo ""
     echo "==> UI tests…"
     xcodebuild -scheme "$SCHEME" \
       -destination "$SIM" \
@@ -298,24 +288,16 @@ fi
 
 # ── Unit-only ──────────────────────────────────────────────────────────────────
 if [[ "${UNIT_ONLY:-0}" -eq 1 ]]; then
-    echo "==> Building (unit tests)…"
+    echo "==> Unit tests (macOS native)…"
     xcodebuild -scheme "$SCHEME" \
-      -destination "$SIM" \
+      -destination "$MAC_SIM" \
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
-      build-for-testing \
-      -only-testing:SingleThreadTests
+      CODE_SIGNING_ALLOWED=NO \
+      test -only-testing:SingleThreadTests
 
     echo ""
-    echo "==> Unit tests…"
-    xcodebuild -scheme "$SCHEME" \
-      -destination "$SIM" \
-      -derivedDataPath "$DERIVED_DATA" \
-      test-without-building \
-      -only-testing:SingleThreadTests
-
-    echo ""
-    echo "✅ Unit tests passed."
+    echo "✅ Unit tests passed (macOS native)."
     exit 0
 fi
 

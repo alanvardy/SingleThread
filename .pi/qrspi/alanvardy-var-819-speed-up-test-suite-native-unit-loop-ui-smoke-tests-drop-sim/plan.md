@@ -246,9 +246,9 @@ Untouched: pre-boot (`:22-48`), runtime cleanup (`:52-83`), deploy-target guard 
 ### Verification
 
 #### Automated
-- [ ] `./scripts/test.sh --unit-only` runs `SingleThreadTests` natively on `platform=macOS` (watch the `xcodebuild` destination in output — must be `-destination 'platform=macOS'`, not the sim)
-- [ ] `make test` passes (same native path; annotate the 3 known pre-existing macOS failures — `EntitlementStoreTests.isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`, `hostStoreKitIsClean` — never debug)
-- [ ] Same two targeted smoke runs from Stage 1 still pass (their filters are unused by `--unit-only`; no change)
+- [x] `./scripts/test.sh --unit-only` runs `SingleThreadTests` natively on `platform=macOS` (watch the `xcodebuild` destination in output — must be `-destination 'platform=macOS'`, not the sim)
+- [x] `make test` passes (same native path; annotate the 3 known pre-existing macOS failures — `EntitlementStoreTests.isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`, `hostStoreKitIsClean` — never debug)
+- [x] Same two targeted smoke runs from Stage 1 still pass (their filters are unused by `--unit-only`; no change)
 
 #### Manual
 - [ ] Confirm the full-pipeline phase list (dry-run by reading `scripts/test.sh`) shows the iOS-Sim unit phase gone and macOS unit still last
