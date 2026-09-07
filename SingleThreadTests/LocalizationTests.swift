@@ -202,7 +202,9 @@ struct LocalizationTests {
 
     /// A key identity within a specific catalog.
     private struct ExclusionEntry: Hashable {
+        // periphery:ignore
         let catalog: String
+        // periphery:ignore
         let key: String
     }
 

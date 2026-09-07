@@ -16,6 +16,7 @@ public enum SharedStrings {
         String(localized: "Complete", table: "Localizable", bundle: .module)
     }
 
+    // periphery:ignore
     /// "Complete Reminder" (title case) — used by macOS command menus and menu bar.
     public static var completeReminder: String {
         String(localized: "Complete Reminder", table: "Localizable", bundle: .module)
@@ -30,6 +31,7 @@ public enum SharedStrings {
         String(localized: "Skip", table: "Localizable", bundle: .module)
     }
 
+    // periphery:ignore
     /// "Skip Reminder" (title case) — used by macOS command menus and menu bar.
     public static var skipReminder: String {
         String(localized: "Skip Reminder", table: "Localizable", bundle: .module)
