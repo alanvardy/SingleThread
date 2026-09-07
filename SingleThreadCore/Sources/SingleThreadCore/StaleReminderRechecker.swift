@@ -59,13 +59,15 @@ public final class StaleReminderRechecker: StaleReminderRechecking {
         }
     }
 
-    /// Cancels the poll loop and removes the change-source observer.
-    /// Idempotent — safe to call more than once.
+    /// Cancels the poll loop, any in-flight drain, and removes the
+    /// change-source observer. Idempotent — safe to call more than once.
     public func stop() {
         unregisterChange?()
         unregisterChange = nil
         loopTask?.cancel()
         loopTask = nil
+        drainTask?.cancel()
+        drainTask = nil
     }
 
     // MARK: Private
@@ -77,6 +79,9 @@ public final class StaleReminderRechecker: StaleReminderRechecking {
     private let pollInterval: Duration
 
     private var loopTask: Task<Void, Never>?
+    /// In-flight drain spawned by the last tick; tracked so `stop()` can
+    /// cancel it (design: "a polling loop must be cancellable and tracked").
+    private var drainTask: Task<Void, Never>?
     /// Removes the change-source observer registered in `start()`.
     private var unregisterChange: (() -> Void)?
     /// True while a coalesced `reload()` is in flight.
@@ -103,7 +108,7 @@ public final class StaleReminderRechecker: StaleReminderRechecking {
             return
         }
         isReloading = true
-        Task { [weak self] in
+        drainTask = Task { [weak self] in
             await self?.drain()
         }
     }
