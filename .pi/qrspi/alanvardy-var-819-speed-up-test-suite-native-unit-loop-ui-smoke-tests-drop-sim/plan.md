@@ -346,9 +346,9 @@ The build-for-testing step keeps its two target filters (`-only-testing:SingleTh
 ### Verification
 
 #### Automated
-- [ ] `npx actionlint` (or `ruby -e "require 'yaml'; YAML.load_file('.github/workflows/ci.yml')"`) parses clean
-- [ ] `grep -n "only-testing\|UI_GROUP\|SingleThreadUITests[A-Za-z]*\|SingleThreadWatchUITests[A-Za-z]*" .github/workflows/ci.yml` shows only `SingleThreadUITests/SingleThreadUITests/testLaunchAndRenderSmoke` and `SingleThreadWatchUITests/SingleThreadWatchUITests/testLaunchAndRenderSmoke` (plus the watch unit target name `SingleThreadWatchTests`), and **no** reference to any deleted class
-- [ ] `grep -n "device:" .github/workflows/ci.yml` confirms the UI smoke job matrix is `["iPhone 17"]` and `unit-tests`/`mac-tests`/`lint`/`watch-ui-tests` have no matrix
+- [x] `npx actionlint` (or `ruby -e "require 'yaml'; YAML.load_file('.github/workflows/ci.yml')"`) parses clean — YAML parses; actionlint report has only pre-existing info-level shellcheck SC2086 hints on the untouched `echo "DEVELOPMENT_TEAM="` steps (count dropped 6→4 with the job merge), no structural errors
+- [x] `grep -n "only-testing\|UI_GROUP\|SingleThreadUITests[A-Za-z]*\|SingleThreadWatchUITests[A-Za-z]*" .github/workflows/ci.yml` shows only `SingleThreadUITests/SingleThreadUITests/testLaunchAndRenderSmoke` and `SingleThreadWatchUITests/SingleThreadWatchUITests/testLaunchAndRenderSmoke` (plus the target names `SingleThreadTests`/`SingleThreadWatchTests` and the build-level `-only-testing:SingleThreadUITests`/`-only-testing:SingleThreadWatchUITests`), and **no** reference to any deleted class or to `UI_GROUP`
+- [x] `grep -n "device:" .github/workflows/ci.yml` confirms the `ui-tests-smoke` job matrix is `["iPhone 17"]`; `mac-tests`/`lint`/`watch-ui-tests` have no matrix (note: `unit-tests` legitimately retains its `["iPhone 17", "iPad (A16)"]` matrix — it is an untouched job, per the plan's own Step 4 text)
 
 #### Manual
 - [ ] Read the merged job and confirm every `-only-testing` name matches a surviving member from the Stage 2 file list
