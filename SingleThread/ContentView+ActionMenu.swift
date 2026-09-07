@@ -43,7 +43,7 @@ extension ContentView {
             .accessibilityLabel(SharedStrings.skipReminderAccessibility)
             .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
-            .confirmationDialog("Reminder", isPresented: $isShowingActionMenu) {
+            .confirmationDialog(SharedStrings.reminder, isPresented: $isShowingActionMenu) {
                 Button(SharedStrings.skipAction) {
                     viewModel.skipCurrentReminder()
                 }
