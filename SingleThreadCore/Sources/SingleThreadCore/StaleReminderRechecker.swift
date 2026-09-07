@@ -25,10 +25,12 @@ public final class StaleReminderRechecker: StaleReminderRechecking {
         isShowingReminder: @escaping IsShowingReminder,
         reload: @escaping Reload,
         sleep: @escaping Sleep,
+        changeSource: (any EventStoreChangedObserving)? = nil,
         pollInterval: Duration = StaleReminderRechecker.defaultPollInterval) {
         self.isShowingReminder = isShowingReminder
         self.reload = reload
         self.sleep = sleep
+        self.changeSource = changeSource
         self.pollInterval = pollInterval
     }
 
@@ -49,13 +51,19 @@ public final class StaleReminderRechecker: StaleReminderRechecking {
     /// second `start()` while running is a no-op.
     public func start() {
         guard loopTask == nil else { return }
+        unregisterChange = changeSource?.onChange { [weak self] in
+            self?.receiveTick()
+        }
         loopTask = Task { [weak self] in
             await self?.runLoop()
         }
     }
 
-    /// Cancels the poll loop. Idempotent — safe to call more than once.
+    /// Cancels the poll loop and removes the change-source observer.
+    /// Idempotent — safe to call more than once.
     public func stop() {
+        unregisterChange?()
+        unregisterChange = nil
         loopTask?.cancel()
         loopTask = nil
     }
@@ -65,9 +73,12 @@ public final class StaleReminderRechecker: StaleReminderRechecking {
     private let isShowingReminder: IsShowingReminder
     private let reload: Reload
     private let sleep: Sleep
+    private let changeSource: (any EventStoreChangedObserving)?
     private let pollInterval: Duration
 
     private var loopTask: Task<Void, Never>?
+    /// Removes the change-source observer registered in `start()`.
+    private var unregisterChange: (() -> Void)?
     /// True while a coalesced `reload()` is in flight.
     private var isReloading = false
     /// Set when a tick arrives during an in-flight reload; collapses N
@@ -115,9 +126,7 @@ public extension StaleReminderRechecker {
     /// Production wiring used by the view models: gate on
     /// `store.listContent` being `.reminder` (the case carries an associated
     /// value, so matching uses a pattern), reload via `store.reload()`, real
-    /// `Task.sleep` poll, and a global `.EKEventStoreChanged` observer
-    /// (availability of the observer type lands in Stage 2 — the parameter
-    /// below is added by that stage and defaults to nil until then).
+    /// `Task.sleep` poll, and a global `.EKEventStoreChanged` observer.
     @MainActor
     static func live(store: ReminderStore) -> StaleReminderRechecker {
         StaleReminderRechecker(
@@ -128,6 +137,7 @@ public extension StaleReminderRechecker {
                 return false
             },
             reload: { await store.reload() },
-            sleep: { try? await Task.sleep(for: $0) })
+            sleep: { try? await Task.sleep(for: $0) },
+            changeSource: EventStoreChangedObserver())
     }
 }
