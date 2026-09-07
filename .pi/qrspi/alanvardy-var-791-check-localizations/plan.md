@@ -582,9 +582,9 @@ Same macOS-only context as above.
 ### Verification
 
 #### Automated
-- [ ] `make build` succeeds (all catalog keys compile into binary; call-site changes compile)
-- [ ] `make watch-build` succeeds
-- [ ] `make test` (unit only) — all existing tests pass; no new failures introduced
+- [x] `make build` succeeds (all catalog keys compile into binary; call-site changes compile)
+- [x] `make watch-build` succeeds
+- [x] `make test` (unit only) — all existing tests pass; no new failures introduced
 
 #### Manual
 - [ ] **iOS simulator — English locale**: trigger dictation (if possible) or verify the dictation view shows "Processing…" correctly; verify ReminderCardView a11y label reads "Skipped N times — tap to manage"; verify Open Settings button renders

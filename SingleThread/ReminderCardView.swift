@@ -166,7 +166,12 @@ struct ReminderCardView: View {
         .fixedSize(horizontal: true, vertical: false)
         .padding(.vertical, 8)
         .contentShape(Rectangle())
-        .accessibilityLabel("Skipped 6 times — tap to manage")
+        .accessibilityLabel(String(
+            format: String(
+                localized: "Skipped %lld times — tap to manage",
+                table: "Localizable",
+                bundle: .main),
+            6))
         .accessibilityIdentifier("skipNudgeBanner")
     }
 

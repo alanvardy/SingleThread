@@ -29,7 +29,7 @@
                         Task { @MainActor in store.skipCurrentReminder() }
                     }
                     Divider()
-                    Button("Open SingleThread") {
+                    Button(String(localized: "Open SingleThread", table: "Localizable", bundle: .main)) {
                         NSApp.activate(ignoringOtherApps: true)
                         NSApp.windows.first { $0.canBecomeKey }?.makeKeyAndOrderFront(nil)
                     }
