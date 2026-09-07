@@ -328,6 +328,27 @@ private final class FakeEventStore: EventKitStoring {
         }
 
         @Test
+        func reschedulePreservesRecurrenceRules() async {
+            let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
+            let reminder = makeReminder(title: "Weekly standup")
+            reminder.dueDateComponents = DateComponents(year: 2025, month: 6, day: 1)
+            reminder.addRecurrenceRule(rule)
+            let fake = FakeEventStore(fetchResult: [reminder])
+            let store = testStore(eventStore: fake)
+            await store.reload()
+            let due = DateComponents(year: 2027, month: 1, day: 2)
+
+            let rescheduled = await store.rescheduleReminder(
+                identifier: reminder.calendarItemIdentifier,
+                to: due)
+
+            #expect(rescheduled)
+            #expect(fake.saved.last === reminder)
+            #expect(fake.saved.last?.recurrenceRules?.count == 1)
+            #expect(fake.saved.last?.dueDateComponents?.year == 2027)
+        }
+
+        @Test
         func deleteReminderWhileSkippedPrunesSkipIDOnReload() async {
             let reminder = makeReminder(title: "Task")
             let fake = FakeEventStore(fetchResult: [reminder])
