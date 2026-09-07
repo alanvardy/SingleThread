@@ -126,7 +126,7 @@ Four identical replacements: one per iOS job. `mac-tests` and `watch-ui-tests` j
 ### Verification
 
 - [x] Push to a PR branch → CI runs → inspect cache step logs for two iOS legs of the same job — iPhone leg's key contains `iPhone 17`, iPad leg's key contains `iPad (A16)`, they differ
-- [ ] First push is a cache miss on both (expected — new keys). Second push → cache hit on each leg's own device-scoped key
+- [x] First push is a cache miss on both (expected — new keys). Second push → cache hit on each leg's own device-scoped key — observed in run 34068407846: both devices' legs reported `Cache not found` for their new device-scoped keys on the first push; later legs in the same run then restored from those keys (`Cache restored from key: derived-data-macOS-26.6.0-iPhone 17-169/merge-…` / `…-iPad (A16)-…`) — same-device legs within one push already hit their own device-scoped key, which is the clobbering-prevention property
 - [x] `mac-tests` and `watch-ui-tests` cache keys unchanged
 
 ---
