@@ -164,13 +164,18 @@ SingleThread/                  # git root
   UI tests that are justified; reuse the existing `--ui-testing` seam on
   watchOS.
 - **Gate staging**: phase subagents verify with a build plus targeted
-  `-only-testing:` suites only. The full `./scripts/test.sh` runs ONCE, by the
-  parent (or a dedicated final phase), after phases commit — workers
-  re-running the multi-hour gate exceed run caps and orphan unverified
-  changes. Plan per-phase Verification lists as targeted `-only-testing:`
-  suites (never the full UI suite); run the full gate detached
-  (`nohup … > /tmp/gate.log 2>&1 & echo $last_pid`); after two UI-stage
-  contention failures, stop re-running locally — CI is authoritative.
+  `-only-testing:` suites only. The full `./scripts/test.sh` runs ONCE, as a
+  dedicated async gate subagent (see the `run-gate` skill), after phases
+  commit — workers re-running the multi-hour gate exceed run caps and orphan
+  unverified changes. Plan per-phase Verification lists as targeted
+  `-only-testing:` suites (never the full UI suite). The full gate is launched
+  once via a single top-level async subagent in a managed worktree with a
+  multi-hour timeout; the subagent watchdogs its own run (stall detection,
+  orphaned `xcodebuild`/`xctest` cleanup, `Busy`/`RequestDenied` retry) and
+  returns a structured verdict. The parent is notified on completion and can
+  keep working in the main tree without perturbing the gated commit. Never
+  `nohup … > /tmp/gate.log &` it ad-hoc. After two UI-stage contention
+  failures, stop re-running locally — CI is authoritative.
 - Conflict-laden rebases are NOT resolution-edited mid-review: stop, and
   resolve (`git checkout --theirs` / manual continue) in a separate scoped
   fix commit before review resumes.
@@ -186,9 +191,11 @@ SingleThread/                  # git root
 
 ## Before Committing
 
-- Run `make format` then `make lint` (or `./scripts/test.sh` for the full
-  build + test + lint pipeline — formats, lints, builds, Periphery, unit +
-  UI tests; identical to CI).
+- Run `make format` then `make lint` in-line first (fast — catch format/lint
+  before burning the slow gate). For the full CI-identical pipeline
+  (`./scripts/test.sh` — formats, lints, builds, Periphery, unit + UI tests),
+  launch the `run-gate` skill: one dedicated async gate subagent in a worktree
+  with a multi-hour timeout, not an ad-hoc `nohup`.
 - New test suites must be added to `Makefile`'s `test` target and
   `scripts/test.sh` if they need explicit `-only-testing` filters.
 - Confirm the change ships with unit-test coverage (see
