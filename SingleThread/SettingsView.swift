@@ -85,7 +85,7 @@ struct SettingsView: View {
                             viewModel: viewModel)
                     } label: {
                         SettingsLinkLabel(
-                            title: "Reminder",
+                            title: LocalizedStringKey(SharedStrings.reminder),
                             systemImage: "bell.badge",
                             caption: "Choose what information is shown with each reminder.")
                     }

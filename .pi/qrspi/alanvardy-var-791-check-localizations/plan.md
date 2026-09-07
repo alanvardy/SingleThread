@@ -378,10 +378,10 @@ Button(SharedStrings.skipReminder) {
 ### Verification
 
 #### Automated
-- [ ] `SIM='platform=iOS Simulator,name=iPhone 17,OS=latest' xcodebuild -scheme SingleThread -destination "$SIM" test -only-testing:SingleThreadTests/LocalizationTests/nonEnglishValuesDifferFromEnglish` — 0 failures (guard stays green; new Core entries are translated)
-- [ ] `make build` succeeds (iOS)
-- [ ] `make watch-build` succeeds (Watch keeps its own `"Reminder"` key)
-- [ ] `make test` (unit only) — verify `ReminderSkipTests` (`.core` bundle for `Medium`) and `TextSizeTests` (`.main` bundle for `Medium`) both pass
+- [x] `SIM='platform=iOS Simulator,name=iPhone 17,OS=latest' xcodebuild -scheme SingleThread -destination "$SIM" test -only-testing:SingleThreadTests/LocalizationTests/nonEnglishValuesDifferFromEnglish` — 0 failures (guard stays green; new Core entries are translated)
+- [x] `make build` succeeds (iOS)
+- [x] `make watch-build` succeeds (Watch keeps its own `"Reminder"` key)
+- [x] `make test` (unit only) — verify `ReminderSkipTests` (`.core` bundle for `Medium`) and `TextSizeTests` (`.main` bundle for `Medium`) both pass
 
 #### Manual
 - [ ] Spot-check: navigate to Reminder settings, action menu — "Reminder" still displays correctly in English locale

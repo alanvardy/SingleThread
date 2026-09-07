@@ -271,6 +271,11 @@ struct LocalizationTests {
         ExclusionEntry(catalog: "Core", key: "Version %@")
     ]
 
+    // Note: "Medium" stays in both guarded catalogs — App (font-size
+    // picker, es "Mediano") and Core (priority level, es "Media") — same
+    // English word, different UI contexts and translations. Not an exclusion:
+    // both entries are genuinely translated in every locale.
+
     /// True when the localization entry carries a non-empty translated value,
     /// either directly (`stringUnit`) or across all plural variations.
     private static func hasNonEmptyValue(_ loc: [String: Any]) -> Bool {
