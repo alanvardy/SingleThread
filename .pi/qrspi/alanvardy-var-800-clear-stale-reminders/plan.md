@@ -482,9 +482,9 @@ Timeline(entries: [entry], policy: .after(refresh))
 ### Verification — Stage 4
 
 #### Automated
-- [ ] `make build` (widget target compiles; the constant resolves within the module)
-- [ ] `make periphery` clean (the new constant is used — no unused-declaration hit)
-- [ ] `make lint` clean
+- [x] `make build` (widget target compiles; the constant resolves within the module)
+- [x] `make periphery` clean (the new constant is used — no unused-declaration hit)
+- [x] `make lint` clean
 
 #### Manual
 - [ ] No widget unit-test target exists (per conventions inventory) — verify via a simulator widget after an app-side completion that the widget's card advances within ~5 minutes of the timeline refresh.
