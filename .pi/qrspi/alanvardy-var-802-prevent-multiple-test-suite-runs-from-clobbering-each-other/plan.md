@@ -162,8 +162,8 @@ Four identical replacements: one per iOS job. `mac-tests` and `watch-ui-tests` j
 ### Verification
 
 - [ ] Push to a PR branch with a unit-test failure → artifacts tab shows two distinct artifacts: `unit-test-results-iPhone 17` and `unit-test-results-iPad (A16)`
-- [ ] On pass, confirm no artifact-name collision error in logs (different VMs, so the workspace-root xcresult paths don't collide either)
-- [ ] `mac-unit-test-results` artifact name is unchanged
+- [x] On pass, confirm no artifact-name collision error in logs (different VMs, so the workspace-root xcresult paths don't collide either) — verified structurally: on a PASS the `if: failure()` upload step doesn't run at all, and the two names (`unit-test-results-iPhone 17` / `unit-test-results-iPad (A16)`) are distinct by construction; the per-VM xcresult paths are workspace-relative and each VM has its own workspace.
+- [x] `mac-unit-test-results` artifact name is unchanged — verified by `git diff` (only the two `unit-tests` edits).
 
 ---
 
