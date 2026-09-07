@@ -25,15 +25,15 @@
             }
         }
 
-        CommandMenu("Reminder") {
-            Button("Complete Reminder") {
+        CommandMenu(SharedStrings.reminder) {
+            Button(SharedStrings.completeReminder) {
                 Task { @MainActor in
                     await store.completeCurrentReminder()
                 }
             }
             .disabled(store.visibleReminders.first == nil)
 
-            Button("Skip Reminder") {
+            Button(SharedStrings.skipReminder) {
                 Task { @MainActor in
                     store.skipCurrentReminder()
                 }

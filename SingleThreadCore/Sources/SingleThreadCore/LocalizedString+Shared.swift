@@ -9,12 +9,30 @@ import Foundation
 /// Keys shared across ≥2 targets live here — never duplicated in a target's
 /// own catalog.
 public enum SharedStrings {
+    /// Note: "Medium" intentionally stays in two catalogs — App (font-size
+    /// picker, es "Mediano") and Core (priority level, es "Media") — same
+    /// English word, different UI contexts and translations. Not deduplicated.
     public static var completeAction: String {
         String(localized: "Complete", table: "Localizable", bundle: .module)
     }
 
+    /// "Complete Reminder" (title case) — used by macOS command menus and menu bar.
+    public static var completeReminder: String {
+        String(localized: "Complete Reminder", table: "Localizable", bundle: .module)
+    }
+
+    /// "Reminder" — used by confirmation dialogs, navigation titles, and macOS command menus.
+    public static var reminder: String {
+        String(localized: "Reminder", table: "Localizable", bundle: .module)
+    }
+
     public static var skipAction: String {
         String(localized: "Skip", table: "Localizable", bundle: .module)
+    }
+
+    /// "Skip Reminder" (title case) — used by macOS command menus and menu bar.
+    public static var skipReminder: String {
+        String(localized: "Skip Reminder", table: "Localizable", bundle: .module)
     }
 
     public static var deleteAction: String {
