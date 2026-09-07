@@ -446,8 +446,8 @@ Same three cases as §3, against `WatchReminderViewModel` (its long init already
 ### Verification — Stage 3
 
 #### Automated
-- [ ] `make lint` passes
-- [ ] `xcodebuild -only-testing:SingleThreadTests -only-testing:SingleThreadWatchTests` green on their respective pinned destinations (watch needs a paired/standalone watch simulator — see `make watch-test` / `WATCH_TEST_SIM`)
+- [x] `make lint` passes
+- [x] `xcodebuild -only-testing:SingleThreadTests -only-testing:SingleThreadWatchTests` green on their respective pinned destinations (watch needs a paired/standalone watch simulator — see `make watch-test` / `WATCH_TEST_SIM`)
 
 #### Manual
 - [ ] Launch the iOS app (`make build` then run, or seed via `--seed '<json>' --ui-testing-noop-settle`), foreground a reminder, then complete that reminder in the macOS Reminders app (or flip `isCompleted` on another device): the on-screen card advances to the next reminder without pull-to-refresh.

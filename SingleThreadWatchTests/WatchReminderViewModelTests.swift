@@ -50,10 +50,11 @@ private func makeWatchReminderViewModel(skipKey: String) -> (viewModel: WatchRem
     return (viewModel, store, skipped.calendarItemIdentifier)
 }
 
-/// Covers `WatchReminderViewModel.refreshFromCardTap()`: a card tap runs a full
-/// refresh cycle (`isRefreshing` false → true → false) and passes
-/// `store.allSkipped` through as `clearSkipped`, pruning (never clearing) skip
-/// state while a reminder is still visible.
+/// Covers `WatchReminderViewModel.refreshFromCardTap()` and the rechecker
+/// lifecycle attached to `task()`: a card tap runs a full refresh cycle
+/// (`isRefreshing` false → true → false) and passes `store.allSkipped` through
+/// as `clearSkipped`, pruning (never clearing) skip state while a reminder is
+/// still visible.
 @MainActor
 @Suite(.serialized)
 struct WatchReminderViewModelTests {
@@ -147,5 +148,83 @@ struct WatchReminderViewModelTests {
 
         #expect(!viewModel.isRefreshing)
         #expect(fixture.store.skippedIDs.contains(fixture.skippedID))
+    }
+
+    // MARK: - Rechecker lifecycle
+
+    @Test
+    func taskStartsRecheckerAfterStoreStart() async {
+        let recording = RecordingRechecker()
+        let viewModel = WatchReminderViewModel(
+            store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: ShowCompletionGlowState(),
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState()) { _ in recording }
+        let task = Task { await viewModel.task() }
+        while recording.startCount == 0 {
+            await Task.yield()
+        }
+        #expect(recording.startCount == 1)
+        task.cancel()
+        await task.value
+    }
+
+    @Test
+    func taskCancellationStopsRecheckerOnce() async {
+        let recording = RecordingRechecker()
+        let viewModel = WatchReminderViewModel(
+            store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: ShowCompletionGlowState(),
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState()) { _ in recording }
+        let task = Task { await viewModel.task() }
+        while recording.startCount == 0 {
+            await Task.yield()
+        }
+        task.cancel()
+        await task.value
+        #expect(recording.stopCount == 1) // stopped exactly once by the defer
+    }
+
+    @Test
+    func nilRecheckerFactoryDoesNotCrash() async {
+        let viewModel = WatchReminderViewModel(
+            store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: ShowCompletionGlowState(),
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState()) { _ in nil }
+        let task = Task { await viewModel.task() }
+        await Task.yield()
+        task.cancel()
+        await task.value // optional chaining must not crash with a nil rechecker
+        #expect(true)
+    }
+}
+
+/// Records `start()`/`stop()` calls so the rechecker lifecycle attached to
+/// `task()` can be asserted headlessly.
+@MainActor
+final class RecordingRechecker: StaleReminderRechecking {
+    private(set) var startCount = 0
+    private(set) var stopCount = 0
+
+    func start() {
+        startCount += 1
+    }
+
+    func stop() {
+        stopCount += 1
     }
 }
