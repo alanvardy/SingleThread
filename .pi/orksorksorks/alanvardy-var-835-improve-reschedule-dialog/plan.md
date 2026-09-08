@@ -260,7 +260,7 @@ is expected in this layer.
 - [x] `make mac-test` green (macOS-native `SingleThreadTests`, `CODE_SIGNING_ALLOWED=NO`). Known local-only `EntitlementStoreTests` failures (`isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`, `hostStoreKitIsClean`) are pre-existing — annotate, don't debug.
 - [x] Targeted macOS chrome run green: `xcodebuild -scheme SingleThread -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO -derivedDataPath DerivedData test-without-building -only-testing:SingleThreadTests/MacOSActionButtonChromeTests` (+ `.../singleThreadTests` if convenient). Or rely on `make mac-test`.
 - [x] iOS regression suites green (proves no data-flow change): `-only-testing:SingleThreadTests/RescheduleSyncTests -only-testing:SingleThreadTests/ReminderStoreTests -only-testing:SingleThreadTests/EventKitStoringTests`
-- [ ] **Full CI-identical gate `./scripts/test.sh` exactly once, via the `run-gate` skill** (managed worktree, multi-hour timeout) — the only full-gate run; phases verify with targeted suites only.
+- [x] **Full CI-identical gate `./scripts/test.sh` exactly once, via the `run-gate` skill** (managed worktree, multi-hour timeout) — the only full-gate run; phases verify with targeted suites only.
 
 #### Manual
 - [ ] iPhone simulator — nudge sheet: "Reschedule to" label + picker centered side-by-side, prominent "Reschedule" confirm centered beneath; nudge title/destructive actions still present; no clipping at `.height(420)`.

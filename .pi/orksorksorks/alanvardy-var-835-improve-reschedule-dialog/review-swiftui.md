@@ -1,0 +1,31 @@
+## Review — RescheduleSheet.swift / RescheduleSheetTests.swift (PR #182, SwiftUI/a11y/state/perf angle)
+
+Verdict: **OK with notes.** No blockers, no fix-now items. All findings below are optional. I verified the following claims directly in the repo; nothing else is asserted.
+
+### Checks performed (evidence)
+- **No UI test or caller depends on the old layout or the identifiers.** Grep of `SingleThreadUITests/` and `SingleThreadWatchUITests/` for `reschedule|Reschedule|nudge` → no matches. Repo-wide grep of `rescheduleDatePicker|rescheduleConfirmButton|nudgeSheetTitle` → only `RescheduleSheet.swift` (and an unrelated watch-side `rescheduleConfirmButton` in `WatchReminderView.swift:311`). The only unit test touching the sheet (`SingleThreadTests.swift:142 rescheduleSheetTextButtonsKeepNativeChrome`, macOS-relevant) asserts "Cancel" presence and absence of `SingleThreadButtonModifier` — both still true after the change.
+- **Localization safe.** `"Reschedule to"` already exists in `SingleThread/Resources/Localizable.xcstrings:2054` (extractionState "manual", en + zh-Hans translated); the new `Text("Reschedule to")` uses the same key the old `DatePicker` label used. No new key, no regression.
+- **Formatting/name/concurrency conventions hold.** No force-unwraps; test names don't start with `test`; `@MainActor struct RescheduleSheetTests` is correct (test target does not default to MainActor); no redundant `Task { @MainActor in … }`; the trailing-closure `DatePicker(…) { EmptyView() }` matches the repo's pervasive committed style under `--disable trailingClosures` (e.g. `Toggle(isOn:) {`, `VStack(alignment:.leading) {`), so no format drift.
+- **Body purity / identity / retention.** `body` is a pure computed property over `@State date`; the `Task` is constructed only on tap and captures the resolved `components` value; callers already pass `[weak viewModel]` closures. No ForEach/AnyView involved. `@State date` is per-instance and memoized by SwiftUI identity.
+
+### Findings (a), (b), (c)
+
+**(a) `.accessibilityElement(children: .combine)` on the HStack (RescheduleSheet.swift:36, identifier at :33)**
+- Correct use of the API: it merges `Text("Reschedule to")` + the picker into one element, which is the recommended way to glue an external text label to a control, and it keeps the picker's value/trait. The compact DatePicker (default in this context) opens a modal popover for the wheels, so wheel swiping happens outside the row and is *not* affected by the row-level combine. This is strictly better than the old standalone `DatePicker` label for alignment/hit-target purposes.
+- **Optional finding:** the `.accessibilityIdentifier("rescheduleDatePicker")` attaches to the child picker element, which `.combine` swallows; the exposed "row" element carries no identifier, so `rescheduleDatePicker` is effectively unreachable to XCUITest. Today nothing uses it (verified), so it's dead metadata — but move the identifier onto the HStack (or drop it) if any future UI test needs to target the picker. Since `.combine` semantics for trait retention (announced "Adjustable" vs button) vary across OS versions and are not provable from a unit test, a manual VoiceOver pass on the simulator (part of the plan's checks) is the only way this is validated.
+
+**(b) Explicit `Text` + `EmptyView` label + `.labelsHidden()` (RescheduleSheet.swift:25, 29–32)**
+- Visually and semantically sound as committed because `.combine` supplies the merged label. **Optional finding:** the picker's own a11y label is now *solely* inherited from the sibling `Text`; if anyone ever removes `.accessibilityElement(children: .combine)` (e.g. to restore a standalone picker), the control silently becomes unlabeled. Belt-and-braces: add `.accessibilityLabel("Reschedule to")` directly on the `DatePicker` (or keep the label-off-next-to-text layout and drop reliance on the combine). Also: `.labelsHidden()` is redundant with `EmptyView` (which renders nothing) — harmless, but it documents intent, so leave it.
+
+**(c) Frames / platform consistency**
+- `HStack.frame(maxWidth: .infinity)` + `Button.frame(maxWidth: .infinity)` inside the outer `.frame(maxWidth: .infinity, alignment: .leading)` are mutually consistent, and both call sites (nudge sheet `ContentView+iOS.swift:62`, action menu `ContentView+ActionMenu.swift:181`) align `.leading`, so no layout ambiguity.
+- **Optional finding:** `actionMenuRescheduleSheet` is shared with **macOS** (per its comment and the macOS-runnable unit test), so the full-width `.borderedProminent` button and full-width row also change the macOS dialog — where platform convention is trailing-aligned buttons. Verify the macOS sheet still looks intentional; if macOS should keep trailing alignment, the full-width style needs a platform guard.
+
+### Test-coverage notes (optional)
+- The three new tests follow repo convention (name-token pinning via `String(describing:)`, cf. `SwipePromptTests.swift:52`), but `#expect(description.contains("AccessibilityAttachmentModifier"))` in `dateOnlySheetStillRendersLabeledRow` (RescheduleSheetTests.swift:81) is co-satisfied by the confirm button's identifier, and `!Spacer` doesn't prove full-width framing — so these pin structure, not a11y merging or sizing. Acceptable per project policy (UI tests are reserved for justified end-to-end value), but the a11y-merge behavior itself is only validated on-device.
+
+## Review
+- Correct: layout intent achieved; a11y pattern (combine label + control) is the right tool; identifiers/strings/format/concurrency conventions all consistent; no regressions to rescheduling logic or existing tests; unit tests cover both due-time branches and the nil-reminder fallback.
+- Fixed: none (review-only).
+- Finding: three optional notes above (dead `rescheduleDatePicker` identifier under `.combine`; picker label depends solely on the combine; macOS side-effect of the full-width prominent button).
+- Merge verdict: **OK with notes** — no blockers or fix-now items; recommend an on-device VoiceOver check of the merged row and a visual pass of the macOS sheet before release.
