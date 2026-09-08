@@ -2,21 +2,6 @@ import EventKit
 import SingleThreadCore
 import Testing
 
-// MARK: - Fixture
-
-/// A single `EKEventStore` kept alive to back the test reminders. The backing
-/// store must outlive the reminders — `EKReminder` holds a weak reference to
-/// it, so a deallocated store crashes (SIGTRAP) when any property is read.
-@MainActor private let sharedWatchEventStore = EKEventStore()
-
-/// Construction only — never saved through EventKit.
-@MainActor
-private func watchReminder(_ title: String) -> EKReminder {
-    let reminder = EKReminder(eventStore: sharedWatchEventStore)
-    reminder.title = title
-    return reminder
-}
-
 /// Covers the watch-side pending-completion insertion: `completeReminder` on
 /// watchOS records the completed identifier so a `reload()` before the phone
 /// processes the relay cannot resurrect (or double-complete) the reminder.

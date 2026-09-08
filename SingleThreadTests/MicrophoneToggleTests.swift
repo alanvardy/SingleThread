@@ -4,42 +4,6 @@ import Speech
 import SwiftUI
 import Testing
 
-// MARK: - Fake transcriber for microphone toggle tests
-
-@MainActor
-private final class MicToggleFakeTranscriber: SpeechTranscribing {
-    // MARK: Lifecycle
-
-    init(authorizationStatus: SFSpeechRecognizerAuthorizationStatus = .authorized) {
-        self.authorizationStatus = authorizationStatus
-        liveStatus = authorizationStatus
-    }
-
-    // MARK: Internal
-
-    private(set) var authorizationStatus: SFSpeechRecognizerAuthorizationStatus
-
-    /// The status `refreshAuthorizationStatus()` re-reads — the test mutates
-    /// this to simulate a Settings change while the app is backgrounded.
-    var liveStatus: SFSpeechRecognizerAuthorizationStatus
-
-    private(set) var refreshCallCount = 0
-
-    func requestAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
-        authorizationStatus
-    }
-
-    func refreshAuthorizationStatus() {
-        refreshCallCount += 1
-        authorizationStatus = liveStatus
-    }
-
-    func transcribe(
-        onPartialResult _: @escaping @MainActor (String) -> Void) async throws -> String {
-        ""
-    }
-}
-
 // MARK: - Microphone Toggle Tests
 
 @MainActor
@@ -48,7 +12,7 @@ struct MicrophoneToggleTests {
 
     @Test
     func settingsGearButtonIsPresent() {
-        let fake = MicToggleFakeTranscriber()
+        let fake = TestFakeTranscriber()
         let view = ContentView(loadsReminders: false, speechTranscriber: fake)
         let bodyDescription = String(describing: view.body)
 
@@ -64,7 +28,7 @@ struct MicrophoneToggleTests {
 
     @Test
     func micButtonHiddenWhenSpeechDenied() {
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let fake = TestFakeTranscriber(authorizationStatus: .denied)
         let viewModel = makeViewModel(fake)
 
         // Mic button should be unavailable when speech recognition is denied.
@@ -85,7 +49,7 @@ struct MicrophoneToggleTests {
 
     @Test
     func micButtonAbsentWhenToggleOff() {
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let fake = TestFakeTranscriber(authorizationStatus: .authorized)
         let viewModel = makeViewModel(fake)
         #expect(viewModel.canDictate)
 
@@ -101,7 +65,7 @@ struct MicrophoneToggleTests {
 
     @Test
     func micButtonWithToggleEnabledDoesNotCrash() {
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let fake = TestFakeTranscriber(authorizationStatus: .authorized)
         let viewModel = makeViewModel(fake)
         #expect(viewModel.canDictate)
 
@@ -128,7 +92,7 @@ struct MicrophoneToggleTests {
 
     @Test
     func authorizationStatusPassthroughMatchesTranscriber() {
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let fake = TestFakeTranscriber(authorizationStatus: .denied)
         let viewModel = makeViewModel(fake)
 
         #expect(viewModel.authorizationStatus == .denied)
@@ -136,7 +100,7 @@ struct MicrophoneToggleTests {
 
     @Test
     func refreshAuthorizationStatusCallsThroughToTranscriber() {
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let fake = TestFakeTranscriber(authorizationStatus: .authorized)
         let viewModel = makeViewModel(fake)
 
         #expect(fake.refreshCallCount == 0)
@@ -147,7 +111,7 @@ struct MicrophoneToggleTests {
 
     @Test
     func foregroundActiveRefreshesAuthorizationStatus() {
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let fake = TestFakeTranscriber(authorizationStatus: .authorized)
         let view = ContentView(loadsReminders: false, speechTranscriber: fake)
 
         view.handleScenePhaseChange(.active)
@@ -157,7 +121,7 @@ struct MicrophoneToggleTests {
 
     @Test
     func canDictateReflectsStatusAfterForegroundRefresh() {
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let fake = TestFakeTranscriber(authorizationStatus: .authorized)
         let viewModel = makeViewModel(fake)
         #expect(viewModel.canDictate)
 
@@ -170,7 +134,7 @@ struct MicrophoneToggleTests {
 
     @Test
     func foregroundActiveDoesNotAffectBackgroundBehavior() {
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .authorized)
+        let fake = TestFakeTranscriber(authorizationStatus: .authorized)
         let view = ContentView(loadsReminders: false, speechTranscriber: fake)
 
         view.handleScenePhaseChange(.background)
@@ -184,7 +148,7 @@ struct MicrophoneToggleTests {
         UserDefaults.standard.set(true, forKey: defaultsKey)
         defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
 
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let fake = TestFakeTranscriber(authorizationStatus: .denied)
         let view = ContentView(loadsReminders: false, speechTranscriber: fake)
 
         // `String(describing: view.body)` can't reach this label: ContentView's
@@ -199,7 +163,7 @@ struct MicrophoneToggleTests {
         UserDefaults.standard.set(true, forKey: defaultsKey)
         defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
 
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .restricted)
+        let fake = TestFakeTranscriber(authorizationStatus: .restricted)
         let view = ContentView(loadsReminders: false, speechTranscriber: fake)
 
         #expect(String(describing: view.bottomBar).contains("Speech recognition is unavailable."))
@@ -211,7 +175,7 @@ struct MicrophoneToggleTests {
         UserDefaults.standard.set(false, forKey: defaultsKey)
         defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
 
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let fake = TestFakeTranscriber(authorizationStatus: .denied)
         let view = ContentView(loadsReminders: false, speechTranscriber: fake)
 
         #expect(!String(describing: view.bottomBar).contains("Speech recognition is unavailable."))
@@ -223,7 +187,7 @@ struct MicrophoneToggleTests {
         UserDefaults.standard.set(true, forKey: defaultsKey)
         defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
 
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .notDetermined)
+        let fake = TestFakeTranscriber(authorizationStatus: .notDetermined)
         let view = ContentView(loadsReminders: false, speechTranscriber: fake)
 
         #expect(!String(describing: view.bottomBar).contains("Speech recognition is unavailable."))
@@ -236,7 +200,7 @@ struct MicrophoneToggleTests {
             UserDefaults.standard.set(true, forKey: defaultsKey)
             defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
 
-            let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+            let fake = TestFakeTranscriber(authorizationStatus: .denied)
             let view = ContentView(loadsReminders: false, speechTranscriber: fake)
 
             #expect(String(describing: view.bottomBar).contains("Open Settings"))
@@ -249,7 +213,7 @@ struct MicrophoneToggleTests {
         UserDefaults.standard.set(true, forKey: defaultsKey)
         defer { UserDefaults.standard.removeObject(forKey: defaultsKey) }
 
-        let fake = MicToggleFakeTranscriber(authorizationStatus: .denied)
+        let fake = TestFakeTranscriber(authorizationStatus: .denied)
         let contentViewModel = makeContentViewModel(fake)
         contentViewModel.dictation.dictationError = "some error"
         let view = ContentView(viewModel: contentViewModel)
@@ -270,7 +234,7 @@ struct MicrophoneToggleTests {
     #if os(iOS)
         @Test
         func processingIndicatorRendersWhenIsProcessingIsTrue() {
-            let fake = MicToggleFakeTranscriber()
+            let fake = TestFakeTranscriber()
             let contentViewModel = makeContentViewModel(fake)
             contentViewModel.dictation.isProcessing = true
             let view = ContentView(viewModel: contentViewModel)
@@ -283,7 +247,7 @@ struct MicrophoneToggleTests {
 
         @Test
         func processingIndicatorNotRenderedWhenIsProcessingIsFalse() {
-            let fake = MicToggleFakeTranscriber()
+            let fake = TestFakeTranscriber()
             let contentViewModel = makeContentViewModel(fake)
             // isProcessing defaults to false
             let view = ContentView(viewModel: contentViewModel)
@@ -294,7 +258,7 @@ struct MicrophoneToggleTests {
 
         @Test
         func recordingIndicatorNotRenderedWithProcessingTrue() {
-            let fake = MicToggleFakeTranscriber()
+            let fake = TestFakeTranscriber()
             let contentViewModel = makeContentViewModel(fake)
             contentViewModel.dictation.isProcessing = true
             contentViewModel.dictation.dictationText = "Hello"
@@ -308,13 +272,13 @@ struct MicrophoneToggleTests {
 
     // MARK: Private
 
-    private func makeViewModel(_ fake: MicToggleFakeTranscriber) -> DictationViewModel {
+    private func makeViewModel(_ fake: TestFakeTranscriber) -> DictationViewModel {
         DictationViewModel(
             speechTranscriber: fake,
             store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false))
     }
 
-    private func makeContentViewModel(_ fake: MicToggleFakeTranscriber) -> ContentViewModel {
+    private func makeContentViewModel(_ fake: TestFakeTranscriber) -> ContentViewModel {
         ContentViewModel(
             store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
             backgroundImage: BackgroundImageStore(),

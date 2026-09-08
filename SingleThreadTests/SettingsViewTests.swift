@@ -410,23 +410,3 @@ struct SettingsViewTests {
         return store
     }
 }
-
-/// Serves the store's endpoint payload and photo so tests can seed a populated
-/// store without touching the network.
-private final class SeededFetcher: BackgroundImageFetching, @unchecked Sendable {
-    // MARK: Internal
-
-    func fetchData(from url: URL) async throws -> Data {
-        if url == Self.endpoint {
-            let json = "{\"url\":\"\(Self.imageURL.absoluteString)\",\"photographer\":\"NEOM\","
-                + "\"photographer_url\":\"https://unsplash.com/@neom\"}"
-            return Data(json.utf8)
-        }
-        return BackgroundTestFixtures.jpegData
-    }
-
-    // MARK: Private
-
-    private static let endpoint = URL(string: "https://vardy.cc/unsplash")!
-    private static let imageURL = URL(string: "https://images.unsplash.com/photo-1.jpg")!
-}

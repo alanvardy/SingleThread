@@ -3,23 +3,6 @@ import SingleThreadCore
 @testable import SingleThreadWatch
 import Testing
 
-// MARK: - Fixture
-
-/// A single `EKEventStore` kept alive to back the test reminders. `EKReminder`
-/// holds a weak reference to its backing store, so a deallocated store crashes
-/// (SIGTRAP) when any property is read. Mirrors `ReminderStoreWatchTests` and
-/// `ShowCompletionGlowStateTests` — `InMemoryEventStore.makeReminder` is iOS-only,
-/// so watch unit tests build reminders against a live store.
-@MainActor private let sharedWatchEventStore = EKEventStore()
-
-/// Construction only — never saved through EventKit.
-@MainActor
-private func watchReminder(_ title: String) -> EKReminder {
-    let reminder = EKReminder(eventStore: sharedWatchEventStore)
-    reminder.title = title
-    return reminder
-}
-
 /// Builds a reload-capable `ReminderStore` plus its `WatchReminderViewModel`,
 /// seeded with one visible and one skipped reminder. The skipped id is persisted
 /// through the injected `skipStore` so `reload(clearSkipped:)` prunes (never

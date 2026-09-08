@@ -5,11 +5,6 @@ import Testing
 
 // MARK: - Fixture
 
-/// A single `EKEventStore` kept alive to back the test reminder. The backing
-/// store must outlive the reminders — `EKReminder` holds a weak reference to
-/// it, so a deallocated store crashes (SIGTRAP) when any property is read.
-@MainActor private let sharedWatchEventStore = EKEventStore()
-
 /// Construction only — never saved through EventKit.
 @MainActor
 private func watchReminder() -> EKReminder {
