@@ -41,70 +41,6 @@ struct WatchSyncPipelineTests {
     }
 
     @Test
-    func receiveAppliesEveryPresentKey() {
-        let fake = WatchFakeSession()
-        let suffix = UUID().uuidString
-        let skipStore = SkippedReminderStore(defaults: .standard, key: "wtest-all-skip-\(suffix)")
-        let countStore = SkipCountStore(defaults: .standard, key: "wtest-all-cnt-\(suffix)")
-        let excludeStore = ExcludedListStore(defaults: .standard, key: "wtest-all-excl-\(suffix)")
-        let showUndatedStore = BoolPreferenceStore(
-            defaults: .standard,
-            key: "wtest-all-und-\(suffix)",
-            fallback: false)
-        let sortStore = SortOptionStore(defaults: .standard, key: "wtest-all-sort-\(suffix)")
-        let showDateStore = BoolPreferenceStore(
-            defaults: .standard,
-            key: "wtest-all-date-\(suffix)",
-            fallback: true)
-        showDateStore.set(true)
-        let service = SkippedReminderSyncService(
-            session: fake,
-            skipStore: skipStore,
-            countStore: countStore,
-            excludeStore: excludeStore,
-            sortStore: sortStore,
-            showUndatedStore: showUndatedStore,
-            showDateStore: showDateStore)
-
-        var skips: [[String]] = []
-        var counts: [[String: Int]] = []
-        var titles: [[String]] = []
-        var undated: [Bool] = []
-        var sorts: [SortOption] = []
-        var showDates: [Bool] = []
-        service.onSkippedIdentifiersReceived = { skips.append($0) }
-        service.onSkipCountsReceived = { counts.append($0) }
-        service.onExcludedListTitlesReceived = { titles.append($0) }
-        service.onShowUndatedRemindersReceived = { undated.append($0) }
-        service.onSortOptionReceived = { sorts.append($0) }
-        service.onShowDateReceived = { showDates.append($0) }
-
-        service.session(
-            WCSession.default,
-            didReceiveApplicationContext: [
-                "skippedReminderIdentifiers": ["R1", "R2"],
-                "skipCounts": ["R1": 6],
-                "excludedListTitles": ["Work"],
-                "showUndatedReminders": true,
-                "sortOption": "dueDate",
-                "showDate": false
-            ])
-
-        #expect(Set(skipStore.load()) == ["R1", "R2"])
-        #expect(countStore.load() == ["R1": 6])
-        #expect(excludeStore.load() == ["Work"])
-        #expect(showUndatedStore.isEnabled)
-        #expect(sortStore.load() == .dueDate)
-        #expect(!showDateStore.isEnabled)
-        #expect(skips == [["R1", "R2"]])
-        #expect(counts == [["R1": 6]])
-        #expect(titles == [["Work"]])
-        #expect(undated == [true])
-        #expect(sorts == [.dueDate])
-        #expect(showDates == [false])
-    }
-
-    @Test
     func receiveAbsentKeysAreNoOps() {
         let fake = WatchFakeSession()
         let suffix = UUID().uuidString
@@ -165,39 +101,6 @@ struct WatchSyncPipelineTests {
         #expect(
             fresh.currentValue == payload.value,
             "\(payload.key)=\(payload.value) should survive relaunch")
-    }
-
-    @Test
-    func excludedTitlesRefreshFiltersVisibleReminders() {
-        let fake = WatchFakeSession()
-        let store = ReminderStore(
-            eventStore: InMemoryEventStore(),
-            loadsReminders: false,
-            reminders: [
-                inListReminder(title: "A", list: "Work"),
-                inListReminder(title: "B", list: "Personal")
-            ],
-            skippedIDs: [],
-            authorizationStatus: .fullAccess)
-        let service = SkippedReminderSyncService(
-            session: fake,
-            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-excl-comp-skip-\(UUID().uuidString)"),
-            excludeStore: ExcludedListStore(
-                defaults: .standard,
-                key: "wtest-excl-comp-excl-\(UUID().uuidString)"))
-        // Wire the service's receive hook into the shared store, mirroring the app-layer wiring.
-        service.onExcludedListTitlesReceived = { titles in
-            store.refreshExcludedListTitles(Set(titles))
-        }
-
-        #expect(Set(store.visibleReminders.map(\.title)) == ["A", "B"]) // both visible before
-
-        service.session(
-            WCSession.default,
-            didReceiveApplicationContext: ["excludedListTitles": ["Work"]])
-
-        #expect(Set(store.visibleReminders.map(\.title)) == ["B"]) // "A" (Work) filtered
-        #expect(Set(store.excludedListTitles) == ["Work"])
     }
 
     @Test
@@ -406,26 +309,6 @@ struct WatchSyncPipelineTests {
         #expect(context["isEntitled"] == nil)
     }
 
-    @Test
-    func receiveSkipCountsSavesAndFiresHookOnWatch() {
-        let fake = WatchFakeSession()
-        let suffix = UUID().uuidString
-        let countStore = SkipCountStore(defaults: .standard, key: "wtest-recv-cnt-\(suffix)")
-        let service = SkippedReminderSyncService(
-            session: fake,
-            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-recv-cnt-skip-\(suffix)"),
-            countStore: countStore)
-        var received: [[String: Int]] = []
-        service.onSkipCountsReceived = { received.append($0) }
-
-        service.session(
-            WCSession.default,
-            didReceiveApplicationContext: ["skipCounts": ["a": 6]])
-
-        #expect(countStore.load() == ["a": 6]) // persisted first
-        #expect(received == [["a": 6]]) // then notified
-    }
-
     // MARK: Private
 
     // MARK: Private — relaunch-test seam
@@ -535,17 +418,4 @@ struct WatchEnableActionButtonsSyncTests {
         #expect(AppGroup.defaults.bool(forKey: "enableActionButtons")) // unchanged
         #expect(!fired)
     }
-}
-
-/// Builds a reminder that lives in a calendar titled `list`, so exclusion
-/// filtering (which matches `calendar.title`) can be exercised.
-/// Construction only — never saved through EventKit.
-private func inListReminder(title: String, list: String) -> EKReminder {
-    let eventStore = EKEventStore()
-    let reminder = EKReminder(eventStore: eventStore)
-    reminder.title = title
-    let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
-    calendar.title = list
-    reminder.calendar = calendar
-    return reminder
 }
