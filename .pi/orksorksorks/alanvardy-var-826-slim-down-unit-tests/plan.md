@@ -480,8 +480,8 @@ the shared `makeReminder`/`InMemoryEventStore` builders; `noopSettle` and
 
 ### Verification
 #### Automated
-- [ ] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' -derivedDataPath DerivedData -only-testing:SingleThreadTests/ReminderStoreTests` green
-- [ ] `make lint` clean — the file was 1143 lines; splits add lines, so confirm `file_length` disable (`.swiftlint.yml:33-35` warn 650/err 800) still applies; if not, note in PR
+- [x] `xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=27.0' -derivedDataPath DerivedData -only-testing:SingleThreadTests/ReminderStoreTests` green (ran with pinned `id=1583C89D-…`; 68/68 cases passed, exit 0)
+- [x] `make lint` clean — the file was 1143 lines; splits add lines, so confirm `file_length` disable (`.swiftlint.yml:33-35` warn 650/err 800) still applies; if not, note in PR (`swiftlint disable file_length` comment already present at top of file; `make lint` 0 violations in 181 files)
 
 #### Manual
 - [ ] No `#expect` was dropped: diff should show the same set of assertions, partitioned, with no new logic
