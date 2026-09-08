@@ -554,24 +554,6 @@ struct ReminderStoreAvailableListsTests {
 
 // MARK: - Fixtures
 
-@MainActor private let sharedTestEventStore = EKEventStore()
-
-/// Construction only — never saved through EventKit.
-@MainActor
-private func makeReminder(title: String) -> EKReminder {
-    let reminder = EKReminder(eventStore: sharedTestEventStore)
-    reminder.title = title
-    return reminder
-}
-
-/// Construction only — never saved through EventKit.
-@MainActor
-private func makeCalendar(title: String) -> EKCalendar {
-    let calendar = EKCalendar(for: .reminder, eventStore: sharedTestEventStore)
-    calendar.title = title
-    return calendar
-}
-
 @MainActor
 private func testStore(eventStore: any EventKitStoring) -> ReminderStore {
     let skipStore = SkippedReminderStore(

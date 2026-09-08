@@ -124,25 +124,7 @@ struct CompletionGlowViewModelTests {
         return ContentViewModel(
             store: store,
             backgroundImage: BackgroundImageStore(),
-            speechTranscriber: GlowFakeTranscriber(),
+            speechTranscriber: TestFakeTranscriber(),
             showCompletionGlow: showCompletionGlow)
-    }
-}
-
-// MARK: - Fake transcriber
-
-/// Keeps `ContentViewModel` construction off the real speech recognizer,
-/// mirroring the fake in `ActionButtonTests` (private there, so not reusable).
-@MainActor
-private final class GlowFakeTranscriber: SpeechTranscribing {
-    private(set) var authorizationStatus = SFSpeechRecognizerAuthorizationStatus.authorized
-
-    func requestAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
-        authorizationStatus
-    }
-
-    func transcribe(
-        onPartialResult _: @escaping @MainActor (String) -> Void) async throws -> String {
-        ""
     }
 }

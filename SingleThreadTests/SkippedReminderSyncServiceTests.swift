@@ -4,39 +4,6 @@
     import Testing
     import WatchConnectivity
 
-    // Converting the sync-service tests to `BoolPreferenceStore` pushed this
-    // file a few lines past the 650-line `file_length` warning: the store
-    // constructions (key + fallback) are inherently longer than the former
-    // `Show*Preference` defaults, and every one of the 11 call sites stayed put.
-    // swiftlint:disable file_length
-
-    // MARK: - Fake session for testing
-
-    final class FakeSession: SkipSyncSession {
-        var activated = false
-        var lastContext: [String: Any]?
-        var lastMessage: [String: Any]?
-        var pushShouldThrow = false
-
-        func activate() {
-            activated = true
-        }
-
-        func updateApplicationContext(_ applicationContext: [String: Any]) throws {
-            if pushShouldThrow {
-                throw NSError(domain: "test", code: 1)
-            }
-            lastContext = applicationContext
-        }
-
-        func sendMessage(
-            _ message: [String: Any],
-            replyHandler _: (([String: Any]) -> Void)?,
-            errorHandler _: ((any Error) -> Void)?) {
-            lastMessage = message
-        }
-    }
-
     @MainActor
     struct SkippedReminderSyncServiceTests {
         // MARK: Internal
@@ -643,18 +610,5 @@
             #expect(countStore.load() == ["a": 1]) // unchanged
             #expect(!fired) // absent key is a no-op for the handler too
         }
-    }
-
-    /// Builds a reminder that lives in a calendar titled `list`, so exclusion
-    /// filtering (which matches `calendar.title`) can be exercised.
-    /// Construction only — never saved through EventKit.
-    private func inListReminder(title: String, list: String) -> EKReminder {
-        let eventStore = EKEventStore()
-        let reminder = EKReminder(eventStore: eventStore)
-        reminder.title = title
-        let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
-        calendar.title = list
-        reminder.calendar = calendar
-        return reminder
     }
 #endif

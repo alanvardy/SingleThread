@@ -3,8 +3,6 @@ import Foundation
 import SingleThreadCore
 import Testing
 
-@MainActor private let sharedTestEventStore = EKEventStore()
-
 @MainActor
 struct ReminderDisplayTests {
     // MARK: Internal
@@ -154,12 +152,4 @@ struct ReminderDisplayTests {
             display.recurrenceSummary == spec.expectedSummary,
             "summary for rule added: \(spec.addsRule)")
     }
-}
-
-/// Construction only — never saved through EventKit.
-@MainActor
-private func makeReminder(title: String) -> EKReminder {
-    let reminder = EKReminder(eventStore: sharedTestEventStore)
-    reminder.title = title
-    return reminder
 }

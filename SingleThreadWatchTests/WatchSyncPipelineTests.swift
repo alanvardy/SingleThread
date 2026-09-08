@@ -3,31 +3,6 @@ import SingleThreadCore
 import Testing
 import WatchConnectivity
 
-// MARK: - Fake session for testing
-
-/// Private copy of the iOS suite's fake — it cannot be imported across test bundles.
-private final class WatchFakeSession: SkipSyncSession {
-    var activated = false
-    var lastContext: [String: Any]?
-    var pushShouldThrow = false
-
-    func activate() {
-        activated = true
-    }
-
-    func updateApplicationContext(_ applicationContext: [String: Any]) throws {
-        if pushShouldThrow {
-            throw NSError(domain: "test", code: 1)
-        }
-        lastContext = applicationContext
-    }
-
-    func sendMessage(
-        _: [String: Any],
-        replyHandler _: (([String: Any]) -> Void)?,
-        errorHandler _: ((any Error) -> Void)?) {}
-}
-
 /// Watch-target compilation of the sync pipeline plus the Phase 1–3 behaviors,
 /// asserted natively on watchOS where the iOS-side bundle cannot run.
 @MainActor

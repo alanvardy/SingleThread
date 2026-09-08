@@ -1116,28 +1116,3 @@ struct ReloadPendingCompletionTests {
         }
     }
 #endif
-
-// MARK: - Fixtures
-
-@MainActor private let sharedTestEventStore = EKEventStore()
-
-/// Construction only — never saved through EventKit.
-@MainActor
-private func makeReminder(title: String, priority: Int = 0, dateComponents: DateComponents? = nil) -> EKReminder {
-    let reminder = EKReminder(eventStore: sharedTestEventStore)
-    reminder.title = title
-    reminder.priority = priority
-    reminder.dueDateComponents = dateComponents
-    return reminder
-}
-
-/// Construction only — never saved through EventKit.
-@MainActor
-private func makeReminder(title: String, calendarTitle: String) -> EKReminder {
-    let reminder = EKReminder(eventStore: sharedTestEventStore)
-    reminder.title = title
-    let calendar = EKCalendar(for: .reminder, eventStore: sharedTestEventStore)
-    calendar.title = calendarTitle
-    reminder.calendar = calendar
-    return reminder
-}

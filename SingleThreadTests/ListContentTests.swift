@@ -2,13 +2,9 @@ import EventKit
 @testable import SingleThreadCore
 import Testing
 
-@MainActor private let sharedTestEventStore = EKEventStore()
-
 @MainActor
 @Suite(.serialized)
 struct ListContentTests {
-    // MARK: Internal
-
     @Test
     func listContentReturnsAllDoneWhenAllSkipped() {
         let rem = makeReminder(title: "A")
@@ -76,13 +72,5 @@ struct ListContentTests {
     @Test
     func emptyHasHiddenPayloadDiffers() {
         #expect(ListContent.empty(hasHidden: false) != ListContent.empty(hasHidden: true))
-    }
-
-    // MARK: Private
-
-    private func makeReminder(title: String) -> EKReminder {
-        let reminder = EKReminder(eventStore: sharedTestEventStore)
-        reminder.title = title
-        return reminder
     }
 }

@@ -165,13 +165,4 @@ struct ReminderStoreGateTests {
         UserDefaults.standard.set(value, forKey: key)
         return CompletionCounterStore(defaults: .standard, key: key)
     }
-
-    private func makeReminder(title: String, priority: Int = 5) -> EKReminder {
-        let reminder = EKReminder(eventStore: sharedTestEventStore)
-        reminder.title = title
-        reminder.priority = priority
-        return reminder
-    }
 }
-
-@MainActor private let sharedTestEventStore = EKEventStore()

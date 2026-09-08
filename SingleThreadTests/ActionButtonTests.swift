@@ -75,7 +75,7 @@ import Testing
             ContentViewModel(
                 store: store,
                 backgroundImage: BackgroundImageStore(),
-                speechTranscriber: ActionButtonFakeTranscriber())
+                speechTranscriber: TestFakeTranscriber())
         }
 
         /// A prepopulated store with one visible reminder; never touches EventKit.
@@ -91,32 +91,6 @@ import Testing
                 reminders: [reminder],
                 skippedIDs: [],
                 authorizationStatus: .fullAccess)
-        }
-    }
-
-    // MARK: - Fake transcriber
-
-    /// Pattern copied from `MicrophoneToggleTests`; that file's fake transcriber is
-    /// private to its own source file, so it is not reusable here.
-    @MainActor
-    private final class ActionButtonFakeTranscriber: SpeechTranscribing {
-        // MARK: Lifecycle
-
-        init(authorizationStatus: SFSpeechRecognizerAuthorizationStatus = .authorized) {
-            self.authorizationStatus = authorizationStatus
-        }
-
-        // MARK: Internal
-
-        private(set) var authorizationStatus: SFSpeechRecognizerAuthorizationStatus
-
-        func requestAuthorization() async -> SFSpeechRecognizerAuthorizationStatus {
-            authorizationStatus
-        }
-
-        func transcribe(
-            onPartialResult _: @escaping @MainActor (String) -> Void) async throws -> String {
-            ""
         }
     }
 #endif
