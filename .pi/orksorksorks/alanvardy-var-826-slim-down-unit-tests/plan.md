@@ -366,7 +366,11 @@ Standalone cleanups gated on the stable Phase 1 fixture landscape so
 **Action**: delete (65 lines; 0 subclasses; 0 external references — Periphery hides
 it via `.periphery.yml:15-16`, so confirm the delete manually).
 
-- [ ] `grep -rn "SingleThreadUITestCase" .` returns nothing after deletion.
+- [x] `grep -rn "SingleThreadUITestCase" .` returns nothing after deletion.
+  (verified: zero references in code/config/scripts; only pre-existing
+  `.pi/orksorksorks/*` historical research docs from other tickets mention the
+  former class name — those are tracked docs, not live references; Periphery
+  also reports "No unused code detected")
 
 #### 2. Fix `count_tests.sh`
 **File**: `scripts/count_tests.sh`
@@ -404,8 +408,8 @@ Then delete the `settle=$(oc 'Task\.sleep…eventKitSettleDelay' …)` block and
 
 ### Verification
 #### Automated
-- [ ] `make lint` clean
-- [ ] `make periphery` clean (confirm `SingleThreadUITestCase.swift` is gone)
+- [x] `make lint` clean
+- [x] `make periphery` clean (confirm `SingleThreadUITestCase.swift` is gone)
 - [ ] `bash scripts/count_tests.sh` — output has no `settle_sleeps`/`forced_400ms` lines; `unit_tests: 565`, `expect: 1197`, `require: 73`, `assertion_mean: 2.25`, `launches: 3`, `xcodebuild: 11`, `unnamed_expect: 1009`
 
 #### Manual
