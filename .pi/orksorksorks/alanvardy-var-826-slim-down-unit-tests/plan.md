@@ -5,8 +5,9 @@
 Reduce the unit-test surface to a smaller, cheaper-to-maintain suite that asserts
 the same behaviors: centralize per-bundle test fixtures into one canonical file
 per bundle, delete seam-identical cross-target copies and dead tooling, and split
-brute-force multi-store test bodies into single-scenario tests — with no production
-code, UI-suite, or target-topology changes, and a coverage guardrail at the end.
+brute-force multi-store test bodies into single-scenario tests — with no
+production-code or target-topology changes, no changes to executed UI tests,
+and a coverage guardrail at the end.
 
 All line numbers below were verified against the working tree at HEAD `d216b6f`
 (except where noted as "re-grep at edit time" — deletions shift line numbers).

@@ -18,9 +18,10 @@ issue=$(oc 'Issue\.record' 'SingleThreadTests/*.swift SingleThreadWatchTests/*.s
 mean=$(awk "BEGIN { printf \"%.2f\", ($expect + $require) / $unit_total }")
 launches_ios=$(oc '\.launch\(\)' 'SingleThreadUITests/*.swift')      # 1
 launches_watch=$(oc '\.launch\(\)' 'SingleThreadWatchUITests/*.swift') # 1
-# The real 200 ms settle lives at ReminderStore.swift:39 (typealias
-# ReminderStoreSettle); it is injectable and tests use noopSettle /
-# --ui-testing-noop-settle, so no fixed sleep-pattern metric is counted.
+# The real 200 ms settle lives at ReminderStore.swift:38-39 (default settle;
+# typealias ReminderStoreSettle at :12); it is injectable and tests use
+# noopSettle / --ui-testing-noop-settle, so no fixed sleep-pattern metric is
+# counted.
 xcodebuild=$(grep -c 'xcodebuild' scripts/test.sh)                    # 11
 # Best-effort lower bound: single-line #expect(…) with no message / sourceLocation.
 unnamed=$(grep -roE '#expect\([^)]*\)' SingleThreadTests/*.swift SingleThreadWatchTests/*.swift \
