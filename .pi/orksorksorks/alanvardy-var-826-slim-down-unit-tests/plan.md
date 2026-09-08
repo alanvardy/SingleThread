@@ -533,10 +533,10 @@ delete whole function bodies):
 
 ### Verification
 #### Automated
-- [ ] `make watch-test` green (remaining watch tests); override `WATCH_TEST_SIM` with `,OS=27.0` if the name hangs
-- [ ] `make lint` clean
-- [ ] `make periphery` clean — no `inListReminder`/dead-symbol warning for the watch bundle
-- [ ] Confirm the `WatchSyncPipelineTests` suite still has `@Test`s (it does — the `pushAll`/`receive*` tests above remain); no `-only-testing:`/Makefile changes needed
+- [x] `make watch-test` green (remaining watch tests); override `WATCH_TEST_SIM` with `,OS=27.0` if the name hangs (ran with `…,OS=26.5` — the only 46mm watch sim is on watchOS 26.5 on this machine; 46/46 watch cases passed, exit 0)
+- [x] `make lint` clean (0 violations in 181 files)
+- [x] `make periphery` clean — no `inListReminder`/dead-symbol warning for the watch bundle (0 unused declarations; ran with pinned iOS `id=1583C89D-…` after `rm -rf DerivedData`)
+- [x] Confirm the `WatchSyncPipelineTests` suite still has `@Test`s (it does — 10 in `WatchSyncPipelineTests` + 2 in `WatchEnableActionButtonsSyncTests`; the `pushAll`/`receive*` tests remain); no `-only-testing:`/Makefile changes needed
 
 #### Manual
 - [ ] `grep -rn "receiveAppliesEveryPresentKey\|excludedTitlesRefreshFiltersVisibleReminders\|receiveSkipCountsSavesAndFiresHookOnWatch" SingleThreadWatchTests/` returns nothing
