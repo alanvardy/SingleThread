@@ -81,6 +81,24 @@ struct RescheduleSheetTests {
         #expect(description.contains("AccessibilityAttachmentModifier"))
     }
 
+    @Test
+    func rescheduleSheetConfirmUsesProminentStyle() {
+        let sheet = RescheduleSheet(
+            reminder: nil,
+            onReschedule: { _ in true },
+            onCancel: {},
+            nudgeMessage: nil)
+
+        let description = String(describing: sheet.body)
+
+        // Stable token proven in SwipePromptTests.swift:52.
+        #expect(description.contains("BorderedProminentButtonStyle"))
+        // Native-chrome invariant: never routes through the shared modifier,
+        // and centering is structural (no Spacer edge-push).
+        #expect(!description.contains("SingleThreadButtonModifier"))
+        #expect(!description.contains("Spacer"))
+    }
+
     // MARK: Private
 
     /// Construction-only reminder; never saved through EventKit.

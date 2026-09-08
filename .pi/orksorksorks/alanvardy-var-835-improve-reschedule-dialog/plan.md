@@ -228,9 +228,9 @@ weaken it (Decision 4).
 ### Verification
 
 #### Automated
-- [ ] `make format` then `make lint` passes
-- [ ] `make build` succeeds
-- [ ] `xcodebuild -scheme SingleThread -destination "$SIM" -derivedDataPath DerivedData test-without-building -only-testing:SingleThreadTests/RescheduleSheetTests -only-testing:SingleThreadTests/SingleThreadTests/rescheduleSheetTextButtonsKeepNativeChrome` — all green
+- [x] `make format` then `make lint` passes
+- [x] `make build` succeeds
+- [x] `xcodebuild -scheme SingleThread -destination "$SIM" -derivedDataPath DerivedData test-without-building -only-testing:SingleThreadTests/RescheduleSheetTests -only-testing:SingleThreadTests/SingleThreadTests/rescheduleSheetTextButtonsKeepNativeChrome` — all green
 
 #### Manual
 - [ ] Not needed this layer — visual look confirmed in Layer 3.
