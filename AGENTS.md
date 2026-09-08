@@ -102,7 +102,7 @@ SingleThread/                  # git root
   `/5_plan` → `/6_implement` (see `~/.pi/agent/AGENTS.md` and `.pi/skills/qrspi/SKILL.md`).
 - All QRSPI work — decompose, research, design, plan — happens directly on
   the main ticket's current branch. **No child subtasks** / **no separate
-  design PR/branch**. Artifacts live under `.pi/qrspi/<current-branch>/`
+  design PR/branch**. Artifacts live under `.pi/orksorksorks/<current-branch>/`
   (each phase commits its own artifact before moving on).
 - Plans are consumed literally — verify every snippet, file path, test name,
   `SIM=…,OS=` this session; unproven red-first premises → `UNVALIDATED`.
