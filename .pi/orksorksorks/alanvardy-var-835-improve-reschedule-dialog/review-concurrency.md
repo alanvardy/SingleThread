@@ -1,0 +1,27 @@
+## Review — Concurrency, data-race safety, task lifecycle (PR #182 RescheduleSheet)
+
+**Verdict: OK — no blockers or fix-now findings from the concurrency angle.** The async plumbing is byte-identical to the pre-diff code (the `Task` block was moved, not changed); nothing in the diff introduces a data race, an isolation violation, or a lifetime hazard. Full analysis below with evidence.
+
+### (a) Task lifecycle / cancellation
+
+- **Unstructured `Task` is correct and intentional here.** `Task {}` at `RescheduleSheet.swift:44` is created from the MainActor-default Button action, inherits MainActor, and is deliberately fire-and-forget: the reschedule write must complete even if the user later swipes the sheet down or taps Cancel (neither cancels the write). Making the dismiss cancellation-aware would be *wrong*: `ReminderStore.rescheduleReminder` (`SingleThreadCore/.../ReminderStore.swift:356-377`) is not cancellation-aware (no `Task.isCancelled` checks, unconditionally `reload()`s after save), so a cancelled task could drop the reload or leave the write half-applied. The current "await to completion, then dismiss" design is correct, and is the same pattern used by `nudgeDeleteButton` (`ContentView+iOS.swift:92-99`) and the watch sheet (`WatchReminderView.swift:296-308`).
+- **No retain cycle.** The `Task` captures a value-copy of the `RescheduleSheet` struct, whose `onReschedule` closure captures `[weak viewModel]` at both call sites (`ContentView+ActionMenu.swift:183`, `ContentView+iOS.swift:64`) and whose `onCancel` is a plain state-setter token. There is no strong reference to `ContentView`/`AppViewModel`, and `AppViewModel` does not reference the task — nothing is held past completion.
+- **Repeated taps spawn concurrent unstructured Tasks — optional severity.** `RescheduleSheet.swift:40-48`. The button is not disabled while a reschedule is in flight, and the sheet only dismisses after the `await`. An iOS reschedule includes `await settle()` (200 ms default) plus `reload()`, so a fast double-tap creates two Tasks that each perform a full save/reload on the same reminder. This is MainActor-serialized (no data race — only redundant EventKit writes), and it is pre-existing behavior unchanged by this diff (same shape as both sibling sheets). If duplication is a concern: gate with `@State private var isRescheduling = false` + `.disabled(isRescheduling)` spanning the await. Not required for merge.
+
+### (b) MainActor / Sendable
+
+- **Captured values are safe.** Inside the `Task` the only captures are `components` — a Sendable `DateComponents` value snapshot taken at tap time (`RescheduleSheet.swift:41-43`) — plus the `onReschedule`/`onCancel` closures. The non-Sendable `reminder` (`EKReminder?`) is *only* read synchronously outside the Task via the `hasDueTime`/mask computations; it never crosses the task boundary. `date` (`@State`) is likewise read only before task creation.
+- **Isolation is coherent.** The app target sets `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` (`project.pbxproj:777, 827`); so `RescheduleSheet`, `body`, and the declared `(DateComponents) async -> Bool` all resolve as `@MainActor`. The call-site closures pick up `[weak viewModel]` in the same MainActor-default files and await MainActor methods (`ContentViewModel.rescheduleReminder`/`rescheduleNudgedReminder`, `ContentViewModel.swift:178, 251`; `ReminderStore` is explicitly `@MainActor`, `ReminderStore.swift:14`). The whole chain never hops actors with a non-Sendable payload.
+- **`@MainActor` on the test struct is necessary and sufficient.** The `SingleThreadTests` target does *not* set `SWIFT_DEFAULT_ACTOR_ISOLATION` (pbxproj test-target configs `51AA3EFD/51AA3EFE`, lines ~835-918: no such key), so `@MainActor struct RescheduleSheetTests` (`RescheduleSheetTests.swift:8`) is what permits (i) calling the implicitly-MainActor statics `hasDueTime`/`displayedComponents`/`dateComponentsMask`, (ii) constructing the MainActor-isolated `RescheduleSheet` and reading its `body`, and (iii) forming the `@MainActor` `onReschedule: { _ in true }` closure literal. All `@Test` methods and the private `makeReminder` inherit it, so the annotation is complete. Matches the suite-wide convention (36+ test files annotated the same way). No change needed.
+
+### (c) Mutation-after-await
+
+- **None.** After the `await` (`RescheduleSheet.swift:45-47`), the only mutation is `onCancel()` — a MainActor presentation-flag setter on `ContentView`. `components` is never re-read or mutated inside the Task; `date` is not touched after the tap handler. Even if the user changes the picker mid-await, the write uses the tap-time snapshot, so the write is always internally consistent.
+
+### Test-quality note (out of scope but observed)
+
+`rescheduleSheetConfirmUsesProminentStyle` (`RescheduleSheetTests.swift:64-93`) asserts `!description.contains("Spacer")` — a negative-structure assertion that will silently pass if the row is removed entirely; and the `"BorderedProminentButtonStyle"` token claim is consistent with the proven `SwipePromptTests.swift:52` precedent. None of this affects the concurrency analysis.
+
+**Findings summary:** No issues found from the concurrency/data-race/task-lifecycle angle. One optional note: double-tap can duplicate reschedule writes (pre-existing pattern, `RescheduleSheet.swift:40-48`) — gate the button with an `isRescheduling` state if write duplication is a concern.
+
+Merge verdict: **OK**
