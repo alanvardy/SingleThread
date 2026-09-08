@@ -35,22 +35,21 @@ struct RescheduleSheet: View {
             .frame(maxWidth: .infinity)
             .accessibilityElement(children: .combine)
 
-            HStack {
-                Spacer()
-                Button {
-                    let components = Calendar.current.dateComponents(
-                        Self.dateComponentsMask(hasDueTime: Self.hasDueTime(reminder)),
-                        from: date)
-                    Task {
-                        if await onReschedule(components) {
-                            onCancel()
-                        }
+            Button {
+                let components = Calendar.current.dateComponents(
+                    Self.dateComponentsMask(hasDueTime: Self.hasDueTime(reminder)),
+                    from: date)
+                Task {
+                    if await onReschedule(components) {
+                        onCancel()
                     }
-                } label: {
-                    Label("Reschedule", systemImage: "calendar.badge.plus")
                 }
-                .accessibilityIdentifier("rescheduleConfirmButton")
+            } label: {
+                Label("Reschedule", systemImage: "calendar.badge.plus")
             }
+            .buttonStyle(.borderedProminent)
+            .frame(maxWidth: .infinity)
+            .accessibilityIdentifier("rescheduleConfirmButton")
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
