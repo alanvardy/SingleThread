@@ -410,7 +410,7 @@ Then delete the `settle=$(oc 'Task\.sleep…eventKitSettleDelay' …)` block and
 #### Automated
 - [x] `make lint` clean
 - [x] `make periphery` clean (confirm `SingleThreadUITestCase.swift` is gone)
-- [ ] `bash scripts/count_tests.sh` — output has no `settle_sleeps`/`forced_400ms` lines; `unit_tests: 565`, `expect: 1197`, `require: 73`, `assertion_mean: 2.25`, `launches: 3`, `xcodebuild: 11`, `unnamed_expect: 1009`
+- [x] `bash scripts/count_tests.sh` — output has no `settle_sleeps`/`forced_400ms` lines; `unit_tests: 565`, `expect: 1197`, `require: 73`, `assertion_mean: 2.25`, `launches: 2` (corrected — Phase 2's own deletion of `SingleThreadUITestCase.swift` removed its `.launch()` site, iOS 2→1; Phase 5 regenerates comments), `xcodebuild: 11`, `unnamed_expect: 1009`
 
 #### Manual
 - [ ] `git status` shows `SingleThreadUITests/SingleThreadUITestCase.swift` deleted
