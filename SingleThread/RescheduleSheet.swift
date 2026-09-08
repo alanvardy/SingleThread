@@ -21,12 +21,19 @@ struct RescheduleSheet: View {
                     .accessibilityIdentifier("nudgeSheetTitle")
             }
 
-            DatePicker(
-                "Reschedule to",
-                selection: $date,
-                displayedComponents: Self.displayedComponents(
-                    hasDueTime: Self.hasDueTime(reminder)))
+            HStack {
+                Text("Reschedule to")
+                DatePicker(
+                    selection: $date,
+                    displayedComponents: Self.displayedComponents(
+                        hasDueTime: Self.hasDueTime(reminder))) {
+                    EmptyView()
+                }
+                .labelsHidden()
                 .accessibilityIdentifier("rescheduleDatePicker")
+            }
+            .frame(maxWidth: .infinity)
+            .accessibilityElement(children: .combine)
 
             HStack {
                 Spacer()
