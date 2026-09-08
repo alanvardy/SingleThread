@@ -47,6 +47,40 @@ struct RescheduleSheetTests {
                 == [.year, .month, .day, .hour, .minute])
     }
 
+    @Test
+    func rescheduleSheetPutsLabelBesidePicker() {
+        let sheet = RescheduleSheet(
+            reminder: makeReminder(due: DateComponents(year: 2026, month: 9, day: 5, hour: 9, minute: 30)),
+            onReschedule: { _ in true },
+            onCancel: {},
+            nudgeMessage: nil)
+
+        let description = String(describing: sheet.body)
+
+        // Literal label kept; label-less picker (Label == EmptyView) means no
+        // duplicated "Reschedule to" coming from the picker itself.
+        #expect(description.contains("Reschedule to"))
+        #expect(description.contains("DatePicker<EmptyView"))
+        #expect(description.contains("HStack<"))
+    }
+
+    @Test
+    func dateOnlySheetStillRendersLabeledRow() {
+        // Sad path: nil reminder → date-only fallback (no due time) still renders
+        // the same centered row, pinning the no-due-time branch.
+        let sheet = RescheduleSheet(
+            reminder: nil,
+            onReschedule: { _ in true },
+            onCancel: {},
+            nudgeMessage: nil)
+
+        let description = String(describing: sheet.body)
+
+        #expect(description.contains("Reschedule to"))
+        #expect(description.contains("DatePicker<EmptyView"))
+        #expect(description.contains("AccessibilityAttachmentModifier"))
+    }
+
     // MARK: Private
 
     /// Construction-only reminder; never saved through EventKit.
