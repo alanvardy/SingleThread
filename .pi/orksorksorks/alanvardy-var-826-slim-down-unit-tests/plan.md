@@ -563,9 +563,9 @@ delete whole function bodies):
   final counts — final: `unit_tests: 579 (iOS 538, watch 41)` (+17 iOS via Phase 3 splits, −3 watch via Phase 4),
   `expect: 1180`, `require: 73`, `issue_record: 6`, `assertion_mean: 2.16`, `launches: 2 (iOS 1, watch 1)`,
   `xcodebuild: 11`, `unnamed_expect: 993`; comments in `scripts/count_tests.sh` updated to match exactly.
-- [ ] Launch the full CI-identical gate ONCE via the `run-gate` skill (one dedicated
+- [x] Launch the full CI-identical gate ONCE via the `run-gate` skill (one dedicated
   async gate subagent in a managed worktree, multi-hour timeout). Do not run
-  `./scripts/test.sh` inline, and do not `nohup` it.
+  `./scripts/test.sh` inline, and do not `nohup` it. (Launched as async workflow `a18e2c67`/`fd04ce4f`; first verdict FAIL on unguarded `import WatchConnectivity` → fixed at `81b6872`; second verdict PASS with annotations, below.)
 
 ### Verification
 #### Automated
@@ -579,7 +579,13 @@ delete whole function bodies):
   jitter in retained `EnableActionButtons*`/`AppGroupTests` (byte-identical to baseline; handler
   body `handlePreferencesChanged` equally covered both runs; BackgroundImageStore −5 recovered on
   rerun). Not a deletion regression.
-- [ ] Full `./scripts/test.sh` gate green (async run-gate subagent returns a clean verdict)
+- [x] Full `./scripts/test.sh` gate green (async run-gate subagent returns a clean verdict)
+  — verdict **PASS (with annotations)** at tip `81b6872`: format/lint/iOS+watch builds/CI-equivalent fresh
+  Periphery scan/iOS UI/watch UI/watch unit all pass; macOS unit 562 pass with exactly the 3 known
+  pre-existing local-only `EntitlementStoreTests` failures (StoreKit sandbox; CI mac-tests green).
+  The test.sh Periphery `--skip-build --index-store-path` stage failed on a stale incremental index
+  (flagged file byte-identical to `origin/main`); the CI-equivalent fresh scan (`periphery scan
+  --strict -- -destination …`, no `--skip-build`/`--index-store-path`) passes — CI is authoritative.
 
 #### Manual
 - [ ] PR description notes the ~17 test-count increase from splits (net suite is smaller in *maintenance* and *duplication* even though `@Test` count is flat/slightly up), and why no UI-test changes were made
