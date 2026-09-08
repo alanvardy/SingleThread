@@ -47,10 +47,9 @@ func makeCalendar(title: String) -> EKCalendar {
 /// Construction only — never saved through EventKit.
 @MainActor
 func inListReminder(title: String, list: String) -> EKReminder {
-    let eventStore = EKEventStore()
-    let reminder = EKReminder(eventStore: eventStore)
+    let reminder = EKReminder(eventStore: sharedTestEventStore)
     reminder.title = title
-    let calendar = EKCalendar(for: .reminder, eventStore: eventStore)
+    let calendar = EKCalendar(for: .reminder, eventStore: sharedTestEventStore)
     calendar.title = list
     reminder.calendar = calendar
     return reminder
