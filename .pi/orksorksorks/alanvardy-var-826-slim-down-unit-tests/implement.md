@@ -15,6 +15,8 @@ Plan: `.pi/orksorksorks/alanvardy-var-826-slim-down-unit-tests/plan.md`
 | 3 | `d13e60c` | Split brute-force multi-store tests — 8 old `@Test` bodies → 25 single-scenario tests (64 total; `#expect` set preserved 112 = 112; name `visibleRemindersFiltersExcludedListTitles` retained for its trio) |
 | 4 | `b8b10d3` | Delete seam-identical cross-target mirror — 3 watch `@Test`s + watch `inListReminder` cut (`WatchSyncPipelineTests.swift` 551→421 lines) |
 | 5 | `88f80ca` | Coverage guardrail + count_tests refresh — coverage diff clean (no cliff), trailing comments regenerated to final counts |
+| — | `08a92df` | chore: QRSPI implementation artifacts for VAR-826 (research/design/structure/implement docs)
+| — | `81b6872` | fix: guard WatchConnectivity fixture against macOS compile — unguarded `import WatchConnectivity` broke the macOS unit stage (compile-time regression caught by full gate); now behind `#if os(iOS) || os(watchOS)`
 
 ## What shipped
 
@@ -44,7 +46,18 @@ No production code, UI-suite, or target-topology changes in any phase.
 - [x] Phase 3: `-only-testing:SingleThreadTests/ReminderStoreTests` green (68/68 cases, exit 0); `#expect` set preserved 112 = 112
 - [x] Phase 4: `make watch-test` green (46/46 watch cases); retained `WatchSyncPipelineTests` suites pass
 - [x] Phase 5: coverage diff — no `SingleThreadCore` line-coverage cliff (overall +0.30pp)
-- [ ] Full `./scripts/test.sh` gate — **in flight** (async run-gate subagent in a managed worktree; verdict appended when it lands)
+- [x] Full `./scripts/test.sh` gate — **PASS (with annotations)** at tip `81b6872` (async run-gate subagent verdict `a18e2c67`). See below.
+
+## Gate re-run after macOS fix (second verdict)
+
+First gate run at `08a92df` FAILED on the macOS unit stage (compile error: unguarded `import WatchConnectivity` in `SingleThreadTests/TestFixtures.swift` — macOS has no WatchConnectivity framework). Fixed in `81b6872` by guarding the import + `FakeSession` behind `#if os(iOS) || os(watchOS)` (matches repo convention; all 4 `FakeSession` consumers are already guarded). Verified: `make mac-test` compiles and runs on the fixed tip (only the 3 known pre-existing local-only `EntitlementStoreTests` failures remain); `make format`/`make lint` clean; iOS test build succeeded.
+
+Regate at `81b6872` — **PASS (with annotations)**:
+- All stages pass: format, lint, iOS + watch builds, iOS UI smoke, watch UI smoke, watch unit (46/46), macOS unit (562 pass).
+- The only failing tests are the **3 known pre-existing local-only `EntitlementStoreTests`** runtime failures (StoreKit sandbox on unsigned local builds — CI mac-tests is green on fresh runners): `isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`, `hostStoreKitIsClean`.
+- The test.sh Periphery stage failed once on a **stale incremental index store** (`--skip-build --index-store-path`), reporting 2 "superfluous ignore comment" warnings on `SingleThreadCore/…/LocalizedString+Shared.swift` — a file **byte-identical to `origin/main`** (`git diff` empty; PR touches only tests/scripts). The **CI-equivalent fresh scan** (`periphery scan --strict -- -destination …`, no `--skip-build`/`--index-store-path` — CI's exact invocation per ci.yml:238) exits 0 with "No unused code detected". Periphery also passed inside the later test.sh re-run once the index store was freshly rebuilt. **Local-gate artifact, NOT a regression — CI runs the fresh scan and is authoritative.**
+
+**Bottom line for CI:** expect green on all jobs (macOS unit included, since the 3 local failures are StoreKit-sandbox-only and CI mac-tests is green on fresh runners).
 
 ## Manual Verification Items (from the plan)
 
