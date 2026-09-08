@@ -13,8 +13,9 @@ set -euo pipefail
 #
 # Devices are discovered dynamically each run, so a new iPhone/iPad is picked
 # up without editing this script. A device that is unreachable (locked, asleep,
-# unplugged mid-run) fails its own install/launch step and is reported — the
-# remaining devices still get built and run. If no iOS devices are found and
+# off this Wi-Fi, unplugged mid-run) is detected during discovery and reported
+# — the remaining devices still get built and run; an unreachable device counts
+# as a failed step so the run exits non-zero. If no iOS devices are found and
 # RUN_MAC=1, the script still does the macOS step; set RUN_MAC=0 to keep the
 # old fail-fast behavior. The macOS app is built unsigned (CODE_SIGNING_ALLOWED=NO,
 # matching `make mac-build`) because signing needs the Mac provisioning profile
@@ -27,7 +28,8 @@ CONFIGURATION="${CONFIGURATION:-Debug}"
 DERIVED_DATA="${DERIVED_DATA:-DerivedData}"
 RUN_MAC="${RUN_MAC:-1}"
 DEVICES_JSON="${TMPDIR:-/tmp}/run-devices-$$.json"
-trap 'rm -f "$DEVICES_JSON"' EXIT
+UNREACHABLE_LOG="${TMPDIR:-/tmp}/run-devices-unreachable-$$.log"
+trap 'rm -f "$DEVICES_JSON" "$UNREACHABLE_LOG"' EXIT
 
 APP_PATH="$DERIVED_DATA/Build/Products/${CONFIGURATION}-iphoneos/SingleThread.app"
 MAC_APP_PATH="$DERIVED_DATA/Build/Products/$CONFIGURATION/SingleThread.app"
@@ -43,32 +45,58 @@ if ! xcrun devicectl list devices -j "$DEVICES_JSON" >/dev/null 2>&1; then
 fi
 
 # Emits "identifier|name" per qualifying device (platform iOS, iPhone or iPad,
-# Developer Mode enabled). Skipped devices go to stderr so stdout stays parseable.
+# Developer Mode enabled). Skipped devices go to stderr so stdout stays parseable;
+# unreachable qualifying devices are logged to "$UNREACHABLE_LOG" for the failure
+# tally, so a phone that is locked / off-network / has Remote Device Services down
+# is reported with the real reason instead of a raw devicectl 4016 install error.
 DEVICES=()
 while IFS= read -r entry; do
     DEVICES+=("$entry")
-done < <(python3 - "$DEVICES_JSON" <<'PY'
+done < <(python3 - "$DEVICES_JSON" "$UNREACHABLE_LOG" <<'PY'
 import json
 import sys
 
 with open(sys.argv[1], encoding="utf-8") as fh:
     payload = json.load(fh)
 
-for device in payload["result"]["devices"]:
-    hardware = device.get("hardwareProperties", {})
-    props = device.get("deviceProperties", {})
-    if hardware.get("platform") != "iOS":
-        continue
-    if hardware.get("deviceType") not in ("iPhone", "iPad"):
-        continue
-    if props.get("developerModeStatus") != "enabled":
-        print(f"  (skipping {props.get('name', 'unknown device')} — Developer Mode disabled)", file=sys.stderr)
-        continue
-    print(f"{device['identifier']}|{props.get('name', 'unknown device')}")
+with open(sys.argv[2], "a", encoding="utf-8") as unreachable_log:
+    for device in payload["result"]["devices"]:
+        hardware = device.get("hardwareProperties", {})
+        props = device.get("deviceProperties", {})
+        if hardware.get("platform") != "iOS":
+            continue
+        if hardware.get("deviceType") not in ("iPhone", "iPad"):
+            continue
+        name = props.get("name", "unknown device")
+        if props.get("developerModeStatus") != "enabled":
+            print(f"  (skipping {name} — Developer Mode disabled)", file=sys.stderr)
+            continue
+        # Physical devices install over a connection (localNetwork, wired, or
+        # sameMachine for local simulators). When CoreDevice cannot reach the
+        # device — locked, asleep, on another network, or Remote Device
+        # Services down — devicectl fails every later call with a raw
+        # usage-assertion error (4016). Detect it here so the message names
+        # the actual problem before any build/install work is wasted.
+        conn = device.get("connectionProperties", {}) or {}
+        conn_state = (((device.get("properties") or {}).get("connection")) or {}).get("state")
+        if conn.get("transportType") is None or conn_state == "unavailable" or conn.get("tunnelState") == "unavailable":
+            print(f"  (skipping {name} — unreachable (locked, asleep, or on another network?)\n    unlock it, confirm it is on the same Wi-Fi as this Mac, then retry)", file=sys.stderr)
+            print(name, file=unreachable_log)
+            continue
+        print(f"{device['identifier']}|{name}")
 PY
 )
 
+UNREACHABLE_COUNT=0
+if [[ -s "$UNREACHABLE_LOG" ]]; then
+    UNREACHABLE_COUNT=$(wc -l < "$UNREACHABLE_LOG" | tr -d ' ')
+fi
+
 if [[ ${#DEVICES[@]} -eq 0 ]]; then
+    if [[ "$UNREACHABLE_COUNT" -gt 0 ]]; then
+        echo "❌ $UNREACHABLE_COUNT device(s) found but unreachable — see messages above (unlock the device and connect it to this Mac's Wi-Fi, then retry)." >&2
+        exit 1
+    fi
     if [[ "$RUN_MAC" -eq 1 ]]; then
         echo "  (no iPhone/iPad with Developer Mode enabled found — macOS run only)"
     else
@@ -79,6 +107,9 @@ if [[ ${#DEVICES[@]} -eq 0 ]]; then
 fi
 
 failures=0
+# Devices that are paired but unreachable count as failed steps, matching the
+# old behavior where the guaranteed-failing install attempt was tried and failed.
+failures=$((failures + UNREACHABLE_COUNT))
 
 # ── Build once for all devices ────────────────────────────────────────────────
 if [[ ${#DEVICES[@]} -gt 0 ]]; then
