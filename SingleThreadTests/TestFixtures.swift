@@ -2,7 +2,6 @@ import EventKit
 @testable import SingleThread
 import SingleThreadCore
 import Speech
-import WatchConnectivity
 
 // MARK: - Shared EKEventStore + reminder builders
 
@@ -59,30 +58,37 @@ func inListReminder(title: String, list: String) -> EKReminder {
 
 // MARK: - Fake sync session
 
-final class FakeSession: SkipSyncSession {
-    var activated = false
-    var lastContext: [String: Any]?
-    var lastMessage: [String: Any]?
-    var pushShouldThrow = false
+// `SkipSyncSession` comes from the WatchConnectivity framework, which is
+// iOS/watchOS-only; the entire sync-test surface that consumes `FakeSession` is
+// guarded behind the same `#if` (see SkippedReminderSyncServiceTests.swift).
+#if os(iOS) || os(watchOS)
+    import WatchConnectivity
 
-    func activate() {
-        activated = true
-    }
+    final class FakeSession: SkipSyncSession {
+        var activated = false
+        var lastContext: [String: Any]?
+        var lastMessage: [String: Any]?
+        var pushShouldThrow = false
 
-    func updateApplicationContext(_ applicationContext: [String: Any]) throws {
-        if pushShouldThrow {
-            throw NSError(domain: "test", code: 1)
+        func activate() {
+            activated = true
         }
-        lastContext = applicationContext
-    }
 
-    func sendMessage(
-        _ message: [String: Any],
-        replyHandler _: (([String: Any]) -> Void)?,
-        errorHandler _: ((any Error) -> Void)?) {
-        lastMessage = message
+        func updateApplicationContext(_ applicationContext: [String: Any]) throws {
+            if pushShouldThrow {
+                throw NSError(domain: "test", code: 1)
+            }
+            lastContext = applicationContext
+        }
+
+        func sendMessage(
+            _ message: [String: Any],
+            replyHandler _: (([String: Any]) -> Void)?,
+            errorHandler _: ((any Error) -> Void)?) {
+            lastMessage = message
+        }
     }
-}
+#endif
 
 // MARK: - Fake transcriber
 
