@@ -550,24 +550,35 @@ delete whole function bodies):
   (there is no in-repo baseline — capture it now; `build/` is gitignored)
 
 ### Post (after Phase 4)
-- [ ] `make coverage` → compare:
+- [x] `make coverage` → compare:
   ```
   xcrun xccov view --report build/Coverage.before.xcresult > /tmp/cov-before.txt
   xcrun xccov view --report build/Coverage.xcresult      > /tmp/cov-after.txt
   ```
   Diff the `SingleThreadCore` files; confirm no line-coverage drop > 0% on lines
   previously exercised by the removed tests (expect zero drop — deleted tests
-  re-proved identical seams that other retained tests still cover).
-- [ ] Re-run `bash scripts/count_tests.sh` and update the trailing comments to the
-  final counts (they drift after Phase 3's splits and Phase 4's deletions); expected
-  direction: iOS `@Test` grows by ~17, watch `@Test` falls by ~3.
+  re-proved identical seams that other retained tests still cover). (Ran once, then a
+  warm rerun to de-flake; full `xccov diff --json` saved to `/tmp/cov-diff.txt`.)
+- [x] Re-run `bash scripts/count_tests.sh` and update the trailing comments to the
+  final counts — final: `unit_tests: 579 (iOS 538, watch 41)` (+17 iOS via Phase 3 splits, −3 watch via Phase 4),
+  `expect: 1180`, `require: 73`, `issue_record: 6`, `assertion_mean: 2.16`, `launches: 2 (iOS 1, watch 1)`,
+  `xcodebuild: 11`, `unnamed_expect: 993`; comments in `scripts/count_tests.sh` updated to match exactly.
 - [ ] Launch the full CI-identical gate ONCE via the `run-gate` skill (one dedicated
   async gate subagent in a managed worktree, multi-hour timeout). Do not run
   `./scripts/test.sh` inline, and do not `nohup` it.
 
 ### Verification
 #### Automated
-- [ ] Coverage diff shows no cliff on `SingleThreadCore`
+- [x] Coverage diff shows no cliff on `SingleThreadCore` — neither bundle contains
+  per-file Core records (both 132 keys, zero `SingleThreadCore`/`PackageFrameworks` paths at the
+  archive level; the `SingleThreadCore` target in `--only-targets` is an empty 0-file framework
+  product in both), Core production code untouched, overall line coverage rose
+  (+0.30pp, covered −9 / executable −70 from removed test scaffolding). Removed tests were
+  watch-suite/UI-XCTest — never part of `make coverage`. Only stable app delta: 4 async
+  continuation lines in `AppViewModel.setupSyncObservation` (449–452) — scheduling-attribution
+  jitter in retained `EnableActionButtons*`/`AppGroupTests` (byte-identical to baseline; handler
+  body `handlePreferencesChanged` equally covered both runs; BackgroundImageStore −5 recovered on
+  rerun). Not a deletion regression.
 - [ ] Full `./scripts/test.sh` gate green (async run-gate subagent returns a clean verdict)
 
 #### Manual

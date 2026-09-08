@@ -7,16 +7,16 @@ cd "$(dirname "$0")/.."
 # would otherwise make a zero-count metric kill the script under set -e).
 oc() { grep -roE "$1" $2 2>/dev/null | wc -l | tr -d ' ' || true; }
 
-unit_ios=$(oc '@Test' 'SingleThreadTests/*.swift')        # 521
-unit_watch=$(oc '@Test' 'SingleThreadWatchTests/*.swift') # 44
-unit_total=$((unit_ios + unit_watch))                     # 565
-expect=$(oc '#expect' 'SingleThreadTests/*.swift SingleThreadWatchTests/*.swift')          # 1197
+unit_ios=$(oc '@Test' 'SingleThreadTests/*.swift')        # 538
+unit_watch=$(oc '@Test' 'SingleThreadWatchTests/*.swift') # 41
+unit_total=$((unit_ios + unit_watch))                     # 579
+expect=$(oc '#expect' 'SingleThreadTests/*.swift SingleThreadWatchTests/*.swift')          # 1180
 require=$(oc '#require' 'SingleThreadTests/*.swift SingleThreadWatchTests/*.swift')        # 73
-issue=$(oc 'Issue\.record' 'SingleThreadTests/*.swift SingleThreadWatchTests/*.swift')     # 6
-# Mean = (#expect + #require) / @Test  → 1270/565 = 2.25. Issue.record lives in
+issue=$(oc 'Issue\.record' 'SingleThreadTests/*.swift SingleThreadWatchTests/*.swift')    # 6
+# Mean = (#expect + #require) / @Test  → 1253/579 = 2.16. Issue.record lives in
 # guard else-branches alongside a #require/#expect, so it is excluded from the mean.
 mean=$(awk "BEGIN { printf \"%.2f\", ($expect + $require) / $unit_total }")
-launches_ios=$(oc '\.launch\(\)' 'SingleThreadUITests/*.swift')      # 2
+launches_ios=$(oc '\.launch\(\)' 'SingleThreadUITests/*.swift')      # 1
 launches_watch=$(oc '\.launch\(\)' 'SingleThreadWatchUITests/*.swift') # 1
 # The real 200 ms settle lives at ReminderStore.swift:39 (typealias
 # ReminderStoreSettle); it is injectable and tests use noopSettle /
