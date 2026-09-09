@@ -1,0 +1,5 @@
+# Task
+
+VAR-879 — Enable dependency + secret scanning for the SingleThread repo (security audit finding). Add `.github/dependabot.yml` (weekly, ecosystems `swift` + `github-actions`, teams alone for review), enable Dependabot vulnerability alerts + secret scanning via repo settings (owner action through `gh api -X PUT repos/alanvardy/SingleThread/vulnerability-alerts`), and add a gitleaks secret-scan step to `.github/workflows/ci.yml` with an allowlist covering test fixtures.
+
+Current state (verified at research time): the branch has NO implementation — HEAD commit 60ee183 only adds a DELETEME placeholder file (draft PR #185). `.github/dependabot.yml` does not exist. Vulnerability alerts are disabled (HTTP 404); secret scanning and push protection are already enabled. `alanvardy` is a personal account (no org teams endpoint) — relevant to the "teams alone for review" requirement.
