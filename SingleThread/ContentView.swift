@@ -233,10 +233,10 @@ struct ContentView: View {
                 completionGlowOverlay
             }
         }
-        .overlay(alignment: .bottom) {
+        .overlay(alignment: .top) {
             if viewModel.completionMomentum.isActive {
                 completionMomentumOverlay
-                    .padding(.bottom, 80) // clear the bottom bar
+                    .padding(.top, 72) // clear the corner buttons (56pt plates + 8pt inset)
             }
         }
         .overlay(alignment: .topLeading) {
