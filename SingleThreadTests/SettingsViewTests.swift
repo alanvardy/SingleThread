@@ -146,7 +146,11 @@ struct SettingsViewTests {
             showCompletionGlow: .constant(true),
             showCompletionMomentum: .constant(true),
             viewModel: SettingsViewModel())
+        // String(describing:) backslash-escapes embedded quotes/apostrophes in
+        // LocalizedStringKey values (e.g. Show \\"You\\'ve cleared N today\\" …),
+        // so normalize the escapes out before matching captions.
         let bodyDescription = String(describing: view.body)
+            .replacingOccurrences(of: "\\", with: "")
 
         let expectedLabels = [
             "Show date", "Show list", "Recurrence indicator", "Reminder alerts",
