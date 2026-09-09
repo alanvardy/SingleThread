@@ -303,7 +303,7 @@ Add tests in the undo/completion section (near the existing `undoDecrementsCompl
 
 ### Verification
 #### Automated
-- [ ] `make build && xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' -only-testing:SingleThreadTests/ReminderStoreTests` passes (all existing + new daily completion tests)
+- [x] `make build && xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' -only-testing:SingleThreadTests/ReminderStoreTests` passes (all existing + new daily completion tests)
 
 #### Manual
 - [ ] None — pure unit-test verification

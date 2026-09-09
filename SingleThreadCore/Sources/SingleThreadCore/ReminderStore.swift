@@ -33,6 +33,7 @@ public final class ReminderStore {
         authorizationStatus: EKAuthorizationStatus = .notDetermined,
         excludedListTitles: Set<String> = [],
         hasHidden: Bool = false,
+        dailyCompletion: DailyCompletionStore = DailyCompletionStore(),
         completionCounter: CompletionCounterStore = CompletionCounterStore(),
         entitlementStore: EntitlementStore = EntitlementStore(),
         settle: @escaping ReminderStoreSettle = {
@@ -51,6 +52,7 @@ public final class ReminderStore {
         self.excludedListTitles = excludedListTitles
         self.hasHidden = hasHidden
         self.completionCounter = completionCounter
+        self.dailyCompletion = dailyCompletion
         self.entitlementStore = entitlementStore
         self.settle = settle
     }
@@ -122,6 +124,11 @@ public final class ReminderStore {
     /// Tracks the lifetime completion count; incremented once per successful
     /// EventKit save in `completeReminder` (iOS branch only).
     public let completionCounter: CompletionCounterStore
+
+    /// Tracks today's completion count; incremented once per successful
+    /// EventKit save in `completeReminder` (iOS branch only). Resets at
+    /// midnight (device-local day boundary).
+    public private(set) var dailyCompletion: DailyCompletionStore
 
     /// Publishes whether the user has purchased the unlock IAP. Read by
     /// `canMutate` to gate Complete/Skip/Delete after the free tier cap.
@@ -244,6 +251,7 @@ public final class ReminderStore {
                 reminder.isCompleted = true
                 try eventStore.save(reminder, commit: true)
                 completionCounter.increment()
+                dailyCompletion.increment()
                 undoStore.retain(reminder)
                 resetSkipCount(for: identifier)
                 await settle()
@@ -276,6 +284,7 @@ public final class ReminderStore {
                 reminder.isCompleted = false
                 try eventStore.save(reminder, commit: true)
                 completionCounter.decrement()
+                dailyCompletion.decrement()
                 undoStore.clear()
                 await settle()
                 await reload()
