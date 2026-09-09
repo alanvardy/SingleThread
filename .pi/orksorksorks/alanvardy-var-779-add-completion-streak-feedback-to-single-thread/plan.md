@@ -422,7 +422,7 @@ struct CompletionMomentumOverlayTests {
 
 ### Verification
 #### Automated
-- [ ] `make build && xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' -only-testing:SingleThreadTests/CompletionMomentumOverlayTests` passes
+- [x] `make build && xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' -only-testing:SingleThreadTests/CompletionMomentumOverlayTests` passes
 
 #### Manual
 - [ ] None — pure unit-test verification
