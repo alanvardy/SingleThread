@@ -120,6 +120,42 @@ struct UITestingSeedTests {
     }
 
     @Test
+    func seedParsesDailyCompletion() {
+        let args = [
+            "--seed",
+            #"{"reminders":[{"title":"A"}],"completionTodayCount":5,"completionDayMarker":750000000.0}"#
+        ]
+        let seed = UITestingSeed.fromLaunchArguments(args)
+
+        #expect(seed?.completionTodayCount == 5)
+        #expect(seed?.completionDayMarker == 750_000_000.0)
+    }
+
+    @Test
+    func seedDailyCountUnclamped() {
+        // The seam writes completionTodayCount verbatim (production writes only
+        // count+1 after a day rollover check) so tests can stage arbitrary
+        // counts. Pin the verbatim contract so a future clamp cannot silently
+        // change seeded scenarios.
+        let args = [
+            "--seed",
+            #"{"reminders":[{"title":"A"}],"completionTodayCount":250}"#
+        ]
+        let seed = UITestingSeed.fromLaunchArguments(args)
+
+        #expect(seed?.completionTodayCount == 250)
+    }
+
+    @Test
+    func resetClearsDailyCompletion() {
+        AppGroup.defaults.set(5, forKey: DailyCompletionStore.defaultsCountKey)
+        AppGroup.defaults.set(750_000_000.0, forKey: DailyCompletionStore.defaultsMarkerKey)
+        UITestingSeed.resetPersistedState()
+        #expect(AppGroup.defaults.integer(forKey: DailyCompletionStore.defaultsCountKey) == 0)
+        #expect(AppGroup.defaults.double(forKey: DailyCompletionStore.defaultsMarkerKey) == 0.0)
+    }
+
+    @Test
     func returnsNilWhenSeedAbsentOrMalformed() {
         #expect(UITestingSeed.fromLaunchArguments([]) == nil)
         #expect(UITestingSeed.fromLaunchArguments(["--seed"]) == nil)

@@ -778,7 +778,7 @@ Add three new tests:
 
 ### Verification
 #### Automated
-- [ ] `make build && xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' -only-testing:SingleThreadTests/UITestingSeedTests` passes
+- [x] `make build && xcodebuild test -scheme SingleThread -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' -only-testing:SingleThreadTests/UITestingSeedTests` passes
 
 #### Manual
 - [ ] None — pure unit-test verification

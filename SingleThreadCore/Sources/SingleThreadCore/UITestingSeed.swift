@@ -21,6 +21,9 @@ import Foundation
 ///   "entitlementUnresolved": true  // optional, defaults to false; when true,
 ///                                  // the entitlement store starts unresolved
 ///                                  // so the pre-resolution render is testable
+///   "completionDayMarker": 750000000.0, // optional; start-of-day marker for
+///                                        // the daily completion counter
+///   "completionTodayCount": 5,          // optional; today's completion count
 /// }
 /// ```
 ///
@@ -42,6 +45,13 @@ public struct UITestingSeed {
     public let isEntitled: Bool
     public let hasHidden: Bool
     public let entitlementUnresolved: Bool
+    /// Start-of-day marker for the daily completion counter; written verbatim
+    /// (unclamped) by the `--seed` seam so tests can stage day-rollover
+    /// scenarios. `nil` when absent from the seed.
+    public let completionDayMarker: TimeInterval?
+    /// Today's completion count; written verbatim (unclamped) by the `--seed`
+    /// seam so tests can stage arbitrary counts. `nil` when absent from the seed.
+    public let completionTodayCount: Int?
 
     /// Reads an optional `--seed '<json>'` launch argument and decodes it.
     /// Returns `nil` when the argument is absent or malformed.
@@ -82,6 +92,8 @@ public struct UITestingSeed {
         "showUndatedReminders",
         "sortOption",
         "completionCount",
+        "completionDayMarker",
+        "completionTodayCount",
         "isEntitled",
         "enableActionButtons",
         "showMicrophoneButton",
@@ -116,6 +128,8 @@ private struct SeedPayload: Codable {
         isEntitled = try container.decodeIfPresent(Bool.self, forKey: .isEntitled) ?? false
         hasHidden = try container.decodeIfPresent(Bool.self, forKey: .hasHidden) ?? false
         entitlementUnresolved = try container.decodeIfPresent(Bool.self, forKey: .entitlementUnresolved) ?? false
+        completionDayMarker = try container.decodeIfPresent(TimeInterval.self, forKey: .completionDayMarker)
+        completionTodayCount = try container.decodeIfPresent(Int.self, forKey: .completionTodayCount)
     }
 
     // MARK: Internal
@@ -134,6 +148,8 @@ private struct SeedPayload: Codable {
     var isEntitled: Bool = false
     var hasHidden: Bool = false
     var entitlementUnresolved: Bool = false
+    var completionDayMarker: TimeInterval?
+    var completionTodayCount: Int?
 
     func materialize() -> UITestingSeed {
         let eventStore = EKEventStore()
@@ -168,7 +184,9 @@ private struct SeedPayload: Codable {
             skipCountsByIdentifier: countsByIdentifier,
             isEntitled: isEntitled,
             hasHidden: hasHidden,
-            entitlementUnresolved: entitlementUnresolved)
+            entitlementUnresolved: entitlementUnresolved,
+            completionDayMarker: completionDayMarker,
+            completionTodayCount: completionTodayCount)
     }
 
     // MARK: Private
@@ -181,5 +199,6 @@ private struct SeedPayload: Codable {
         case completionCount, isEntitled, hasHidden
         case skipCounts
         case entitlementUnresolved
+        case completionDayMarker, completionTodayCount
     }
 }
