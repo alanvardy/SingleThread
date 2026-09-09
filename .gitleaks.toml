@@ -1,0 +1,8 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Base64-encoded 1×1 JPEG test fixture — high-entropy but not a credential"
+paths = [
+    '''SingleThreadTests/BackgroundTestFixtures.swift'''
+]
