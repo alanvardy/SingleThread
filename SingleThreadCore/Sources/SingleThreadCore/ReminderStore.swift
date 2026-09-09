@@ -245,7 +245,9 @@ public final class ReminderStore {
             return removed
         #else
             guard
-                let reminder = reminders.first(where: { $0.calendarItemIdentifier == identifier })
+                let reminder = reminders.first(where: {
+                    $0.calendarItemIdentifier == identifier && !$0.isCompleted
+                })
             else { return false }
             do {
                 reminder.isCompleted = true

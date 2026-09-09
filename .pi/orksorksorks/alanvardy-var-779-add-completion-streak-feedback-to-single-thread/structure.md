@@ -12,7 +12,7 @@ next layer touches it.
 
 ## Stage 1: `DailyCompletionStore` — persistence layer
 
-New `Sendable` struct in `SingleThreadCore` that stores a **start-of-day
+New struct in `SingleThreadCore` that stores a **start-of-day
 marker** + **today's count** in `AppGroup.defaults`. Day-rollover is lazy:
 on `increment()`, if the stored marker ≠ `Calendar.current.startOfDay(for: Date())`,
 reset count to 1 and write the new marker; otherwise increment normally.
@@ -22,15 +22,15 @@ reset count to 1 and write the new marker; otherwise increment normally.
 - **New**: `SingleThreadCore/Sources/SingleThreadCore/DailyCompletionStore.swift`
 
 ### Key changes
-- `struct DailyCompletionStore: Sendable`
+- `struct DailyCompletionStore`
 - `init(defaults: UserDefaults = AppGroup.defaults, markerKey: String = Self.defaultsMarkerKey, countKey: String = Self.defaultsCountKey)`
 - `static let defaultsMarkerKey = "completionDayMarker"` — `TimeInterval` (start-of-day)
 - `static let defaultsCountKey = "completionTodayCount"` — `Int`
 - `var todayCount: Int { get }` — reads `defaults.integer(forKey: countKey)` (0-defaulted)
 - `var dayMarker: TimeInterval { get }` — reads `defaults.double(forKey: markerKey)` (0-defaulted)
-- `mutating func increment()` — lazy rollover + increment
-- `mutating func decrement()` — `max(0, todayCount - 1)`
-- `mutating func resetForTesting()` — sets both keys to 0
+- `func increment()` — lazy rollover + increment
+- `func decrement()` — `max(0, todayCount - 1)`
+- `func resetForTesting()` — sets both keys to 0
 
 ### Tests
 - **New**: `SingleThreadTests/DailyCompletionStoreTests.swift` — `@Suite(.serialized)`
@@ -215,7 +215,7 @@ make build && xcodebuild test -scheme SingleThread \
 
 | Stage | Checkpoint — must be green before advancing |
 |-------|---------------------------------------------|
-| 1 | `DailyCompletionStoreTests` — all 10 tests pass |
+| 1 | `DailyCompletionStoreTests` — all 9 tests pass |
 | 2 | `ReminderStoreTests` — new daily-completion tests + existing suite pass |
 | 3 | `CompletionMomentumOverlayTests` — all 4 tests pass |
 | 4 | `make build` succeeds + sim-check overlay visible/correct |
