@@ -805,6 +805,8 @@ struct ReminderStoreSkipCountTests {
     @MainActor
     @Suite(.serialized)
     struct UndoCompletionTests {
+        // MARK: Internal
+
         @Test
         func completeRetainsInUndoStore() async {
             let rem = makeReminder(title: "A")
@@ -920,6 +922,70 @@ struct ReminderStoreSkipCountTests {
             #expect(counter.count == 1)
             _ = await store.undoLastCompletion()
             #expect(counter.count == 0) // swiftlint:disable:this empty_count
+        }
+
+        // MARK: - Daily completion
+
+        @Test
+        func completeReminderIncrementsDailyCount() async {
+            let store = dailyCompletionStore(with: [makeReminder(title: "Buy milk")])
+            await store.start()
+            await store.completeCurrentReminder()
+            #expect(store.dailyCompletion.todayCount == 1)
+        }
+
+        @Test
+        func completeReminderSameDayIncrements() async {
+            let store = dailyCompletionStore(with: [makeReminder(title: "A"), makeReminder(title: "B")])
+            await store.start()
+            await store.completeCurrentReminder()
+            await store.completeCurrentReminder()
+            #expect(store.dailyCompletion.todayCount == 2)
+        }
+
+        @Test
+        func undoDecrementsDailyCount() async {
+            let store = dailyCompletionStore(with: [makeReminder(title: "Buy milk")])
+            await store.start()
+            await store.completeCurrentReminder()
+            await store.undoLastCompletion()
+            #expect(store.dailyCompletion.todayCount == 0)
+        }
+
+        @Test
+        func undoClampsDailyCountAtZero() async {
+            let store = dailyCompletionStore(with: [makeReminder(title: "Buy milk")])
+            await store.start()
+            await store.undoLastCompletion() // nothing to undo
+            #expect(store.dailyCompletion.todayCount == 0)
+        }
+
+        @Test
+        func dailyCountSurvivesReload() async {
+            let store = dailyCompletionStore(with: [makeReminder(title: "Buy milk")])
+            await store.start()
+            await store.completeCurrentReminder()
+            await store.reload()
+            #expect(store.dailyCompletion.todayCount == 1)
+        }
+
+        // MARK: Private
+
+        /// Builds a store over an in-memory event store seeded with `reminders`
+        /// and an isolated, UUID-keyed `DailyCompletionStore` so the daily count
+        /// cannot leak across the serially-run tests in this suite.
+        private func dailyCompletionStore(
+            with reminders: [EKReminder]) -> ReminderStore {
+            let daily = DailyCompletionStore(
+                defaults: .standard,
+                markerKey: "daily-marker-\(UUID().uuidString)",
+                countKey: "daily-count-\(UUID().uuidString)")
+            return ReminderStore(
+                eventStore: InMemoryEventStore(reminders: reminders, calendars: []),
+                skippedIDs: [],
+                authorizationStatus: .fullAccess,
+                dailyCompletion: daily,
+                settle: noopSettle)
         }
     }
 #endif
