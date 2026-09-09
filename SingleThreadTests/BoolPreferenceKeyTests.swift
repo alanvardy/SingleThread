@@ -8,6 +8,7 @@ struct BoolPreferenceKeyTests {
         (BoolPreferenceKey.showRecurrence, "showRecurrence"),
         (BoolPreferenceKey.showAlarms, "showAlarms"),
         (BoolPreferenceKey.showCompletionGlow, "showCompletionGlow"),
+        (BoolPreferenceKey.showCompletionMomentum, "showCompletionMomentum"),
         (BoolPreferenceKey.showList, "showList"),
         (BoolPreferenceKey.showUndatedReminders, "showUndatedReminders")
     ])
@@ -17,7 +18,7 @@ struct BoolPreferenceKeyTests {
 
     @Test
     func allCasesIsExhaustive() {
-        #expect(BoolPreferenceKey.allCases.count == 6)
+        #expect(BoolPreferenceKey.allCases.count == 7)
     }
 
     /// Compile-time Sendable conformance check.
