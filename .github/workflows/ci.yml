@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
+  pull_request:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -307,3 +308,13 @@ jobs:
             -derivedDataPath "$DERIVED_DATA" \
             test-without-building \
             -only-testing:SingleThreadWatchTests
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_VERSION: "8.30.1"
