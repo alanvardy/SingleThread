@@ -638,7 +638,7 @@ Change to:
 
 ### Verification
 #### Automated
-- [ ] `make build` succeeds (iOS) — confirms all wiring compiles
+- [x] `make build` succeeds (iOS) — confirms all wiring compiles
 
 #### Manual
 - [ ] Launch in simulator, complete a reminder → overlay appears showing "You've cleared 1 today", auto-dismisses after ~2 s

@@ -158,6 +158,18 @@ final class SettingsBindings {
         }
     }
 
+    var showCompletionMomentum: Bool {
+        get {
+            access(keyPath: \.showCompletionMomentum)
+            return showCompletionMomentumPreference.isEnabled
+        }
+        set {
+            withMutation(keyPath: \.showCompletionMomentum) {
+                showCompletionMomentumPreference.set(newValue)
+            }
+        }
+    }
+
     // MARK: Private
 
     private let showUndatedPreference = BoolPreferenceStore(
@@ -178,5 +190,8 @@ final class SettingsBindings {
         fallback: true)
     private let showCompletionGlowPreference = BoolPreferenceStore(
         key: BoolPreferenceKey.showCompletionGlow.rawValue,
+        fallback: true)
+    private let showCompletionMomentumPreference = BoolPreferenceStore(
+        key: BoolPreferenceKey.showCompletionMomentum.rawValue,
         fallback: true)
 }

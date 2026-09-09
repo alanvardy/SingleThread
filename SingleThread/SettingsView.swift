@@ -82,6 +82,7 @@ struct SettingsView: View {
                             showRecurrence: $bindings.showRecurrence,
                             showAlarms: $bindings.showAlarms,
                             showCompletionGlow: $bindings.showCompletionGlow,
+                            showCompletionMomentum: $bindings.showCompletionMomentum,
                             viewModel: viewModel)
                     } label: {
                         SettingsLinkLabel(

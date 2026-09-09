@@ -22,11 +22,15 @@ final class ContentViewModel {
         showCompletionGlow: BoolPreferenceStore = BoolPreferenceStore(
             key: BoolPreferenceKey.showCompletionGlow.rawValue,
             fallback: true),
+        showCompletionMomentum: BoolPreferenceStore = BoolPreferenceStore(
+            key: BoolPreferenceKey.showCompletionMomentum.rawValue,
+            fallback: true),
         urlOpener: (any URLOpening)? = nil,
         makeRechecker: @escaping RecheckerFactory = { StaleReminderRechecker.live(store: $0) }) {
         self.store = store
         self.backgroundImage = backgroundImage
         self.showCompletionGlow = showCompletionGlow
+        self.showCompletionMomentum = showCompletionMomentum
         self.urlOpener = urlOpener ?? SystemURLOpener.noop
         self.makeRechecker = makeRechecker
         dictation = DictationViewModel(speechTranscriber: speechTranscriber, store: store)
@@ -56,6 +60,10 @@ final class ContentViewModel {
 
     /// Drives the brief full-screen green flash after a successful completion.
     let completionGlow = CompletionGlow()
+
+    /// Drives the transient "You've cleared N today" overlay after a
+    /// successful completion.
+    let completionMomentum = CompletionMomentumOverlay()
 
     /// True while `refreshManual()` is running, so the button can show a
     /// disabled/spinner state and re-entrant taps are dropped. Matches the
@@ -157,8 +165,13 @@ final class ContentViewModel {
     /// never reaches through to the model for mutations. On success, triggers
     /// the completion glow for positive visual feedback.
     func completeCurrentReminder() async {
-        if await store.completeCurrentReminder(), showCompletionGlow.isEnabled {
-            completionGlow.trigger()
+        if await store.completeCurrentReminder() {
+            if showCompletionGlow.isEnabled {
+                completionGlow.trigger()
+            }
+            if showCompletionMomentum.isEnabled {
+                completionMomentum.trigger(count: store.dailyCompletion.todayCount)
+            }
         }
     }
 
@@ -284,4 +297,8 @@ final class ContentViewModel {
     /// Preference read at trigger time so a settings toggle takes effect
     /// without rebuilding the view model.
     private let showCompletionGlow: BoolPreferenceStore
+
+    /// Preference read at trigger time so a settings toggle takes effect
+    /// without rebuilding the view model.
+    private let showCompletionMomentum: BoolPreferenceStore
 }

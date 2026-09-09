@@ -11,6 +11,8 @@ public enum BoolPreferenceKey: String, CaseIterable, Sendable {
     case showAlarms
     /// "showCompletionGlow" — fallback: true
     case showCompletionGlow
+    /// "showCompletionMomentum" — fallback: true
+    case showCompletionMomentum
     /// "showList" — fallback: false
     case showList
     /// "showUndatedReminders" — fallback: false
