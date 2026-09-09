@@ -294,6 +294,16 @@ final class AppViewModel {
         // the seed value is intentionally unclamped: gating scenarios seed 99
         // (near-cap) and 100 (gated), both values production never produces.
         AppGroup.defaults.set(seed.completionCount, forKey: "completionCount")
+        // Seed the daily completion counter and day marker (verbatim, unclamped)
+        // so UI tests can stage specific day-rollover and count scenarios. The
+        // DailyCompletionStore reads `AppGroup.defaults` on construction, so these
+        // writes must precede the ReminderStore init below.
+        if let completionDayMarker = seed.completionDayMarker {
+            AppGroup.defaults.set(completionDayMarker, forKey: DailyCompletionStore.defaultsMarkerKey)
+        }
+        if let completionTodayCount = seed.completionTodayCount {
+            AppGroup.defaults.set(completionTodayCount, forKey: DailyCompletionStore.defaultsCountKey)
+        }
         // Preload the skip counts so a seeded test reaches the 6th-skip nudge
         // with one tap (seed `skipCounts` at 5). The store's `SkipCountStore`
         // reads `AppGroup.defaults`, falling back to `.standard` on watchOS.
@@ -322,6 +332,7 @@ final class AppViewModel {
                 eventStore: inMemoryStore,
                 loadsReminders: !emptyWithHidden,
                 hasHidden: seed.hasHidden,
+                dailyCompletion: DailyCompletionStore(defaults: AppGroup.defaults),
                 completionCounter: CompletionCounterStore(
                     defaults: AppGroup.defaults,
                     key: "completionCount"),
@@ -331,6 +342,7 @@ final class AppViewModel {
                 eventStore: inMemoryStore,
                 loadsReminders: !emptyWithHidden,
                 hasHidden: seed.hasHidden,
+                dailyCompletion: DailyCompletionStore(defaults: AppGroup.defaults),
                 completionCounter: CompletionCounterStore(
                     defaults: AppGroup.defaults,
                     key: "completionCount"),
