@@ -156,6 +156,13 @@ struct UITestingSeedTests {
     }
 
     @Test
+    func resetPersistedStateClearsShowCompletionMomentum() {
+        AppGroup.defaults.set(false, forKey: BoolPreferenceKey.showCompletionMomentum.rawValue)
+        UITestingSeed.resetPersistedState()
+        #expect(AppGroup.defaults.object(forKey: BoolPreferenceKey.showCompletionMomentum.rawValue) == nil)
+    }
+
+    @Test
     func returnsNilWhenSeedAbsentOrMalformed() {
         #expect(UITestingSeed.fromLaunchArguments([]) == nil)
         #expect(UITestingSeed.fromLaunchArguments(["--seed"]) == nil)

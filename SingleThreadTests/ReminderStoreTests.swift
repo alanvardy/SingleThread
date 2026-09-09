@@ -969,6 +969,34 @@ struct ReminderStoreSkipCountTests {
             #expect(store.dailyCompletion.todayCount == 1)
         }
 
+        @Test
+        func completingSameReminderConcurrentlyDoesNotDoubleIncrement() async {
+            let rem = makeReminder(title: "Buy milk")
+            let daily = DailyCompletionStore(
+                defaults: .standard,
+                markerKey: "daily-marker-\(UUID().uuidString)",
+                countKey: "daily-count-\(UUID().uuidString)")
+            // A settle that suspends long enough for the second, concurrent
+            // completion to run its guard before the first call reloads.
+            let delayedSettle: ReminderStoreSettle = {
+                try? await Task.sleep(nanoseconds: 100_000_000)
+            }
+            let store = ReminderStore(
+                eventStore: InMemoryEventStore(reminders: [rem], calendars: []),
+                skippedIDs: [],
+                authorizationStatus: .fullAccess,
+                dailyCompletion: daily,
+                settle: delayedSettle)
+            await store.start()
+
+            let first = Task { await store.completeReminder(identifier: rem.calendarItemIdentifier) }
+            let second = Task { await store.completeReminder(identifier: rem.calendarItemIdentifier) }
+            _ = await first.value
+            _ = await second.value
+
+            #expect(store.dailyCompletion.todayCount == 1)
+        }
+
         // MARK: Private
 
         /// Builds a store over an in-memory event store seeded with `reminders`

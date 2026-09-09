@@ -584,6 +584,7 @@ struct ContentView: View {
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
             .allowsHitTesting(false)
             .accessibilityHidden(true)
+            .transition(.opacity)
     }
 
     /// The Settings sheet body: `SettingsView` wrapped in the bag → @AppStorage
