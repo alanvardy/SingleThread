@@ -144,11 +144,13 @@ struct SettingsViewTests {
             showRecurrence: .constant(true),
             showAlarms: .constant(true),
             showCompletionGlow: .constant(true),
+            showCompletionMomentum: .constant(true),
             viewModel: SettingsViewModel())
         let bodyDescription = String(describing: view.body)
 
         let expectedLabels = [
-            "Show date", "Show list", "Recurrence indicator", "Reminder alerts", "Completion glow"
+            "Show date", "Show list", "Recurrence indicator", "Reminder alerts",
+            "Completion glow", "Completion Momentum"
         ]
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
@@ -159,7 +161,8 @@ struct SettingsViewTests {
             "Show which list each reminder belongs to.",
             "Show if a reminder repeats.",
             "Show if a reminder has a time alert.",
-            "Show a sparkle animation when a reminder is completed."
+            "Show a sparkle animation when a reminder is completed.",
+            "Show \"You've cleared N today\" after completing a reminder."
         ]
         for caption in expectedCaptions {
             #expect(bodyDescription.contains(caption))

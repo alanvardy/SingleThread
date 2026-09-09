@@ -233,6 +233,12 @@ struct ContentView: View {
                 completionGlowOverlay
             }
         }
+        .overlay(alignment: .bottom) {
+            if viewModel.completionMomentum.isActive {
+                completionMomentumOverlay
+                    .padding(.bottom, 80) // clear the bottom bar
+            }
+        }
         .overlay(alignment: .topLeading) {
             #if os(iOS)
                 if isNotificationsUITesting {
@@ -243,6 +249,9 @@ struct ContentView: View {
         .animation(
             reduceMotion ? nil : .easeInOut(duration: 0.4),
             value: viewModel.completionGlow.isActive)
+        .animation(
+            reduceMotion ? nil : .easeInOut(duration: 0.4),
+            value: viewModel.completionMomentum.isActive)
         .onChange(of: scenePhase) { _, phase in
             handleScenePhaseChange(phase)
         }
@@ -560,6 +569,21 @@ struct ContentView: View {
             .accessibilityIdentifier("completionGlowOverlay")
             .accessibilityLabel(SharedStrings.completionGlow)
             .transition(.opacity)
+    }
+
+    /// Subtle foreground text overlay shown after a successful completion,
+    /// displaying "You've cleared N today". Passes touches through; hidden
+    /// from the accessibility tree like the glow (rapid re-triggers would be
+    /// noisy for VoiceOver).
+    private var completionMomentumOverlay: some View {
+        Text("You've cleared \(viewModel.completionMomentum.todayCount) today")
+            .foregroundStyle(.secondary)
+            .font(.subheadline)
+            .padding(.vertical, 8)
+            .padding(.horizontal, 16)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 
     /// The Settings sheet body: `SettingsView` wrapped in the bag → @AppStorage

@@ -16,6 +16,8 @@ struct ReminderSettingsView: View {
 
     @Binding var showCompletionGlow: Bool
 
+    @Binding var showCompletionMomentum: Bool
+
     let viewModel: SettingsViewModel
 
     var body: some View {
@@ -90,6 +92,17 @@ struct ReminderSettingsView: View {
                 }
             }
             .accessibilityIdentifier("showCompletionGlowToggle")
+            Toggle(isOn: $showCompletionMomentum) {
+                Label {
+                    VStack(alignment: .leading) {
+                        Text("Completion Momentum")
+                        SettingsCaption(text: "Show \"You've cleared N today\" after completing a reminder.")
+                    }
+                } icon: {
+                    Image(systemName: "flame")
+                }
+            }
+            .accessibilityIdentifier("showCompletionMomentumToggle")
         }
         .navigationTitle(SharedStrings.reminder)
         .settingsSubscreenLayout()
@@ -106,6 +119,7 @@ struct ReminderSettingsView: View {
             showRecurrence: .constant(true),
             showAlarms: .constant(true),
             showCompletionGlow: .constant(true),
+            showCompletionMomentum: .constant(true),
             viewModel: SettingsViewModel())
     }
 }
