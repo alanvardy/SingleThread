@@ -220,9 +220,9 @@ committed file.
 
 ## Final Verification
 
-- [ ] All files committed: `.gitleaks.toml`, `.github/dependabot.yml`, `.github/workflows/ci.yml`
-- [ ] `./scripts/test.sh` passes (full CI-identical Swift gate — config-only changes; this is a no-op regression check)
-- [ ] PR is ready for review with all checkboxes above ticked
+- [x] All files committed: `.gitleaks.toml`, `.github/dependabot.yml`, `.github/workflows/ci.yml`
+- [x] Full gate executed once as a dedicated async gate subagent (gated SHA 87c9e742). Config-only diff verified: swiftformat / swiftlint --strict / iOS build / watch build / Periphery all **pass**. iOS UI XCTest stage failed on local simulator workspace contention (`RequestDenied` from SBMainWorkspace, same signature both attempts) — **environment, not a code regression** (Swift sources byte-identical to origin/main); per protocol, stopped re-running locally — **CI is authoritative**. CI on PR #185: `secret-scan` ✅ green; lint / ui-tests-smoke / iPad unit / watch-ui-tests ✅ on the first run; the two failures (`mac-tests` `PreferenceHolderTests/refreshesOnNotification`, `unit-tests (iPhone 17)`) are **pre-existing on origin/main** (identical failures on main run 34376887991, which pre-dates this PR) — not caused by this diff
+- [ ] PR is ready for review with all checkboxes above ticked (automated items all closed; Manual items below await owner confirmation)
 
 ---
 
