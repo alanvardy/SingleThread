@@ -80,9 +80,13 @@ on:
 
 **Why**: Without `pull_request`, the `secret-scan` job (and all existing jobs)
 would only run post-merge on `main` — useful for audit but not for blocking
-secrets pre-merge. The existing `concurrency` group
-(`ci-${{ github.ref }}`, `cancel-in-progress: true` at `ci.yml:7–9`) handles
-the double-run when both `push` and `pull_request` events fire on a PR branch.
+secrets pre-merge. Note `github.ref` differs between `push` (`refs/heads/main`)
+and `pull_request` (`refs/pull/N/merge`), so the concurrency group does **not**
+de-duplicate push vs PR runs — it only cancels superseded runs of the same
+event ref (e.g. successive PR syncs). However, since `push` is restricted to
+`branches: [main]`, feature-branch pushes never fire a push event, so no
+double-run occurs in practice. The cost is each Dependabot PR and merge event
+runs the full macOS matrix independently.
 
 #### 2. Append `secret-scan` job
 **File**: `.github/workflows/ci.yml`
