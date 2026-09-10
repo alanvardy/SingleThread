@@ -3,6 +3,9 @@ useDefault = true
 
 [allowlist]
 description = "Base64-encoded 1×1 JPEG test fixture — high-entropy but not a credential"
+# Defensive insurance: the base64 1×1 JPEG in this file does not fire under
+# gitleaks 8.30.1 default rules (baseline-verified). The allowlist is kept
+# in case future rule releases match the split-literal high-entropy blob.
 paths = [
-    '''SingleThreadTests/BackgroundTestFixtures.swift'''
+    '''^SingleThreadTests/BackgroundTestFixtures\.swift$'''
 ]
