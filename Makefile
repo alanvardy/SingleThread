@@ -1,4 +1,8 @@
-SIM ?= platform=iOS Simulator,name=iPhone 17
+# Destination precedence: an explicit SIM= (command line or environment) wins;
+# otherwise this worktree's dedicated simulator from .simulator_id (created by
+# the addworktree/takeoff fish functions); otherwise the shared default device.
+SIM_FROM_WORKTREE := $(shell test -f .simulator_id && printf 'platform=iOS Simulator,id=%s' "$$(cat .simulator_id)")
+SIM ?= $(if $(SIM_FROM_WORKTREE),$(SIM_FROM_WORKTREE),platform=iOS Simulator,name=iPhone 17)
 WATCH_SIM := generic/platform=watchOS Simulator
 # Concrete watchOS Simulator used by watch UI tests (xcodebuild requires a
 # concrete device to run XCTests). Name-only works when one standalone watch
@@ -10,7 +14,12 @@ DERIVED_DATA := DerivedData
 COVERAGE_RESULT := build/Coverage.xcresult
 COVERAGE_UI_RESULT := build/Coverage.UI.xcresult
 COVERAGE_ALL_RESULT := build/Coverage.All.xcresult
+# Export SIM only when explicitly overridden: scripts/test.sh resolves
+# .simulator_id itself and must not receive the name-only fallback as if it
+# were an explicit override.
+ifneq ($(origin SIM),file)
 export SIM
+endif
 
 .PHONY: build watch-build test ui-test simverify mac-build mac-test mac-run mac-distribute reset-storekit coverage coverage-ui coverage-all check clean lint format periphery watch-ui-test watch-test
 

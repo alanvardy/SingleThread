@@ -2,7 +2,9 @@
 set -euo pipefail
 
 # ── Configuration ──────────────────────────────────────────────────────────────
-SIM="${SIM:-platform=iOS Simulator,name=iPhone 17}"
+# Destination is resolved after cd: an explicit SIM wins, else this worktree's
+# dedicated simulator from .simulator_id, else the shared default device.
+SIM="${SIM:-}"
 WATCH_SIM="generic/platform=watchOS Simulator"
 # Concrete watchOS Simulator for watch UI tests (xcodebuild requires a concrete
 # device to run XCTests). Name-only works when one standalone watch simulator
@@ -36,6 +38,23 @@ preboot_sim() {
 }
 
 cd "$(dirname "$0")/.."
+
+# Prefer this worktree's dedicated simulator when SIM was not set explicitly.
+# This is what keeps parallel agents off each other's simulator (see the
+# worktree_sim fish function that writes .simulator_id).
+if [[ -z "$SIM" ]]; then
+    WORKTREE_SIM_UDID=""
+    [[ -f .simulator_id ]] && WORKTREE_SIM_UDID="$(tr -d '[:space:]' < .simulator_id)"
+    if [[ -n "$WORKTREE_SIM_UDID" ]] \
+        && xcrun simctl list devices 2>/dev/null | grep -qF "($WORKTREE_SIM_UDID)"; then
+        SIM="platform=iOS Simulator,id=$WORKTREE_SIM_UDID"
+        echo "==> Using this worktree's simulator ${WORKTREE_SIM_UDID}"
+    else
+        [[ -n "$WORKTREE_SIM_UDID" ]] \
+            && echo "⚠️  .simulator_id ($WORKTREE_SIM_UDID) is not a known simulator — falling back" >&2
+        SIM="platform=iOS Simulator,name=iPhone 17"
+    fi
+fi
 
 # Resolve the destination to a concrete ID once, then pre-boot it for all modes.
 if [[ "$SIM" != *",id="* ]]; then
