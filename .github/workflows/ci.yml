@@ -28,7 +28,7 @@ jobs:
       - name: Override development team
         run: echo "DEVELOPMENT_TEAM=" >> $GITHUB_ENV
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/DerivedData
           key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
@@ -96,7 +96,7 @@ jobs:
       - name: Override development team
         run: echo "DEVELOPMENT_TEAM=" >> $GITHUB_ENV
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/DerivedData
           key: derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadUITests/**', 'SingleThreadCore/**', 'SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
@@ -153,7 +153,7 @@ jobs:
       - name: Override development team
         run: echo "DEVELOPMENT_TEAM=" >> $GITHUB_ENV
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/DerivedData
           key: derived-data-mac-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThread/**', 'SingleThreadTests/**', 'SingleThreadCore/**', 'SingleThreadWidget/**', 'SingleThread.xcodeproj/project.pbxproj') }}
@@ -204,7 +204,7 @@ jobs:
         run: brew install mise
 
       - name: Cache mise tools
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.local/share/mise
           key: mise-tools-${{ runner.os }}-${{ hashFiles('.mise.toml') }}
@@ -252,7 +252,7 @@ jobs:
       - name: Override development team
         run: echo "DEVELOPMENT_TEAM=" >> $GITHUB_ENV
 
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/DerivedData
           key: watch-ui-derived-data-${{ runner.os }}-${{ steps.xcode.outputs.version }}-${{ github.ref_name }}-${{ hashFiles('SingleThreadWatch/**', 'SingleThreadWatchUITests/**', 'SingleThreadWatchTests/**', 'SingleThreadCore/**', 'SingleThread.xcodeproj/project.pbxproj') }}
