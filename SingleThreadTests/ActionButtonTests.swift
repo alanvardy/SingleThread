@@ -13,8 +13,10 @@ import Testing
     /// view.body)` cannot distinguish it (both branches appear in the reflected type
     /// names and SwiftUI never reflects accessibility labels). These tests therefore
     /// verify the gate decision (`ContentViewModel.showsActionButtons`) directly — the
-    /// seam exists exactly for this — while the rendered cluster is exercised by the
-    /// UI tests (`ActionButtonsUITests` in Phase 3).
+    /// seam exists exactly for this. The rendered cluster is exercised by
+    /// `SingleThreadUITests.testLaunchAndRenderSmoke` (the successor of the former
+    /// `ActionButtonsUITests` suite, whose a11y audit uses only the cheap categories
+    /// and never runs the local-only `.hitRegion` check).
     @MainActor
     struct ActionButtonTests {
         // MARK: Internal
