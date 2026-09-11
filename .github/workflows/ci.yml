@@ -18,7 +18,7 @@ jobs:
       SIM: platform=iOS Simulator,name=${{ matrix.device }}
       DERIVED_DATA: ${{ github.workspace }}/DerivedData
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: maxim-lobanov/setup-xcode@v1
         id: xcode
@@ -86,7 +86,7 @@ jobs:
       SIM: platform=iOS Simulator,name=${{ matrix.device }}
       DERIVED_DATA: ${{ github.workspace }}/DerivedData
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: maxim-lobanov/setup-xcode@v1
         id: xcode
@@ -143,7 +143,7 @@ jobs:
     env:
       DERIVED_DATA: ${{ github.workspace }}/DerivedData
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: maxim-lobanov/setup-xcode@v1
         id: xcode
@@ -193,7 +193,7 @@ jobs:
   lint:
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: maxim-lobanov/setup-xcode@v1
         id: xcode
@@ -242,7 +242,7 @@ jobs:
     env:
       DERIVED_DATA: ${{ github.workspace }}/DerivedData
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: maxim-lobanov/setup-xcode@v1
         id: xcode
@@ -313,7 +313,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@dcedce43c6f43de0b836d1fe38946645c9c638dc  # v2
