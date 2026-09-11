@@ -2,6 +2,9 @@
 xcuserdata/
 *.xcuserdatad
 DerivedData/
+
+# Per-worktree simulator UDID, written by the addworktree/takeoff fish functions
+.simulator_id
 DerivedDataPhase3/
 *.xcuserstate
 *.xcscmblueprint
