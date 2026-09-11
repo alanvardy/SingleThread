@@ -33,6 +33,12 @@ re-run it (they exceed run caps and orphan unverified changes).
   earlier commit (`git rev-parse --short HEAD` at launch).
 - Run `make format` then `make lint` in-line first (fast), so the slow gate
   doesn't burn an hour on a format/lint failure you could catch in seconds.
+- The gate child aborts when the calling tree is dirty — commit everything
+  first, including `.pi/orksorksorks/<branch>/` artifacts and the `DELETEME`
+  removal.
+- Always pass `SIM='platform=iOS Simulator,id=<UDID>'` (this worktree's
+  `.simulator_id`): the leftover local `Gate iPhone 17` sim collides with the
+  name-only default destination.
 
 ## How to launch (ONE top-level subagent call)
 

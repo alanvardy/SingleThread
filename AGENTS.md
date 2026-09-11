@@ -3,8 +3,11 @@
 ## Shell Environment
 
 - The command tool runs **fish** — see `~/.pi/agent/AGENTS.md` "Shell
-  environment" and the `fish-shell` skill; for bash-only constructs write
-  `/tmp/x.sh` FIRST and run `bash /tmp/x.sh` (applies to the parent too).
+  environment" and the `fish-shell` skill. Accepted forms here: multi-file
+  `grep` without a loop; `bash -c '…'` (or `/tmp/x.sh`) for loops, heredocs
+  and `$( )`; `set VAR val` instead of `VAR=val`; `$status` instead of `$?`.
+  Any `fish:`-prefixed line is a rejection — switch immediately, never re-send
+  a variant. Applies to the parent **and** to every fan-out child.
 
 ## Build & Test
 
@@ -13,16 +16,13 @@
   with `xcrun simctl list devices available | grep -iE 'iphone|ipad'` if
   either is unavailable.
 - **Destination pinning**: the name-only `iPhone 17` destination is ambiguous
-  when multiple runtimes exist — a bare `name=` hangs.
-  Pin `,OS=<ver>` or `,id=<UDID>`; `scripts/test.sh`/`Makefile` accept `SIM=`.
-- **One xcodebuild test process at a time** (simulator contention). On
-  `Busy`/`RequestDenied` runner-launch failures: shutdown sims (`xcrun
-  simctl shutdown all`) and kill orphaned `xcodebuild`/`xctest` processes.
-  Watch UI tests use a standalone (unpaired) watch simulator by default —
-  `scripts/test.sh` pins `platform=watchOS Simulator,name=…`, and CI creates an
-  unpaired watch sim. Pairing (`xcrun simctl pair <watchUDID> <phoneUDID>`) is
-  only a troubleshooting step for runner-launch failures (see the
-  `simulator-pairing` skill).
+  when multiple runtimes exist — a bare `name=` hangs, and an unanchored match
+  in `resolve_sim_udid` can select the leftover **`Gate iPhone 17`** sim.
+  Precedence: explicit `SIM=` > this worktree's `.simulator_id` > the shared
+  default; `scripts/test.sh`/`Makefile` accept `SIM=`.
+- **One xcodebuild test process at a time**; on `Busy`/`RequestDenied`, shut
+  down sims and kill orphaned `xcodebuild`/`xctest` — the remedies live in the
+  `simulator-pairing` skill (watch UI tests use an unpaired watch sim).
 - **Build & tests via `make`**: `make build` / `make test` / `make
   ui-test` / `make periphery` / `make lint` / `make format`; pin a
   destination with `SIM=`. `make periphery` reads a stale build index after
@@ -34,6 +34,11 @@
   builds fast. Release builds switch to `dwarf-with-dsym`.
 - **After code changes**, run the full CI check locally via the Before
   Committing gate below (`./scripts/test.sh` — identical to CI).
+- **Single test**: pin the destination from `.simulator_id`, and run it via
+  `scripts/test-one.sh <Target/Suite/case>` — it exits non-zero when the run
+  matched **zero** cases, because a zero-match `-only-testing:` prints
+  `** TEST SUCCEEDED **` and exits 0, silently passing a red-first check. It
+  also bounds the run; an unbounded foreground suite has hung for 600 s twice.
 
 ## Concurrency Model
 
@@ -65,13 +70,8 @@
 
 ## Purchases (StoreKit)
 
-- The premium product ID is a single source of truth:
-  `EntitlementStore.unlockProductID` — never hard-code the id elsewhere,
-  and keep `Products.storekit` plus the scheme's
-  `StoreKitConfigurationFileReference` in sync with it.
-- Real-device testing requires a sandbox tester account (App Store Connect)
-  and the signed Paid Applications Agreement; otherwise the store shows
-  nothing to tap.
+- The premium product ID is `EntitlementStore.unlockProductID` — single source
+  of truth; recipes and sandbox-testing notes in `.pi/skills/storekit/SKILL.md`.
 
 ## Project Layout
 
@@ -104,17 +104,21 @@ SingleThread/                  # git root
   the main ticket's current branch. **No child subtasks** / **no separate
   design PR/branch**. Artifacts live under `.pi/orksorksorks/<current-branch>/`
   (each phase commits its own artifact before moving on).
+- Step prompts pass `step`, `branch` and `artifact_directory` as **literal
+  text, not shell variables** — never `ls "$artifact_directory"`; substitute
+  the value printed in the variables block, and read `($artifact_directory)x.md`
+  as "join".
+- The `DELETEME` marker committed at branch bootstrap must be removed
+  (`git rm DELETEME`) before the branch merges: it is not gitignored, and its
+  commit subject is the ticket title, so it reads like a real change.
 - Plans are consumed literally — verify every snippet, file path, test name,
   `SIM=…,OS=` this session; unproven red-first premises → `UNVALIDATED`.
 
 ## Adding New Files and Targets
 
-- **New `.swift` files**: Xcode auto-discovers them (synchronized file groups,
-  `objectVersion = 77`) — no pbxproj edits needed.
-- **New test target** (e.g. `SingleThreadWatchUITests`): requires pbxproj
-  object IDs, scheme TestAction wiring, a `-only-testing` entry in
-  `scripts/test.sh`, and CI matrix entries. The QRSPI design phase should
-  flag this explicitly — it is not a simple file-add.
+- New `.swift` files need no pbxproj edit (synchronized file groups). A **new
+  test target** is not a file-add: pbxproj object IDs, scheme TestAction
+  wiring, a `-only-testing` entry in `scripts/test.sh`, and CI matrix entries.
 
 ## Lint & Format
 
@@ -164,21 +168,16 @@ SingleThread/                  # git root
   UI tests that are justified; reuse the existing `--ui-testing` seam on
   watchOS.
 - **Gate staging**: phase subagents verify with a build plus targeted
-  `-only-testing:` suites only. The full `./scripts/test.sh` runs ONCE, as a
-  dedicated async gate subagent (see the `run-gate` skill), after phases
-  commit — workers re-running the multi-hour gate exceed run caps and orphan
-  unverified changes. Plan per-phase Verification lists as targeted
-  `-only-testing:` suites (never the full UI suite). The full gate is launched
-  once via a single top-level async subagent in a managed worktree with a
-  multi-hour timeout; the subagent watchdogs its own run (stall detection,
-  orphaned `xcodebuild`/`xctest` cleanup, `Busy`/`RequestDenied` retry) and
-  returns a structured verdict. The parent is notified on completion and can
-  keep working in the main tree without perturbing the gated commit. Never
-  `nohup … > /tmp/gate.log &` it ad-hoc. After two UI-stage contention
-  failures, stop re-running locally — CI is authoritative.
+  `-only-testing:` suites only; the full `./scripts/test.sh` runs ONCE after
+  the phases commit, via the `run-gate` skill (async gate subagent, managed
+  worktree, multi-hour timeout). Never `nohup … > /tmp/gate.log &` it ad-hoc.
+  After two UI-stage contention failures, stop re-running locally — CI is
+  authoritative.
 - Conflict-laden rebases are NOT resolution-edited mid-review: stop, and
   resolve (`git checkout --theirs` / manual continue) in a separate scoped
   fix commit before review resumes.
+- **A bug fix is red-first-proven only if the run executed the test** — check
+  that at least one case ran; a zero-match `-only-testing:` exits 0.
 
 ## Accessibility Testing
 

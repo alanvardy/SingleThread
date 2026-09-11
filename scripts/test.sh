@@ -26,7 +26,12 @@ RUNTIMES_DIR="$HOME/Library/Developer/XCTestDevices"
 # build hangs. Falls back to leaving $SIM unchanged if no UDID resolves.
 resolve_sim_udid() {
     local name="$1"
-    xcrun simctl list devices available | grep -F "$name (" | head -1 \
+    # Match the device *name* at the start of a listing line. An unanchored
+    # substring match also matches a device that merely contains the name —
+    # e.g. `name=iPhone 17` selecting the leftover "Gate iPhone 17" sim.
+    xcrun simctl list devices available \
+        | awk -v n="$name" '{ s = $0; sub(/^[ \t]+/, "", s); if (index(s, n " (") == 1) print }' \
+        | head -1 \
         | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/'
 }
 # Pre-boot the simulator so the first test run doesn't pay a cold boot; matches
