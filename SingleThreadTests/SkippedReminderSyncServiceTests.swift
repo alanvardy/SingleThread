@@ -265,6 +265,22 @@
         }
 
         @Test
+        func completeQueuesWhenPhoneUnreachable() {
+            let fake = FakeSession()
+            fake.isReachable = false
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-complete-queue-\(UUID().uuidString)"),
+                sortStore: makeTestSortStore())
+
+            service.requestCompleteReminder("ABC")
+
+            #expect(fake.queuedUserInfo.count == 1)
+            #expect(fake.lastMessage == nil)
+            #expect(fake.queuedUserInfo[0]["completeReminderIdentifier"] as? String == "ABC")
+        }
+
+        @Test
         func receiveMessageTriggersCompletionHook() {
             let fake = FakeSession()
             let store = SkippedReminderStore(defaults: .standard, key: "test-complete-receive")
@@ -297,6 +313,22 @@
             let message = try #require(fake.lastMessage)
             let identifier = try #require(message["deleteReminderIdentifier"] as? String)
             #expect(identifier == "ABC")
+        }
+
+        @Test
+        func deleteQueuesWhenPhoneUnreachable() {
+            let fake = FakeSession()
+            fake.isReachable = false
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-delete-queue-\(UUID().uuidString)"),
+                sortStore: makeTestSortStore())
+
+            service.requestDeleteReminder("ABC")
+
+            #expect(fake.queuedUserInfo.count == 1)
+            #expect(fake.lastMessage == nil)
+            #expect(fake.queuedUserInfo[0]["deleteReminderIdentifier"] as? String == "ABC")
         }
 
         @Test

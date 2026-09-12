@@ -114,10 +114,58 @@
                 identifier: "ABC",
                 dueDateComponents: DateComponents(year: 2027, month: 1, day: 2))
 
-            // RED against current code: the request is dropped on the floor instead of
-            // being queued for delivery on reconnect/relaunch.
             #expect(fake.queuedUserInfo.count == 1)
             #expect(fake.lastMessage == nil)
+        }
+
+        @Test
+        func rescheduleQueuesExactlyOnceWhenUnreachable() {
+            let fake = FakeSession()
+            fake.isReachable = false
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-resched-xor-\(UUID().uuidString)"))
+
+            service.requestRescheduleReminder(
+                identifier: "ABC",
+                dueDateComponents: DateComponents(year: 2027, month: 1, day: 2))
+
+            #expect(fake.queuedUserInfo.count == 1)
+            #expect(fake.lastMessage == nil) // send XOR queue, never both
+            let queued = fake.queuedUserInfo[0]
+            #expect(queued["rescheduleReminderIdentifier"] as? String == "ABC")
+            #expect(queued["dueDateComponents"] as? [String: Int] == ["year": 2027, "month": 1, "day": 2])
+        }
+
+        @Test
+        func rescheduleStillSendsWhenPhoneReachable() {
+            let fake = FakeSession() // isReachable defaults true
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-resched-send-\(UUID().uuidString)"))
+
+            service.requestRescheduleReminder(
+                identifier: "ABC",
+                dueDateComponents: DateComponents(year: 2027, month: 1, day: 2))
+
+            #expect(fake.lastMessage != nil)
+            #expect(fake.queuedUserInfo.isEmpty)
+        }
+
+        @Test
+        func rescheduleDoesNotQueueAfterSendError() {
+            let fake = FakeSession()
+            fake.errorToThrow = NSError(domain: "test", code: 1)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-resched-err-\(UUID().uuidString)"))
+
+            service.requestRescheduleReminder(
+                identifier: "ABC",
+                dueDateComponents: DateComponents(year: 2027, month: 1, day: 2))
+
+            #expect(fake.lastMessage != nil)
+            #expect(fake.queuedUserInfo.isEmpty) // a rejected send is not retried on the queue
         }
     }
 #endif

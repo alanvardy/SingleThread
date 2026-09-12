@@ -6,15 +6,26 @@ import os
 
     /// Test seam: WCSession is not mockable, so we abstract the calls we need.
     public protocol SkipSyncSession: AnyObject {
+        /// Whether the counterpart app is currently reachable for `sendMessage`.
+        var isReachable: Bool { get }
         func activate()
         func updateApplicationContext(_ applicationContext: [String: Any]) throws
         func sendMessage(
             _ message: [String: Any],
             replyHandler: (([String: Any]) -> Void)?,
             errorHandler: ((any Error) -> Void)?)
+        /// Queue a message for delivery when the counterpart is unreachable.
+        /// Named `queueUserInfo` (not `transferUserInfo`) because the SDK call
+        /// returns a `WCSessionUserInfoTransfer` and cannot witness a `Void`
+        /// requirement.
+        func queueUserInfo(_ userInfo: [String: Any])
     }
 
-    extension WCSession: SkipSyncSession {}
+    extension WCSession: SkipSyncSession {
+        public func queueUserInfo(_ userInfo: [String: Any]) {
+            _ = transferUserInfo(userInfo)
+        }
+    }
 
     /// Pushes and receives the skip-set between phone and watch via WatchConnectivity,
     /// and relays "complete reminder" requests from the watch to the phone.
@@ -242,30 +253,23 @@ import os
         }
 
         /// Ask the iPhone to complete a reminder (watch-side action).
-        public func requestCompleteReminder(_ identifier: String) {
-            session.sendMessage(
-                [PayloadKey.completeReminderIdentifier: identifier],
-                replyHandler: nil) { error in
-                    let description = error.localizedDescription
-                    Self.logger.error("Failed to send completion request: \(description, privacy: .public)")
-                }
+        @discardableResult
+        public func requestCompleteReminder(_ identifier: String) -> Bool {
+            deliver([PayloadKey.completeReminderIdentifier: identifier])
         }
 
         /// Ask the iPhone to delete a reminder (watch-side action).
-        public func requestDeleteReminder(_ identifier: String) {
-            session.sendMessage(
-                [PayloadKey.deleteReminderIdentifier: identifier],
-                replyHandler: nil) { error in
-                    let description = error.localizedDescription
-                    Self.logger.error("Failed to send delete request: \(description, privacy: .public)")
-                }
+        @discardableResult
+        public func requestDeleteReminder(_ identifier: String) -> Bool {
+            deliver([PayloadKey.deleteReminderIdentifier: identifier])
         }
 
         /// Ask the iPhone to reschedule a reminder (watch-side action). The due-date
         /// components travel as a plist-safe `[String: Int]` dictionary — only the
         /// user-picked fields are populated, so other calendar subsystems (month/day
         /// boundaries, timezone) resolve on the phone.
-        public func requestRescheduleReminder(identifier: String, dueDateComponents: DateComponents) {
+        @discardableResult
+        public func requestRescheduleReminder(identifier: String, dueDateComponents: DateComponents) -> Bool {
             var payload: [String: Any] = [PayloadKey.rescheduleReminderIdentifier: identifier]
             var dueComponents: [String: Int] = [:]
             if let year = dueDateComponents.year {
@@ -284,9 +288,7 @@ import os
                 dueComponents["minute"] = minute
             }
             payload["dueDateComponents"] = dueComponents
-            session.sendMessage(payload, replyHandler: nil) { error in
-                Self.logger.error("Failed to send reschedule request: \(error.localizedDescription, privacy: .public)")
-            }
+            return deliver(payload)
         }
 
         // MARK: WCSessionDelegate
@@ -379,6 +381,21 @@ import os
         private let sendsShowList: Bool
         private let sendsShowCompletionGlow: Bool
         private let sendsEntitled: Bool
+
+        /// Single delivery chokepoint: exactly one of `sendMessage` (reachable) or
+        /// `queueUserInfo` (unreachable) fires per call, so a queued mutation can never
+        /// be applied twice. Returns `true` once a delivery was handed to the transport.
+        @discardableResult
+        private func deliver(_ payload: [String: Any]) -> Bool {
+            if session.isReachable {
+                session.sendMessage(payload, replyHandler: nil) { error in
+                    Self.logger.error("Failed to deliver sync request: \(error.localizedDescription, privacy: .public)")
+                }
+            } else {
+                session.queueUserInfo(payload)
+            }
+            return true
+        }
 
         /// Single receive path: decode → persist → notify for each present key;
         /// absent keys are no-ops. Handlers are snapshotted before invocation because
