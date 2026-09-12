@@ -546,13 +546,13 @@ func rescheduleRelayReportsMissingHookAsFailure() async {
 ### Verification
 
 #### Automated
-- [ ] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && xcodebuild test -scheme SingleThreadWatch -destination "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)" -configuration Debug -derivedDataPath DerivedData -only-testing:SingleThreadWatchTests/ReminderStoreWatchTests'` — relay cases green
-- [ ] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && ./scripts/test-one.sh SingleThreadTests/ReminderStoreTests'` — `rescheduleResetsSkipCount` + `reschedulePreservesRecurrenceOnRepeatingReminder` green, no regressions
-- [ ] `make watch-build` green
-- [ ] `make lint` green
+- [x] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && xcodebuild test -scheme SingleThreadWatch -destination "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)" -configuration Debug -derivedDataPath DerivedData -only-testing:SingleThreadWatchTests/ReminderStoreWatchTests'` — relay cases green (16 cases, pinned by id due to dual watchOS runtimes)
+- [x] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && ./scripts/test-one.sh SingleThreadTests/ReminderStoreTests'` — `rescheduleResetsSkipCount` + `reschedulePreservesRecurrenceOnRepeatingReminder` green, no regressions (34 cases)
+- [x] `make watch-build` green
+- [x] `make lint` green
 
 #### Manual
-- [ ] Inspect the `#else` branch diff: the iOS `rescheduleReminder` body (find/save/skip-reset/settle/reload/catch) is unchanged
+- [ ] Inspect the `#else` branch diff: the iOS `rescheduleReminder` body (find/save/skip-reset/settle/reload/catch) is unchanged — verified unchanged on commit 6b4a4f25
 
 ---
 
