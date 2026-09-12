@@ -13,9 +13,8 @@
 
         @Test
         func menuBarExtraPreferenceDefaultsToShown() {
+            // An accidental flip to opt-in must fail loudly.
             #expect(MenuBarExtraPreference.defaultValue)
-            // Sad path: an accidental flip to opt-in must fail loudly.
-            #expect(MenuBarExtraPreference.defaultValue != false)
         }
     }
 #endif
