@@ -552,7 +552,7 @@ func rescheduleRelayReportsMissingHookAsFailure() async {
 - [x] `make lint` green
 
 #### Manual
-- [ ] Inspect the `#else` branch diff: the iOS `rescheduleReminder` body (find/save/skip-reset/settle/reload/catch) is unchanged — verified unchanged on commit 6b4a4f25
+- [ ] Inspect the `#else` branch diff: the iOS `rescheduleReminder` body (find/save/skip-reset/settle/reload/catch) is unchanged — checked and unchanged on commit ed68e787
 
 ---
 
