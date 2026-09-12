@@ -211,3 +211,124 @@ final class RecordingRechecker: StaleReminderRechecking {
         stopCount += 1
     }
 }
+
+/// Builds a `WatchReminderViewModel` for the reschedule-confirm flow, backed by
+/// `AppGroup.defaults` (the shared-value rule); one visible reminder keeps the
+/// confirm path reachable.
+@MainActor
+private func makeRescheduleFixture() -> (viewModel: WatchReminderViewModel, store: ReminderStore, key: String) {
+    let visible = watchReminder("Visible")
+    let key = "watch-resched-vm-\(UUID().uuidString)"
+    let skipStore = SkippedReminderStore(defaults: AppGroup.defaults, key: key)
+    let store = ReminderStore(
+        eventStore: InMemoryEventStore(reminders: [visible]),
+        skipStore: skipStore,
+        loadsReminders: true,
+        reminders: [visible],
+        skippedIDs: [],
+        authorizationStatus: .fullAccess)
+    let viewModel = WatchReminderViewModel(
+        store: store,
+        showDateState: ShowDateState(),
+        showRecurrenceState: ShowRecurrenceState(),
+        showAlarmsState: ShowAlarmsState(),
+        showListState: ShowListState(),
+        showCompletionGlowState: ShowCompletionGlowState(),
+        entitlementState: EntitlementState(),
+        showEnableActionButtonsState: ShowEnableActionButtonsState())
+    return (viewModel, store, key)
+}
+
+@MainActor
+@Suite(.serialized)
+struct RescheduleConfirmTests {
+    @Test
+    func confirmRescheduleRefreshesVisibleRemindersOnSuccess() async {
+        let fixture = makeRescheduleFixture()
+        defer { AppGroup.defaults.removeObject(forKey: fixture.key) }
+        let viewModel = fixture.viewModel
+        let store = fixture.store
+        store.onRescheduleReminder = { _, _ in true }
+        var reloads = 0
+        store.onRemindersChanged = { reloads += 1 }
+        viewModel.isShowingRescheduleSheet = true
+        viewModel.rescheduleDate = Date(timeIntervalSince1970: 1_800_000_000) // arbitrary
+
+        await viewModel.confirmReschedule()
+
+        #expect(reloads >= 1) // refresh ran
+        #expect(!viewModel.rescheduleFailure)
+        #expect(!viewModel.isShowingRescheduleSheet) // success closes the sheet
+    }
+
+    @Test
+    func confirmRescheduleSetsFailureWhenRelayRejected() async {
+        let fixture = makeRescheduleFixture()
+        defer { AppGroup.defaults.removeObject(forKey: fixture.key) }
+        let viewModel = fixture.viewModel
+        fixture.store.onRescheduleReminder = { _, _ in false }
+        viewModel.isShowingRescheduleSheet = true
+
+        await viewModel.confirmReschedule()
+
+        #expect(viewModel.rescheduleFailure)
+        #expect(viewModel.isShowingRescheduleSheet) // sheet stays open on failure
+    }
+
+    @Test
+    func confirmRescheduleNoopWithoutVisibleReminder() async {
+        let skipped = watchReminder("Only")
+        let key = "watch-resched-vm-none-\(UUID().uuidString)"
+        defer { AppGroup.defaults.removeObject(forKey: key) }
+        let skipStore = SkippedReminderStore(defaults: AppGroup.defaults, key: key)
+        skipStore.save([skipped.calendarItemIdentifier])
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(reminders: [skipped]),
+            skipStore: skipStore,
+            loadsReminders: true,
+            reminders: [skipped],
+            skippedIDs: [skipped.calendarItemIdentifier],
+            authorizationStatus: .fullAccess)
+        let viewModel = WatchReminderViewModel(
+            store: store,
+            showDateState: ShowDateState(),
+            showRecurrenceState: ShowRecurrenceState(),
+            showAlarmsState: ShowAlarmsState(),
+            showListState: ShowListState(),
+            showCompletionGlowState: ShowCompletionGlowState(),
+            entitlementState: EntitlementState(),
+            showEnableActionButtonsState: ShowEnableActionButtonsState())
+        var fired = false
+        store.onRescheduleReminder = { _, _ in fired = true; return true }
+        viewModel.isShowingRescheduleSheet = true
+
+        await viewModel.confirmReschedule()
+
+        #expect(!fired)
+        #expect(!viewModel.rescheduleFailure)
+        #expect(!viewModel.isShowingRescheduleSheet) // pre-existing no-op closes the sheet
+    }
+
+    @Test
+    func confirmRescheduleSendsDateOnlyComponents() async throws {
+        let fixture = makeRescheduleFixture()
+        defer { AppGroup.defaults.removeObject(forKey: fixture.key) }
+        let viewModel = fixture.viewModel
+        var sent: DateComponents?
+        fixture.store.onRescheduleReminder = { _, components in
+            sent = components
+            return true
+        }
+        // A date with a non-midnight time; the picker is date-only.
+        viewModel.rescheduleDate = Date(timeIntervalSince1970: 1_800_000_000)
+
+        await viewModel.confirmReschedule()
+
+        let components = try #require(sent)
+        #expect(components.year != nil)
+        #expect(components.month != nil)
+        #expect(components.day != nil)
+        #expect(components.hour == nil) // date-only wire semantics preserved
+        #expect(components.minute == nil)
+    }
+}

@@ -73,6 +73,10 @@ final class WatchReminderViewModel {
     /// The reschedule date picker's selection (defaults to tomorrow).
     var rescheduleDate = Date().addingTimeInterval(86400)
 
+    /// `true` when the last reschedule attempt was rejected by the relay. Drives the
+    /// sheet's inline failure message and alert; cleared at the start of each attempt.
+    var rescheduleFailure = false
+
     /// When `true`, the completion glow is playing out and the card should
     /// stay visible as a "ghost" even though the store is already empty.
     var isShowingCompletionTransition = false
@@ -84,6 +88,25 @@ final class WatchReminderViewModel {
     /// Extra hold time beyond `completionGlow.duration` before the ghost card
     /// is cleared. Test-configurable so unit tests can run near-instantly.
     var completionTransitionBuffer: TimeInterval = 0.5
+
+    /// Confirms the pending reschedule: builds date-only components, relays through
+    /// the store, and refreshes the visible list on acceptance. A rejected relay
+    /// keeps the sheet open and surfaces `rescheduleFailure`.
+    func confirmReschedule() async {
+        guard let identifier = store.visibleReminders.first?.calendarItemIdentifier else {
+            isShowingRescheduleSheet = false
+            return
+        }
+        let components = Calendar.current.dateComponents([.year, .month, .day], from: rescheduleDate)
+        rescheduleFailure = false
+        let accepted = await store.rescheduleReminder(identifier: identifier, to: components)
+        if accepted {
+            isShowingRescheduleSheet = false
+            await refresh(clearSkipped: store.allSkipped)
+        } else {
+            rescheduleFailure = true
+        }
+    }
 
     func task() async {
         await store.start()
