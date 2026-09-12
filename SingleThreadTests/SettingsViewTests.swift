@@ -370,6 +370,49 @@ struct SettingsViewTests {
             // Clean up so a prior run's leftover can't pollute a subsequent run.
             AppGroup.defaults.removeObject(forKey: key)
         }
+
+        @Test
+        func showMenuBarExtraRoundTripsThroughBag() {
+            let key = MenuBarExtraPreference.key
+            UserDefaults.standard.set(false, forKey: key)
+            #expect(!UserDefaults.standard.bool(forKey: key))
+
+            // Simulate the write-back: bag value → @AppStorage setter path.
+            UserDefaults.standard.set(true, forKey: key)
+            #expect(UserDefaults.standard.bool(forKey: key))
+
+            // Clean up so a prior run's leftover can't pollute a subsequent run.
+            UserDefaults.standard.removeObject(forKey: key)
+        }
+
+        @Test
+        func showMenuBarExtraDefaultsToShownInBag() {
+            // Absent key → shown.
+            let key = MenuBarExtraPreference.key
+            let existing = UserDefaults.standard.object(forKey: key)
+            UserDefaults.standard.removeObject(forKey: key)
+            defer {
+                if let existing {
+                    UserDefaults.standard.set(existing, forKey: key)
+                } else {
+                    UserDefaults.standard.removeObject(forKey: key)
+                }
+            }
+
+            #expect(SettingsBindings().showMenuBarExtra)
+
+            // Sad path: the default must not override an explicit off.
+            let off = SettingsBindings(showMenuBarExtra: false)
+            #expect(!off.showMenuBarExtra)
+            UserDefaults.standard.set(false, forKey: key)
+            #expect(!UserDefaults.standard.bool(forKey: key))
+        }
+
+        @Test
+        func macOSBagDefaultsToShown() {
+            // Drift guard: the bag's literal default must match the preference type.
+            #expect(SettingsBindings().showMenuBarExtra == MenuBarExtraPreference.defaultValue)
+        }
     #endif
 
     #if os(macOS)

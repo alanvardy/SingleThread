@@ -15,10 +15,10 @@ import SwiftUI
 ///
 /// `allowsLandscape`, `enableActionButtons`, `showSwipePrompt`, `showUndoButton`,
 /// `notificationsEnabled`, and `notificationIntervalHours` are iOS-only in
-/// ContentView, but the compiler does not support `#if` directives inside a
-/// parameter list, so they are declared unconditionally here with their
-/// ContentView defaults. On macOS they are harmless: the values are simply
-/// never wired or read.
+/// ContentView, and `showMenuBarExtra` is macOS-only there, but the compiler
+/// does not support `#if` directives inside a parameter list, so they are
+/// declared unconditionally here with their ContentView defaults. On the other
+/// platform they are harmless: the values are simply never wired or read.
 @MainActor
 @Observable
 final class SettingsBindings {
@@ -36,7 +36,8 @@ final class SettingsBindings {
         showMicrophoneButton: Bool = true,
         backgroundEnabled: Bool = true,
         backgroundFadePercent: Int = 50,
-        backgroundPinned: Bool = false) {
+        backgroundPinned: Bool = false,
+        showMenuBarExtra: Bool = true) {
         self.appearanceMode = appearanceMode
         self.textSize = textSize
         self.allowsLandscape = allowsLandscape
@@ -49,6 +50,7 @@ final class SettingsBindings {
         self.backgroundEnabled = backgroundEnabled
         self.backgroundFadePercent = backgroundFadePercent
         self.backgroundPinned = backgroundPinned
+        self.showMenuBarExtra = showMenuBarExtra
     }
 
     // MARK: Internal
@@ -65,6 +67,7 @@ final class SettingsBindings {
     var backgroundEnabled: Bool
     var backgroundFadePercent: Int
     var backgroundPinned: Bool
+    var showMenuBarExtra: Bool
 
     // MARK: - App-Group preferences (store-backed, observable)
 

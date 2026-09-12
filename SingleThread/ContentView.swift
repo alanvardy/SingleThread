@@ -75,6 +75,11 @@ struct ContentView: View {
     @AppStorage("textSize")
     var textSize = TextSize.system
 
+    #if os(macOS)
+        @AppStorage(MenuBarExtraPreference.key)
+        var showMenuBarExtra = MenuBarExtraPreference.defaultValue
+    #endif
+
     #if os(iOS)
         @AppStorage("allowsLandscape")
         var allowsLandscape = true
