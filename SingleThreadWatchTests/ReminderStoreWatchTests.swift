@@ -94,8 +94,6 @@ struct ReminderStoreWatchTests {
 
     @Test
     func rescheduleFiresRelayHookAndReturnsTrue() async {
-        let key = "watch-resched-\(UUID().uuidString)"
-        defer { UserDefaults.standard.removeObject(forKey: key) }
         let rem = watchReminder("A")
         let store = ReminderStore(
             eventStore: InMemoryEventStore(),
@@ -108,6 +106,7 @@ struct ReminderStoreWatchTests {
         store.onRescheduleReminder = { identifier, components in
             receivedIdentifier = identifier
             receivedComponents = components
+            return true
         }
         let due = DateComponents(year: 2027, month: 1, day: 2)
 
@@ -116,12 +115,48 @@ struct ReminderStoreWatchTests {
             to: due)
 
         // The watch prizes the relay over a local EventKit write: the hook fires
-        // with the exact components and the call reports success.
+        // with the exact components and the call reports the relay's outcome.
         #expect(rescheduled)
         #expect(receivedIdentifier == rem.calendarItemIdentifier)
         #expect(receivedComponents?.year == 2027)
         #expect(receivedComponents?.month == 1)
         #expect(receivedComponents?.day == 2)
+    }
+
+    @Test
+    func rescheduleRelayReturnsFalseWhenHookRejects() async {
+        let rem = watchReminder("A")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        store.onRescheduleReminder = { _, _ in false }
+
+        let rescheduled = await store.rescheduleReminder(
+            identifier: rem.calendarItemIdentifier,
+            to: DateComponents(year: 2027, month: 1, day: 2))
+
+        #expect(!rescheduled)
+    }
+
+    @Test
+    func rescheduleRelayReportsMissingHookAsFailure() async {
+        let rem = watchReminder("A")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [rem],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        // No onRescheduleReminder hook wired.
+
+        let rescheduled = await store.rescheduleReminder(
+            identifier: rem.calendarItemIdentifier,
+            to: DateComponents(year: 2027, month: 1, day: 2))
+
+        #expect(!rescheduled)
     }
 
     @Test
@@ -139,7 +174,10 @@ struct ReminderStoreWatchTests {
             completionCounter: CompletionCounterStore(defaults: .standard, key: key),
             entitlementStore: EntitlementStore(testingWithEntitled: false))
         var fired = false
-        store.onRescheduleReminder = { _, _ in fired = true }
+        store.onRescheduleReminder = { _, _ in
+            fired = true
+            return true
+        }
 
         let rescheduled = await store.rescheduleReminder(
             identifier: rem.calendarItemIdentifier,

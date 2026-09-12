@@ -108,9 +108,10 @@ public final class ReminderStore {
 
     /// Hook invoked when the user reschedules a reminder on watchOS, where EventKit
     /// writes are unavailable. Passes the reminder's identifier and the new due-date
-    /// components. Wired by the watch app layer to relay the reschedule to the
-    /// iPhone via WatchConnectivity.
-    public var onRescheduleReminder: ((String, DateComponents) -> Void)?
+    /// components, and returns whether the relay accepted the request (dispatched to
+    /// the transport, including queued delivery). Wired by the watch app layer to
+    /// relay the reschedule to the iPhone via WatchConnectivity.
+    public var onRescheduleReminder: ((String, DateComponents) -> Bool)?
 
     /// Hook invoked after any mutation that changes the visible reminder set
     /// (complete, skip, add, or clear-skipped reload). Wired by the iOS app layer
@@ -367,9 +368,10 @@ public final class ReminderStore {
     public func rescheduleReminder(identifier: String, to due: DateComponents) async -> Bool {
         guard canMutate else { return false }
         #if os(watchOS)
+            // Truthful outcome: report what the relay actually did, so a missing
+            // hook surfaces as a failure instead of a silent success.
             let handler = onRescheduleReminder
-            handler?(identifier, due)
-            return true
+            return handler?(identifier, due) ?? false
         #else
             guard let reminder = reminders.first(where: {
                 $0.calendarItemIdentifier == identifier
