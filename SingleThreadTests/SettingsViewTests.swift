@@ -373,17 +373,28 @@ struct SettingsViewTests {
         }
 
         @Test
-        func showMenuBarExtraRoundTripsThroughBag() {
+        func showMenuBarExtraRoundTripsThroughContentView() {
             let key = MenuBarExtraPreference.key
-            UserDefaults.standard.set(false, forKey: key)
-            #expect(!UserDefaults.standard.bool(forKey: key))
+            let existing = UserDefaults.standard.object(forKey: key)
+            defer {
+                if let existing {
+                    UserDefaults.standard.set(existing, forKey: key)
+                } else {
+                    UserDefaults.standard.removeObject(forKey: key)
+                }
+            }
 
-            // Simulate the write-back: bag value → @AppStorage setter path.
-            UserDefaults.standard.set(true, forKey: key)
-            #expect(UserDefaults.standard.bool(forKey: key))
-
-            // Clean up so a prior run's leftover can't pollute a subsequent run.
+            // Absent key → the @AppStorage property and the seeded bag both read on.
             UserDefaults.standard.removeObject(forKey: key)
+            var view = ContentView(loadsReminders: false, eventStore: InMemoryEventStore())
+            #expect(view.showMenuBarExtra)
+            #expect(view.makeSettingsBag().showMenuBarExtra)
+
+            // The .onChange write-back assigns to this property; @AppStorage then
+            // persists false, and a freshly seeded bag reflects it.
+            view.showMenuBarExtra = false
+            #expect(!view.makeSettingsBag().showMenuBarExtra)
+            #expect(!UserDefaults.standard.bool(forKey: key))
         }
 
         @Test
@@ -465,7 +476,7 @@ struct SettingsViewTests {
         }
 
         @Test
-        func interfaceSettingsViewOmitsMenuBarToggleCopy() {
+        func interfaceSettingsViewRendersMenuBarToggleOnce() {
             // Sad path: the row must render exactly once — a duplicated toggle
             // (e.g. copy-pasted into both platforms) fails here.
             let view = InterfaceSettingsView(
