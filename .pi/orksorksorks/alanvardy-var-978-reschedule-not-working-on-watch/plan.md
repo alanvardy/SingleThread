@@ -408,11 +408,11 @@ func deleteQueuesWhenPhoneUnreachable() {
 ### Verification
 
 #### Automated
-- [ ] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && ./scripts/test-one.sh SingleThreadTests/SkippedReminderSyncServiceTests'` — existing + 2 new green
-- [ ] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && ./scripts/test-one.sh SingleThreadTests/RescheduleSyncTests'` — the Stage-1 red is now green; 7 cases ran
-- [ ] `make build` — `SkipSyncSession` conformance compiles on iOS
-- [ ] `make watch-build` — conformance compiles on watchOS
-- [ ] `make lint` green
+- [x] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && ./scripts/test-one.sh SingleThreadTests/SkippedReminderSyncServiceTests'` — existing + 2 new green (35 cases)
+- [x] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && ./scripts/test-one.sh SingleThreadTests/RescheduleSyncTests'` — the Stage-1 red is now green; 8 cases ran
+- [x] `make build` — `SkipSyncSession` conformance compiles on iOS
+- [x] `make watch-build` — conformance compiles on watchOS
+- [x] `make lint` green
 
 #### Manual
 - [ ] Confirm by inspection that no `session.sendMessage` call remains outside `deliver(_:)` (grep the file)
