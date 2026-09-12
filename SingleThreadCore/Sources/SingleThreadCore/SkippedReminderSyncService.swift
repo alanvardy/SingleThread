@@ -16,14 +16,16 @@ import os
             errorHandler: ((any Error) -> Void)?)
         /// Queue a message for delivery when the counterpart is unreachable.
         /// Named `queueUserInfo` (not `transferUserInfo`) because the SDK call
-        /// returns a `WCSessionUserInfoTransfer` and cannot witness a `Void`
-        /// requirement.
-        func queueUserInfo(_ userInfo: [String: Any])
+        /// returns a `WCSessionUserInfoTransfer`, bridged to a `Bool` here:
+        /// `false` means the transport refused the queued transfer.
+        @discardableResult
+        func queueUserInfo(_ userInfo: [String: Any]) -> Bool
     }
 
     extension WCSession: SkipSyncSession {
-        public func queueUserInfo(_ userInfo: [String: Any]) {
-            _ = transferUserInfo(userInfo)
+        @discardableResult
+        public func queueUserInfo(_ userInfo: [String: Any]) -> Bool {
+            transferUserInfo(userInfo) != nil
         }
     }
 
@@ -300,25 +302,14 @@ import os
         }
 
         public func session(_: WCSession, didReceiveMessage message: [String: Any]) {
-            if let identifier = message[PayloadKey.completeReminderIdentifier] as? String {
-                let handler = onCompleteReminderReceived
-                handler?(identifier)
-            }
-            if let identifier = message[PayloadKey.deleteReminderIdentifier] as? String {
-                let handler = onDeleteReminderReceived
-                handler?(identifier)
-            }
-            if let identifier = message[PayloadKey.rescheduleReminderIdentifier] as? String,
-               let dueComponents = message["dueDateComponents"] as? [String: Int] {
-                var components = DateComponents()
-                components.year = dueComponents["year"]
-                components.month = dueComponents["month"]
-                components.day = dueComponents["day"]
-                components.hour = dueComponents["hour"]
-                components.minute = dueComponents["minute"]
-                let handler = onRescheduleReminderReceived
-                handler?(identifier, components)
-            }
+            apply(request: message)
+        }
+
+        /// Queued `transferUserInfo` deliveries (the unreachable fallback) arrive
+        /// here, not on `didReceiveMessage`. Routing both channels through one
+        /// decoder keeps them from drifting.
+        public func session(_: WCSession, didReceiveUserInfo userInfo: [String: Any]) {
+            apply(request: userInfo)
         }
 
         public func session(
@@ -382,19 +373,46 @@ import os
         private let sendsShowCompletionGlow: Bool
         private let sendsEntitled: Bool
 
+        /// Decodes a mutating request from either delivery channel — interactive
+        /// `sendMessage` or queued `transferUserInfo` — and fires the matching hook.
+        private func apply(request: [String: Any]) {
+            if let identifier = request[PayloadKey.completeReminderIdentifier] as? String {
+                let handler = onCompleteReminderReceived
+                handler?(identifier)
+            }
+            if let identifier = request[PayloadKey.deleteReminderIdentifier] as? String {
+                let handler = onDeleteReminderReceived
+                handler?(identifier)
+            }
+            if let identifier = request[PayloadKey.rescheduleReminderIdentifier] as? String,
+               let dueComponents = request["dueDateComponents"] as? [String: Int] {
+                var components = DateComponents()
+                components.year = dueComponents["year"]
+                components.month = dueComponents["month"]
+                components.day = dueComponents["day"]
+                components.hour = dueComponents["hour"]
+                components.minute = dueComponents["minute"]
+                let handler = onRescheduleReminderReceived
+                handler?(identifier, components)
+            }
+        }
+
         /// Single delivery chokepoint: exactly one of `sendMessage` (reachable) or
-        /// `queueUserInfo` (unreachable) fires per call, so a queued mutation can never
-        /// be applied twice. Returns `true` once a delivery was handed to the transport.
+        /// `queueUserInfo` (unreachable) fires per call, so a mutating request is
+        /// never handed to the transport twice for one attempt. Returns whether the
+        /// transport accepted the request: a reachable `sendMessage` is always
+        /// accepted (any transport error arrives asynchronously and is logged),
+        /// while an unreachable queue reports the transport's own acceptance, so a
+        /// refusal surfaces as a failure instead of a silent drop.
         @discardableResult
         private func deliver(_ payload: [String: Any]) -> Bool {
             if session.isReachable {
                 session.sendMessage(payload, replyHandler: nil) { error in
                     Self.logger.error("Failed to deliver sync request: \(error.localizedDescription, privacy: .public)")
                 }
-            } else {
-                session.queueUserInfo(payload)
+                return true
             }
-            return true
+            return session.queueUserInfo(payload)
         }
 
         /// Single receive path: decode → persist → notify for each present key;
