@@ -562,14 +562,17 @@ make the scene conditional — `isInserted:` is the supported mechanism.
 
 ### Verification
 #### Automated
-- [ ] Run the full CI-identical gate **once** via the `run-gate` skill (async gate subagent, managed
+- [x] Run the full CI-identical gate **once** via the `run-gate` skill (async gate subagent, managed
       worktree, multi-hour timeout) — `./scripts/test.sh`. Never `nohup` it ad-hoc and never re-run
       it from a phase subagent.
-- [ ] `./scripts/test.sh` green (format + lint + iOS build + watch build + Periphery + UI tests +
-      watch UI/unit + macOS unit).
-- [ ] If Periphery `--strict` flags `SettingsBindings.showMenuBarExtra` as unused on the iOS index,
+- [x] `./scripts/test.sh` green (format + lint + iOS build + watch build + Periphery + UI tests +
+      watch UI/unit + macOS unit) — all stages pass; only the 3 documented pre-existing local-only
+      `EntitlementStoreTests` fail on this machine (CI green on fresh runners). Gate needed
+      `WATCH_TEST_SIM` pinned (name-only Apple Watch destination ambiguous across two runtimes).
+- [x] If Periphery `--strict` flags `SettingsBindings.showMenuBarExtra` as unused on the iOS index,
       add `// periphery:ignore` on that declaration (existing repo convention, e.g.
-      `InterfaceSettingsView.swift:1`) and re-run `make periphery`.
+      `InterfaceSettingsView.swift:1`) and re-run `make periphery`. — **not triggered**: Periphery
+      reported "No unused code detected".
 
 #### Manual
 - [ ] Confirm every checkbox above is ticked and the macOS manual checklist in Phase 4 passed on a
