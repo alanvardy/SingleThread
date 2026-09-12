@@ -30,6 +30,7 @@ extension ContentView {
         #elseif os(macOS)
             let withIOSPreferences = withAppearance
                 .onChange(of: bag.enableActionButtons) { _, new in enableActionButtons = new }
+                .onChange(of: bag.showMenuBarExtra) { _, new in showMenuBarExtra = new }
         #endif
         return withIOSPreferences
             .onChange(of: bag.showMicrophoneButton) { _, new in showMicrophoneButton = new }
@@ -65,7 +66,8 @@ extension ContentView {
                 showMicrophoneButton: showMicrophoneButton,
                 backgroundEnabled: backgroundEnabled,
                 backgroundFadePercent: backgroundFadePercent,
-                backgroundPinned: backgroundPinned)
+                backgroundPinned: backgroundPinned,
+                showMenuBarExtra: showMenuBarExtra)
         #endif
     }
 }
