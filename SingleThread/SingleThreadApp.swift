@@ -34,10 +34,13 @@ struct SingleThreadApp: App {
             // (`if !visibleReminders.isEmpty`) crashes the Swift 6 compiler
             // (SceneBuilder expression bug), so the documented fallback applies:
             // `MenuBarExtraOptions` renders empty content when nothing is due.
-            MenuBarExtra("SingleThread", systemImage: "checkmark.circle") {
-                MenuBarExtraOptions(store: viewModel.store)
-            }
-            .menuBarExtraStyle(.menu)
+            MenuBarExtra(
+                "SingleThread",
+                systemImage: "checkmark.circle",
+                isInserted: $showMenuBarExtra) {
+                    MenuBarExtraOptions(store: viewModel.store)
+                }
+                .menuBarExtraStyle(.menu)
         #endif
     }
 
@@ -50,6 +53,9 @@ struct SingleThreadApp: App {
     #if os(macOS)
         @AppStorage("appearanceMode")
         private var appearanceMode = AppearanceMode.system
+
+        @AppStorage(MenuBarExtraPreference.key)
+        private var showMenuBarExtra = MenuBarExtraPreference.defaultValue
     #endif
 
     #if os(iOS)
