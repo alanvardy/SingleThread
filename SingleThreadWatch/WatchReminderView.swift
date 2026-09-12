@@ -296,25 +296,27 @@ struct WatchReminderView: View {
                     selection: $viewModel.rescheduleDate,
                     displayedComponents: [.date])
                 Button("Reschedule") {
-                    let components = Calendar.current.dateComponents(
-                        [.year, .month, .day],
-                        from: viewModel.rescheduleDate)
-                    if let id = viewModel.store.visibleReminders.first?.calendarItemIdentifier {
-                        Task {
-                            await viewModel.store.rescheduleReminder(identifier: id, to: components)
-                            viewModel.isShowingRescheduleSheet = false
-                        }
-                    } else {
-                        viewModel.isShowingRescheduleSheet = false
-                    }
+                    Task { await viewModel.confirmReschedule() }
                 }
                 .accessibilityIdentifier("rescheduleConfirmButton")
+                if viewModel.rescheduleFailure {
+                    Text("Couldn't reschedule. Try again with your iPhone nearby.")
+                        .font(.footnote)
+                        .foregroundStyle(.red)
+                        .multilineTextAlignment(.center)
+                        .accessibilityIdentifier("rescheduleFailureMessage")
+                }
             }
             .padding()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { viewModel.isShowingRescheduleSheet = false }
                 }
+            }
+            .alert("Reschedule failed", isPresented: $viewModel.rescheduleFailure) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Your reminder wasn't updated.")
             }
         }
     }

@@ -724,9 +724,9 @@ func confirmRescheduleSendsDateOnlyComponents() async throws {
 ### Verification
 
 #### Automated
-- [ ] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && xcodebuild test -scheme SingleThreadWatch -destination "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)" -configuration Debug -derivedDataPath DerivedData -only-testing:SingleThreadWatchTests/WatchReminderViewModelTests'` — 4 new + existing cases green
-- [ ] `make lint` green — SwiftFormat does not strip any new test name (none start with `test`/`testing`)
-- [ ] Confirm new persisted keys use `AppGroup.defaults` (grep the new tests for `.standard`)
+- [x] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && xcodebuild test -scheme SingleThreadWatch -destination "platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)" -configuration Debug -derivedDataPath DerivedData -only-testing:SingleThreadWatchTests/WatchReminderViewModelTests'` — 4 new + existing cases green (12 cases, pinned by id)
+- [x] `make lint` green — SwiftFormat does not strip any new test name (none start with `test`/`testing`)
+- [x] Confirm new persisted keys use `AppGroup.defaults` (grep the new tests for `.standard`)
 
 #### Manual
 - [ ] `make watch-build` green
@@ -783,12 +783,12 @@ The store call, component extraction, and discarded `Bool` are all removed from 
 ### Verification
 
 #### Automated
-- [ ] `make watch-build` green
-- [ ] `make lint` green
-- [ ] No watch UI test is added (decision, not a step): the state transition is fully captured by the Stage-4 unit tests and repo policy keeps UI tests exceptional; the existing watch smoke + a11y audit run in the gate
+- [x] `make watch-build` green
+- [x] `make lint` green
+- [x] No watch UI test is added (decision, not a step): the state transition is fully captured by the Stage-4 unit tests and repo policy keeps UI tests exceptional; the existing watch smoke + a11y audit run in the gate
 
 #### Manual
-- [ ] Grep `WatchReminderView.swift` for `rescheduleReminder` — no hits (view is presentation-only)
+- [ ] Grep `WatchReminderView.swift` for `rescheduleReminder` — no hits (view is presentation-only) — verified on commit for Phase 5
 - [ ] On the paired sim: tap Reschedule → Confirm with a reachable phone → sheet dismisses and the card reflects the new date
 
 ---
