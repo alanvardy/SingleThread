@@ -99,6 +99,7 @@ struct SettingsViewTests {
                 textSize: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
+                showMenuBarExtra: .constant(true),
                 viewModel: SettingsViewModel())
         #endif
         let bodyDescription = String(describing: view.body)
@@ -423,6 +424,7 @@ struct SettingsViewTests {
                 textSize: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
+                showMenuBarExtra: .constant(true),
                 viewModel: SettingsViewModel())
             let bodyDescription = String(describing: view.body)
 
@@ -438,12 +440,48 @@ struct SettingsViewTests {
                 textSize: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: enabled,
+                showMenuBarExtra: .constant(true),
                 viewModel: SettingsViewModel())
             // Verify the view accepts the binding — the binding itself will
             // be mutated by the Toggle in a running app; we confirm the
             // initial value flows through.
             let bodyDescription = String(describing: view.body)
             #expect(bodyDescription.contains("Show action buttons"))
+        }
+
+        @Test
+        func interfaceSettingsViewContainsMenuBarToggle() {
+            let view = InterfaceSettingsView(
+                appearanceMode: .constant(.system),
+                textSize: .constant(.system),
+                showMicrophoneButton: .constant(true),
+                enableActionButtons: .constant(false),
+                showMenuBarExtra: .constant(true),
+                viewModel: SettingsViewModel())
+            let bodyDescription = String(describing: view.body)
+
+            #expect(bodyDescription.contains("Show in Menu Bar"))
+            #expect(bodyDescription.contains("Show the next reminder in the menu bar."))
+        }
+
+        @Test
+        func interfaceSettingsViewOmitsMenuBarToggleCopy() {
+            // Sad path: the row must render exactly once — a duplicated toggle
+            // (e.g. copy-pasted into both platforms) fails here.
+            let view = InterfaceSettingsView(
+                appearanceMode: .constant(.system),
+                textSize: .constant(.system),
+                showMicrophoneButton: .constant(true),
+                enableActionButtons: .constant(false),
+                showMenuBarExtra: .constant(false),
+                viewModel: SettingsViewModel())
+            let bodyDescription = String(describing: view.body)
+
+            let titleCount = bodyDescription.components(separatedBy: "Show in Menu Bar").count - 1
+            let captionCount = bodyDescription
+                .components(separatedBy: "Show the next reminder in the menu bar.").count - 1
+            #expect(titleCount == 1)
+            #expect(captionCount == 1)
         }
     #endif
 
