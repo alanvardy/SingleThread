@@ -69,6 +69,14 @@ func inListReminder(title: String, list: String) -> EKReminder {
         var lastMessage: [String: Any]?
         var pushShouldThrow = false
 
+        /// Reachability the production request path branches on. Defaults to the
+        /// happy path so every pre-existing test keeps taking `sendMessage`.
+        var isReachable = true
+        /// Recorded `transferUserInfo` deliveries (the unreachable fallback).
+        var queuedUserInfo: [[String: Any]] = []
+        /// When set, `sendMessage` reports it through `errorHandler` synchronously.
+        var errorToThrow: (any Error)?
+
         func activate() {
             activated = true
         }
@@ -83,8 +91,17 @@ func inListReminder(title: String, list: String) -> EKReminder {
         func sendMessage(
             _ message: [String: Any],
             replyHandler _: (([String: Any]) -> Void)?,
-            errorHandler _: ((any Error) -> Void)?) {
+            errorHandler: ((any Error) -> Void)?) {
             lastMessage = message
+            if let errorToThrow {
+                errorHandler?(errorToThrow)
+            }
+        }
+
+        /// Present at Stage 1 so the red test compiles; promoted to a
+        /// `SkipSyncSession` requirement in Stage 2.
+        func queueUserInfo(_ userInfo: [String: Any]) {
+            queuedUserInfo.append(userInfo)
         }
     }
 #endif

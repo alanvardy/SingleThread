@@ -100,5 +100,24 @@
 
             #expect(!fired)
         }
+
+        @Test
+        func rescheduleRelaysWhenPhoneUnreachable() {
+            let fake = FakeSession()
+            fake.isReachable = false
+            let suffix = UUID().uuidString
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-resched-unreachable-\(suffix)"))
+
+            service.requestRescheduleReminder(
+                identifier: "ABC",
+                dueDateComponents: DateComponents(year: 2027, month: 1, day: 2))
+
+            // RED against current code: the request is dropped on the floor instead of
+            // being queued for delivery on reconnect/relaunch.
+            #expect(fake.queuedUserInfo.count == 1)
+            #expect(fake.lastMessage == nil)
+        }
     }
 #endif

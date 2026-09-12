@@ -1,0 +1,3 @@
+# Task
+
+Fix "Reschedule not working on watch" (VAR-978): rescheduling a reminder on watchOS visibly does nothing. The reschedule path runs from the watch reminder sheet UI (WatchReminderViewModel / WatchReminderView) through ReminderStore's watchOS relay branch and the onRescheduleReminder callback, the WatchAppViewModel wiring into SkippedReminderSyncService's WatchConnectivity request, and the iPhone-side onRescheduleReminderReceived handler into the EventKit write in ReminderStore.rescheduleReminder's iOS branch. Research must document this chain as it exists so the broken link can be identified; the fix must preserve phone behavior and ship a red-first unit test that reproduces the reported symptom.
