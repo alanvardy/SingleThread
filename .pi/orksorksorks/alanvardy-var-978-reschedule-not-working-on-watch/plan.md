@@ -807,14 +807,14 @@ None (verification only). Update the PR body with:
 ### Verification
 
 #### Automated
-- [ ] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && ./scripts/test-one.sh SingleThreadTests/EventKitStoringTests'` — `reschedulePersistsDueDateAndReloads`, `rescheduleUnknownIdentifierIsNoop`, `rescheduleFailureReturnsFalse`, `reschedulePreservesRecurrenceRules` green, unchanged
-- [ ] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && ./scripts/test-one.sh SingleThreadTests/RescheduleSyncTests'` green
+- [x] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && ./scripts/test-one.sh SingleThreadTests/EventKitStoringTests'` — `reschedulePersistsDueDateAndReloads`, `rescheduleUnknownIdentifierIsNoop`, `rescheduleFailureReturnsFalse`, `reschedulePreservesRecurrenceRules` green, unchanged (actual Swift Testing suite is `ReminderStoreWriteTests` in that file — 12 cases, matched-zero trap avoided)
+- [x] `bash -c 'cd /Users/vardy/dev/alanvardy-var-978-reschedule-not-working-on-watch && ./scripts/test-one.sh SingleThreadTests/RescheduleSyncTests'` green (8 cases)
 - [ ] Full CI-identical gate runs **once**, via the `run-gate` skill (one async gate subagent in a managed worktree, multi-hour timeout): `./scripts/test.sh`
-      — do **not** `nohup` it ad-hoc, and do not re-run it locally after UI-stage contention (CI is authoritative)
-- [ ] Confirm the PR includes `git rm DELETEME` if the branch bootstrap marker is still present
+      — do **not** `nohup` it ad-hoc, and do not re-run it locally after UI-stage contention (CI is authoritative) — LAUNCHED at commit 8ec76ad8
+- [x] Confirm the PR includes `git rm DELETEME` if the branch bootstrap marker is still present — removed on commit d6102755
 
 #### Manual
-- [ ] The three local-only macOS `EntitlementStoreTests` failures (`isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`, `hostStoreKitIsClean`) are pre-existing — annotate, do not debug
+- [ ] The three local-only macOS `EntitlementStoreTests` failures (`isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`, `hostStoreKitIsClean`) are pre-existing — annotate, do not debug — annotated in PR body
 
 ---
 
