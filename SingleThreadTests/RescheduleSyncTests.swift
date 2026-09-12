@@ -167,5 +167,54 @@
             #expect(fake.lastMessage != nil)
             #expect(fake.queuedUserInfo.isEmpty) // a rejected send is not retried on the queue
         }
+
+        @Test
+        func rescheduleReportsFailureWhenQueueRejected() {
+            let fake = FakeSession()
+            fake.isReachable = false
+            fake.queueSucceeds = false
+            let suffix = UUID().uuidString
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-resched-queue-fail-\(suffix)"))
+
+            let accepted = service.requestRescheduleReminder(
+                identifier: "ABC",
+                dueDateComponents: DateComponents(year: 2027, month: 1, day: 2))
+
+            #expect(!accepted) // a refused queue is reported, not silently swallowed
+            #expect(fake.lastMessage == nil)
+        }
+
+        /// End-to-end across both delivery channels: a queued (`transferUserInfo`)
+        /// reschedule is decoded on the receiver's `didReceiveUserInfo` path, not
+        /// only on `didReceiveMessage`.
+        @Test
+        func queuedRescheduleDeliversThroughUserInfoChannel() throws {
+            let senderFake = FakeSession()
+            senderFake.isReachable = false
+            let sender = SkippedReminderSyncService(
+                session: senderFake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-queued-send-\(UUID().uuidString)"))
+
+            sender.requestRescheduleReminder(
+                identifier: "ABC",
+                dueDateComponents: DateComponents(year: 2027, month: 1, day: 2))
+            let payload = try #require(senderFake.queuedUserInfo.first)
+
+            let receiver = SkippedReminderSyncService(
+                session: FakeSession(),
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-queued-recv-\(UUID().uuidString)"))
+            var received: (identifier: String, components: DateComponents)?
+            receiver.onRescheduleReminderReceived = { identifier, components in
+                received = (identifier, components)
+            }
+
+            receiver.session(WCSession.default, didReceiveUserInfo: payload)
+
+            #expect(received?.identifier == "ABC")
+            #expect(received?.components.year == 2027)
+            #expect(received?.components.day == 2)
+        }
     }
 #endif

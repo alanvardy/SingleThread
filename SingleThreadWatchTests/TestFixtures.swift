@@ -30,6 +30,9 @@ final class WatchFakeSession: SkipSyncSession {
     var isReachable = true
     /// Recorded `transferUserInfo` deliveries (the unreachable fallback).
     var queuedUserInfo: [[String: Any]] = []
+    /// Whether the fake transport accepts a queued transfer; `false` models
+    /// `transferUserInfo` returning nil (session inactive / counterpart absent).
+    var queueSucceeds = true
     /// When set, `sendMessage` reports it through `errorHandler` synchronously.
     var errorToThrow: (any Error)?
 
@@ -54,9 +57,9 @@ final class WatchFakeSession: SkipSyncSession {
         }
     }
 
-    /// Present at Stage 1 so the red test compiles; promoted to a
-    /// `SkipSyncSession` requirement in Stage 2.
-    func queueUserInfo(_ userInfo: [String: Any]) {
+    @discardableResult
+    func queueUserInfo(_ userInfo: [String: Any]) -> Bool {
         queuedUserInfo.append(userInfo)
+        return queueSucceeds
     }
 }
