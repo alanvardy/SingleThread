@@ -18,6 +18,10 @@ struct InterfaceSettingsView: View {
 
     @Binding var enableActionButtons: Bool
 
+    #if os(macOS)
+        @Binding var showMenuBarExtra: Bool
+    #endif
+
     #if os(iOS)
         @Binding var showSwipePrompt: Bool
     #endif
@@ -92,6 +96,19 @@ struct InterfaceSettingsView: View {
                 }
             }
             .accessibilityIdentifier("showActionButtonsToggle")
+            #if os(macOS)
+                Toggle(isOn: $showMenuBarExtra) {
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("Show in Menu Bar")
+                            SettingsCaption(text: "Show the next reminder in the menu bar.")
+                        }
+                    } icon: {
+                        Image(systemName: "menubar.rectangle")
+                    }
+                }
+                .accessibilityIdentifier("showMenuBarToggle")
+            #endif
             #if os(iOS)
                 Toggle(isOn: $showSwipePrompt) {
                     Label {
@@ -143,6 +160,7 @@ struct InterfaceSettingsView: View {
                 textSize: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
+                showMenuBarExtra: .constant(true),
                 viewModel: SettingsViewModel())
         #endif
     }
