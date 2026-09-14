@@ -60,9 +60,9 @@ final class WatchAppViewModel {
         }
         // --ui-testing-action-menu: force the action-menu toggle ON so the watch
         // action-menu flow is testable without a paired phone. Every other
-        // --ui-testing launch resets it OFF: the default is off, and the value
-        // persists in the App Group across relaunches, so an earlier ON test
-        // would otherwise leak into the direct-skip flows.
+        // --ui-testing launch explicitly applies OFF: the value persists in the
+        // App Group across relaunches, so an earlier ON test would otherwise leak
+        // into the direct-skip flows.
         if isUITesting {
             showEnableActionButtonsState.apply(arguments.contains("--ui-testing-action-menu"))
         }

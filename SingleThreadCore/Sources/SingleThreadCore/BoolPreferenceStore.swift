@@ -22,6 +22,13 @@ public struct BoolPreferenceStore {
 
     // MARK: Public
 
+    /// Whether the key has ever been written. Callers that must distinguish
+    /// "explicitly off" from "absent" use this (e.g. the sync push omits a
+    /// never-set preference so the receiver keeps its own default).
+    public var isSet: Bool {
+        defaults.object(forKey: key) != nil
+    }
+
     /// Whether the preference is enabled. Absent key → `fallback`.
     public var isEnabled: Bool {
         defaults.object(forKey: key) as? Bool ?? fallback

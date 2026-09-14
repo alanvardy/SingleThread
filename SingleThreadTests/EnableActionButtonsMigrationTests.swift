@@ -42,7 +42,9 @@ struct EnableActionButtonsMigrationTests {
     @Test
     func existingAppGroupOffIsNotClobbered() {
         defer { clearKey() }
-        UserDefaults.standard.removeObject(forKey: Self.key)
+        // Seed BOTH sides so a guard regression (copying unconditionally) would
+        // overwrite the App Group's explicit false with the legacy true.
+        UserDefaults.standard.set(true, forKey: Self.key)
         AppGroup.defaults.set(false, forKey: Self.key)
 
         _ = AppViewModel(arguments: [])
@@ -52,7 +54,7 @@ struct EnableActionButtonsMigrationTests {
             "registerDefaults must not write over an existing App Group value")
         #expect(
             !AppGroup.defaults.bool(forKey: Self.key),
-            "an explicitly toggled-off value stays off")
+            "an explicitly toggled-off App Group value is not clobbered by the legacy copy")
     }
 
     // MARK: Private

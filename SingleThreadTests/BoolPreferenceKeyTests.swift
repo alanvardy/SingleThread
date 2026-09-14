@@ -10,7 +10,8 @@ struct BoolPreferenceKeyTests {
         (BoolPreferenceKey.showCompletionGlow, "showCompletionGlow"),
         (BoolPreferenceKey.showCompletionMomentum, "showCompletionMomentum"),
         (BoolPreferenceKey.showList, "showList"),
-        (BoolPreferenceKey.showUndatedReminders, "showUndatedReminders")
+        (BoolPreferenceKey.showUndatedReminders, "showUndatedReminders"),
+        (BoolPreferenceKey.enableActionButtons, "enableActionButtons")
     ])
     func keyStringsMatchExistingHardcodedKeys(_ key: BoolPreferenceKey, _ expected: String) {
         #expect(key.rawValue == expected)
@@ -18,7 +19,7 @@ struct BoolPreferenceKeyTests {
 
     @Test
     func allCasesIsExhaustive() {
-        #expect(BoolPreferenceKey.allCases.count == 7)
+        #expect(BoolPreferenceKey.allCases.count == 8)
     }
 
     /// Compile-time Sendable conformance check.

@@ -6,16 +6,17 @@ import SwiftUI
 /// `.standard` where the group is unavailable, e.g. a real watch), matching
 /// where the sync pipeline persists received values so the state and the wire
 /// never diverge. With no persisted value the flag defaults to on, so a fresh
-/// install shows the action cluster until the watch receives the shared
-/// setting. Updates arrive through the sync pipeline's explicit
+/// install shows the action cluster until the phone syncs an explicit choice.
+/// Updates arrive through the sync pipeline's explicit
 /// `onEnableActionButtonsReceived` callback.
 @Observable
 final class ShowEnableActionButtonsState {
     // MARK: Lifecycle
 
     init() {
-        let stored = AppGroup.defaults.object(forKey: Self.actionButtonsKey)
-        isEnabled = stored == nil ? true : AppGroup.defaults.bool(forKey: Self.actionButtonsKey)
+        isEnabled = BoolPreferenceStore(
+            key: BoolPreferenceKey.enableActionButtons.rawValue,
+            fallback: true).isEnabled
     }
 
     // MARK: Internal
@@ -24,11 +25,7 @@ final class ShowEnableActionButtonsState {
 
     /// Persists a received value and publishes it to observing views.
     func apply(_ value: Bool) {
-        AppGroup.defaults.set(value, forKey: Self.actionButtonsKey)
+        AppGroup.defaults.set(value, forKey: BoolPreferenceKey.enableActionButtons.rawValue)
         isEnabled = value
     }
-
-    // MARK: Private
-
-    private static let actionButtonsKey = "enableActionButtons"
 }

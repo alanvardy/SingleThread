@@ -88,7 +88,7 @@ extension ContentView {
 
         private var macShowActionMenu: Bool {
             ActionMenuGate.showsActionMenu(
-                enableActionButtons: AppGroup.defaults.bool(forKey: "enableActionButtons"),
+                enableActionButtons: enableActionButtons,
                 canMutate: viewModel.store.canMutate,
                 hasVisibleReminder: viewModel.store.visibleReminders.first != nil)
         }
