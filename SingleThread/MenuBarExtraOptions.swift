@@ -25,9 +25,11 @@
                     Button(SharedStrings.completeReminder) {
                         Task { @MainActor in await store.completeCurrentReminder() }
                     }
+                    .keyboardShortcut("c", modifiers: [])
                     Button(SharedStrings.skipReminder) {
                         Task { @MainActor in store.skipCurrentReminder() }
                     }
+                    .keyboardShortcut("s", modifiers: [])
                     Divider()
                     Button(String(localized: "Open SingleThread", table: "Localizable", bundle: .main)) {
                         NSApp.activate(ignoringOtherApps: true)

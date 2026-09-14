@@ -17,6 +17,8 @@
             #expect(output.contains("Complete Reminder"))
             #expect(output.contains("Skip Reminder"))
             #expect(output.contains("Open SingleThread"))
+            #expect(output.contains(#"character: "c""#))
+            #expect(output.contains(#"character: "s""#))
         }
 
         @Test
