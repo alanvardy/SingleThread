@@ -72,9 +72,9 @@ final class ContentViewModel {
 
     #if os(iOS)
         /// Mirrors ContentView's `@AppStorage("enableActionButtons")`. Driven from
-        /// the view via `.task`/`.onChange` (see `ContentView`). Defaults false so
-        /// the placeholder state is the plain mic until the view injects the value.
-        var enableActionButtons = false
+        /// the view via `.task`/`.onChange` (see `ContentView`). Defaults true so a
+        /// fresh install shows the action cluster until the view injects the value.
+        var enableActionButtons = true
 
         /// Whether the Complete/Skip cluster replaces the plain mic in the bottom
         /// bar: the toggle must be on AND a visible reminder must exist. Injected

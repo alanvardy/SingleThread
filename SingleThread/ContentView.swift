@@ -98,7 +98,7 @@ struct ContentView: View {
     var backgroundPinned = false
 
     @AppStorage("enableActionButtons", store: AppGroup.defaults)
-    var enableActionButtons = false
+    var enableActionButtons = true
 
     #if os(iOS)
         @AppStorage("showSwipePrompt")

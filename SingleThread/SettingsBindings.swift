@@ -28,7 +28,7 @@ final class SettingsBindings {
         appearanceMode: AppearanceMode = .system,
         textSize: TextSize = .system,
         allowsLandscape: Bool = true,
-        enableActionButtons: Bool = false,
+        enableActionButtons: Bool = true,
         showSwipePrompt: Bool = true,
         showUndoButton: Bool = true,
         notificationsEnabled: Bool = false,

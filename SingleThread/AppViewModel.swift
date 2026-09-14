@@ -105,7 +105,8 @@ final class AppViewModel {
     /// `bool(forKey:)` reads, so registration removes the silent divergence.
     /// Also runs one-time storage migrations: `enableActionButtons` moved from
     /// `.standard` to `AppGroup.defaults` (shared with the watch), and existing
-    /// users' value is copied over once; fresh installs stay default-off.
+    /// users' value is copied over once. Fresh installs persist no App Group value;
+    /// the read sites supply the default-on.
     static func registerDefaults() {
         UserDefaults.standard.register(defaults: ["showMicrophoneButton": true])
         #if os(macOS)

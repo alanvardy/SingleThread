@@ -69,6 +69,14 @@ import Testing
             #expect(!viewModel.showsActionButtons)
         }
 
+        @Test
+        func freshViewModelDefaultsToActionButtonsOn() {
+            let viewModel = makeViewModel(store: storeWithReminder())
+            #expect(
+                viewModel.enableActionButtons,
+                "the ContentViewModel mirror tracks ContentView's new @AppStorage default")
+        }
+
         // MARK: Private
 
         // MARK: Helpers

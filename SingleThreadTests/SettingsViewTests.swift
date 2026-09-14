@@ -34,6 +34,13 @@ struct SettingsViewTests {
     }
 
     @Test
+    func enableActionButtonsDefaultsToOn() {
+        #expect(
+            SettingsBindings().enableActionButtons,
+            "the bindings bag default mirrors ContentView's @AppStorage default")
+    }
+
+    @Test
     func settingsBindingsCarriesShowUndoButton() {
         let bag = SettingsBindings()
         #expect(bag.showUndoButton) // default enabled
