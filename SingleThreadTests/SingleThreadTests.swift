@@ -87,12 +87,17 @@ struct SingleThreadTests {
             // not printed. The refresh overlay's structural signature is
             // unique on macOS: a control-plate Button wrapped by
             // `.disabled(isRefreshing)` (printed as an environment key
-            // transform) and then the accessibility attachment. The gear
-            // button shares the plate but adds `.contentShape`, and no other
-            // button uses `.disabled`, so this substring pins the overlay.
+            // transform) and then the accessibility attachment. Switching the
+            // label between an arrow image and a spinner while refreshing
+            // makes the label a `_ConditionalContent` (both branches reflect
+            // in the name). The gear button shares the plate but adds
+            // `.contentShape`, and no other button uses `.disabled`, so this
+            // substring pins the overlay.
             let refreshButtonSignature =
-                "Button<ModifiedContent<ModifiedContent<Image, _EnvironmentKeyWritingModifier<Optional<Font>>>, "
-                    + "ControlPlateModifier>>, SingleThreadButtonModifier>, "
+                "Button<_ConditionalContent<ModifiedContent<ModifiedContent<ProgressView<EmptyView, EmptyView>, "
+                    + "_EnvironmentKeyWritingModifier<Optional<Font>>>, ControlPlateModifier>, "
+                    + "ModifiedContent<ModifiedContent<Image, _EnvironmentKeyWritingModifier<Optional<Font>>>, "
+                    + "ControlPlateModifier>>>, SingleThreadButtonModifier>, "
                     + "_EnvironmentKeyTransformModifier<Bool>>, AccessibilityAttachmentModifier"
             #expect(description.contains(refreshButtonSignature))
         #endif
