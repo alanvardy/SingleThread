@@ -263,10 +263,10 @@ Group suite and `.standard`.
 ### Verification
 
 #### Automated
-- [ ] `make format` — no diff after SwiftFormat
-- [ ] `make lint` — SwiftLint `--strict` clean (the new `actionButtonsKey` and `stored` names satisfy the 3-char `identifier_name` minimum)
-- [ ] `make watch-build` succeeds
-- [ ] `make watch-test` passes, including `unsetKeyDefaultsToOn` and `persistedOffStaysOff`
+- [x] `make format` — no diff after SwiftFormat
+- [x] `make lint` — SwiftLint `--strict` clean (the new `actionButtonsKey` and `stored` names satisfy the 3-char `identifier_name` minimum)
+- [x] `make watch-build` succeeds
+- [x] `make watch-test` passes, including `unsetKeyDefaultsToOn` and `persistedOffStaysOff`
 - [ ] `SIM= scripts/test-one.sh ShowEnableActionButtonsStateTests` is not applicable (watch destination differs) — use `make watch-test` as the targeted command
 
 #### Manual
