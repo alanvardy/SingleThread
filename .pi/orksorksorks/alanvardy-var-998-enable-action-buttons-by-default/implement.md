@@ -28,10 +28,18 @@ All pushed to `origin/alanvardy-var-998-enable-action-buttons-by-default` (fast-
 - [x] `make watch-build` succeeds (Phase 2)
 - [x] `make watch-test` passes — all 5 `ShowEnableActionButtonsStateTests` incl. new `unsetKeyDefaultsToOn`, `persistedOffStaysOff`
 
-### Pending (post-phase gate, launched async via run-gate skill)
+### Post-phase gate: ran once via run-gate; LOCAL FAIL on a proven pre-existing false positive (verdict in gate.md)
 
-- [ ] `./scripts/test.sh` green via `run-gate` after both phases (gate in flight — one async gate subagent, managed worktree, branch tip `5aceaad8`)
-- [ ] `SingleThreadUITests.testLaunchAndRenderSmoke` still passes (seam unchanged)
+- [ ] `./scripts/test.sh` green via `run-gate` after both phases — **not green locally**: gate child `fab02b07` verdict FAIL at the **Periphery** step (format/lint PASS, iOS build PASS `** TEST BUILD SUCCEEDED **`, watch build PASS, then Periphery aborted before any test suite ran). Single finding: `ContentView.swift:337 — Unused property 'isShowingPurchase'`.
+- [ ] `SingleThreadUITests.testLaunchAndRenderSmoke` still passes (seam unchanged) — **not run locally** (Periphery aborted the pipeline before test suites).
+
+**Why the Periphery failure is pre-existing/local-env, not branch-caused** (gate subagent evidence):
+- `git log -S 'isShowingPurchase' origin/main..HEAD` is empty; the branch's whole `ContentView.swift` diff vs `origin/main` is the one-line `enableActionButtons = false → true`.
+- The property IS used at three SwiftUI `$`-binding sites (`ContentView.swift:304, 306, 534`); it resolves inconsistently in the Swift-6/Xcode-27 index store (no plain-identifier reads/writes).
+- CI proved the identical code passes on Xcode 26.6: `origin/main` tip `c07086ae` has a green Periphery step on its lint run (check-run 34716358538); local is Xcode 27.0.
+- Reproduced 3× locally in every scan mode (deterministic on this machine). No local Xcode 26.6 exists to cross-test.
+
+Per repo convention (pre-existing failures: annotate, don't debug, CI is authoritative), the local gate was NOT re-run for this finding. PR #195 is draft with **no CI checks run yet** — pushing ready or amending the draft triggers the authoritative CI verdict (`./scripts/test.sh` on Xcode 26.6, which also covers `testLaunchAndRenderSmoke` and the mac tests).
 
 ## Manual Verification Items (from the plan)
 
