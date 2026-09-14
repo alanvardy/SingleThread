@@ -16,7 +16,7 @@ struct AboutViewTests {
 
         for expected in [
             "Copyright 2026 Alan Vardy",
-            "Made with love by a lone developer",
+            "Made with ❤️ by a Canadian developer 🇨🇦",
             "Version 1.0 (1)",
             "SingleThread",
             "alan@vardy.cc"
@@ -34,7 +34,7 @@ struct AboutViewTests {
         let bodyDescription = String(describing: view.body)
 
         #expect(bodyDescription.contains("Copyright 2026 Alan Vardy"))
-        #expect(bodyDescription.contains("Made with love by a lone developer"))
+        #expect(bodyDescription.contains("Made with ❤️ by a Canadian developer 🇨🇦"))
         // Display name falls back to the "SingleThread" literal.
         #expect(bodyDescription.contains("SingleThread"))
     }
