@@ -60,6 +60,9 @@ import os
             showCompletionGlowStore: BoolPreferenceStore = BoolPreferenceStore(
                 key: BoolPreferenceKey.showCompletionGlow.rawValue,
                 fallback: true),
+            enableActionButtonsStore: BoolPreferenceStore = BoolPreferenceStore(
+                key: BoolPreferenceKey.enableActionButtons.rawValue,
+                fallback: true),
             completionCounter: CompletionCounterStore = CompletionCounterStore(),
             entitlementStore: EntitlementStore? = nil,
             sendsShowDate: Bool = true,
@@ -79,6 +82,7 @@ import os
             self.showAlarmsStore = showAlarmsStore
             self.showListStore = showListStore
             self.showCompletionGlowStore = showCompletionGlowStore
+            self.enableActionButtonsStore = enableActionButtonsStore
             self.completionCounter = completionCounter
             // `EntitlementStore()` is main-actor isolated, so it cannot be a
             // default argument to this nonisolated init; every call site runs on
@@ -218,9 +222,14 @@ import os
                     PayloadKey.excludedListTitles: excludeStore.load(),
                     PayloadKey.showUndatedReminders: showUndatedStore.isEnabled,
                     PayloadKey.sortOption: sortStore.load().rawValue,
-                    PayloadKey.completionCount: completionCounter.count,
-                    PayloadKey.enableActionButtons: AppGroup.defaults.bool(forKey: "enableActionButtons")
+                    PayloadKey.completionCount: completionCounter.count
                 ]
+                // Only sync an explicit choice. A never-set key is omitted so a
+                // fresh device keeps its own default-on instead of receiving the
+                // sender's absent-value `false` and turning the cluster off.
+                if enableActionButtonsStore.isSet {
+                    context[PayloadKey.enableActionButtons] = enableActionButtonsStore.isEnabled
+                }
                 if sendsShowDate {
                     context[PayloadKey.showDate] = showDateStore.isEnabled
                 }
@@ -348,7 +357,7 @@ import os
             static let showCompletionGlow = "showCompletionGlow"
             static let completionCount = "completionCount"
             static let entitled = "isEntitled"
-            static let enableActionButtons = "enableActionButtons"
+            static let enableActionButtons = BoolPreferenceKey.enableActionButtons.rawValue
         }
 
         private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "ReminderSync")
@@ -364,6 +373,7 @@ import os
         private let showAlarmsStore: BoolPreferenceStore
         private let showListStore: BoolPreferenceStore
         private let showCompletionGlowStore: BoolPreferenceStore
+        private let enableActionButtonsStore: BoolPreferenceStore
         private let completionCounter: CompletionCounterStore
         private let entitlementStore: EntitlementStore
         private let sendsShowDate: Bool
@@ -481,7 +491,7 @@ import os
         /// `apply(context:)` stays within SwiftLint's 50-line function-body limit.
         private func applyRemaining(context: [String: Any]) {
             if let enableActionButtons = context[PayloadKey.enableActionButtons] as? Bool {
-                AppGroup.defaults.set(enableActionButtons, forKey: "enableActionButtons")
+                enableActionButtonsStore.set(enableActionButtons)
                 let handler = onEnableActionButtonsReceived
                 handler?(enableActionButtons)
             }

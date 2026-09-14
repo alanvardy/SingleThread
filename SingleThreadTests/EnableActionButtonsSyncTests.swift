@@ -28,6 +28,40 @@
         }
 
         @Test
+        func pushAllOmitsNeverSetEnableActionButtons() throws {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-aab-absent-\(suffix)"),
+                enableActionButtonsStore: BoolPreferenceStore(
+                    defaults: .standard, key: "test-aab-absent-pref-\(suffix)", fallback: true))
+            service.pushAll()
+            let context = try #require(fake.lastContext)
+            #expect(
+                context["enableActionButtons"] == nil,
+                "a never-set preference is omitted so the receiver keeps its own default-on")
+        }
+
+        @Test
+        func pushAllSendsExplicitEnableActionButtonsOff() throws {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let prefStore = BoolPreferenceStore(
+                defaults: .standard, key: "test-aab-off-pref-\(suffix)", fallback: true)
+            prefStore.set(false)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-aab-off-\(suffix)"),
+                enableActionButtonsStore: prefStore)
+            service.pushAll()
+            let context = try #require(fake.lastContext)
+            #expect(
+                (context["enableActionButtons"] as? Bool) == false,
+                "an explicit off is synced")
+        }
+
+        @Test
         func receiveEnableActionButtonsPersistsAndFiresHook() {
             let fake = FakeSession()
             let suffix = UUID().uuidString

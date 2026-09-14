@@ -482,7 +482,8 @@ final class AppViewModel {
             let currentShowCompletionGlow = BoolPreferenceStore(
                 key: BoolPreferenceKey.showCompletionGlow.rawValue,
                 fallback: true).isEnabled
-            let currentEnableActionButtons = AppGroup.defaults.bool(forKey: "enableActionButtons")
+            let currentEnableActionButtons = BoolPreferenceStore(
+                key: BoolPreferenceKey.enableActionButtons.rawValue, fallback: true).isEnabled
             if currentShowDate != lastShowDate
                 || currentShowRecurrence != lastShowRecurrence
                 || currentShowAlarms != lastShowAlarms
@@ -515,7 +516,8 @@ final class AppViewModel {
         private var lastShowCompletionGlow = BoolPreferenceStore(
             key: BoolPreferenceKey.showCompletionGlow.rawValue,
             fallback: true).isEnabled
-        private var lastEnableActionButtons = AppGroup.defaults.bool(forKey: "enableActionButtons")
+        private var lastEnableActionButtons = BoolPreferenceStore(
+            key: BoolPreferenceKey.enableActionButtons.rawValue, fallback: true).isEnabled
 
         private var syncDefaultsObserver: NSObjectProtocol?
     #endif
