@@ -3,7 +3,7 @@ import SingleThreadCore
 @testable import SingleThreadWatch
 import Testing
 
-/// Covers the watch-side "enable action buttons" state holder: default-off when
+/// Covers the watch-side "enable action buttons" state holder: default-on when
 /// unset, true/false round-trip, and serialization into `AppGroup.defaults`
 /// (falling back to `.standard` where the group is unavailable) so the state
 /// survives relaunch and matches where the sync pipeline persists. Serialized
@@ -14,11 +14,20 @@ struct ShowEnableActionButtonsStateTests {
     // MARK: Internal
 
     @Test
-    func unsetKeyDefaultsToOff() {
+    func unsetKeyDefaultsToOn() {
         defer { clearKey() }
         AppGroup.defaults.removeObject(forKey: Self.key)
         let state = ShowEnableActionButtonsState()
-        #expect(!state.isEnabled, "no persisted value means default-off")
+        #expect(state.isEnabled, "no persisted value means the new default-on")
+    }
+
+    @Test
+    func persistedOffStaysOff() {
+        defer { clearKey() }
+        AppGroup.defaults.set(false, forKey: Self.key)
+        #expect(
+            !ShowEnableActionButtonsState().isEnabled,
+            "an explicitly toggled-off value overrides the default")
     }
 
     @Test
