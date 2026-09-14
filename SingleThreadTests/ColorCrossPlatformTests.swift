@@ -4,6 +4,7 @@ import Testing
 
 // MARK: - Color.systemBackground
 
+@MainActor
 struct ColorCrossPlatformTests {
     @Test
     func systemBackgroundResolves() {

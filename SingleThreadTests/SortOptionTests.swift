@@ -3,6 +3,7 @@ import Foundation
 import SingleThreadCore
 import Testing
 
+@MainActor
 struct SortOptionTests {
     @Test
     func rawValuesMatchPayloadKeys() {
