@@ -201,12 +201,22 @@ struct ContentView: View {
             Button {
                 Task { await viewModel.refreshManual() }
             } label: {
-                Image(systemName: "arrow.clockwise")
-                    .font(.title3)
-                    .controlPlate()
+                if viewModel.isRefreshing {
+                    ProgressView()
+                        .font(.title3)
+                        .controlPlate()
+                } else {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.title3)
+                        .controlPlate()
+                }
             }
             .singleThreadButton()
             .disabled(viewModel.isRefreshing)
+            .accessibilityValue(
+                viewModel.isRefreshing
+                    ? String(localized: "Refreshing", table: "Localizable", bundle: .main)
+                    : "")
             .accessibilityLabel("Refresh")
             .accessibilityIdentifier("refreshButton")
             .accessibilityAddTraits(.isButton)
