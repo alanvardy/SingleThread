@@ -22,7 +22,6 @@ func watchReminder(_ title: String) -> EKReminder {
 final class WatchFakeSession: SkipSyncSession {
     var activated = false
     var lastContext: [String: Any]?
-    var lastMessage: [String: Any]?
     var pushShouldThrow = false
 
     /// Reachability the production request path branches on. Defaults to the
@@ -48,10 +47,9 @@ final class WatchFakeSession: SkipSyncSession {
     }
 
     func sendMessage(
-        _ message: [String: Any],
+        _: [String: Any],
         replyHandler _: (([String: Any]) -> Void)?,
         errorHandler: ((any Error) -> Void)?) {
-        lastMessage = message
         if let errorToThrow {
             errorHandler?(errorToThrow)
         }
