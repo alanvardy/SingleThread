@@ -272,7 +272,7 @@ struct ContentView: View {
         }
         .task {
             await viewModel.backgroundImage.setPinned(backgroundPinned)
-            #if os(iOS)
+            #if os(iOS) || os(macOS)
                 viewModel.enableActionButtons = enableActionButtons
             #endif
             await viewModel.task(showUndatedReminders: preferences.showUndatedReminders)
@@ -280,7 +280,7 @@ struct ContentView: View {
         .onChange(of: backgroundPinned) { _, newValue in
             setBackgroundPinned(newValue)
         }
-        #if os(iOS)
+        #if os(iOS) || os(macOS)
         .onChange(of: enableActionButtons) { _, newValue in
             viewModel.enableActionButtons = newValue
         }
@@ -667,7 +667,7 @@ extension ContentView {
     var bottomBar: some View {
         VStack(spacing: 8) {
             #if os(macOS)
-                if viewModel.store.visibleReminders.first != nil {
+                if viewModel.showsActionButtons {
                     actionButtons
                 }
             #endif

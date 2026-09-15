@@ -5,7 +5,7 @@ import Speech
 import SwiftUI
 import Testing
 
-#if os(iOS)
+#if os(iOS) || os(macOS)
 
     // MARK: - Action Button Tests
 
