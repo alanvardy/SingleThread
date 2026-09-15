@@ -22,18 +22,18 @@
   default; `scripts/test.sh`/`Makefile` accept `SIM=`.
 - **One xcodebuild test process at a time**; on `Busy`/`RequestDenied`, shut
   down sims and kill orphaned `xcodebuild`/`xctest` — the remedies live in the
-  `simulator-pairing` skill (watch UI tests use an unpaired watch sim).
+  `simulator-pairing` skill. Watch UI tests need an **unpaired** watch pinned by
+  UDID: `WATCH_TEST_SIM='platform=watchOS Simulator,id=<26.5-UDID>'`.
 - **Build & tests via `make`**: `make build` / `make test` / `make
   ui-test` / `make periphery` / `make lint` / `make format`; pin a
   destination with `SIM=`. `make periphery` reads a stale build index after
-  branch switches — clean `DerivedData/` and rerun first. For targeted suites:
-  `xcodebuild -only-testing:SingleThreadTests` (Swift Testing) /
-  `-only-testing:SingleThreadUITests` (XCTest, a11y audit) with the
-  destination pinned per above.
+  branch switches — clean `DerivedData/` and rerun first. Local Xcode 27.0 vs
+  CI 26.6: 27 misses `$`-projection-only `@State` (CI-green) — see the
+  `periphery` skill; split `verify_deployment_target()` before any floor change.
+  For targeted suites: `xcodebuild -only-testing:SingleThreadTests` (Swift
+  Testing) / `-only-testing:SingleThreadUITests` (XCTest, a11y audit), pinned.
 - **Debug builds only**: `DEBUG_INFORMATION_FORMAT = dwarf` keeps incremental
   builds fast. Release builds switch to `dwarf-with-dsym`.
-- **After code changes**, run the full CI check locally via the Before
-  Committing gate below (`./scripts/test.sh` — identical to CI).
 - **Single test**: pin the destination from `.simulator_id`, and run it via
   `scripts/test-one.sh <Target/Suite/case>` — it exits non-zero when the run
   matched **zero** cases, because a zero-match `-only-testing:` prints
@@ -98,8 +98,7 @@ SingleThread/                  # git root
 
 ## QRSPI Workflow
 
-- QRSPI pipeline: `/1_spec` → `/2_clarify` → `/3_design` → `/4_research` →
-  `/5_plan` → `/6_implement` (see `~/.pi/agent/AGENTS.md` and `.pi/skills/qrspi/SKILL.md`).
+- Phases run through the orksorksorks CLI — see `~/.pi/agent/AGENTS.md` "Workflow" and `.pi/skills/qrspi/SKILL.md`.
 - All QRSPI work — decompose, research, design, plan — happens directly on
   the main ticket's current branch. **No child subtasks** / **no separate
   design PR/branch**. Artifacts live under `.pi/orksorksorks/<current-branch>/`

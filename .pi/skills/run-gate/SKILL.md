@@ -39,6 +39,11 @@ re-run it (they exceed run caps and orphan unverified changes).
 - Always pass `SIM='platform=iOS Simulator,id=<UDID>'` (this worktree's
   `.simulator_id`): the leftover local `Gate iPhone 17` sim collides with the
   name-only default destination.
+- Pin the watch destination too: `WATCH_TEST_SIM='platform=watchOS
+  Simulator,id=<26.5-UDID>'`, with the watch **unpaired**. A name-only
+  `Apple Watch Series 11 (46mm)` resolves to watchOS 27.0 when both runtimes are
+  installed (the 46 mm device exists only on 26.5), and pairing to the worktree
+  phone makes the XCTest runner launch on a phone clone and fail.
 
 ## How to launch (ONE top-level subagent call)
 
@@ -81,11 +86,14 @@ You are running the full CI-identical gate for SingleThread in this worktree.
    nohup ./scripts/test.sh > /tmp/gate-<branch>.log 2>&1 & echo $!
    If the default iPhone 17 name destination is ambiguous, pin it:
    SIM='platform=iOS Simulator,id=<UDID>' ./scripts/test.sh
-3. Watchdog: every ~60s confirm the log is still growing. If it is stalled,
-   kill orphaned xcodebuild/xctest and check for a crash dump (.ips under
+3. Watchdog with SHORT-LIVED bash calls — one `sleep 60` + `wc -c <log>` per
+   turn, never a single long-open command (a 240s-open bash call trips the
+   needs-attention controller and wedges the lane). If the log is stalled, kill
+   orphaned xcodebuild/xctest and check for a crash dump (.ips under
    ~/Library/Logs/DiagnosticReports). On Busy/RequestDenied, xcrun simctl
-   shutdown all + kill stragglers, then restart the gate (up to 2 contention
-   retries).
+   shutdown all + kill stragglers, then restart the gate — **at most ONE clean
+   restart**, then return FAIL with the log path. ANY Periphery finding outside
+   the pre-annotated known list is report-only: never a restart trigger.
 4. On completion capture the exit status and tail. Return a structured verdict:
    PASS, or FAIL with the failing suite(s) and the log path
    (/tmp/gate-<branch>.log). If two UI-stage contention failures recur, stop
