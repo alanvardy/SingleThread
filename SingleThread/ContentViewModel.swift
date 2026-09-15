@@ -70,15 +70,16 @@ final class ContentViewModel {
     /// watch pattern (`WatchReminderViewModel.isRefreshing`).
     var isRefreshing = false
 
-    #if os(iOS)
+    #if os(iOS) || os(macOS)
         /// Mirrors ContentView's `@AppStorage("enableActionButtons")`. Driven from
         /// the view via `.task`/`.onChange` (see `ContentView`). Defaults true so a
-        /// fresh install shows the action cluster until the view injects the value.
+        /// fresh install shows the action buttons until the view injects the value.
         var enableActionButtons = true
 
-        /// Whether the Complete/Skip cluster replaces the plain mic in the bottom
-        /// bar: the toggle must be on AND a visible reminder must exist. Injected
-        /// via ``enableActionButtons``; testable without a live view.
+        /// Whether the bottom-bar action buttons (iOS cluster / macOS Complete -
+        /// Skip - Delete - menu) render: the toggle must be on AND a visible
+        /// reminder must exist. Injected via ``enableActionButtons``; testable
+        /// without a live view.
         var showsActionButtons: Bool {
             enableActionButtons && store.visibleReminders.first != nil
         }
