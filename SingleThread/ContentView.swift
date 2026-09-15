@@ -343,7 +343,10 @@ struct ContentView: View {
     @State private var isShowingSettings = false
 
     /// Drives the freemium upgrade-prompt sheet (shown only when the free tier
-    /// cap is exhausted and the user has not purchased the unlock IAP).
+    /// cap is exhausted and the user has not purchased the unlock IAP). Also
+    /// read and written directly (see `upgradePrompt`) so Periphery under Xcode
+    /// 27 sees a use — it misses lone `$`projection references (CI's Xcode 26.6
+    /// counts them).
     @State private var isShowingPurchase = false
 
     /// Stable bag of settings bindings for the currently presented sheet.
@@ -538,11 +541,6 @@ struct ContentView: View {
                 skipButton
             }
         }
-
-        /// Shown when the free tier is gated (cap exhausted, no purchase).
-        private var upgradePrompt: some View {
-            UpgradePromptButton(isPresented: $isShowingPurchase)
-        }
     #endif
 
     // MARK: - Mic Dictation
@@ -664,6 +662,34 @@ extension ContentView {
 // MARK: - Bottom Bar
 
 extension ContentView {
+    #if os(iOS)
+        /// Shown when the free tier is gated (cap exhausted, no purchase).
+        /// Reads `isShowingPurchase` directly (not only via the sheet's
+        /// `$`projection) so Periphery under Xcode 27 sees a use — it misses
+        /// lone `$`projection references (CI's Xcode 26.6 counts them); the
+        /// read also disables re-taps while the sheet is already open.
+        var upgradePrompt: some View {
+            Button {
+                isShowingPurchase = true
+            } label: {
+                Label("Upgrade to unlimited", systemImage: "lock.fill")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .padding(.horizontal, 24)
+                    .background(.blue, in: Capsule())
+                    .shadow(radius: 4)
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 24)
+            .disabled(isShowingPurchase)
+            .accessibilityLabel("Upgrade to unlock unlimited completions")
+            .accessibilityIdentifier("upgradeButton")
+            .accessibilityAddTraits(.isButton)
+        }
+    #endif
+
     var bottomBar: some View {
         VStack(spacing: 8) {
             #if os(macOS)

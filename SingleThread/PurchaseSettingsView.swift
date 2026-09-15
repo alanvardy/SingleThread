@@ -169,33 +169,6 @@ struct PurchaseSettingsView: View {
     }
 }
 
-/// The upgrade button shown in the main bottom bar when the free tier is gated.
-/// Exposed as a button with an explicit label so the freemium-gate UI tests can
-/// find it deterministically.
-struct UpgradePromptButton: View {
-    let isPresented: Binding<Bool>
-
-    var body: some View {
-        Button {
-            isPresented.wrappedValue = true
-        } label: {
-            Label("Upgrade to unlimited", systemImage: "lock.fill")
-                .font(.headline)
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .padding(.horizontal, 24)
-                .background(.blue, in: Capsule())
-                .shadow(radius: 4)
-        }
-        .buttonStyle(.plain)
-        .padding(.horizontal, 24)
-        .accessibilityLabel("Upgrade to unlock unlimited completions")
-        .accessibilityIdentifier("upgradeButton")
-        .accessibilityAddTraits(.isButton)
-    }
-}
-
 /// Navigation-wrapped `PurchaseSettingsView` presented as a sheet from the
 /// freemium upgrade prompt, with a confirmation-action Done button.
 struct PurchaseSheet: View {
