@@ -128,15 +128,21 @@ esac
 cleanup_xctest_runtimes
 
 # ── Deployment-target consistency guard ──────────────────────────────────────
-# Enforces the settled floor set for this change (18.7 is NOT a valid watchOS or
-# macOS deployment target under Xcode 26 — there is no 18.x version line for
-# those platforms — so those floors stay 26.5 while all iOS IPHONEOS floors drop):
-#   IPHONEOS_DEPLOYMENT_TARGET (all 8: app, unit + UI tests, widget) = 18.7
+# Enforces the settled floor set (VAR-1015): iOS drops from 18.7 to 17.0 — the
+# Observation / EventKit `fullAccess` floor — and watchOS from 26.5 to 11.0.
+# watchOS 11 and 26 support the same Watches (Series 6+), so 11.0 loses no
+# hardware while covering watches that have not taken the 26.5 point update.
+# macOS stays 26.5: there is no 18.x version line for macOS under this SDK, and
+# the store's macOS requirement derives from IPHONEOS_DEPLOYMENT_TARGET, not
+# from MACOSX_DEPLOYMENT_TARGET — which is exactly why macOS and watchOS are
+# tracked as separate constants here rather than sharing one floor.
+#   IPHONEOS_DEPLOYMENT_TARGET (all 8: app, unit + UI tests, widget) = 17.0
 #   MACOSX_DEPLOYMENT_TARGET   (all 6: app, unit + UI tests)         = 26.5
-#   WATCHOS_DEPLOYMENT_TARGET  (all 6: watch app + watch UI tests + watch tests) = 26.5
-#   Package.swift floor literals: .iOS = 18.7, .watchOS = 26.5, .macOS = 26.5
-DEPLOYMENT_TARGET_IOS="${DEPLOYMENT_TARGET_IOS:-18.7}"
-DEPLOYMENT_TARGET_OTHER="${DEPLOYMENT_TARGET_OTHER:-26.5}"
+#   WATCHOS_DEPLOYMENT_TARGET  (all 6: watch app + watch UI tests + watch tests) = 11.0
+#   Package.swift floor literals: .iOS = 17.0, .watchOS = 11.0, .macOS = 26.5
+DEPLOYMENT_TARGET_IOS="${DEPLOYMENT_TARGET_IOS:-17.0}"
+DEPLOYMENT_TARGET_WATCHOS="${DEPLOYMENT_TARGET_WATCHOS:-11.0}"
+DEPLOYMENT_TARGET_MACOSX="${DEPLOYMENT_TARGET_MACOSX:-26.5}"
 EXPECTED_TARGET_LITERALS=20    # all *_DEPLOYMENT_TARGET in project.pbxproj (8+6+6)
 EXPECTED_PACKAGE_LITERALS=3    # .iOS/.watchOS/.macOS in Package.swift
 
@@ -145,13 +151,13 @@ verify_deployment_target() {
     local package="SingleThreadCore/Package.swift"
     local drift=0
     local ios_target=0 other_target=0 pkg_ios=0 pkg_other=0
-    local line target val
+    local line target val expected
 
     echo "==> Verifying deployment targets / package floors"
-    echo "    (iOS $DEPLOYMENT_TARGET_IOS, macOS/watchOS $DEPLOYMENT_TARGET_OTHER)…"
+    echo "    (iOS $DEPLOYMENT_TARGET_IOS, watchOS $DEPLOYMENT_TARGET_WATCHOS, macOS $DEPLOYMENT_TARGET_MACOSX)…"
 
     # 1) All *_DEPLOYMENT_TARGET literals in project.pbxproj must match the
-    #    per-platform floor constant (IPHONEOS 18.7; MACOSX/WATCHOS 26.5).
+    #    per-platform floor constant (IPHONEOS 17.0; MACOSX 26.5; WATCHOS 11.0).
     #    Iterate real file lines (not `grep -o` output, which bash splits by
     #    whitespace) so each literal is inspected exactly once.
     while IFS= read -r line; do
@@ -160,16 +166,17 @@ verify_deployment_target() {
             val=$(echo "$line" | grep -oE '[0-9]+\.[0-9]+')
             if [[ "$target" == "IPHONEOS" ]]; then
                 ios_target=$((ios_target + 1))
-                if [[ "$val" != "$DEPLOYMENT_TARGET_IOS" ]]; then
-                    echo "    ✗ $target = $val (expected $DEPLOYMENT_TARGET_IOS)"
-                    drift=1
-                fi
+                expected="$DEPLOYMENT_TARGET_IOS"
+            elif [[ "$target" == "WATCHOS" ]]; then
+                other_target=$((other_target + 1))
+                expected="$DEPLOYMENT_TARGET_WATCHOS"
             else
                 other_target=$((other_target + 1))
-                if [[ "$val" != "$DEPLOYMENT_TARGET_OTHER" ]]; then
-                    echo "    ✗ $target = $val (expected $DEPLOYMENT_TARGET_OTHER)"
-                    drift=1
-                fi
+                expected="$DEPLOYMENT_TARGET_MACOSX"
+            fi
+            if [[ "$val" != "$expected" ]]; then
+                echo "    ✗ $target = $val (expected $expected)"
+                drift=1
             fi
         fi
     done < "$pbxproj"
@@ -181,16 +188,17 @@ verify_deployment_target() {
             val=$(echo "$line" | grep -oE '[0-9]+\.[0-9]+')
             if [[ "$target" == ".iOS" ]]; then
                 pkg_ios=$((pkg_ios + 1))
-                if [[ "$val" != "$DEPLOYMENT_TARGET_IOS" ]]; then
-                    echo "    ✗ package $target = $val (iOS expected $DEPLOYMENT_TARGET_IOS)"
-                    drift=1
-                fi
+                expected="$DEPLOYMENT_TARGET_IOS"
+            elif [[ "$target" == ".watchOS" ]]; then
+                pkg_other=$((pkg_other + 1))
+                expected="$DEPLOYMENT_TARGET_WATCHOS"
             else
                 pkg_other=$((pkg_other + 1))
-                if [[ "$val" != "$DEPLOYMENT_TARGET_OTHER" ]]; then
-                    echo "    ✗ package $target = $val (expected $DEPLOYMENT_TARGET_OTHER)"
-                    drift=1
-                fi
+                expected="$DEPLOYMENT_TARGET_MACOSX"
+            fi
+            if [[ "$val" != "$expected" ]]; then
+                echo "    ✗ package $target = $val (expected $expected)"
+                drift=1
             fi
         fi
     done < "$package"
@@ -203,14 +211,14 @@ verify_deployment_target() {
     if [[ "$drift" -eq 1 ]]; then
         echo ""
         echo "❌ Deployment-target drift: not every literal matches the settled floor set"
-        echo "   (iOS $DEPLOYMENT_TARGET_IOS / macOS+watchOS $DEPLOYMENT_TARGET_OTHER)."
+        echo "   (iOS $DEPLOYMENT_TARGET_IOS / watchOS $DEPLOYMENT_TARGET_WATCHOS / macOS $DEPLOYMENT_TARGET_MACOSX)."
         echo "   Fix SingleThread.xcodeproj/project.pbxproj and SingleThreadCore/Package.swift."
         exit 1
     fi
     printf "    ✓ All deployment-target + package-floor literals match\n"
-    printf "      (iOS %s × %d, macOS/watchOS %s × %d, package .iOS %d, package other %d)\n" \
+    printf "      (iOS %s × %d, watchOS %s + macOS %s × %d, package .iOS %d, package other %d)\n" \
         "$DEPLOYMENT_TARGET_IOS" "$ios_target" \
-        "$DEPLOYMENT_TARGET_OTHER" "$other_target" \
+        "$DEPLOYMENT_TARGET_WATCHOS" "$DEPLOYMENT_TARGET_MACOSX" "$other_target" \
         "$pkg_ios" "$pkg_other"
 }
 
