@@ -10,7 +10,7 @@
             // Build a scene-independent window so the test does not depend on
             // the host app's `connectedScenes` ordering/timing (which flaked on
             // iPad in the full-suite CI run). `UIWindow(frame:)` is deprecated
-            // only for iOS 26+ deployment targets; this target is 18.7, so it
+            // only for iOS 26+ deployment targets; this target is 17.0, so it
             // compiles without a deprecation warning. The window is never shown
             // or made key, so it doesn't disturb the live key window.
             let window = UIWindow(frame: .zero)
