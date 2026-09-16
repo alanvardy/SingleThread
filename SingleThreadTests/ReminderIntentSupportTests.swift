@@ -95,6 +95,37 @@ struct ReminderIntentSupportTests {
         #expect(eventStore.allReminders.first?.isCompleted == true, "completion is persisted")
     }
 
+    // MARK: skipOutcome
+
+    @Test
+    func skipOutcomeNamesTheSkippedTask() {
+        let reminder = makeReminder(title: "Buy milk")
+        let store = makeStore(with: [reminder])
+        #expect(ReminderIntentSupport.skipOutcome(for: store) == .skipped("Buy milk"))
+    }
+
+    @Test
+    func skipOutcomeIsNothingToDoWhenEmpty() {
+        #expect(ReminderIntentSupport.skipOutcome(for: makeStore(with: [])) == .nothingToDo)
+    }
+
+    @Test
+    func skipOutcomeIsNothingToDoWhenMutationGated() {
+        let reminder = makeReminder(title: "Buy milk")
+        let store = makeGatedStore(with: [reminder])
+        #expect(ReminderIntentSupport.skipOutcome(for: store) == .nothingToDo)
+    }
+
+    @Test
+    func skipOutcomeWritesSkipSetBeforeReturning() {
+        let reminder = makeReminder(title: "Buy milk")
+        let store = makeStore(with: [reminder])
+        _ = ReminderIntentSupport.skipOutcome(for: store)
+        #expect(
+            store.skippedIDs.contains(reminder.calendarItemIdentifier),
+            "the skip set is durable before the intent returns")
+    }
+
     // MARK: Private
 
     // MARK: Fixtures

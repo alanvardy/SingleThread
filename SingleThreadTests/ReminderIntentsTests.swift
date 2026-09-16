@@ -51,4 +51,12 @@ struct ReminderIntentsTests {
         _ = CompleteCurrentTaskIntent()
         #expect(CompleteCurrentTaskIntent.isDiscoverable, "complete task intent is discoverable")
     }
+
+    // MARK: SkipCurrentTaskIntent
+
+    @Test
+    func skipCurrentTaskIntentIsDiscoverable() {
+        _ = SkipCurrentTaskIntent()
+        #expect(SkipCurrentTaskIntent.isDiscoverable, "skip task intent is discoverable")
+    }
 }
