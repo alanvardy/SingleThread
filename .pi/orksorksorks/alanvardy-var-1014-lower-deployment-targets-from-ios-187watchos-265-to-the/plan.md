@@ -328,14 +328,14 @@ xcrun simctl launch <WATCH11 UDID> app.alanvardy.SingleThread.watchkitapp
 ### Verification
 
 #### Automated
-- [ ] `probe-watchos10.0-drift-gate.log` contains `❌ Deployment-target drift` naming WATCHOS
-- [ ] `probe-watchos9.0-build.log` contains a compiler `error:` naming `@Observable`/`Observable` and/or the EventKit full-access API
-- [ ] `probe-watchos10.0-build.log` shows a **successful** watch build (or the recorded API that still pins it)
-- [ ] After each probe: `rg -c 'WATCHOS_DEPLOYMENT_TARGET = 11\.0;'` → 6 and `git status --short` shows no floor files
-- [ ] `probe-watchos-landed-gate.log` contains `✓ All deployment-target + package-floor literals match`
-- [ ] `WATCH_SIM='…id=<WATCH11 UDID>' make watch-build` succeeds
-- [ ] `WATCH_TEST_SIM='…id=<WATCH11 UDID>' make watch-test` passes
-- [ ] `WATCH_TEST_SIM='…id=<WATCH11 UDID>' make watch-ui-test` passes, or the `lib_TestingInterop.dylib` outcome is recorded with the crash log
+- [x] `probe-watchos10.0-drift-gate.log` contains `❌ Deployment-target drift` naming WATCHOS
+- [x] `probe-watchos9.0-build.log` contains a compiler `error:` naming `@Observable`/`Observable` and/or the EventKit full-access API
+- [x] `probe-watchos10.0-build.log` shows a **successful** watch build (or the recorded API that still pins it)
+- [x] After each probe: `rg -c 'WATCHOS_DEPLOYMENT_TARGET = 11\.0;'` → 6 and `git status --short` shows no floor files
+- [x] `probe-watchos-landed-gate.log` contains `✓ All deployment-target + package-floor literals match`
+- [x] `WATCH_SIM='…id=<WATCH11 UDID>' make watch-build` succeeds
+- [x] `WATCH_TEST_SIM='…id=<WATCH11 UDID>' make watch-test` passes
+- [x] `WATCH_TEST_SIM='…id=<WATCH11 UDID>' make watch-ui-test` passes, or the `lib_TestingInterop.dylib` outcome is recorded with the crash log
 
 #### Manual
 - [ ] `probe-runtimes.md` records the watchOS 11.x runtime build + device UDID, the pairing used, and the `lib_TestingInterop` verdict

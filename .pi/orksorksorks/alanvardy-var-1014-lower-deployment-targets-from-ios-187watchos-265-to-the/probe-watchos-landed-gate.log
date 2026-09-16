@@ -1,0 +1,937 @@
+==> Using this worktree's simulator BFB5C8FB-5ED5-48AD-9149-298E20FCB4E6
+Monitoring boot status for sim-alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the (BFB5C8FB-5ED5-48AD-9149-298E20FCB4E6).
+Device already booted, nothing to do.
+
+==> Pruning XCTest runtimes older than 1h…
+==> Removed 1 stale runtime director(ies).
+==> Verifying deployment targets / package floors
+    (iOS 17.0, watchOS 11.0, macOS 26.5)…
+    ✓ All deployment-target + package-floor literals match
+      (iOS 17.0 × 8, watchOS 11.0 + macOS 26.5 × 12, package .iOS 1, package other 2)
+==> Unit tests (macOS native)…
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme SingleThread -destination platform=macOS -configuration Debug -derivedDataPath DerivedData CODE_SIGNING_ALLOWED=NO test "-only-testing:SingleThreadTests"
+
+Build settings from command line:
+    CODE_SIGNING_ALLOWED = NO
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  SingleThreadCore: /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore @ local
+
+--- xcodebuild: WARNING: Using the first of multiple matching destinations:
+{ platform:macOS, arch:arm64, id:00006040-000250C81A92801C, name:My Mac }
+{ platform:macOS, arch:x86_64, id:00006040-000250C81A92801C, name:My Mac }
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (10 targets)
+    Target 'SingleThreadUITests' in project 'SingleThread'
+        ➜ Explicit dependency on target 'SingleThread' in project 'SingleThread'
+        ➜ Explicit dependency on target 'SingleThreadCore-product' in project 'SingleThreadCore'
+    Target 'SingleThreadTests' in project 'SingleThread'
+        ➜ Explicit dependency on target 'SingleThread' in project 'SingleThread'
+        ➜ Explicit dependency on target 'SingleThreadCore-product' in project 'SingleThreadCore'
+    Target 'SingleThreadWatch' in project 'SingleThread'
+        ➜ Explicit dependency on target 'SingleThreadCore-product' in project 'SingleThreadCore'
+    Target 'SingleThreadCore-product' in project 'SingleThreadCore'
+        ➜ Explicit dependency on target 'SingleThreadCore' in project 'SingleThreadCore'
+        ➜ Explicit dependency on target 'SingleThreadCore_SingleThreadCore' in project 'SingleThreadCore'
+    Target 'SingleThreadCore' in project 'SingleThreadCore'
+        ➜ Explicit dependency on target 'SingleThreadCore_SingleThreadCore' in project 'SingleThreadCore'
+    Target 'SingleThreadCore_SingleThreadCore' in project 'SingleThreadCore' (no dependencies)
+    Target 'SingleThread' in project 'SingleThread'
+        ➜ Explicit dependency on target 'SingleThreadCore-product' in project 'SingleThreadCore'
+    Target 'SingleThreadCore-product' in project 'SingleThreadCore'
+        ➜ Explicit dependency on target 'SingleThreadCore' in project 'SingleThreadCore'
+        ➜ Explicit dependency on target 'SingleThreadCore_SingleThreadCore' in project 'SingleThreadCore'
+    Target 'SingleThreadCore' in project 'SingleThreadCore'
+        ➜ Explicit dependency on target 'SingleThreadCore_SingleThreadCore' in project 'SingleThreadCore'
+    Target 'SingleThreadCore_SingleThreadCore' in project 'SingleThreadCore' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug/SingleThreadCore_SingleThreadCore-b.build /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/Resources/Localizable.xcstrings
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchos/SingleThreadCore_SingleThreadCore-b.build /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/Resources/Localizable.xcstrings
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThread.build /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread/Resources/Localizable.xcstrings
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadWatch/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadWatch/Resources/Localizable.xcstrings
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS27.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+Build description signature: 14843deb00d6974721c1105f33eaa58c
+Build description path: /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/XCBuildData/14843deb00d6974721c1105f33eaa58c.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX27.0.sdk -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/macosx27.0-26A425-7231f6df4def33e022ae2eb8f782df1a.sdkstatcache
+
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS27.0.sdk /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/watchos27.0-24R360-84ee5e44e35145daf7706869e872e73f.sdkstatcache
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS27.0.sdk -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/watchos27.0-24R360-84ee5e44e35145daf7706869e872e73f.sdkstatcache
+
+ProcessInfoPlistFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadCore_SingleThreadCore.bundle/Contents/Info.plist /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug/SingleThreadCore_SingleThreadCore-b.build/empty-SingleThreadCore_SingleThreadCore.plist (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-infoPlistUtility /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug/SingleThreadCore_SingleThreadCore-b.build/empty-SingleThreadCore_SingleThreadCore.plist -producttype com.apple.product-type.bundle -expandbuildsettings -platform macosx -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadCore_SingleThreadCore.bundle/Contents/Info.plist
+
+ProcessInfoPlistFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadCore_SingleThreadCore.bundle/Info.plist /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchos/SingleThreadCore_SingleThreadCore-b.build/empty-SingleThreadCore_SingleThreadCore.plist (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-infoPlistUtility /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchos/SingleThreadCore_SingleThreadCore-b.build/empty-SingleThreadCore_SingleThreadCore.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform watchos -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadCore_SingleThreadCore.bundle/Info.plist
+
+ProcessInfoPlistFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework/Info.plist /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchos/SingleThreadCore-product-t.build/empty-SingleThreadCore_38C46E065536DF53_PackageProduct.plist (in target 'SingleThreadCoredynamic-product' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-infoPlistUtility /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchos/SingleThreadCore-product-t.build/empty-SingleThreadCore_38C46E065536DF53_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -format binary -platform watchos -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework/Info.plist
+
+CpResource /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadCore_SingleThreadCore.bundle (in target 'SingleThreadCoredynamic-product' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework
+
+ProcessInfoPlistFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework/Versions/A/Resources/Info.plist /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug/SingleThreadCore-product-t.build/empty-SingleThreadCore_38C46E065536DF53_PackageProduct.plist (in target 'SingleThreadCoredynamic-product' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-infoPlistUtility /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug/SingleThreadCore-product-t.build/empty-SingleThreadCore_38C46E065536DF53_PackageProduct.plist -producttype com.apple.product-type.framework -expandbuildsettings -platform macosx -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework/Versions/A/Resources/Info.plist
+
+CpResource /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework/Versions/A/Resources/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadCore_SingleThreadCore.bundle (in target 'SingleThreadCoredynamic-product' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework/Versions/A/Resources
+
+GenerateAssetSymbols /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadWatch/Assets.xcassets (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    /Applications/Xcode.app/Contents/Developer/usr/bin/actool /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadWatch/Assets.xcassets --compile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app --output-format human-readable-text --notices --warnings --export-dependency-info /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/assetcatalog_dependencies --output-partial-info-plist /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/assetcatalog_generated_info.plist --app-icon AppIcon --compress-pngs --enable-on-demand-resources YES --development-region en --target-device watch --minimum-deployment-target 11.0 --platform watchos --bundle-identifier app.alanvardy.SingleThread.watchkitapp --generate-swift-asset-symbols /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources/GeneratedAssetSymbols.swift --generate-objc-asset-symbols /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources/GeneratedAssetSymbols.h --generate-asset-symbol-index /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/* com.apple.actool.compilation-results */
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources/GeneratedAssetSymbols-Index.plist
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources/GeneratedAssetSymbols.h
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources/GeneratedAssetSymbols.swift
+
+
+LinkAssetCatalog /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadWatch/Assets.xcassets (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-linkAssetCatalog --thinned /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/assetcatalog_output/thinned --thinned-dependencies /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/assetcatalog_dependencies_thinned --thinned-info-plist-content /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/assetcatalog_generated_info.plist_thinned --unthinned /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/assetcatalog_output/unthinned --unthinned-dependencies /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/assetcatalog_dependencies_unthinned --unthinned-info-plist-content /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/assetcatalog_generated_info.plist_unthinned --output /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app --plist-output /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/assetcatalog_generated_info.plist
+note: Emplaced /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Assets.car (in target 'SingleThreadWatch' from project 'SingleThread')
+
+SwiftDriver SingleThreadWatch normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SingleThreadWatch -Onone @/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch.SwiftFileList -DDEBUG -default-isolation\=MainActor -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS27.0.sdk -target arm64-apple-watchos11.0 -g -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -warnings-as-errors -index-store-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos -F /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks -F /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos -emit-localized-strings -emit-localized-strings-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/watchos27.0-24R360-84ee5e44e35145daf7706869e872e73f.sdkstatcache -output-file-map /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch_const_extract_protocols.json -Xcc -iquote -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-generated-files.hmap -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-own-target-headers.hmap -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThread-33ec346c36bc7f11d2672a35e2382a55-VFS-watchos/all-product-headers.yaml -Xcc -iquote -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-project-headers.hmap -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/include -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources-normal/arm64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources/arm64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch-Swift.h -working-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the -experimental-emit-module-separately -disable-cmo
+
+Copy /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadCore_SingleThreadCore.bundle (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app
+
+CopySwiftLibs /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app (in target 'SingleThread' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/MacOS/SingleThread.debug.dylib --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Frameworks --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Library/SystemExtensions --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Extensions --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework --platform macosx --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThread.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+Copy /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Frameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -bitcode-strip all -bitcode-strip-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip -resolve-src-symlinks -remove-static-executable /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Frameworks
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework/SingleThreadCore_38C46E065536DF53_PackageProduct -r -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Frameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework/SingleThreadCore_38C46E065536DF53_PackageProduct
+
+Copy /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Frameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework (in target 'SingleThread' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -remove-static-executable /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Frameworks
+
+Copy /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Resources/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadCore_SingleThreadCore.bundle (in target 'SingleThread' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Resources
+
+ProcessInfoPlistFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Info.plist /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThread.build/empty-SingleThread.plist (in target 'SingleThread' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-infoPlistUtility /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThread.build/empty-SingleThread.plist -producttype com.apple.product-type.application -genpkginfo /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PkgInfo -expandbuildsettings -platform macosx -additionalcontentfile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThread.build/assetcatalog_generated_info.plist -scanforprivacyfile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Frameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework -scanforprivacyfile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Resources/SingleThreadCore_SingleThreadCore.bundle -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/Info.plist
+
+ProcessInfoPlistFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Info.plist /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/empty-SingleThreadWatch.plist (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-infoPlistUtility /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/empty-SingleThreadWatch.plist -producttype com.apple.product-type.application -genpkginfo /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/PkgInfo -expandbuildsettings -format binary -platform watchos -additionalcontentfile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/assetcatalog_generated_info.plist -scanforprivacyfile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Frameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework -scanforprivacyfile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/SingleThreadCore_SingleThreadCore.bundle -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Info.plist
+
+Copy /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Resources/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadCore_SingleThreadCore.bundle (in target 'SingleThreadTests' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Resources
+
+Copy /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Frameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework (in target 'SingleThreadTests' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -remove-static-executable /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Frameworks
+
+ProcessInfoPlistFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Info.plist /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThreadTests.build/empty-SingleThreadTests.plist (in target 'SingleThreadTests' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-infoPlistUtility /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThreadTests.build/empty-SingleThreadTests.plist -producttype com.apple.product-type.bundle.unit-test -expandbuildsettings -platform macosx -scanforprivacyfile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Resources/SingleThreadCore_SingleThreadCore.bundle -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Info.plist
+
+CopySwiftLibs /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest (in target 'SingleThreadTests' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/MacOS/SingleThreadTests --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Frameworks --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/PlugIns --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Library/SystemExtensions --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Extensions --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework --platform macosx --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app/Contents/PlugIns/SingleThreadTests.xctest/Contents/Frameworks --strip-bitcode --scan-executable /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/usr/lib/libXCTestSwiftSupport.dylib --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThreadTests.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os
+Ignoring --strip-bitcode because --sign was not passed
+
+Validate /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app (in target 'SingleThread' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-validationUtility /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app -no-validate-extension -infoplist-subpath Contents/Info.plist
+
+RegisterWithLaunchServices /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app (in target 'SingleThread' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-lsregisterurl --record-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/XCBuildData/registered-launchservices.txt -- /System/Library/Frameworks/CoreServices.framework/Versions/Current/Frameworks/LaunchServices.framework/Versions/Current/Support/lsregister -f -R -trusted /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThread.app
+
+Copy /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadUITests-Runner.app/Contents/PlugIns/SingleThreadUITests.xctest/Contents/Resources/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadCore_SingleThreadCore.bundle (in target 'SingleThreadUITests' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadCore_SingleThreadCore.bundle /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadUITests-Runner.app/Contents/PlugIns/SingleThreadUITests.xctest/Contents/Resources
+
+Copy /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadUITests-Runner.app/Contents/PlugIns/SingleThreadUITests.xctest/Contents/Frameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework (in target 'SingleThreadUITests' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks -remove-static-executable /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadUITests-Runner.app/Contents/PlugIns/SingleThreadUITests.xctest/Contents/Frameworks
+
+ProcessInfoPlistFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadUITests-Runner.app/Contents/PlugIns/SingleThreadUITests.xctest/Contents/Info.plist /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThreadUITests.build/empty-SingleThreadUITests.plist (in target 'SingleThreadUITests' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-infoPlistUtility /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThreadUITests.build/empty-SingleThreadUITests.plist -producttype com.apple.product-type.bundle.ui-testing -expandbuildsettings -platform macosx -additionalcontentfile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug/SingleThreadUITests.build/ProductTypeInfoPlistAdditions.plist -scanforprivacyfile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadUITests-Runner.app/Contents/PlugIns/SingleThreadUITests.xctest/Contents/Resources/SingleThreadCore_SingleThreadCore.bundle -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug/SingleThreadUITests-Runner.app/Contents/PlugIns/SingleThreadUITests.xctest/Contents/Info.plist
+
+SwiftDriver\ Compilation\ Requirements SingleThreadWatch normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-Swift-Compilation-Requirements -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SingleThreadWatch -Onone @/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch.SwiftFileList -DDEBUG -default-isolation\=MainActor -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS27.0.sdk -target arm64-apple-watchos11.0 -g -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -warnings-as-errors -index-store-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos -F /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks -F /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos -emit-localized-strings -emit-localized-strings-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/watchos27.0-24R360-84ee5e44e35145daf7706869e872e73f.sdkstatcache -output-file-map /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch_const_extract_protocols.json -Xcc -iquote -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-generated-files.hmap -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-own-target-headers.hmap -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThread-33ec346c36bc7f11d2672a35e2382a55-VFS-watchos/all-product-headers.yaml -Xcc -iquote -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-project-headers.hmap -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/include -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources-normal/arm64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources/arm64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch-Swift.h -working-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver\ Compilation SingleThreadWatch normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-Swift-Compilation -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -module-name SingleThreadWatch -Onone @/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch.SwiftFileList -DDEBUG -default-isolation\=MainActor -enable-upcoming-feature InferIsolatedConformances -enable-upcoming-feature NonisolatedNonsendingByDefault -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS27.0.sdk -target arm64-apple-watchos11.0 -g -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -warnings-as-errors -index-store-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos -F /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks -F /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos -emit-localized-strings -emit-localized-strings-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64 -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/watchos27.0-24R360-84ee5e44e35145daf7706869e872e73f.sdkstatcache -output-file-map /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -emit-const-values -const-gather-protocols-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch_const_extract_protocols.json -Xcc -iquote -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-generated-files.hmap -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-own-target-headers.hmap -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-all-non-framework-target-headers.hmap -Xcc -ivfsoverlay -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThread-33ec346c36bc7f11d2672a35e2382a55-VFS-watchos/all-product-headers.yaml -Xcc -iquote -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch-project-headers.hmap -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/include -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources-normal/arm64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources/arm64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/DerivedSources -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch-Swift.h -working-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the -experimental-emit-module-separately -disable-cmo
+
+CopySwiftLibs /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    builtin-swiftStdLibTool --copy --verbose --scan-executable /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/SingleThreadWatch.debug.dylib --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Frameworks --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/PlugIns --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/SystemExtensions --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Extensions --scan-folder /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/PackageFrameworks/SingleThreadCore_38C46E065536DF53_PackageProduct.framework --platform watchos --toolchain /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --destination /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Frameworks --strip-bitcode --strip-bitcode-tool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/bitcode_strip --emit-dependency-info /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SwiftStdLibToolInputDependencies.dep --filter-for-swift-os --back-deploy-swift-span
+Ignoring --strip-bitcode because --sign was not passed
+
+ExtractAppIntentsMetadata (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor --toolchain-dir /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain --module-name SingleThreadWatch --sdk-root /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/SDKs/WatchOS27.0.sdk --xcode-version 27A266a --platform-family watchOS --deployment-target 11.0 --bundle-identifier app.alanvardy.SingleThread.watchkitapp --output /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app --target-triple arm64-apple-watchos11.0 --target-triple arm64_32-apple-watchos11.0 --binary-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/SingleThreadWatch --dependency-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch_dependency_info.dat --dependency-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64_32/SingleThreadWatch_dependency_info.dat --stringsdata-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/ExtractedAppShortcutsMetadata.stringsdata --stringsdata-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64_32/ExtractedAppShortcutsMetadata.stringsdata --source-file-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch.SwiftFileList --source-file-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64_32/SingleThreadWatch.SwiftFileList --metadata-file-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch.DependencyMetadataFileList --static-metadata-file-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/SingleThreadWatch.DependencyStaticMetadataFileList --swift-const-vals-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch.SwiftConstValuesFileList --swift-const-vals-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchos/SingleThreadWatch.build/Objects-normal/arm64_32/SingleThreadWatch.SwiftConstValuesFileList --compile-time-extraction --deployment-aware-processing --no-app-shortcuts-localization
+2026-09-15 20:34:13.516 appintentsmetadataprocessor[24072:16963282] Starting appintentsmetadataprocessor export
+2026-09-15 20:34:13.554 appintentsmetadataprocessor[24072:16963282] Writing Metadata.appintents
+2026-09-15 20:34:13.554 appintentsmetadataprocessor[24072:16963282] Metadata root: /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app/Metadata.appintents
+
+PruneExplicitPrecompiledModules /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+Testing started
+Test suite 'ReminderDeepLinkTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'BackgroundImageStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'PendingCompletionStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ShowDateTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderDateFilterTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'UndoCompletionTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'PreferenceHolderTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ShowRecurrenceTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'SettingsSubscreenLayoutTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'MenuBarExtraOptionsTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'SkipCountStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderDisplayTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'UndoStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ActionMenuGateTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'AppearanceModeTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'PendingCompletionLogicTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'EventStoreChangedObserverTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ListContentTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'DictationErrorTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'URLOpeningTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'OrientationPreferenceTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'MenuBarExtraPreferenceTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'CardPlateTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'BoolPreferenceStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'RescheduleSheetTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ShowAlarmsTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderSkipLogicTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReloadPendingCompletionTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderNotesFormatterTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'SwipePromptTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'AppGroupTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'NotificationSchedulerTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'TranscriptionAccumulatorTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderRecurrenceFormatterTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderStoreLifecycleTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'SettingsViewModelTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'MicrophoneToggleTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderPriorityTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'TextSizeTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'AppearanceModePreferenceTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ColorCrossPlatformTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'NotificationPreferenceTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ActionButtonTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'SettingsCaptionTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'SortOptionTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'CodeSpanFormatterTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'DailyCompletionStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderStoreWriteTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'EnableActionButtonsMigrationTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'BoolPreferenceKeyTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'SingleThreadTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ExcludedListStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'CompletionMomentumOverlayTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'CompletionGlowViewModelTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderDictationParserTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderStoreAvailableListsTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'CardWidthTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'CardPlateModifierTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderStoreGateTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'BackgroundPhotoLayerTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'MakeReminderTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderStoreSkipCountTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'UITestingSeedTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'SortOptionStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'EntitlementStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'MacOSActionButtonChromeTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'SingleThreadButtonModifierTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'BackgroundFadeTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ResumptionGateTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'CompletionCounterStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderIntentsTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'AboutViewTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'SettingsViewTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderDictationTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'UserNotificationCenteringTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'CompletionGlowTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderSortTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ContentViewModelTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'MinimumDisplayDurationTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'LocalizationTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'StaleReminderRecheckerTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'PrivacySettingsContentTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'ReminderStoreTests' started on 'My Mac - SingleThread (24073)'
+Test suite 'AppInfoTests' started on 'My Mac - SingleThread (24073)'
+Test case 'ReminderDateFilterTests/reminderDueTomorrowIsExcluded()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/isInCurrentWindowIncludesNilDate()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/isInCurrentWindowExcludesOldOverdue()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/isInCurrentWindowIncludesOverdueCutoffBoundary()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/reminderDueTodayIsIncluded()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/overdueCutoffIncludesReminderThirtyDaysOverdue()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/endOfTodayIsLastInstantOfToday()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/isInCurrentWindowIncludesTodaysReminder()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/isInCurrentWindowExcludesTomorrow()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/reminderDueYesterdayIsIncluded()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/overdueCutoffExcludesReminderMoreThanThirtyDaysOverdue()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDeepLinkTests/urlEmbedsIdentifierInPath()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDeepLinkTests/urlReturnsCorrectScheme()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDateFilterTests/overdueCutoffDefaultsToThirtyDaysAgo()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/crossedThresholdFiresOnlyOnce(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/crossedThresholdFiresOnlyOnce(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/crossedThresholdFiresOnlyOnce(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/crossedThresholdFiresOnlyOnce(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/crossedThresholdFiresOnlyOnce(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderDeepLinkTests/urlReturnsNilForEmptyIdentifier()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ActionMenuGateTests/showsActionMenu(enableActionButtons:canMutate:hasVisibleReminder:expected:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/shouldNudgeFiresOnlyAtOrPastThreshold(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ActionMenuGateTests/showsActionMenu(enableActionButtons:canMutate:hasVisibleReminder:expected:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/shouldNudgeFiresOnlyAtOrPastThreshold(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/shouldNudgeFiresOnlyAtOrPastThreshold(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ActionMenuGateTests/showsActionMenu(enableActionButtons:canMutate:hasVisibleReminder:expected:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/shouldNudgeFiresOnlyAtOrPastThreshold(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ActionMenuGateTests/showsActionMenu(enableActionButtons:canMutate:hasVisibleReminder:expected:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ActionMenuGateTests/showsActionMenu(enableActionButtons:canMutate:hasVisibleReminder:expected:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/shouldNudgeFiresOnlyAtOrPastThreshold(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/shouldNudgeFiresOnlyAtOrPastThreshold(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ActionMenuGateTests/showsActionMenu(enableActionButtons:canMutate:hasVisibleReminder:expected:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ActionMenuGateTests/showsActionMenu(enableActionButtons:canMutate:hasVisibleReminder:expected:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/loadsEmptyByDefault()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ActionMenuGateTests/showsActionMenu(enableActionButtons:canMutate:hasVisibleReminder:expected:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/shouldNudgeFiresOnlyAtOrPastThreshold(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SkipCountStoreTests/roundTripsSaveAndLoad()' passed on 'My Mac - SingleThread (24073)' (0.013 seconds)
+Test case 'SkipCountStoreTests/isolatesByUUIDKey()' passed on 'My Mac - SingleThread (24073)' (0.017 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripFalse(_:)' passed on 'My Mac - SingleThread (24073)' (0.020 seconds)
+Test case 'BoolPreferenceStoreTests/absentValueFallsBackToConfiguredDefault(_:)' passed on 'My Mac - SingleThread (24073)' (0.006 seconds)
+Test case 'PendingCompletionStoreTests/expiryDropsStaleEntriesWithoutResurfacing()' passed on 'My Mac - SingleThread (24073)' (0.038 seconds)
+Test case 'BoolPreferenceStoreTests/absentValueFallsBackToConfiguredDefault(_:)' passed on 'My Mac - SingleThread (24073)' (0.013 seconds)
+Test case 'PendingCompletionStoreTests/usesInjectedSuiteNotStandard()' passed on 'My Mac - SingleThread (24073)' (0.053 seconds)
+Test case 'BoolPreferenceStoreTests/absentValueFallsBackToConfiguredDefault(_:)' passed on 'My Mac - SingleThread (24073)' (0.023 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripFalse(_:)' passed on 'My Mac - SingleThread (24073)' (0.050 seconds)
+Test case 'BoolPreferenceStoreTests/absentValueFallsBackToConfiguredDefault(_:)' passed on 'My Mac - SingleThread (24073)' (0.010 seconds)
+Test case 'BoolPreferenceStoreTests/absentValueFallsBackToConfiguredDefault(_:)' passed on 'My Mac - SingleThread (24073)' (0.018 seconds)
+Test case 'BoolPreferenceStoreTests/customDefaultsInjection()' passed on 'My Mac - SingleThread (24073)' (0.049 seconds)
+Test case 'OrientationPreferenceTests/defaultAndRoundTrips()' passed on 'My Mac - SingleThread (24073)' (0.069 seconds)
+Test case 'PendingCompletionStoreTests/defaultsAndRoundTrips()' passed on 'My Mac - SingleThread (24073)' (0.071 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripFalse(_:)' passed on 'My Mac - SingleThread (24073)' (0.069 seconds)
+Test case 'PendingCompletionStoreTests/recordPreservesPreviousEntries()' passed on 'My Mac - SingleThread (24073)' (0.071 seconds)
+Test case 'DictationErrorTests/recognizerUnavailableHasDescription()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'DictationErrorTests/microphoneDeniedHasDescription()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'DictationErrorTests/noSpeechDetectedHasDescription()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSkipLogicTests/skippingAddsIdentifierAndPrunesStale(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSkipLogicTests/skippingAddsIdentifierAndPrunesStale(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSkipLogicTests/skippingAddsIdentifierAndPrunesStale(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSkipLogicTests/skippingAddsIdentifierAndPrunesStale(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSkipLogicTests/skippingAddsIdentifierAndPrunesStale(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSkipLogicTests/resolveIntersectsFetchedAndSkipped(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatTransforms(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSkipLogicTests/resolveIntersectsFetchedAndSkipped(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatTransforms(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSkipLogicTests/resolveIntersectsFetchedAndSkipped(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatTransforms(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatTransforms(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatReturnsNilForBlankOrPrefixOnly(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSkipLogicTests/resolveIntersectsFetchedAndSkipped(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatTransforms(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatReturnsNilForBlankOrPrefixOnly(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceStoreTests/absentValueFallsBackToConfiguredDefault(_:)' passed on 'My Mac - SingleThread (24073)' (0.034 seconds)
+Test case 'ReminderNotesFormatterTests/formatTransforms(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'DictationErrorTests/alreadyRecordingHasDescription()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatReturnsNilForBlankOrPrefixOnly(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripFalse(_:)' passed on 'My Mac - SingleThread (24073)' (0.070 seconds)
+Test case 'ReminderSkipLogicTests/resolveIntersectsFetchedAndSkipped(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatTransforms(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatTransforms(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatReturnsNilForBlankOrPrefixOnly(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatReturnsNilForBlankOrPrefixOnly(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatReturnsNilForBlankOrPrefixOnly(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatTransforms(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderNotesFormatterTests/formatTransforms(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'AppGroupTests/suiteNameIsConfigured()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/markerAndRankMap(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/markerAndRankMap(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/levelMapsEveryPriority(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/markerAndRankMap(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/levelMapsEveryPriority(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/markerAndRankMap(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/levelMapsEveryPriority(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/markerAndRankMap(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/levelMapsEveryPriority(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/markerAndRankMap(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/levelMapsEveryPriority(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/levelMapsEveryPriority(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/levelMapsEveryPriority(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/levelMapsEveryPriority(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/levelMapsEveryPriority(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/levelMapsEveryPriority(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderPriorityTests/displayNameLocalizes()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderRecurrenceFormatterTests/nilOrEmptyRulesReturnsNil()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripFalse(_:)' passed on 'My Mac - SingleThread (24073)' (0.060 seconds)
+Test case 'ReminderRecurrenceFormatterTests/formatsKnownRules()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'CodeSpanFormatterTests/codeSpanHasBackgroundAttribute()' passed on 'My Mac - SingleThread (24073)' (0.019 seconds)
+Test case 'CodeSpanFormatterTests/fencedAndUnclosedFencesStripFencesKeepContent()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CodeSpanFormatterTests/unmatchedBackticksRenderLiterally(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CodeSpanFormatterTests/unmatchedBackticksRenderLiterally(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CodeSpanFormatterTests/inlineCodeStripsBackticks(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CodeSpanFormatterTests/inlineCodeStripsBackticks(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CodeSpanFormatterTests/inlineCodeStripsBackticks(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CodeSpanFormatterTests/inlineCodeStripsBackticks(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CodeSpanFormatterTests/inlineCodeStripsBackticks(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CodeSpanFormatterTests/plainTextHasNoCodeAttributes()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CodeSpanFormatterTests/inlineCodeStripsBackticks(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CodeSpanFormatterTests/emptyAndPlainText()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CardWidthTests/maxContentWidthHitsCeilingAtBoundary()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CardWidthTests/maxContentWidthIsNonNegativeAtZeroViewport()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'DailyCompletionStoreTests/defaultsAreZero()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CardWidthTests/maxContentWidthPinsAtCeiling()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CardWidthTests/maxContentWidthScalesBelowCeiling()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripTrue(_:)' passed on 'My Mac - SingleThread (24073)' (0.027 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripTrue(_:)' passed on 'My Mac - SingleThread (24073)' (0.026 seconds)
+Test case 'BoolPreferenceKeyTests/isSendable()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceKeyTests/allCasesIsExhaustive()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceKeyTests/keyStringsMatchExistingHardcodedKeys(_:_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceKeyTests/keyStringsMatchExistingHardcodedKeys(_:_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceKeyTests/keyStringsMatchExistingHardcodedKeys(_:_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceKeyTests/keyStringsMatchExistingHardcodedKeys(_:_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceKeyTests/keyStringsMatchExistingHardcodedKeys(_:_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceKeyTests/keyStringsMatchExistingHardcodedKeys(_:_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceKeyTests/keyStringsMatchExistingHardcodedKeys(_:_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceKeyTests/keyStringsMatchExistingHardcodedKeys(_:_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripTrue(_:)' passed on 'My Mac - SingleThread (24073)' (0.040 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripTrue(_:)' passed on 'My Mac - SingleThread (24073)' (0.040 seconds)
+Test case 'ReminderIntentsTests/skipIntentIsConfigured()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripFalse(_:)' passed on 'My Mac - SingleThread (24073)' (0.111 seconds)
+Test case 'ReminderIntentsTests/completeIntentIsConfigured()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripTrue(_:)' passed on 'My Mac - SingleThread (24073)' (0.044 seconds)
+Test case 'BoolPreferenceStoreTests/setOverwritesPreviousValue()' passed on 'My Mac - SingleThread (24073)' (0.053 seconds)
+Test case 'ReminderSortTests/priorityOptionMatchesLegacyComparator()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderSortTests/nilListSortsLast()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSortTests/sameListFallsThroughToDateThenTitle()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderSortTests/dueDateOptionSortsSoonestFirst()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSortTests/titleOptionSortsCaseInsensitively()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSortTests/groupsByListWithinDueDateBucket()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSortTests/listCollationIsCaseAndLocaleInsensitive()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSortTests/groupsByListWithinPriorityBucket()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSortTests/groupsByListWithinTitleBucket()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSortTests/sortsWithinSamePriorityByDateThenTitle()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderSortTests/sortsByPriorityThenDateThenTitle()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'AppInfoTests/fallsBackWhenIdentityKeysAreAbsent()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'AppInfoTests/omitsBuildParentheticalWhenBuildIsAbsent()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'SortOptionStoreTests/loadsPriorityDefaultWhenMissing()' passed on 'My Mac - SingleThread (24073)' (0.007 seconds)
+Test case 'AppInfoTests/readsMarketingVersionBuildNumberAndDisplayName()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'LocalizationTests/infoPlistStringsHaveRequiredKeysPerLanguage()' passed on 'My Mac - SingleThread (24073)' (0.002 seconds)
+Test case 'LocalizationTests/pluralKeysCarryPluralVariationsInAllLanguages()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'AppGroupTests/defaultsRoundTripsValues()' passed on 'My Mac - SingleThread (24073)' (0.049 seconds)
+Test case 'CompletionCounterStoreTests/countStartsAtZeroOnFreshKey()' passed on 'My Mac - SingleThread (24073)' (0.009 seconds)
+Test case 'AppInfoTests/emptyVersionWhenMarketingAbsentButBuildPresent()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'AppInfoTests/fallsBackToBundleNameWhenDisplayNameAbsent()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'BackgroundImageStoreTests/successfulFetchStoresBytesAndMetadata()' passed on 'My Mac - SingleThread (24073)' (0.121 seconds)
+Test case 'LocalizationTests/catalogsParseAndHaveNonEmptyEnglish()' passed on 'My Mac - SingleThread (24073)' (0.002 seconds)
+Test case 'LocalizationTests/catalogsHaveAllSixLanguages()' passed on 'My Mac - SingleThread (24073)' (0.006 seconds)
+Test case 'EventStoreChangedObserverTests/onChangeFiresWhenEventStoreChangedPosted()' passed on 'My Mac - SingleThread (24073)' (0.051 seconds)
+Test case 'NotificationSchedulerTests/schedulesWhenHasHidden()' passed on 'My Mac - SingleThread (24073)' (0.051 seconds)
+Test case 'NotificationSchedulerTests/cancelRemovesPendingAndDelivered()' passed on 'My Mac - SingleThread (24073)' (0.051 seconds)
+Test case 'MinimumDisplayDurationTests/remainingSleepScalesWithElapsed(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'MinimumDisplayDurationTests/remainingSleepScalesWithElapsed(_:)' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'LocalizationTests/nonEnglishValuesDifferFromEnglish()' passed on 'My Mac - SingleThread (24073)' (0.005 seconds)
+Test case 'MinimumDisplayDurationTests/remainingSleepScalesWithElapsed(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'MinimumDisplayDurationTests/remainingSleepScalesWithElapsed(_:)' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'NotificationSchedulerTests/usesConfiguredInterval()' passed on 'My Mac - SingleThread (24073)' (0.060 seconds)
+Test case 'ExcludedListStoreTests/storesAreIsolatedByKey()' passed on 'My Mac - SingleThread (24073)' (0.044 seconds)
+Test case 'SortOptionStoreTests/loadsPriorityDefaultWhenInvalid()' passed on 'My Mac - SingleThread (24073)' (0.047 seconds)
+Test case 'NotificationSchedulerTests/requestsPermissionWhenNotDetermined()' passed on 'My Mac - SingleThread (24073)' (0.075 seconds)
+Test case 'BoolPreferenceStoreTests/roundTripTrue(_:)' passed on 'My Mac - SingleThread (24073)' (0.077 seconds)
+Test case 'ExcludedListStoreTests/loadDefaultsAndRoundTrips()' passed on 'My Mac - SingleThread (24073)' (0.057 seconds)
+Test case 'AppearanceModePreferenceTests/defaultAndRoundTrips()' passed on 'My Mac - SingleThread (24073)' (0.091 seconds)
+Test case 'DailyCompletionStoreTests/incrementSetsCountToOne()' passed on 'My Mac - SingleThread (24073)' (0.008 seconds)
+Test case 'CompletionCounterStoreTests/incrementAdvancesCount()' passed on 'My Mac - SingleThread (24073)' (0.012 seconds)
+Test case 'NotificationSchedulerTests/skipsPermissionWhenAlreadyAuthorized()' passed on 'My Mac - SingleThread (24073)' (0.095 seconds)
+Test case 'NotificationSchedulerTests/skipsScheduleWhenNoReminders()' passed on 'My Mac - SingleThread (24073)' (0.080 seconds)
+Test case 'NotificationSchedulerTests/scheduleReplacesExistingPending()' passed on 'My Mac - SingleThread (24073)' (0.101 seconds)
+Test case 'NotificationSchedulerTests/skipsScheduleWhenDisabled()' passed on 'My Mac - SingleThread (24073)' (0.102 seconds)
+Test case 'SortOptionStoreTests/saveAndLoadRoundTrip()' passed on 'My Mac - SingleThread (24073)' (0.071 seconds)
+Test case 'NotificationSchedulerTests/schedulesWhenEnabled()' passed on 'My Mac - SingleThread (24073)' (0.100 seconds)
+Test case 'NotificationPreferenceTests/defaultAndRoundTrips()' passed on 'My Mac - SingleThread (24073)' (0.100 seconds)
+Test case 'ReminderDictationTests/fakeRecordsAuthorizationCall()' passed on 'My Mac - SingleThread (24073)' (0.073 seconds)
+Test case 'DailyCompletionStoreTests/incrementSameDay()' passed on 'My Mac - SingleThread (24073)' (0.004 seconds)
+Test case 'DailyCompletionStoreTests/dayRolloverResetsCount()' passed on 'My Mac - SingleThread (24073)' (0.002 seconds)
+Test case 'DailyCompletionStoreTests/decrementClamps()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'CompletionCounterStoreTests/countSurvivesStoreRecreation()' passed on 'My Mac - SingleThread (24073)' (0.010 seconds)
+Test case 'SettingsViewTests/backgroundSettingsViewContainsPinToggle()' passed on 'My Mac - SingleThread (24073)' (0.085 seconds)
+Test case 'SettingsViewTests/pinToggleVisibleWhenBackgroundDisabled()' passed on 'My Mac - SingleThread (24073)' (0.087 seconds)
+Test case 'DailyCompletionStoreTests/decrementAfterIncrement()' passed on 'My Mac - SingleThread (24073)' (0.009 seconds)
+Test case 'SettingsViewTests/backgroundSettingsViewContainsExpectedRows()' passed on 'My Mac - SingleThread (24073)' (0.090 seconds)
+Test case 'UserNotificationCenteringTests/fakeReturnsInjectedAuthorizationStatus()' passed on 'My Mac - SingleThread (24073)' (0.090 seconds)
+Test case 'UserNotificationCenteringTests/fakeRecordsAuthorizationRequest()' passed on 'My Mac - SingleThread (24073)' (0.090 seconds)
+Test case 'UserNotificationCenteringTests/fakeRecordsAuthorizationFailure()' passed on 'My Mac - SingleThread (24073)' (0.090 seconds)
+Test case 'DailyCompletionStoreTests/survivesRecreation()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'DailyCompletionStoreTests/perKeyIsolation()' passed on 'My Mac - SingleThread (24073)' (0.009 seconds)
+Test case 'DailyCompletionStoreTests/resetForTesting()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'CompletionCounterStoreTests/storesAreIsolatedByKey()' passed on 'My Mac - SingleThread (24073)' (0.019 seconds)
+Test case 'UserNotificationCenteringTests/fakeRecordsAddedRequest()' passed on 'My Mac - SingleThread (24073)' (0.107 seconds)
+Test case 'CompletionCounterStoreTests/resetForTestingZeroesCounter()' passed on 'My Mac - SingleThread (24073)' (0.020 seconds)
+Test case 'CompletionCounterStoreTests/decrementReducesCount()' passed on 'My Mac - SingleThread (24073)' (0.024 seconds)
+Test case 'CompletionCounterStoreTests/decrementDoesNotGoBelowZero()' passed on 'My Mac - SingleThread (24073)' (0.007 seconds)
+Test case 'CompletionCounterStoreTests/countOnSeededKeyReads100()' passed on 'My Mac - SingleThread (24073)' (0.007 seconds)
+Test case 'EventStoreChangedObserverTests/unregisterRemovesObserver()' passed on 'My Mac - SingleThread (24073)' (0.212 seconds)
+Test case 'BackgroundImageStoreTests/nonImagePayloadRejected()' passed on 'My Mac - SingleThread (24073)' (0.138 seconds)
+Test case 'ShowDateTests/dateAndListRowsFollowPreferences()' passed on 'My Mac - SingleThread (24073)' (0.593 seconds)
+Test case 'PreferenceHolderTests/refreshesOnNotification()' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ShowRecurrenceTests/recurrenceRowFollowsPreferenceAndData()' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/alarmsFlagFollowsReminderAlarms(_:)' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'MenuBarExtraOptionsTests/rendersNextReminderActions()' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/alarmsFlagFollowsReminderAlarms(_:)' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/notesAttributedStripsBackticksAfterNotesFormatter()' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/listNameFollowsCalendar()' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDictationTests/fakeTranscribeReturnsPresetResult()' passed on 'My Mac - SingleThread (24073)' (0.493 seconds)
+Test case 'ReminderDisplayTests/recurrenceFlagsAndSummary(_:)' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/mapsDueDate()' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/recurrenceFlagsAndSummary(_:)' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/titleAttributedStripsCodeSpans(_:)' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'SettingsSubscreenLayoutTests/settingsSubscreenLayoutTopAlignedOnMacOS()' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'PreferenceHolderTests/initializesFromStores()' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/titleAttributedStripsCodeSpans(_:)' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/priorityMarkerMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'ReminderDisplayTests/titleAndNotesMap()' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/priorityMarkerMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'CardPlateTests/plateFillOffWhiteInLightMode()' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'ReminderDisplayTests/priorityMarkerMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'PendingCompletionLogicTests/filteringPruningAndRemoval()' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'CardPlateTests/completeHintColorDarkenedGreenInLightMode()' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'CardPlateTests/skipHintColorOrangeInDarkMode()' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'MenuBarExtraPreferenceTests/menuBarExtraPreferenceKeyIsStable()' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'CardPlateTests/completeHintColorGreenInDarkMode()' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'ReminderDisplayTests/directConstructorCreatesFields()' passed on 'My Mac - SingleThread (24073)' (0.607 seconds)
+Test case 'ReminderDisplayTests/priorityMarkerMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'CardPlateTests/cornerRadiusIsTenPoints()' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'CardPlateTests/plateFillBlackInDarkMode()' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'URLOpeningTests/spyAccumulatesMultipleOpens()' passed on 'My Mac - SingleThread (24073)' (0.589 seconds)
+Test case 'ReminderDisplayTests/priorityMarkerMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'MenuBarExtraPreferenceTests/menuBarExtraPreferenceDefaultsToShown()' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'ReminderDictationTests/fakeTranscribeThrowsPresetError()' passed on 'My Mac - SingleThread (24073)' (0.493 seconds)
+Test case 'ListContentTests/listContentReturnsAllDoneWhenAllSkipped()' passed on 'My Mac - SingleThread (24073)' (0.547 seconds)
+Test case 'ReminderDisplayTests/priorityMarkerMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'URLOpeningTests/systemURLOpenerForwards()' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'AppearanceModeTests/loadFallsBackToSystemOnMissingOrUnknown(_:)' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'AppearanceModeTests/loadReadsPersistedValue()' passed on 'My Mac - SingleThread (24073)' (0.547 seconds)
+Test case 'AppearanceModeTests/colorSchemeMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'CardPlateTests/skipHintColorDarkenedOrangeInLightMode()' passed on 'My Mac - SingleThread (24073)' (0.606 seconds)
+Test case 'ReminderDictationTests/fakeTranscribeSetsRecordingFlag()' passed on 'My Mac - SingleThread (24073)' (0.493 seconds)
+Test case 'AppearanceModeTests/loadFallsBackToSystemOnMissingOrUnknown(_:)' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'CardPlateTests/plateFillDarkDiffersFromLight()' passed on 'My Mac - SingleThread (24073)' (0.547 seconds)
+Test case 'RescheduleSheetTests/rescheduleSheetConfirmUsesProminentStyle()' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'AppearanceModeTests/appKitAppearanceMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'URLOpeningTests/spyRecordsOpenedURL()' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'AppearanceModeTests/allCasesAndTitlesAreHumanReadable()' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'RescheduleSheetTests/writeBackMaskFollowsDueTime()' passed on 'My Mac - SingleThread (24073)' (0.540 seconds)
+Test case 'ShowAlarmsTests/alarmsRowFollowsPreferenceAndData()' passed on 'My Mac - SingleThread (24073)' (0.540 seconds)
+Test case 'AppearanceModeTests/colorSchemeMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'RescheduleSheetTests/rescheduleSheetPutsLabelBesidePicker()' passed on 'My Mac - SingleThread (24073)' (0.539 seconds)
+Test case 'AppearanceModeTests/appKitAppearanceMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'RescheduleSheetTests/timedReminderPicksDateAndTime()' passed on 'My Mac - SingleThread (24073)' (0.540 seconds)
+Test case 'SwipePromptTests/promptHiddenWhenDisabled()' passed on 'My Mac - SingleThread (24073)' (0.540 seconds)
+Test case 'RescheduleSheetTests/dateOnlyReminderPicksDateWithoutTime()' passed on 'My Mac - SingleThread (24073)' (0.540 seconds)
+Test case 'RescheduleSheetTests/dateOnlySheetStillRendersLabeledRow()' passed on 'My Mac - SingleThread (24073)' (0.540 seconds)
+Test case 'AppearanceModeTests/colorSchemeMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.537 seconds)
+Test case 'AppearanceModeTests/appKitAppearanceMaps(_:)' passed on 'My Mac - SingleThread (24073)' (0.541 seconds)
+Test case 'RescheduleSheetTests/nilReminderIsDateOnly()' passed on 'My Mac - SingleThread (24073)' (0.540 seconds)
+Test case 'RescheduleSheetTests/reminderWithoutDueDateIsDateOnly()' passed on 'My Mac - SingleThread (24073)' (0.540 seconds)
+Test case 'SwipePromptTests/dismissButtonHasAccessibilityLabel()' passed on 'My Mac - SingleThread (24073)' (0.540 seconds)
+Test case 'SwipePromptTests/promptShownWhenEnabled()' passed on 'My Mac - SingleThread (24073)' (0.539 seconds)
+Test case 'TextSizeTests/smallMapsToSmallDynamicTypeSize()' passed on 'My Mac - SingleThread (24073)' (0.545 seconds)
+Test case 'TextSizeTests/allCasesCoverFiveCases()' passed on 'My Mac - SingleThread (24073)' (0.545 seconds)
+Test case 'SortOptionTests/presentationSystemImagesAreValidSFSymbols()' passed on 'My Mac - SingleThread (24073)' (0.545 seconds)
+Test case 'BackgroundImageStoreTests/failedFetchRetainsPriorImage()' passed on 'My Mac - SingleThread (24073)' (0.331 seconds)
+Test case 'ColorCrossPlatformTests/systemBackgroundResolves()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'TranscriptionAccumulatorTests/liveChunkReplacesPreviousLive()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'SortOptionTests/allCasesCoverAllOptions()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'TextSizeTests/mediumMapsToMediumDynamicTypeSize()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'TranscriptionAccumulatorTests/committedChunkClearsLive()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'ReminderDictationTests/requestAuthorizationResumesOnMainActorFromOffMainQueue()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'TextSizeTests/largeMapsToXLargeDynamicTypeSize()' passed on 'My Mac - SingleThread (24073)' (0.545 seconds)
+Test case 'TextSizeTests/systemMapsToNilDynamicTypeSize()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'SortOptionTests/defaultsKeyIsTheSharedConstant()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'SortOptionTests/presentationTitlesAreHumanReadable()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'ActionButtonTests/buttonsShowWhenToggleOnAndReminderVisible()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'TranscriptionAccumulatorTests/committedThenLiveJoinsThem()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'TranscriptionAccumulatorTests/liveChunkReturnsItself()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'ActionButtonTests/freshViewModelDefaultsToActionButtonsOn()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'TranscriptionAccumulatorTests/chunksAreWhitespaceTrimmed()' passed on 'My Mac - SingleThread (24073)' (0.543 seconds)
+Test case 'ActionButtonTests/buttonsHiddenWhenToggleOff()' passed on 'My Mac - SingleThread (24073)' (0.543 seconds)
+Test case 'ActionButtonTests/buttonsHiddenWhenNoVisibleReminder()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'SortOptionTests/rawValuesMatchPayloadKeys()' passed on 'My Mac - SingleThread (24073)' (0.542 seconds)
+Test case 'TranscriptionAccumulatorTests/fullDictationAcrossPauses()' passed on 'My Mac - SingleThread (24073)' (0.543 seconds)
+Test case 'TextSizeTests/extraLargeMapsToXXXLargeDynamicTypeSize()' passed on 'My Mac - SingleThread (24073)' (0.545 seconds)
+Test case 'UndoCompletionTests/completeRetainsInUndoStore()' passed on 'My Mac - SingleThread (24073)' (0.617 seconds)
+Test case 'MicrophoneToggleTests/micButtonWithToggleEnabledDoesNotCrash()' passed on 'My Mac - SingleThread (24073)' (0.542 seconds)
+Test case 'TextSizeTests/titlesAreHumanReadable()' passed on 'My Mac - SingleThread (24073)' (0.544 seconds)
+Test case 'MicrophoneToggleTests/explanatoryLabelRendersBelowErrorTextWhenBothPresent()' passed on 'My Mac - SingleThread (24073)' (0.542 seconds)
+Test case 'ActionButtonTests/buttonsHiddenWhenAllSkipped()' passed on 'My Mac - SingleThread (24073)' (0.542 seconds)
+Test case 'MicrophoneToggleTests/explanatoryLabelAppearsWhenSpeechRestrictedAndToggleOn()' passed on 'My Mac - SingleThread (24073)' (0.523 seconds)
+Test case 'TranscriptionAccumulatorTests/consecutiveIdenticalCommittedChunksDeduped()' passed on 'My Mac - SingleThread (24073)' (0.523 seconds)
+Test case 'TranscriptionAccumulatorTests/committedChunkReturnsItself()' passed on 'My Mac - SingleThread (24073)' (0.523 seconds)
+Test case 'TranscriptionAccumulatorTests/emptyCommittedChunkDoesNotAppend()' passed on 'My Mac - SingleThread (24073)' (0.523 seconds)
+Test case 'MicrophoneToggleTests/foregroundActiveDoesNotAffectBackgroundBehavior()' passed on 'My Mac - SingleThread (24073)' (0.523 seconds)
+Test case 'MicrophoneToggleTests/refreshAuthorizationStatusCallsThroughToTranscriber()' passed on 'My Mac - SingleThread (24073)' (0.523 seconds)
+Test case 'MicrophoneToggleTests/explanatoryLabelAbsentWhenToggleOff()' passed on 'My Mac - SingleThread (24073)' (0.542 seconds)
+Test case 'TranscriptionAccumulatorTests/twoCommittedChunksJoin()' passed on 'My Mac - SingleThread (24073)' (0.542 seconds)
+Test case 'TranscriptionAccumulatorTests/emptyAccumulatorIsEmpty()' passed on 'My Mac - SingleThread (24073)' (0.523 seconds)
+Test case 'MicrophoneToggleTests/canDictateReflectsStatusAfterForegroundRefresh()' passed on 'My Mac - SingleThread (24073)' (0.523 seconds)
+Test case 'MicrophoneToggleTests/settingsGearButtonIsPresent()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'SettingsCaptionTests/linkLabelContainsTitleAndCaption()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'SettingsViewModelTests/initializationAndMutationsDoNotCrash()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'MicrophoneToggleTests/micButtonAbsentWhenToggleOff()' passed on 'My Mac - SingleThread (24073)' (0.523 seconds)
+Test case 'MicrophoneToggleTests/foregroundActiveRefreshesAuthorizationStatus()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'SettingsCaptionTests/captionRendersText()' passed on 'My Mac - SingleThread (24073)' (0.523 seconds)
+Test case 'MicrophoneToggleTests/explanatoryLabelAppearsWhenSpeechDeniedAndToggleOn()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'CompletionGlowViewModelTests/glowTriggersOnSuccessfulCompletion()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'MicrophoneToggleTests/showMicrophoneButtonDefaultIsRegistered()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'MicrophoneToggleTests/micButtonHiddenWhenSpeechDenied()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'MicrophoneToggleTests/authorizationStatusPassthroughMatchesTranscriber()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'MicrophoneToggleTests/explanatoryLabelAbsentWhenNotDetermined()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'EnableActionButtonsMigrationTests/standardOnlyValueIsCopiedToAppGroup()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/everyWeekOnSundaySetsSundayRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/everyOtherYearSetsYearlyIntervalTwo()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/everyDayAtNineKeepsTimeAndDailyRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'CompletionMomentumOverlayTests/triggerSetsActiveAndCount()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/everyOtherMonthSetsMonthlyIntervalTwo()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/onlyDateReturnsEmptyTitle()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/impliedTimeTonightKeepsHourAndMinute()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/everyOtherDaySetsDailyIntervalTwo()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'SettingsCaptionTests/captionTextDoesNotMatchExistingLabels()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/tomorrowWithExplicitTimeKeepsHourAndMinute()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/todayAtBeginningOfText()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/everyMonthSetsMonthlyRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/dailySetsDailyRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/everyThreeDaysSetsDailyIntervalThree()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/annuallySetsYearlyRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.522 seconds)
+Test case 'ReminderDictationParserTests/tomorrowExtractsDateAndStripsPhrase()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/timeOfDayExtractsHourAndMinute()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/plainTextHasNoRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/impliedTimeEveningKeepsHourAndMinute()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/namedTimeNoonKeepsHourAndMinute()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/todayExtractsDateAndStripsPhrase()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/nextMondayExtractsFutureWeekday()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/everyDaySetsDailyRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/multipleDatesUsesFirst()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/emptyTextReturnsEmptyTitle()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/everyTwoWeeksOnMondayKeepsIntervalAndDay()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/everyWeekSetsWeeklyRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/time24HourFormatExtractsHourAndMinute()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/everyMondaySetsMondayRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/plainTextReturnsAsTitle()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/everyYearSetsYearlyRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'BackgroundPhotoLayerTests/imageFromInvalidDataIsNil()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/todayWithExplicitTimeKeepsHourAndMinute()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'CardPlateModifierTests/cardPlateAppliesCardPlateModifier()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/weeklySetsWeeklyRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/everyTwoWeeksSetsWeeklyIntervalTwo()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'BackgroundPhotoLayerTests/imageFromValidJPEGDataIsNonNil()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'SingleThreadTests/contentViewBodyContainsBorderlessDictateButtonOnMacOS()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/everyOtherWeekSetsWeeklyIntervalTwo()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'ReminderDictationParserTests/monthlySetsMonthlyRecurrence()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'BackgroundPhotoLayerTests/constructsWithValidAndNilData()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'SingleThreadTests/contentViewBodyContainsRefreshButtonOnMacOS()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'SingleThreadTests/contentViewEmptyStatesShowDistinctCopy()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'SingleThreadTests/contentViewBodyContainsRefreshableModifier()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'CardPlateModifierTests/restoresGeometryFlagChangesModifierChain()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'SingleThreadTests/contentViewBodyContainsBorderlessSettingsGearOnMacOS()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'UITestingSeedTests/parsesRemindersFromCompactJSON()' passed on 'My Mac - SingleThread (24073)' (0.519 seconds)
+Test case 'MacOSActionButtonChromeTests/actionClusterButtonsUseControlPlateAndBorderlessChrome()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'MacOSActionButtonChromeTests/actionClusterDoesNotTintItsButtons()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'SingleThreadTests/rescheduleSheetTextButtonsKeepNativeChrome()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'SingleThreadTests/contentViewModelInitializesWithoutReminders()' passed on 'My Mac - SingleThread (24073)' (0.520 seconds)
+Test case 'SingleThreadButtonModifierTests/composedViewCarriesSingleThreadButtonModifier()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'BackgroundFadeTests/opacityClampsOutOfRangePersistedValues()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'SingleThreadButtonModifierTests/unmodifiedBorderedButtonDoesNotCarrySingleThreadButtonModifier()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'EntitlementStoreTests/isEntitledIsFalseByDefault()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'MacOSActionButtonChromeTests/actionMenuUsesBorderlessMenuStyleAndControlPlate()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'SingleThreadTests/contentViewAllDoneShowsAllDoneCopy()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'BackgroundFadeTests/opacityInvertsFadePercent()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'ResumptionGateTests/resolvesOnceAcrossMultipleClaimAttempts()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'MakeReminderTests/makeReminderSetsTitle()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'MakeReminderTests/makeReminderSetsNotes()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'BackgroundFadeTests/allValuesAscendInTenPercentStepsUpToNinety()' passed on 'My Mac - SingleThread (24073)' (0.506 seconds)
+Test case 'ReminderStoreGateTests/canMutateTrueWhenCountBelow100AndNotEntitled()' passed on 'My Mac - SingleThread (24073)' (0.505 seconds)
+Test case 'MakeReminderTests/makeReminderSetsRecurrenceRule()' passed on 'My Mac - SingleThread (24073)' (0.505 seconds)
+Test case 'MakeReminderTests/makeReminderUsesDefaultCalendar()' passed on 'My Mac - SingleThread (24073)' (0.505 seconds)
+Test case 'BackgroundFadeTests/defaultIsFiftyPercent()' passed on 'My Mac - SingleThread (24073)' (0.505 seconds)
+Test case 'MakeReminderTests/makeReminderSetsDueDate()' passed on 'My Mac - SingleThread (24073)' (0.505 seconds)
+Test case 'MakeReminderTests/makeReminderSetsDefaultCalendar()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'ReminderDictationTests/dictationViewModelCanInitWithFakeTranscriber()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'MakeReminderTests/makeReminderLeavesUnsetFieldsNil()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'ReminderDictationTests/fakeAuthorizationIsPreset()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'AboutViewTests/aboutViewRendersAttributionAndIdentity()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/settingsViewContainsNavigationLinkLabels()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/purchaseSettingsViewContainsTopAnchor()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/reminderSettingsViewContainsExpectedRows()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/filterSortSettingsViewContainsExpectedRows()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'ReminderDictationTests/dictationViewModelCanInitWithStore()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/showMenuBarExtraDefaultsToShownInBag()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/settingsBindingsCarriesShowSwipePrompt()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/privacySettingsViewContainsExpectedContent()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'AboutViewTests/aboutViewRendersWithoutCrashingWhenVersionIsNil()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/settingsBindingsCarriesShowUndoButton()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/excludedListsViewContainsTopAnchor()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/settingsBindingsCarriesShowCompletionGlow()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/interfaceSettingsViewRendersMenuBarToggleOnce()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/enableActionButtonsDefaultsToOn()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/macOSBagIncludesEnableActionButtons()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/interfaceSettingsViewContainsActionButtonsRowOnMacOS()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/macOSBagDefaultsToShown()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/interfaceSettingsViewContainsExpectedRows()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/macOSEnableActionButtonsRoundTripsThroughAppGroup()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'CompletionGlowTests/glowStateMachine()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'PrivacySettingsContentTests/privacyGuideContentCoversAllDisclosures()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/notificationsSettingsViewContainsExpectedRows()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/interfaceSettingsViewContainsMenuBarToggle()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/showMenuBarExtraRoundTripsThroughContentView()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'SettingsViewTests/macOSToggleTogglesBinding()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'UserNotificationCenteringTests/fakeRecordsRemovedDelivered()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'UserNotificationCenteringTests/fakeRecordsRemovedPending()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'PrivacySettingsContentTests/privacyGuideContentHasNoAnalyticsClaim()' passed on 'My Mac - SingleThread (24073)' (0.503 seconds)
+Test case 'UndoStoreTests/clearNilsReminder()' passed on 'My Mac - SingleThread (24073)' (0.616 seconds)
+Test case 'UndoStoreTests/retainStoresReminder()' passed on 'My Mac - SingleThread (24073)' (0.616 seconds)
+Test case 'UndoStoreTests/retainOverwritesPrevious()' passed on 'My Mac - SingleThread (24073)' (0.616 seconds)
+Test case 'UndoStoreTests/hasUndoableReminderFalseInitially()' passed on 'My Mac - SingleThread (24073)' (0.616 seconds)
+Test case 'ContentViewModelTests/openInRemindersWithEmptyIdentifierIsNoOp()' passed on 'My Mac - SingleThread (24073)' (0.493 seconds)
+Test case 'ContentViewModelTests/openInRemindersIdentifierOpensCorrectURL()' passed on 'My Mac - SingleThread (24073)' (0.494 seconds)
+Test case 'ContentViewModelTests/openInRemindersWithValidReminderRecordsURL()' passed on 'My Mac - SingleThread (24073)' (0.494 seconds)
+Test case 'ContentViewModelTests/lastOpenedURLAccessorIsNilWithoutSpy()' passed on 'My Mac - SingleThread (24073)' (0.494 seconds)
+Test case 'ReminderStoreTests/visibleRemindersFiltersSkippedReminder()' passed on 'My Mac - SingleThread (24073)' (0.496 seconds)
+Test case 'ContentViewModelTests/openInRemindersOpensCorrectURL()' passed on 'My Mac - SingleThread (24073)' (0.494 seconds)
+Test case 'ReminderStoreSkipCountTests/incrementsSkipCountOnInteractiveSkip()' passed on 'My Mac - SingleThread (24073)' (0.530 seconds)
+Test case 'ReminderDictationTests/isDictatingClearsAfterTranscribeBeforeParseAddAndSleep()' passed on 'My Mac - SingleThread (24073)' (0.524 seconds)
+Test case 'ReminderDictationTests/gateResumesAfterRecordingEnds()' passed on 'My Mac - SingleThread (24073)' (0.524 seconds)
+Test case 'ReloadPendingCompletionTests/reloadFiltersPendingCompletions()' passed on 'My Mac - SingleThread (24073)' (0.580 seconds)
+Test case 'StaleReminderRecheckerTests/startFiresImmediateReloadWhenReminderShowing()' passed on 'My Mac - SingleThread (24073)' (0.537 seconds)
+Test case 'ReminderStoreLifecycleTests/reloadPopulatesRemindersFromFetch()' passed on 'My Mac - SingleThread (24073)' (0.579 seconds)
+Test case 'ReminderStoreAvailableListsTests/availableListsSortedAndDeduplicatedAfterReload()' passed on 'My Mac - SingleThread (24073)' (0.564 seconds)
+Test case 'BackgroundImageStoreTests/staleSidecarTriggersRefetchWith24hDefault()' passed on 'My Mac - SingleThread (24073)' (0.009 seconds)
+Test case 'CompletionGlowViewModelTests/glowStaysInactiveWhenNothingToComplete()' passed on 'My Mac - SingleThread (24073)' (0.009 seconds)
+Test case 'BackgroundImageStoreTests/freshSidecarSkipsNetworkWith24hDefault()' passed on 'My Mac - SingleThread (24073)' (0.016 seconds)
+Test case 'CompletionGlowViewModelTests/glowStaysInactiveWhenAllSkipped()' passed on 'My Mac - SingleThread (24073)' (0.029 seconds)
+Test case 'ContentViewModelTests/taskStartsRecheckerAfterStoreStart()' passed on 'My Mac - SingleThread (24073)' (0.576 seconds)
+Test case 'ContentViewModelTests/taskCancellationStopsRecheckerOnce()' passed on 'My Mac - SingleThread (24073)' (0.576 seconds)
+Test case 'MenuBarExtraOptionsTests/rendersNothingWhenNoReminderDue()' passed on 'My Mac - SingleThread (24073)' (0.049 seconds)
+Test case 'ListContentTests/listContentReturnsReminderWhenVisible()' passed on 'My Mac - SingleThread (24073)' (0.046 seconds)
+Test case 'ContentViewModelTests/nilRecheckerFactoryDoesNotCrash()' passed on 'My Mac - SingleThread (24073)' (0.576 seconds)
+Test case 'ResumptionGateTests/freshGateAllowsFirstClaim()' passed on 'My Mac - SingleThread (24073)' (0.045 seconds)
+Test case 'EntitlementStoreTests/hasResolvedEntitlementIsFalseByDefault()' passed on 'My Mac - SingleThread (24073)' (0.045 seconds)
+Test case 'UITestingSeedTests/parsesCalendarsAndExcludedLists()' passed on 'My Mac - SingleThread (24073)' (0.045 seconds)
+Test case 'BackgroundImageStoreTests/corruptOrMissingSidecarTreatedAsNoImage()' passed on 'My Mac - SingleThread (24073)' (0.022 seconds)
+Test case 'EnableActionButtonsMigrationTests/freshInstallLeavesNoAppGroupValue()' passed on 'My Mac - SingleThread (24073)' (0.047 seconds)
+Test case 'ReminderStoreTests/visibleRemindersEmptyWhenAllSkipped()' passed on 'My Mac - SingleThread (24073)' (0.047 seconds)
+Test case 'ReminderStoreGateTests/canMutateFalseWhenCountAt100AndNotEntitled()' passed on 'My Mac - SingleThread (24073)' (0.054 seconds)
+Test case 'BackgroundImageStoreTests/photographerURLMatchesStoredPhotoAfterFetch()' passed on 'My Mac - SingleThread (24073)' (0.008 seconds)
+Test case 'ReloadPendingCompletionTests/reloadPrunesStalePendingCompletions()' passed on 'My Mac - SingleThread (24073)' (0.069 seconds)
+Test case 'ReminderStoreSkipCountTests/receivePathDoesNotIncrementSkipCount()' passed on 'My Mac - SingleThread (24073)' (0.069 seconds)
+Test case 'ReminderStoreLifecycleTests/startWithFullAccessFetchesWithoutRequesting()' passed on 'My Mac - SingleThread (24073)' (0.104 seconds)
+Test case 'ReminderStoreAvailableListsTests/availableListsEmptyWhenNoCalendars()' passed on 'My Mac - SingleThread (24073)' (0.105 seconds)
+Test case 'BackgroundImageStoreTests/photographerClearedWithoutValidSidecar()' passed on 'My Mac - SingleThread (24073)' (0.057 seconds)
+Test case 'UITestingSeedTests/parsesCompletionCountAndIsEntitled()' passed on 'My Mac - SingleThread (24073)' (0.067 seconds)
+Test case 'ListContentTests/listContentReturnsEmptyWithoutHidden()' passed on 'My Mac - SingleThread (24073)' (0.067 seconds)
+Test case 'EntitlementStoreTests/seamSetsEntitlement()' passed on 'My Mac - SingleThread (24073)' (0.067 seconds)
+Test case 'ReminderDictationTests/fakeTranscribeDeliversPartialResults()' passed on 'My Mac - SingleThread (24073)' (0.653 seconds)
+Test case 'ReminderStoreTests/visibleRemindersEmptyWhenNoReminders()' passed on 'My Mac - SingleThread (24073)' (0.072 seconds)
+Test case 'EnableActionButtonsMigrationTests/existingAppGroupOffIsNotClobbered()' passed on 'My Mac - SingleThread (24073)' (0.079 seconds)
+Test case 'StaleReminderRecheckerTests/pollTickRefiresReloadWhenSleepResolves()' passed on 'My Mac - SingleThread (24073)' (0.126 seconds)
+Test case 'BackgroundImageStoreTests/forceRefreshBypassesFreshSidecar()' passed on 'My Mac - SingleThread (24073)' (0.016 seconds)
+Test case 'ReminderStoreGateTests/canMutateTrueWhenCountAt100AndEntitled()' passed on 'My Mac - SingleThread (24073)' (0.073 seconds)
+Test case 'ReminderStoreSkipCountTests/skipCountReturnsZeroForUnknownIdentifier()' passed on 'My Mac - SingleThread (24073)' (0.068 seconds)
+Test case 'BackgroundImageStoreTests/forceRefreshRetainsPriorImageOnFailure()' passed on 'My Mac - SingleThread (24073)' (0.010 seconds)
+Test case 'CompletionMomentumOverlayTests/autoDismissAfterDuration()' passed on 'My Mac - SingleThread (24073)' (0.138 seconds)
+Test case 'CompletionGlowTests/glowAutoDismissesAfterDuration()' passed on 'My Mac - SingleThread (24073)' (0.138 seconds)
+Test case 'ListContentTests/listContentReturnsEmptyWithHidden()' passed on 'My Mac - SingleThread (24073)' (0.026 seconds)
+Test case 'UITestingSeedTests/completionCountAndIsEntitledDefaultWhenAbsent()' passed on 'My Mac - SingleThread (24073)' (0.026 seconds)
+Test case 'EntitlementStoreTests/unresolvedSeamLeavesFlagsFalse()' passed on 'My Mac - SingleThread (24073)' (0.026 seconds)
+Test case 'StaleReminderRecheckerTests/startIdlesWhileNothingShowing()' passed on 'My Mac - SingleThread (24073)' (0.012 seconds)
+Test case 'ReminderStoreTests/visibleRemindersSortsByPriorityAscending()' passed on 'My Mac - SingleThread (24073)' (0.019 seconds)
+Test case 'ReloadPendingCompletionTests/reloadKeepsPendingWhenStillFetched()' passed on 'My Mac - SingleThread (24073)' (0.097 seconds)
+Test case 'BackgroundImageStoreTests/forceRefreshUpdatesAttributionAfterSuccess()' passed on 'My Mac - SingleThread (24073)' (0.029 seconds)
+Test case 'ReminderStoreGateTests/canMutateTrueWhenCountBelow100AndEntitled()' passed on 'My Mac - SingleThread (24073)' (0.048 seconds)
+Test case 'ReminderStoreLifecycleTests/startWithoutAccessRequestsThenReloads()' passed on 'My Mac - SingleThread (24073)' (0.079 seconds)
+Test case 'ReminderStoreGateTests/completeReminderReturnsFalseWhenGated()' passed on 'My Mac - SingleThread (24073)' (0.022 seconds)
+Test case 'ReminderStoreTests/visibleRemindersSortsDatedBeforeUndated()' passed on 'My Mac - SingleThread (24073)' (0.059 seconds)
+Test case 'UITestingSeedTests/preservesOutOfDomainCompletionCountVerbatim()' passed on 'My Mac - SingleThread (24073)' (0.059 seconds)
+Test case 'ListContentTests/emptyStoreNeverReturnsAllDone()' passed on 'My Mac - SingleThread (24073)' (0.059 seconds)
+Test case 'ReminderStoreSkipCountTests/nudgeDoesNotFireAtFive()' passed on 'My Mac - SingleThread (24073)' (0.060 seconds)
+Test case 'StaleReminderRecheckerTests/stopIsIdempotentAndCancelsLoop()' passed on 'My Mac - SingleThread (24073)' (0.059 seconds)
+Test case 'ReloadPendingCompletionTests/reloadWithEmptyFetchPreservesPendingCompletions()' passed on 'My Mac - SingleThread (24073)' (0.039 seconds)
+Test case 'BackgroundImageStoreTests/isRefreshingToggledDuringForceRefresh()' passed on 'My Mac - SingleThread (24073)' (0.065 seconds)
+Test case 'ReminderStoreLifecycleTests/requestAccessGrantSetsFullAccessAndReloads()' passed on 'My Mac - SingleThread (24073)' (0.057 seconds)
+Test case 'EntitlementStoreTests/isEntitledSurvivesStoreRecreation()' failed on 'My Mac - SingleThread (24073)' (0.104 seconds)
+Test case 'ReminderStoreWriteTests/completeReminderMarksSavedAndReloads()' passed on 'My Mac - SingleThread (24073)' (0.804 seconds)
+Test case 'BackgroundImageStoreTests/pinBlocksRefreshIfNeeded()' passed on 'My Mac - SingleThread (24073)' (0.010 seconds)
+Test case 'ReminderStoreLifecycleTests/requestAccessDenyRereadsStatusWithoutFetching()' passed on 'My Mac - SingleThread (24073)' (0.004 seconds)
+Test case 'ListContentTests/emptyHasHiddenPayloadDiffers()' passed on 'My Mac - SingleThread (24073)' (0.046 seconds)
+Test case 'ReminderStoreTests/visibleRemindersFiltersExcludedListTitles()' passed on 'My Mac - SingleThread (24073)' (0.046 seconds)
+Test case 'UITestingSeedTests/parsesEntitlementUnresolved()' passed on 'My Mac - SingleThread (24073)' (0.046 seconds)
+Test case 'BackgroundImageStoreTests/pinnedStoreWithNoImageStillFetches()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreLifecycleTests/requestAccessErrorRereadsStatusWithoutFetching()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreSkipCountTests/seventhSkipAdvancesWithoutRenudging()' passed on 'My Mac - SingleThread (24073)' (0.047 seconds)
+Test case 'StaleReminderRecheckerTests/stopBeforePendingSleepResolvesCancelsWithoutSecondReload()' passed on 'My Mac - SingleThread (24073)' (0.048 seconds)
+Test case 'EntitlementStoreTests/nonMatchingProductIDDoesNotSetEntitlement()' passed on 'My Mac - SingleThread (24073)' (0.026 seconds)
+Test case 'ReloadPendingCompletionTests/reloadDefensivelyDropsCompletedReminder()' passed on 'My Mac - SingleThread (24073)' (0.063 seconds)
+Test case 'CompletionGlowViewModelTests/glowStaysInactiveWhenPreferenceDisabled()' passed on 'My Mac - SingleThread (24073)' (0.231 seconds)
+Test case 'UITestingSeedTests/entitlementUnresolvedDefaultsWhenAbsent()' passed on 'My Mac - SingleThread (24073)' (0.026 seconds)
+Test case 'ReminderStoreTests/visibleRemindersKeepsNilCalendarWhenListExcluded()' passed on 'My Mac - SingleThread (24073)' (0.026 seconds)
+Test case 'ReminderStoreWriteTests/completeReminderSaveErrorStaysSilentAndSkipsReload()' passed on 'My Mac - SingleThread (24073)' (0.035 seconds)
+Test case 'ReminderStoreLifecycleTests/reloadDefaultUsesWindowPredicate()' passed on 'My Mac - SingleThread (24073)' (0.047 seconds)
+Test case 'BackgroundImageStoreTests/repinDuringFetchDoesNotCommit()' passed on 'My Mac - SingleThread (24073)' (0.047 seconds)
+Test case 'UITestingSeedTests/parsesHasHidden()' passed on 'My Mac - SingleThread (24073)' (0.022 seconds)
+Test case 'ReminderStoreSkipCountTests/completeResetsSkipCount()' passed on 'My Mac - SingleThread (24073)' (0.048 seconds)
+Test case 'ReminderStoreTests/visibleRemindersEmptyWhenEveryListExcluded()' passed on 'My Mac - SingleThread (24073)' (0.022 seconds)
+Test case 'BackgroundImageStoreTests/forceRefreshBypassesPin()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'StaleReminderRecheckerTests/overlappingChangeTicksCoalesceToSingleTrailingReload()' passed on 'My Mac - SingleThread (24073)' (0.048 seconds)
+Test case 'ReminderStoreLifecycleTests/reloadWithShowsUndatedUsesNilPredicateAndFiltersWindow()' passed on 'My Mac - SingleThread (24073)' (0.022 seconds)
+Test case 'BackgroundImageStoreTests/unpinTriggersRefreshWhenStale()' passed on 'My Mac - SingleThread (24073)' (0.030 seconds)
+Test case 'ReminderStoreLifecycleTests/loadsRemindersFalseMakesReadPathsNoOps()' passed on 'My Mac - SingleThread (24073)' (0.009 seconds)
+Test case 'EntitlementStoreTests/initialRefreshSettlesResolvedFlag()' failed on 'My Mac - SingleThread (24073)' (0.056 seconds)
+Test case 'UITestingSeedTests/hasHiddenDefaultsWhenAbsent()' passed on 'My Mac - SingleThread (24073)' (0.032 seconds)
+Test case 'ReminderStoreTests/availableListsDefaultsToEmpty()' passed on 'My Mac - SingleThread (24073)' (0.032 seconds)
+Test case 'BackgroundImageStoreTests/unpinDoesNotRefreshWhenFresh()' passed on 'My Mac - SingleThread (24073)' (0.002 seconds)
+Test case 'ReminderStoreSkipCountTests/deleteResetsSkipCount()' passed on 'My Mac - SingleThread (24073)' (0.040 seconds)
+Test case 'BackgroundImageStoreTests/unpinOnlyTriggersOnTrueToFalseTransition()' passed on 'My Mac - SingleThread (24073)' (0.008 seconds)
+Test case 'UITestingSeedTests/seedParsesDailyCompletion()' passed on 'My Mac - SingleThread (24073)' (0.009 seconds)
+Test case 'ReminderStoreTests/setExcludedListTitlesPersistsAndFiresHooks()' passed on 'My Mac - SingleThread (24073)' (0.009 seconds)
+Test case 'EntitlementStoreTests/hostStoreKitIsClean()' failed on 'My Mac - SingleThread (24073)' (0.023 seconds)
+Test case 'UITestingSeedTests/seedDailyCountUnclamped()' passed on 'My Mac - SingleThread (24073)' (0.014 seconds)
+Test case 'ReminderStoreTests/refreshExcludedListTitlesUpdatesSetAndFiresRemindersChangedOnly()' passed on 'My Mac - SingleThread (24073)' (0.014 seconds)
+Test case 'ReminderStoreSkipCountTests/rescheduleResetsSkipCount()' passed on 'My Mac - SingleThread (24073)' (0.015 seconds)
+Test case 'ReminderStoreTests/setSortOptionDueDateReordersVisibleReminders()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'UITestingSeedTests/resetClearsDailyCompletion()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreTests/setSortOptionFiresSortOptionAndRemindersChangedHooks()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreSkipCountTests/reschedulePreservesRecurrenceOnRepeatingReminder()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'UITestingSeedTests/resetPersistedStateClearsShowCompletionMomentum()' passed on 'My Mac - SingleThread (24073)' (0.008 seconds)
+Test case 'ReminderStoreTests/setSortOptionNotifiesOncePerIdenticalSet()' passed on 'My Mac - SingleThread (24073)' (0.008 seconds)
+Test case 'ReminderStoreSkipCountTests/reconcilePrunesSkipCountForAbsentIdentifier()' passed on 'My Mac - SingleThread (24073)' (0.015 seconds)
+Test case 'UITestingSeedTests/returnsNilWhenSeedAbsentOrMalformed()' passed on 'My Mac - SingleThread (24073)' (0.007 seconds)
+Test case 'UITestingSeedTests/inMemoryStoreRendersSeededRemindersThroughStore()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'UITestingSeedTests/resetPersistedStateClearsSkipCounts()' passed on 'My Mac - SingleThread (24073)' (0.015 seconds)
+Test case 'UITestingSeedTests/resetPersistedStateClearsBackgroundEnabled()' passed on 'My Mac - SingleThread (24073)' (0.015 seconds)
+Test case 'UITestingSeedTests/resetPersistedStateClearsShowSwipePrompt()' passed on 'My Mac - SingleThread (24073)' (0.014 seconds)
+Test case 'UITestingSeedTests/resetPersistedStateClearsBackgroundFadePercent()' passed on 'My Mac - SingleThread (24073)' (0.015 seconds)
+Test case 'UITestingSeedTests/resetPersistedStateClearsBackgroundPinned()' passed on 'My Mac - SingleThread (24073)' (0.014 seconds)
+Test case 'ReminderStoreGateTests/completeReminderIncrementsCounterOnSuccess()' passed on 'My Mac - SingleThread (24073)' (0.240 seconds)
+Test case 'UndoCompletionTests/undoLastCompletionRevertsReminder()' passed on 'My Mac - SingleThread (24073)' (0.445 seconds)
+Test case 'ReminderStoreGateTests/skipCurrentReminderNoOpsWhenGated()' passed on 'My Mac - SingleThread (24073)' (0.007 seconds)
+Test case 'ReminderStoreGateTests/skipCurrentReminderWorksWhenNotGated()' passed on 'My Mac - SingleThread (24073)' (0.015 seconds)
+Test case 'ReminderStoreGateTests/deleteReminderNoOpsWhenGated()' passed on 'My Mac - SingleThread (24073)' (0.007 seconds)
+Test case 'CompletionGlowViewModelTests/glowTriggersWhenPreferenceEnabled()' passed on 'My Mac - SingleThread (24073)' (0.218 seconds)
+Test case 'ReminderStoreWriteTests/undoLastCompletionSaveErrorClearsUndoStore()' passed on 'My Mac - SingleThread (24073)' (0.248 seconds)
+Test case 'ContentViewModelTests/refreshManualPreservesSkippedWhenVisible()' passed on 'My Mac - SingleThread (24073)' (1.161 seconds)
+Test case 'ContentViewModelTests/refreshManualMinimumDisplayDuration()' passed on 'My Mac - SingleThread (24073)' (1.161 seconds)
+Test case 'ContentViewModelTests/refreshManualClearsSkippedWhenAllSkipped()' passed on 'My Mac - SingleThread (24073)' (1.161 seconds)
+Test case 'ContentViewModelTests/refreshManualTogglesIsRefreshing()' passed on 'My Mac - SingleThread (24073)' (1.161 seconds)
+Test case 'ReminderStoreWriteTests/addReminderSavesAndReturnsTrue()' passed on 'My Mac - SingleThread (24073)' (0.233 seconds)
+Test case 'ReminderStoreWriteTests/addReminderSaveErrorReturnsFalse()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreTests/addReminderSucceedsAndKeepsExistingReminders()' passed on 'My Mac - SingleThread (24073)' (0.422 seconds)
+Test case 'ReminderStoreTests/skipCurrentReminderNoOpsWhenNoVisibleReminders()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'CompletionMomentumOverlayTests/retriggerResetsTimer()' passed on 'My Mac - SingleThread (24073)' (0.708 seconds)
+Test case 'CompletionMomentumOverlayTests/defaultDuration()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'UndoCompletionTests/undoLastCompletionClearsUndoStore()' passed on 'My Mac - SingleThread (24073)' (0.419 seconds)
+Test case 'ContentViewModelTests/refreshManualGateBlocksReentrantCall()' passed on 'My Mac - SingleThread (24073)' (1.489 seconds)
+Test case 'ReminderStoreTests/skipCurrentReminderSkipsVisibleReminder()' passed on 'My Mac - SingleThread (24073)' (0.205 seconds)
+Test case 'ReminderStoreWriteTests/deleteReminderRemovesAndReloads()' passed on 'My Mac - SingleThread (24073)' (0.225 seconds)
+Test case 'ReminderStoreWriteTests/deleteReminderRemoveErrorStaysSilentAndSkipsReload()' passed on 'My Mac - SingleThread (24073)' (0.018 seconds)
+Test case 'ReminderStoreTests/skipCurrentReminderFiresRemindersChangedHook()' passed on 'My Mac - SingleThread (24073)' (0.210 seconds)
+Test case 'ReminderStoreTests/skipCurrentReminderRefetchesAndDropsCompletedReminder()' passed on 'My Mac - SingleThread (24073)' (0.002 seconds)
+Test case 'ReminderStoreTests/skipCurrentReminderRefetchKeepsSkippedReminder()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreTests/skipCurrentReminderDiscardedAfterClearSkipped()' passed on 'My Mac - SingleThread (24073)' (0.002 seconds)
+Test case 'ReminderStoreTests/completeCurrentReminderNoOpsWhenNoneVisible()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderStoreTests/completeCurrentReminderNoOpsWhenAllSkipped()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderStoreWriteTests/reschedulePersistsDueDateAndReloads()' passed on 'My Mac - SingleThread (24073)' (0.227 seconds)
+Test case 'ReminderStoreWriteTests/rescheduleUnknownIdentifierIsNoop()' passed on 'My Mac - SingleThread (24073)' (0.018 seconds)
+Test case 'ReminderDictationTests/isProcessingSetDuringPostTranscribeTail()' passed on 'My Mac - SingleThread (24073)' (1.792 seconds)
+Test case 'ReminderDictationTests/startDictationAddsReminderAndFlowsText()' passed on 'My Mac - SingleThread (24073)' (1.792 seconds)
+Test case 'ReminderStoreWriteTests/rescheduleFailureReturnsFalse()' passed on 'My Mac - SingleThread (24073)' (0.015 seconds)
+Test case 'ReminderStoreTests/completeCurrentReminderCompletesVisibleReminder()' passed on 'My Mac - SingleThread (24073)' (0.214 seconds)
+Test case 'ReminderStoreTests/completeReminderDoesNothingWhenIdentif2026-09-15 20:34:27.516 xcodebuild[23927:16962844] [MT] IDETestOperationsObserverDebug: 13.924 elapsed -- Testing started completed.
+2026-09-15 20:34:27.516 xcodebuild[23927:16962844] [MT] IDETestOperationsObserverDebug: 0.000 sec, +0.000 sec -- start
+2026-09-15 20:34:27.516 xcodebuild[23927:16962844] [MT] IDETestOperationsObserverDebug: 13.924 sec, +13.924 sec -- end
+
+Test session results, code coverage, and logs:
+	/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Logs/Test/Test-SingleThread-2026.09.15_20-34-11--0700.xcresult
+
+Failing tests:
+	EntitlementStoreTests.isEntitledSurvivesStoreRecreation()
+	EntitlementStoreTests.initialRefreshSettlesResolvedFlag()
+	EntitlementStoreTests.hostStoreKitIsClean()
+
+** TEST FAILED **
+
+ierNotFound()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreTests/reloadResumesOnMainActorAfterOffMainFetch()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreTests/loadsRemindersFalseNoOpsStartAndReload()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderStoreTests/hasHiddenDefaultsToFalse()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreTests/hasHiddenSeedsFromInit()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderStoreTests/hasHiddenForMatchesShownAndAllIncompleteSets()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreTests/allSkippedTrueWhenAllRemindersSkipped()' passed on 'My Mac - SingleThread (24073)' (0.001 seconds)
+Test case 'ReminderStoreTests/allSkippedFalseWhenNoReminders()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderStoreTests/allSkippedFalseWhenVisibleReminderExists()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'ReminderStoreTests/allSkippedTrueWhenEveryReminderExcluded()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'UndoCompletionTests/secondCompleteOverwritesUndoStore()' passed on 'My Mac - SingleThread (24073)' (0.622 seconds)
+Test case 'ReminderStoreWriteTests/reschedulePreservesRecurrenceRules()' passed on 'My Mac - SingleThread (24073)' (0.221 seconds)
+Test case 'UndoCompletionTests/undoReturnsFalseWhenNoRetainedReminder()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'UndoCompletionTests/undoReturnsFalseWhenGated()' passed on 'My Mac - SingleThread (24073)' (0.018 seconds)
+Test case 'ReminderDictationTests/reentryGuardBlocksConcurrentCalls()' passed on 'My Mac - SingleThread (24073)' (2.093 seconds)
+Test case 'ReminderStoreWriteTests/deleteReminderWhileSkippedPrunesSkipIDOnReload()' passed on 'My Mac - SingleThread (24073)' (0.279 seconds)
+Test case 'UndoCompletionTests/undoDecrementsCompletionCounter()' passed on 'My Mac - SingleThread (24073)' (0.489 seconds)
+Test case 'UndoCompletionTests/completeReminderIncrementsDailyCount()' passed on 'My Mac - SingleThread (24073)' (0.036 seconds)
+Test case 'UndoCompletionTests/completeReminderSameDayIncrements()' passed on 'My Mac - SingleThread (24073)' (0.034 seconds)
+Test case 'UndoCompletionTests/undoDecrementsDailyCount()' passed on 'My Mac - SingleThread (24073)' (0.023 seconds)
+Test case 'UndoCompletionTests/undoClampsDailyCountAtZero()' passed on 'My Mac - SingleThread (24073)' (0.000 seconds)
+Test case 'UndoCompletionTests/dailyCountSurvivesReload()' passed on 'My Mac - SingleThread (24073)' (0.014 seconds)
+Test case 'UndoCompletionTests/completingSameReminderConcurrentlyDoesNotDoubleIncrement()' passed on 'My Mac - SingleThread (24073)' (0.115 seconds)
