@@ -9,7 +9,11 @@
     /// that `AppViewModel.setupSyncService` installs, driven through the service's
     /// real delegate entry point. `--ui-testing` builds an `InMemoryEventStore`-backed
     /// store (one "Buy groceries" reminder, `loadsReminders: false`) while leaving
-    /// `usesInMemoryStore == false`, so the live sync service is wired.
+    /// `usesInMemoryStore == false`, so the live sync service is wired. Because
+    /// `WCSession.isSupported()` is false on iPad simulators, the view model takes
+    /// an injected `FakeSession` so this wiring exercises on every CI leg; the
+    /// service's receive path ignores that session (the delegate argument is `_`),
+    /// so the fake does not change what is under test.
     ///
     /// Serialized: `--ui-testing` writes `AppGroup.defaults["enableActionButtons"]`
     /// and a `.standard` swipe-prompt key.
@@ -18,7 +22,9 @@
     struct AppViewModelSyncWiringTests {
         @Test
         func rescheduleMessageReachesStoreThroughWiring() async throws {
-            let appViewModel = AppViewModel(arguments: ["--ui-testing", "--ui-testing-noop-settle"])
+            let appViewModel = AppViewModel(
+                arguments: ["--ui-testing", "--ui-testing-noop-settle"],
+                session: FakeSession())
             let service = try #require(appViewModel.syncService)
             let store = appViewModel.store
             let reminder = try #require(store.reminders.first)
@@ -44,7 +50,9 @@
 
         @Test
         func rescheduleMessageIsIgnoredWhenStoreHasNoMatchingIdentifier() async throws {
-            let appViewModel = AppViewModel(arguments: ["--ui-testing", "--ui-testing-noop-settle"])
+            let appViewModel = AppViewModel(
+                arguments: ["--ui-testing", "--ui-testing-noop-settle"],
+                session: FakeSession())
             let service = try #require(appViewModel.syncService)
             let store = appViewModel.store
 

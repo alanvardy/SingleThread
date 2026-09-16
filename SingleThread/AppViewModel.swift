@@ -17,7 +17,9 @@ import SwiftUI
 final class AppViewModel {
     // MARK: Lifecycle
 
-    init(arguments: [String] = ProcessInfo.processInfo.arguments) {
+    init(
+        arguments: [String] = ProcessInfo.processInfo.arguments,
+        session: (any SkipSyncSession)? = nil) {
         let (store, usesInMemory) = Self.makeStore(arguments: arguments)
         self.store = store
         usesInMemoryStore = usesInMemory
@@ -27,7 +29,7 @@ final class AppViewModel {
         backgroundImage = BackgroundImageStore()
 
         #if os(iOS)
-            setupSyncService(with: store)
+            setupSyncService(with: store, session: session)
         #endif
         #if os(iOS) || os(macOS)
             store.onRemindersChanged = { [weak self] in
@@ -377,11 +379,16 @@ final class AppViewModel {
         /// Wires the WatchConnectivity sync service onto the store: creates the
         /// service, assigns its receive-side handlers before activation, and hooks
         /// the store's mutation events back onto the service. Skipped for in-memory
-        /// (UI-test) stores — there is no paired device in the test harness.
-        private func setupSyncService(with store: ReminderStore) {
-            guard WCSession.isSupported(), !usesInMemoryStore else { return }
+        /// (UI-test) stores — there is no paired device in the test harness — unless
+        /// a test injects a session, which bypasses the WCSession hardware gate so
+        /// the wiring tests can run on any device (e.g. iPad simulators, where
+        /// WatchConnectivity is unsupported).
+        private func setupSyncService(
+            with store: ReminderStore,
+            session: (any SkipSyncSession)? = nil) {
+            guard session != nil || (WCSession.isSupported() && !usesInMemoryStore) else { return }
             let service = SkippedReminderSyncService(
-                session: WCSession.default,
+                session: session ?? WCSession.default,
                 skipStore: SkippedReminderStore(),
                 showDateStore: Self.showPreferenceStore(.showDate, fallback: true),
                 showRecurrenceStore: Self.showPreferenceStore(.showRecurrence, fallback: true),
