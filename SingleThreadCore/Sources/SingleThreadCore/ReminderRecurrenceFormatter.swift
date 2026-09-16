@@ -8,26 +8,26 @@ import Foundation
 /// have no recognizable frequency return `nil`. Empty/nil input also returns
 /// `nil`.
 public nonisolated enum ReminderRecurrenceFormatter {
-    public static func format(_ rules: [EKRecurrenceRule]?) -> String? {
+    public static func format(_ rules: [EKRecurrenceRule]?) -> LocalizedStringResource? {
         guard let first = rules?.first else { return nil }
         let interval = first.interval
         switch first.frequency {
         case .daily:
             return interval > 1
-                ? String(localized: "Every \(interval) days", table: "Localizable", bundle: .module)
-                : String(localized: "Daily", table: "Localizable", bundle: .module)
+                ? LocalizedStringResource("Every \(interval) days", table: "Localizable", bundle: .module)
+                : LocalizedStringResource("Daily", table: "Localizable", bundle: .module)
         case .weekly:
             return interval > 1
-                ? String(localized: "Every \(interval) weeks", table: "Localizable", bundle: .module)
-                : String(localized: "Weekly", table: "Localizable", bundle: .module)
+                ? LocalizedStringResource("Every \(interval) weeks", table: "Localizable", bundle: .module)
+                : LocalizedStringResource("Weekly", table: "Localizable", bundle: .module)
         case .monthly:
             return interval > 1
-                ? String(localized: "Every \(interval) months", table: "Localizable", bundle: .module)
-                : String(localized: "Monthly", table: "Localizable", bundle: .module)
+                ? LocalizedStringResource("Every \(interval) months", table: "Localizable", bundle: .module)
+                : LocalizedStringResource("Monthly", table: "Localizable", bundle: .module)
         case .yearly:
             return interval > 1
-                ? String(localized: "Every \(interval) years", table: "Localizable", bundle: .module)
-                : String(localized: "Yearly", table: "Localizable", bundle: .module)
+                ? LocalizedStringResource("Every \(interval) years", table: "Localizable", bundle: .module)
+                : LocalizedStringResource("Yearly", table: "Localizable", bundle: .module)
         @unknown default:
             return nil
         }

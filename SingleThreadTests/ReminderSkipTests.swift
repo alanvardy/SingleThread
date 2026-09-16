@@ -1,4 +1,5 @@
 import EventKit
+import Foundation
 import SingleThreadCore
 import Testing
 
@@ -71,9 +72,18 @@ struct ReminderPriorityTests {
 
     @Test
     func displayNameLocalizes() {
-        #expect(ReminderPriority.Level.high.displayName == String.en("High", bundle: .core), "high → High")
-        #expect(ReminderPriority.Level.medium.displayName == String.en("Medium", bundle: .core), "medium → Medium")
-        #expect(ReminderPriority.Level.low.displayName == String.en("Low", bundle: .core), "low → Low")
+        #expect(
+            ReminderPriority.Level.high.displayName.resolved(in: Locale(identifier: "en"))
+                == String.en("High", bundle: .core),
+            "high → High")
+        #expect(
+            ReminderPriority.Level.medium.displayName.resolved(in: Locale(identifier: "en"))
+                == String.en("Medium", bundle: .core),
+            "medium → Medium")
+        #expect(
+            ReminderPriority.Level.low.displayName.resolved(in: Locale(identifier: "en"))
+                == String.en("Low", bundle: .core),
+            "low → Low")
     }
 
     // MARK: Private
