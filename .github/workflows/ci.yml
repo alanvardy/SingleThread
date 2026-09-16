@@ -3,6 +3,9 @@ name: CI
 on:
   push:
     branches: [main]
+  # Dependabot PRs only. A plain pull_request trigger would enable checks on
+  # every PR; the gate lives in the `if:` on each job below.
+  pull_request:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -10,6 +13,7 @@ concurrency:
 
 jobs:
   unit-tests:
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: macos-26
     strategy:
       matrix:
@@ -78,6 +82,7 @@ jobs:
           path: TestResults.xcresult
 
   ui-tests-smoke:
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: macos-26
     strategy:
       matrix:
@@ -139,6 +144,7 @@ jobs:
             -only-testing:SingleThreadUITests/SingleThreadUITests/testLaunchAndRenderSmoke
 
   mac-tests:
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: macos-26
     env:
       DERIVED_DATA: ${{ github.workspace }}/DerivedData
@@ -191,6 +197,7 @@ jobs:
           path: TestResults-mac.xcresult
 
   lint:
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v4
@@ -238,6 +245,7 @@ jobs:
         run: periphery scan --strict -- -destination "platform=iOS Simulator,name=iPhone 17"
 
   watch-ui-tests:
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: macos-26
     env:
       DERIVED_DATA: ${{ github.workspace }}/DerivedData
@@ -309,6 +317,7 @@ jobs:
             -only-testing:SingleThreadWatchTests
 
   secret-scan:
+    if: github.event_name != 'pull_request' || github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
