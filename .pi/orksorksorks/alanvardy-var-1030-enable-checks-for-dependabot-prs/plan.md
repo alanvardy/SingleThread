@@ -29,7 +29,7 @@ change, which `medium.md` puts out of scope.
 
 ### Blast radius
 
-- Only `.github/workflows/ci.yml` changes; 9 added lines, 0 removed (validated this session against `HEAD`).
+- Within the Phase 1 code commit, only `.github/workflows/ci.yml` changes: 9 added lines, 0 removed (validated this session against `HEAD`). The branch as a whole also carries the `.pi/orksorksorks/<branch>/` QRSPI artifacts (`medium.md`, `plan.md`, `implement.md`), which are pipeline docs, not code.
 - No schema, no migration, no new dependency, no `.github/dependabot.yml` change, no repo-settings change.
 - `repos/alanvardy/SingleThread` is **public** with **no branch protection on `main`** (verified this session: `gh api repos/alanvardy/SingleThread/branches/main/protection` → `404 Branch not protected`), so no required-status-check interaction exists today.
 - No app/Swift source is touched, so the project's `./scripts/test.sh` pipeline is deliberately not the gate for this change (see Phase 1 verification).
