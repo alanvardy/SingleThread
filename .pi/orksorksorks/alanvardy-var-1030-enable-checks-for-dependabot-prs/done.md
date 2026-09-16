@@ -27,12 +27,12 @@
     conformance.
   - **Fixes applied: none** (no fixes worth doing now). No edits made by the
     reviewer.
-  - **Optional improvements noted, not applied** (no `autofix` in the
-    invocation; await instruction):
-    1. `plan.md` "Blast radius" says "Only `.github/workflows/ci.yml` changes;
-       9 added lines" — true for the Phase 1 commit, but branch-vs-main also
-       includes the `.pi` artifacts. `implement.md` scopes this correctly;
-       reader-facing wording only.
+  - **Optional improvements noted** (no `autofix` in the invocation; applied
+    only after explicit instruction):
+    1. ✅ **Applied** — `plan.md` "Blast radius" now scopes the "only
+       `.github/workflows/ci.yml` changes; 9 added lines" claim to the Phase 1
+       code commit and notes the branch also carries the `.pi` artifacts
+       (`medium.md`, `plan.md`, `implement.md`).
     2. The full macos-26 matrix runs on every weekly workflow-pin PR (intended
        per the ticket; a `paths:` filter was correctly rejected for adding a
        silent-skip failure mode).
