@@ -1,3 +1,4 @@
+import SingleThreadCore
 import SwiftUI
 
 @main
@@ -13,6 +14,7 @@ struct SingleThreadWatchApp: App {
     var body: some Scene {
         WindowGroup {
             WatchReminderView(viewModel: viewModel.reminderViewModel)
+                .environment(\.locale, AppLocaleState.current.effectiveLocale)
         }
     }
 

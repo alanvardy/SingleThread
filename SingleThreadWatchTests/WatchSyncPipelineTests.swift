@@ -419,3 +419,34 @@ struct WatchEnableActionButtonsSyncTests {
         #expect(!fired)
     }
 }
+
+/// Watch-target receive test for the `appLanguage` sync key: a delivered value
+/// persists to the injected preference store and updates the process-wide
+/// `AppLocaleState` that feeds the root `\.locale` environment. Serialized
+/// because the hook persists `AppLocaleState` through the real `.standard`
+/// "appLanguage" key.
+@MainActor
+@Suite(.serialized)
+struct WatchAppLanguageSyncTests {
+    @Test
+    func watchAppLanguageReceiveUpdatesLocaleState() {
+        let fake = WatchFakeSession()
+        let suffix = UUID().uuidString
+        let pref = AppLanguagePreference(defaults: .standard, key: "wtest-applang-recv-\(suffix)")
+        let state = AppLocaleState(
+            language: AppLanguagePreference(defaults: .standard).load(),
+            defaults: .standard)
+        defer {
+            UserDefaults.standard.removeObject(forKey: "wtest-applang-recv-\(suffix)")
+            UserDefaults.standard.removeObject(forKey: "appLanguage")
+        }
+        let service = SkippedReminderSyncService(
+            session: fake,
+            skipStore: SkippedReminderStore(defaults: .standard, key: "wtest-applang-recvids-\(suffix)"),
+            appLanguageStore: pref)
+        service.onAppLanguageReceived = { value in state.set(value) }
+        service.session(WCSession.default, didReceiveApplicationContext: ["appLanguage": "ja"])
+        #expect(pref.load() == .japanese) // persisted to the injected store
+        #expect(state.language == .japanese) // locale state updated
+    }
+}

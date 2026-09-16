@@ -243,7 +243,9 @@ final class WatchAppViewModel {
                 defaults: .standard, key: BoolPreferenceKey.showCompletionGlow.rawValue, fallback: true),
             completionCounter: CompletionCounterStore(defaults: .standard),
             entitlementStore: EntitlementStore(),
-            sendsShowDate: false, sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false,
+            appLanguageStore: AppLanguagePreference(defaults: .standard),
+            sendsShowDate: false, sendsAppLanguage: false,
+            sendsShowRecurrence: false, sendsShowAlarms: false, sendsShowList: false,
             sendsShowCompletionGlow: false, sendsEntitled: false)
     }
 
@@ -279,6 +281,13 @@ final class WatchAppViewModel {
         let showEnableActionButtonsState = showEnableActionButtonsState
         service.onEnableActionButtonsReceived = { [weak showEnableActionButtonsState] value in
             Task { @MainActor in showEnableActionButtonsState?.apply(value) }
+        }
+        // A phone-side language choice lands and becomes this watch's locale so
+        // the root `\.locale` environment flips the UI without a relaunch. The
+        // store write (in the service) and the state set both persist to
+        // `.standard`, so a relaunch with the phone closed keeps the language.
+        service.onAppLanguageReceived = { value in
+            Task { @MainActor in AppLocaleState.current.set(value) }
         }
     }
 
