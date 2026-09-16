@@ -1,7 +1,37 @@
 # Done
 
-- **What was built**: Fixed the local full gate's Watch UI tests stage so it no longer dies on machines with multiple watchOS runtimes. `scripts/test.sh` now resolves the name-only `WATCH_TEST_SIM` default to the matching device's UDID (and pre-boots it) before the watch stage, or fails fast with an actionable "no watch simulator matches <name>" message instead of the opaque xcodebuild destination error; `Makefile` mirrors this by defaulting `WATCH_TEST_SIM` to the resolved `id=` form for `make watch-ui-test` / `watch-test`.
-- **Commit SHA(s)**: `d14cc022` (implementation + DELETEME removal + `small.md` artifact).
-- **Verification**: `bash -n scripts/test.sh` passed; harness exercising the real preflight block resolved `Apple Watch Series 11 (46mm)` → `platform=watchOS Simulator,id=3F69EA19-301C-4978-AA7B-A63DE7CE69F5` and pre-booted it (exit 0); nonexistent-name case printed the actionable message + available-watch-simulator listing and exited 1; `,id=…` overrides pass through untouched (incl. CLI/env, and `,OS=` name overrides); `make -pn` shows the default `WATCH_TEST_SIM` = `platform=watchOS Simulator,id=3F69EA19-…`, with CLI and env overrides winning; make fallback to the name form when no device matches. Full multi-hour `./scripts/test.sh` gate NOT run here — reserved for the parent's run-gate step per AGENTS.md.
-- **Reviewer findings**: No blockers. Self-review nits (accepted, not changed): make brace-paren idiom (`LPAREN`/`RPAREN`, documented and required because make counts parens inside quoted `$(shell …)` text) and the device-name string appearing in a few Makefile places (same spelling as `scripts/test.sh` — the single-source-name convention is preserved, not duplicated differently).
-- **Remaining manual items**: Run the full local gate once via the run-gate skill (`./scripts/test.sh`) on this multi-runtime machine to confirm the Watch UI tests stage passes end-to-end — the acceptance criterion requires it, and AGENTS.md reserves the single full-gate execution for the parent after phases commit.
+- **What was built**: Fixed the local full gate's Watch UI tests stage so it no
+  longer dies on machines with multiple watchOS runtimes. `scripts/test.sh`
+  now resolves the name-only `WATCH_TEST_SIM` default to the matching device's
+  UDID (and pre-boots it) before the watch stage, or fails fast with an
+  actionable "no watch simulator matches <name>" message instead of the opaque
+  xcodebuild destination error; `Makefile` mirrors this by defaulting
+  `WATCH_TEST_SIM` to the resolved `id=` form (parse-time, with the name-form
+  fallback) so `make watch-ui-test` / `watch-test` work on multi-runtime
+  machines too. `WATCH_TEST_SIM` env/CLI overrides keep winning; CI
+  (`.github/workflows/ci.yml`, pins `id=` and never reads `WATCH_TEST_SIM`) is
+  untouched. The bootstrap `DELETEME` marker was removed.
+- **Commit SHA(s)**: `d14cc022` (implementation + DELETEME removal + small.md
+  artifact), `e7528271` (chore: record small-phase completion). Both pushed.
+- **Verification**: `bash -n scripts/test.sh` passed; harness exercising the
+  real preflight block resolved `Apple Watch Series 11 (46mm)` →
+  `platform=watchOS Simulator,id=3F69EA19-301C-4978-AA7B-A63DE7CE69F5` and
+  pre-booted it (exit 0); the nonexistent-name case printed the actionable
+  message + available-watch-simulator listing and exited 1; `,id=…` overrides
+  pass through untouched (incl. CLI/env and `,OS=`-suffixed name overrides);
+  `make -pn` shows the default `WATCH_TEST_SIM` =
+  `platform=watchOS Simulator,id=3F69EA19-…` with CLI/env overrides winning and
+  the name-form fallback preserved. `make format` + `make lint` clean (0
+  violations). Full multi-hour `./scripts/test.sh` gate launched once via the
+  run-gate skill after commits — verdict appended below when it completes.
+- **Reviewer findings**: 0 blockers. 4 optional P2 nits, deferred (each mirrors
+  a pre-existing iOS pattern or a convenience-only make target): (1) the
+  `Makefile` parse-time `$(shell xcrun simctl …)` runs on every make invocation
+  (~1s, consistent with the existing `SIM_FROM_WORKTREE` shell-out); (2)
+  `make watch-ui-test`/`watch-test` have no fail-fast path (xcodebuild still
+  errors opaquely on an unresolvable name — only the gate preflights); (3) a
+  user-supplied stale `id=` override bypasses the actionable preflight and can
+  die at `bootstatus` (same exposure as the iOS path); (4) `set -euo pipefail`
+  surfaces a raw `simctl` error if the `simctl list` command itself fails
+  (same pre-existing behavior as the iOS resolution).
+- **Remaining manual items**: full-gate verdict pending (acceptance criterion).
