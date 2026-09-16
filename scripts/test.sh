@@ -134,10 +134,12 @@ cleanup_xctest_runtimes
 # Observation / EventKit `fullAccess` floor — and watchOS from 26.5 to 11.0.
 # watchOS 11 and 26 support the same Watches (Series 6+), so 11.0 loses no
 # hardware while covering watches that have not taken the 26.5 point update.
-# macOS stays 26.5: there is no 18.x version line for macOS under this SDK, and
-# the store's macOS requirement derives from IPHONEOS_DEPLOYMENT_TARGET, not
-# from MACOSX_DEPLOYMENT_TARGET — which is exactly why macOS and watchOS are
-# tracked as separate constants here rather than sharing one floor.
+# macOS stays 26.5 (out of scope for VAR-1014, and unverifiable here: CI is
+# macos-26 only). The app target is a native macOS build — SUPPORTED_PLATFORMS
+# includes macosx, macOS-only entitlements, no Catalyst — so the Mac App Store
+# listing derives from MACOSX_DEPLOYMENT_TARGET, NOT from
+# IPHONEOS_DEPLOYMENT_TARGET. That independence is why macOS and watchOS are
+# tracked as separate constants with separate literal counts.
 #   IPHONEOS_DEPLOYMENT_TARGET (all 8: app, unit + UI tests, widget) = 17.0
 #   MACOSX_DEPLOYMENT_TARGET   (all 6: app, unit + UI tests)         = 26.5
 #   WATCHOS_DEPLOYMENT_TARGET  (all 6: watch app + watch UI tests + watch tests) = 11.0
@@ -145,37 +147,34 @@ cleanup_xctest_runtimes
 DEPLOYMENT_TARGET_IOS="${DEPLOYMENT_TARGET_IOS:-17.0}"
 DEPLOYMENT_TARGET_WATCHOS="${DEPLOYMENT_TARGET_WATCHOS:-11.0}"
 DEPLOYMENT_TARGET_MACOSX="${DEPLOYMENT_TARGET_MACOSX:-26.5}"
-EXPECTED_TARGET_LITERALS=20    # all *_DEPLOYMENT_TARGET in project.pbxproj (8+6+6)
-EXPECTED_PACKAGE_LITERALS=3    # .iOS/.watchOS/.macOS in Package.swift
+EXPECTED_IOS_LITERALS=8        # IPHONEOS_DEPLOYMENT_TARGET in project.pbxproj
+EXPECTED_WATCHOS_LITERALS=6    # WATCHOS_DEPLOYMENT_TARGET in project.pbxproj
+EXPECTED_MACOS_LITERALS=6      # MACOSX_DEPLOYMENT_TARGET in project.pbxproj
+EXPECTED_PACKAGE_IOS=1         # .iOS("…") in Package.swift
+EXPECTED_PACKAGE_WATCHOS=1     # .watchOS("…") in Package.swift
+EXPECTED_PACKAGE_MACOS=1       # .macOS("…") in Package.swift
 
 verify_deployment_target() {
     local pbxproj="SingleThread.xcodeproj/project.pbxproj"
     local package="SingleThreadCore/Package.swift"
     local drift=0
-    local ios_target=0 other_target=0 pkg_ios=0 pkg_other=0
+    local ios_target=0 watchos_target=0 macos_target=0
+    local pkg_ios=0 pkg_watchos=0 pkg_macos=0
     local line target val expected
 
     echo "==> Verifying deployment targets / package floors"
     echo "    (iOS $DEPLOYMENT_TARGET_IOS, watchOS $DEPLOYMENT_TARGET_WATCHOS, macOS $DEPLOYMENT_TARGET_MACOSX)…"
 
-    # 1) All *_DEPLOYMENT_TARGET literals in project.pbxproj must match the
-    #    per-platform floor constant (IPHONEOS 17.0; MACOSX 26.5; WATCHOS 11.0).
-    #    Iterate real file lines (not `grep -o` output, which bash splits by
-    #    whitespace) so each literal is inspected exactly once.
+    # 1) Unchanged pbxproj scan; each platform gets its OWN counter.
     while IFS= read -r line; do
         if echo "$line" | grep -qE '(IPHONEOS|MACOSX|WATCHOS)_DEPLOYMENT_TARGET = [0-9]+\.[0-9]+;'; then
             target=$(echo "$line" | grep -oE '(IPHONEOS|MACOSX|WATCHOS)')
             val=$(echo "$line" | grep -oE '[0-9]+\.[0-9]+')
-            if [[ "$target" == "IPHONEOS" ]]; then
-                ios_target=$((ios_target + 1))
-                expected="$DEPLOYMENT_TARGET_IOS"
-            elif [[ "$target" == "WATCHOS" ]]; then
-                other_target=$((other_target + 1))
-                expected="$DEPLOYMENT_TARGET_WATCHOS"
-            else
-                other_target=$((other_target + 1))
-                expected="$DEPLOYMENT_TARGET_MACOSX"
-            fi
+            case "$target" in
+                IPHONEOS) ios_target=$((ios_target + 1)); expected="$DEPLOYMENT_TARGET_IOS" ;;
+                WATCHOS)  watchos_target=$((watchos_target + 1)); expected="$DEPLOYMENT_TARGET_WATCHOS" ;;
+                *)        macos_target=$((macos_target + 1)); expected="$DEPLOYMENT_TARGET_MACOSX" ;;
+            esac
             if [[ "$val" != "$expected" ]]; then
                 echo "    ✗ $target = $val (expected $expected)"
                 drift=1
@@ -183,21 +182,16 @@ verify_deployment_target() {
         fi
     done < "$pbxproj"
 
-    # 2) Package platform floor literals must match the same per-platform set.
+    # 2) Unchanged Package.swift scan; per-platform counters.
     while IFS= read -r line; do
         if echo "$line" | grep -qE '\.(iOS|watchOS|macOS)\("[0-9]+\.[0-9]+"\)'; then
             target=$(echo "$line" | grep -oE '\.iOS|\.watchOS|\.macOS')
             val=$(echo "$line" | grep -oE '[0-9]+\.[0-9]+')
-            if [[ "$target" == ".iOS" ]]; then
-                pkg_ios=$((pkg_ios + 1))
-                expected="$DEPLOYMENT_TARGET_IOS"
-            elif [[ "$target" == ".watchOS" ]]; then
-                pkg_other=$((pkg_other + 1))
-                expected="$DEPLOYMENT_TARGET_WATCHOS"
-            else
-                pkg_other=$((pkg_other + 1))
-                expected="$DEPLOYMENT_TARGET_MACOSX"
-            fi
+            case "$target" in
+                .iOS)      pkg_ios=$((pkg_ios + 1)); expected="$DEPLOYMENT_TARGET_IOS" ;;
+                .watchOS)  pkg_watchos=$((pkg_watchos + 1)); expected="$DEPLOYMENT_TARGET_WATCHOS" ;;
+                *)         pkg_macos=$((pkg_macos + 1)); expected="$DEPLOYMENT_TARGET_MACOSX" ;;
+            esac
             if [[ "$val" != "$expected" ]]; then
                 echo "    ✗ package $target = $val (expected $expected)"
                 drift=1
@@ -205,10 +199,20 @@ verify_deployment_target() {
         fi
     done < "$package"
 
-    # 3) Literal-count drift checks: the guard must also catch a target or
-    #    package platform being added or removed (not just a value change).
-    [[ $((ios_target + other_target)) -eq "$EXPECTED_TARGET_LITERALS" ]] || drift=1
-    [[ $((pkg_ios + pkg_other)) -eq "$EXPECTED_PACKAGE_LITERALS" ]] || drift=1
+    # 3) Per-platform count drift: a literal swapped between platforms (or
+    #    added/removed) must fail even when the total is unchanged.
+    [[ "$ios_target" -eq "$EXPECTED_IOS_LITERALS" ]] || {
+        echo "    ✗ IPHONEOS literal count $ios_target (expected $EXPECTED_IOS_LITERALS)"; drift=1; }
+    [[ "$watchos_target" -eq "$EXPECTED_WATCHOS_LITERALS" ]] || {
+        echo "    ✗ WATCHOS literal count $watchos_target (expected $EXPECTED_WATCHOS_LITERALS)"; drift=1; }
+    [[ "$macos_target" -eq "$EXPECTED_MACOS_LITERALS" ]] || {
+        echo "    ✗ MACOSX literal count $macos_target (expected $EXPECTED_MACOS_LITERALS)"; drift=1; }
+    [[ "$pkg_ios" -eq "$EXPECTED_PACKAGE_IOS" ]] || {
+        echo "    ✗ package .iOS count $pkg_ios (expected $EXPECTED_PACKAGE_IOS)"; drift=1; }
+    [[ "$pkg_watchos" -eq "$EXPECTED_PACKAGE_WATCHOS" ]] || {
+        echo "    ✗ package .watchOS count $pkg_watchos (expected $EXPECTED_PACKAGE_WATCHOS)"; drift=1; }
+    [[ "$pkg_macos" -eq "$EXPECTED_PACKAGE_MACOS" ]] || {
+        echo "    ✗ package .macOS count $pkg_macos (expected $EXPECTED_PACKAGE_MACOS)"; drift=1; }
 
     if [[ "$drift" -eq 1 ]]; then
         echo ""
@@ -218,10 +222,11 @@ verify_deployment_target() {
         exit 1
     fi
     printf "    ✓ All deployment-target + package-floor literals match\n"
-    printf "      (iOS %s × %d, watchOS %s + macOS %s × %d, package .iOS %d, package other %d)\n" \
+    printf "      (iOS %s × %d, watchOS %s × %d, macOS %s × %d; package .iOS %d, .watchOS %d, .macOS %d)\n" \
         "$DEPLOYMENT_TARGET_IOS" "$ios_target" \
-        "$DEPLOYMENT_TARGET_WATCHOS" "$DEPLOYMENT_TARGET_MACOSX" "$other_target" \
-        "$pkg_ios" "$pkg_other"
+        "$DEPLOYMENT_TARGET_WATCHOS" "$watchos_target" \
+        "$DEPLOYMENT_TARGET_MACOSX" "$macos_target" \
+        "$pkg_ios" "$pkg_watchos" "$pkg_macos"
 }
 
 verify_deployment_target
