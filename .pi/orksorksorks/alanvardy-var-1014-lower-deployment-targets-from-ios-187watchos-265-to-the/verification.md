@@ -90,12 +90,21 @@ this ticket.
    annotations + the deployment target, not the sim runtime).
 3. The EventKit **deny** path of the iOS smoke was not exercised (grant path
    confirmed); watch smoke confirmed launch/render, not full interaction.
-4. Gate subagent verdict + CI on PR #201: **pending** — the full
-   `./scripts/test.sh` runs once via the `run-gate` skill after this commit
-   (parent step), and CI then adjudicates.
+4. Gate subagent verdict: **PASS** (gate subagent run 2; `gate.md` saved;
+   covered HEAD `a6931e17`). Run 1 aborted at the **Watch UI** stage on the
+   name-only `WATCH_TEST_SIM` ambiguity (three watchOS runtimes, same-named
+   `Apple Watch Series 11 (46mm)` sims, none at `OS:latest`) — documented local
+   env issue, not a regression — and was re-launched with the UDID pin
+   `platform=watchOS Simulator,id=3F69EA19-…` (the exact pattern CI uses).
+   CI on PR #201: **no checks reported yet** (draft PR) — pending.
 
 ## 7. Commit covered by the gate
 
 - Phase 3 hardening commit: `ca5c8d1b`.
-- The gate covers the **branch tip at launch** — the parent records
-  `git rev-parse --short HEAD` when the gate subagent starts (see `gate.md`).
+- Gate verdict: **PASS** — full `./scripts/test.sh` via the `run-gate` skill
+  (async gate subagent, managed worktree, UDID-pinned destinations), covered
+  HEAD `a6931e17` = the tip committed before launch. 658 tests passed; the
+  only failures are the three known local-only macOS `EntitlementStoreTests`
+  cases (annotated, CI-green). Verdict record: session
+  `subagent-artifacts/outputs/4670d0ad-…/gate.md`; authoritative log
+  `/tmp/gate-alanvardy-var-1014-run2.log`.
