@@ -98,3 +98,21 @@ public enum SharedStrings {
         String(localized: "\(levelName) priority", table: "Localizable", bundle: .module)
     }
 }
+
+// MARK: - Explicit-locale resolution
+
+public extension LocalizedStringResource {
+    /// Resolves this resource against an explicit locale. Views get this for
+    /// free from `\.locale`; non-View callers use this or
+    /// `resolvedInAppLanguage()`.
+    func resolved(in locale: Locale) -> String {
+        var resource = self
+        resource.locale = locale
+        return String(localized: resource)
+    }
+
+    /// Resolves against the persisted app-language preference.
+    func resolvedInAppLanguage() -> String {
+        resolved(in: AppLocaleState.storedEffectiveLocale)
+    }
+}

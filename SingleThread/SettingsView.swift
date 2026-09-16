@@ -41,6 +41,7 @@ struct SettingsView: View {
                             InterfaceSettingsView(
                                 appearanceMode: $bindings.appearanceMode,
                                 textSize: $bindings.textSize,
+                                appLanguage: $bindings.appLanguage,
                                 allowsLandscape: $bindings.allowsLandscape,
                                 showMicrophoneButton: $bindings.showMicrophoneButton,
                                 enableActionButtons: $bindings.enableActionButtons,
@@ -51,6 +52,7 @@ struct SettingsView: View {
                             InterfaceSettingsView(
                                 appearanceMode: $bindings.appearanceMode,
                                 textSize: $bindings.textSize,
+                                appLanguage: $bindings.appLanguage,
                                 showMicrophoneButton: $bindings.showMicrophoneButton,
                                 enableActionButtons: $bindings.enableActionButtons,
                                 showMenuBarExtra: $bindings.showMenuBarExtra,

@@ -10,6 +10,8 @@ struct InterfaceSettingsView: View {
 
     @Binding var textSize: TextSize
 
+    @Binding var appLanguage: AppLanguage
+
     #if os(iOS)
         @Binding var allowsLandscape: Bool
     #endif
@@ -58,6 +60,17 @@ struct InterfaceSettingsView: View {
                 }
             }
             .accessibilityIdentifier("textSizePicker")
+            Picker(selection: $appLanguage) {
+                ForEach(AppLanguage.allCases, id: \.self) { language in
+                    Text(language.title).tag(language)
+                }
+            } label: {
+                VStack(alignment: .leading) {
+                    Text("Language")
+                    SettingsCaption(text: "Choose the language for the app.")
+                }
+            }
+            .accessibilityIdentifier("languagePicker")
             #if os(iOS)
                 Toggle(isOn: $allowsLandscape) {
                     Label {
@@ -148,6 +161,7 @@ struct InterfaceSettingsView: View {
             InterfaceSettingsView(
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
+                appLanguage: .constant(.system),
                 allowsLandscape: .constant(true),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
@@ -158,6 +172,7 @@ struct InterfaceSettingsView: View {
             InterfaceSettingsView(
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
+                appLanguage: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
                 showMenuBarExtra: .constant(true),

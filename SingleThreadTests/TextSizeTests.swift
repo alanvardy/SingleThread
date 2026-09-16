@@ -1,4 +1,5 @@
 @testable import SingleThread
+import SingleThreadCore
 import SwiftUI
 import Testing
 
@@ -36,10 +37,10 @@ struct TextSizeTests {
 
     @Test
     func titlesAreHumanReadable() {
-        #expect(TextSize.system.title == String.en("System", bundle: .main))
-        #expect(TextSize.small.title == String.en("Small", bundle: .main))
-        #expect(TextSize.medium.title == String.en("Medium", bundle: .main))
-        #expect(TextSize.large.title == String.en("Large", bundle: .main))
-        #expect(TextSize.extraLarge.title == String.en("Extra Large", bundle: .main))
+        #expect(TextSize.system.title.resolved(in: Locale(identifier: "en")) == "System")
+        #expect(TextSize.small.title.resolved(in: Locale(identifier: "en")) == "Small")
+        #expect(TextSize.medium.title.resolved(in: Locale(identifier: "en")) == "Medium")
+        #expect(TextSize.large.title.resolved(in: Locale(identifier: "en")) == "Large")
+        #expect(TextSize.extraLarge.title.resolved(in: Locale(identifier: "en")) == "Extra Large")
     }
 }
