@@ -7,9 +7,10 @@ set -euo pipefail
 SIM="${SIM:-}"
 WATCH_SIM="generic/platform=watchOS Simulator"
 # Concrete watchOS Simulator for watch UI tests (xcodebuild requires a concrete
-# device to run XCTests). Name-only works when one standalone watch simulator
-# exists; override with WATCH_TEST_SIM='platform=watchOS Simulator,id=…' on
-# machines where the name is ambiguous.
+# device to run XCTests). The default is name-based and resolved to the matching
+# device's UDID before the watch stage (see the full pipeline), which keeps it
+# unambiguous when multiple watchOS runtimes are installed; override with
+# WATCH_TEST_SIM='platform=watchOS Simulator,id=…' to pin a specific device.
 WATCH_TEST_SIM="${WATCH_TEST_SIM:-platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)}"
 MAC_SIM="platform=macOS"
 SCHEME="SingleThread"
@@ -21,9 +22,10 @@ DERIVED_DATA="DerivedData"
 RUNTIME_AGE_HOURS="${RUNTIME_AGE_HOURS:-1}"
 RUNTIMES_DIR="$HOME/Library/Developer/XCTestDevices"
 
-# Pin a name-only iOS simulator destination to its concrete UDID: with four
-# runtimes installed a bare `name=iPhone 17` destination is ambiguous and the
-# build hangs. Falls back to leaving $SIM unchanged if no UDID resolves.
+# Pin a name-only simulator destination to its concrete UDID: with multiple
+# runtimes installed a bare `name=…` destination is ambiguous (iOS hangs, the
+# watch normalizes to OS:latest and can match nothing). Falls back to leaving
+# the caller's destination unchanged when no UDID resolves.
 resolve_sim_udid() {
     local name="$1"
     # Match the device *name* at the start of a listing line. An unanchored
@@ -245,6 +247,28 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
       build-for-testing
+
+    # Resolve the watch test destination once, before the watch stage: with
+    # multiple watchOS runtimes installed, xcodebuild normalizes a name-only
+    # `platform=watchOS Simulator,name=…` destination to OS:latest — which can
+    # land on a runtime that has no device of that name, so the destination
+    # matches nothing and the stage dies with an opaque "Unable to find a
+    # device matching the provided destination specifier" error. Pinning the
+    # UDID (and pre-booting it, mirroring the iOS path above) makes the name
+    # unambiguous. An explicit WATCH_TEST_SIM with `id=` passes through.
+    if [[ "$WATCH_TEST_SIM" != *",id="* ]]; then
+        watch_sim_name="${WATCH_TEST_SIM##*name=}"; watch_sim_name="${watch_sim_name%%,*}"
+        watch_sim_udid="$(resolve_sim_udid "$watch_sim_name")"
+        if [[ -z "$watch_sim_udid" ]]; then
+            echo "❌ No watch simulator matches '$watch_sim_name'." >&2
+            echo "   Available watch simulators:" >&2
+            xcrun simctl list devices available | grep -Ei 'watch' || true
+            echo "   Pick one and set WATCH_TEST_SIM='platform=watchOS Simulator,id=<udid>'." >&2
+            exit 1
+        fi
+        WATCH_TEST_SIM="platform=watchOS Simulator,id=$watch_sim_udid"
+    fi
+    [[ "$WATCH_TEST_SIM" == *",id="* ]] && preboot_sim "${WATCH_TEST_SIM##*id=}"
 
     echo ""
     echo "==> Watch build…"
