@@ -1,3 +1,4 @@
+import SingleThreadCore
 import SwiftUI
 #if os(iOS)
     import UIKit
@@ -15,6 +16,7 @@ struct SingleThreadApp: App {
             ContentView(
                 viewModel: viewModel.makeContentViewModel(openURLAction: openURL),
                 appViewModel: viewModel)
+                .environment(\.locale, AppLocaleState.current.effectiveLocale)
             #if os(macOS)
                 .sheet(isPresented: $showAbout) {
                     NavigationStack { AboutView() }

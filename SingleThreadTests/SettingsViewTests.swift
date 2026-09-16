@@ -94,6 +94,7 @@ struct SettingsViewTests {
             let view = InterfaceSettingsView(
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
+                appLanguage: .constant(.system),
                 allowsLandscape: .constant(true),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
@@ -104,6 +105,7 @@ struct SettingsViewTests {
             let view = InterfaceSettingsView(
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
+                appLanguage: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
                 showMenuBarExtra: .constant(true),
@@ -138,10 +140,34 @@ struct SettingsViewTests {
             #expect(bodyDescription.contains(caption))
         }
         #if os(macOS)
-            #expect(
-                bodyDescription.contains("SettingsSubscreenLayout"),
-                "Sub-view should top-anchor via SettingsSubscreenLayout on macOS")
+            #expect(bodyDescription.contains("SettingsSubscreenLayout"), "macOS: sub-view must top-anchor")
         #endif
+    }
+
+    @Test
+    func settingsScreenShowsLanguagePickerOnBothPlatforms() {
+        #if os(iOS)
+            let view = InterfaceSettingsView(
+                appearanceMode: .constant(.system), textSize: .constant(.system),
+                appLanguage: .constant(.system), allowsLandscape: .constant(true),
+                showMicrophoneButton: .constant(true), enableActionButtons: .constant(false),
+                showSwipePrompt: .constant(true), showUndoButton: .constant(true),
+                viewModel: SettingsViewModel())
+        #else
+            let view = InterfaceSettingsView(
+                appearanceMode: .constant(.system), textSize: .constant(.system),
+                appLanguage: .constant(.system), showMicrophoneButton: .constant(true),
+                enableActionButtons: .constant(false), showMenuBarExtra: .constant(true),
+                viewModel: SettingsViewModel())
+        #endif
+        let bodyDescription = String(describing: view.body)
+        #expect(bodyDescription.contains("Language"))
+        #expect(bodyDescription.contains("Choose the language for the app."))
+        // The `.accessibilityIdentifier("languagePicker")` value does not survive
+        // SwiftUI reflection (same limitation documented in
+        // `purchaseSettingsViewContainsTopAnchor`); the discriminator that does is
+        // the Picker's element type, which exists only in the language picker.
+        #expect(bodyDescription.contains("SingleThreadCore.AppLanguage"))
     }
 
     @Test
@@ -440,6 +466,7 @@ struct SettingsViewTests {
             let view = InterfaceSettingsView(
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
+                appLanguage: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
                 showMenuBarExtra: .constant(true),
@@ -456,6 +483,7 @@ struct SettingsViewTests {
             let view = InterfaceSettingsView(
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
+                appLanguage: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: enabled,
                 showMenuBarExtra: .constant(true),
@@ -472,6 +500,7 @@ struct SettingsViewTests {
             let view = InterfaceSettingsView(
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
+                appLanguage: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
                 showMenuBarExtra: .constant(true),
@@ -489,6 +518,7 @@ struct SettingsViewTests {
             let view = InterfaceSettingsView(
                 appearanceMode: .constant(.system),
                 textSize: .constant(.system),
+                appLanguage: .constant(.system),
                 showMicrophoneButton: .constant(true),
                 enableActionButtons: .constant(false),
                 showMenuBarExtra: .constant(false),

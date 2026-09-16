@@ -173,6 +173,21 @@ final class SettingsBindings {
         }
     }
 
+    /// Store-backed (App Group) like the other App-Group properties. Reads the live
+    /// `AppLocaleState` so a value delivered over WatchConnectivity also updates the
+    /// picker; the setter persists and republishes through the same holder.
+    var appLanguage: AppLanguage {
+        get {
+            access(keyPath: \.appLanguage)
+            return AppLocaleState.current.language
+        }
+        set {
+            withMutation(keyPath: \.appLanguage) {
+                AppLocaleState.current.set(newValue)
+            }
+        }
+    }
+
     // MARK: Private
 
     private let showUndatedPreference = BoolPreferenceStore(

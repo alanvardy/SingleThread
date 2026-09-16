@@ -37,13 +37,13 @@ enum TextSize: String, CaseIterable {
     }
 
     /// Human-readable label shown in the text-size picker.
-    var title: String {
+    var title: LocalizedStringResource {
         switch self {
-        case .system: String(localized: "System", table: "Localizable", bundle: .main)
-        case .small: String(localized: "Small", table: "Localizable", bundle: .main)
-        case .medium: String(localized: "Medium", table: "Localizable", bundle: .main)
-        case .large: String(localized: "Large", table: "Localizable", bundle: .main)
-        case .extraLarge: String(localized: "Extra Large", table: "Localizable", bundle: .main)
+        case .system: LocalizedStringResource("System", table: "Localizable", bundle: .main)
+        case .small: LocalizedStringResource("Small", table: "Localizable", bundle: .main)
+        case .medium: LocalizedStringResource("Medium", table: "Localizable", bundle: .main)
+        case .large: LocalizedStringResource("Large", table: "Localizable", bundle: .main)
+        case .extraLarge: LocalizedStringResource("Extra Large", table: "Localizable", bundle: .main)
         }
     }
 }

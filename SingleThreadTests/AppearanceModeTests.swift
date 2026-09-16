@@ -1,4 +1,5 @@
 @testable import SingleThread
+import SingleThreadCore
 import SwiftUI
 import Testing
 
@@ -73,9 +74,9 @@ struct AppearanceModeTests {
     @Test
     func allCasesAndTitlesAreHumanReadable() {
         #expect(AppearanceMode.allCases == [.system, .light, .dark])
-        #expect(AppearanceMode.system.title == String.en("System", bundle: .main))
-        #expect(AppearanceMode.light.title == String.en("Light", bundle: .main))
-        #expect(AppearanceMode.dark.title == String.en("Dark", bundle: .main))
+        #expect(AppearanceMode.system.title.resolved(in: Locale(identifier: "en")) == "System")
+        #expect(AppearanceMode.light.title.resolved(in: Locale(identifier: "en")) == "Light")
+        #expect(AppearanceMode.dark.title.resolved(in: Locale(identifier: "en")) == "Dark")
     }
 
     // MARK: Private
