@@ -5,10 +5,21 @@ SIM_FROM_WORKTREE := $(shell test -f .simulator_id && printf 'platform=iOS Simul
 SIM ?= $(if $(SIM_FROM_WORKTREE),$(SIM_FROM_WORKTREE),platform=iOS Simulator,name=iPhone 17)
 WATCH_SIM := generic/platform=watchOS Simulator
 # Concrete watchOS Simulator used by watch UI tests (xcodebuild requires a
-# concrete device to run XCTests). Name-only works when one standalone watch
-# simulator exists; override with WATCH_TEST_SIM='platform=watchOS Simulator,id=…'
-# on machines where the name is ambiguous.
-WATCH_TEST_SIM ?= platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)
+# concrete device to run XCTests). The default is resolved to the matching
+# device's UDID at parse time: with multiple watchOS runtimes installed, a
+# name-only destination normalizes to OS:latest and can match nothing.
+# Override with WATCH_TEST_SIM='platform=watchOS Simulator,id=…' to pin a
+# specific device.
+# Parentheses for use inside $(shell ...): make counts parentheses even inside
+# quoted shell text, so embedded '(' / ')' must come from these variables.
+LPAREN := (
+RPAREN := )
+# The `,id=…` / `,name=…` destinations contain commas, which make uses to split
+# $(if …) arguments, so each destination is pre-built as its own variable.
+WATCH_TEST_SIM_UDID := $(shell xcrun simctl list devices available | awk -v n='Apple Watch Series 11 $(LPAREN)46mm$(RPAREN)' '{ s = $$0; sub(/^[ \t]+/, "", s); if (index(s, n " $(LPAREN)") == 1) { print; exit } }' | sed -E 's/.*\$(LPAREN)([A-F0-9-]+)\$(RPAREN).*/\1/')
+WATCH_TEST_SIM_ID := platform=watchOS Simulator,id=$(WATCH_TEST_SIM_UDID)
+WATCH_TEST_SIM_NAME := platform=watchOS Simulator,name=Apple Watch Series 11 (46mm)
+WATCH_TEST_SIM ?= $(if $(WATCH_TEST_SIM_UDID),$(WATCH_TEST_SIM_ID),$(WATCH_TEST_SIM_NAME))
 MAC_SIM := platform=macOS
 DERIVED_DATA := DerivedData
 COVERAGE_RESULT := build/Coverage.xcresult
