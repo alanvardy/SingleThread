@@ -14,11 +14,11 @@
   - Claimed regression coverage holds: the old collapsed-total guard would have passed a net WATCHOS→MACOSX swap; the new per-platform counts fail it (`WATCHOS literal count 5`).
   - `set -e`/`set -u` safe: each `[[ … ]] || { …; drift=1; }` OR-list returns 0; all counters initialized inline; mismatch still sets `drift=1` → `exit 1`.
   - Corrected comment facts verified against `project.pbxproj`: `SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx"` (lines 775/825/850/879/907/931), `CODE_SIGN_ENTITLEMENTS[sdk=macosx*]` (742/792), no Catalyst token.
-  - **Optional nit (not applied — non-autofix run, policy defers optional improvements):** the comment at `scripts/test.sh:200-201` ("a literal swapped between platforms … must fail") is accurate for a *net* move but overstates for a strict 1:1 exchange (a compensating swap leaves counts 6/6 and passes). Suggested wording: "a net move between platforms". Cosmetic; deferring to user.
+  - **Optional nit — APPLIED (user approved [2]):** the comment at `scripts/test.sh:200-201` ("a literal swapped between platforms … must fail") was accurate for a *net* move but overstated for a strict 1:1 exchange (a compensating swap leaves counts 6/6 and passes). Wording now reads "a net move between platforms (or a literal added/removed)" with an explicit note that a 1:1 exchange is not caught by any count-based scheme. Re-ran `bash -n` (OK), `shellcheck` (clean), and the extracted guard (green 8/6/6 + 1/1/1).
   - Reviewer merge verdict: **OK — ship it.**
 - **Remaining manual items**:
   - CI cannot report pre-merge — `ci.yml` triggers on pushes to `main` only; CI adjudicates post-merge. The local CI-identical gate is the pre-merge evidence.
   - PR #201 is still a **draft**; its title is already corrected (`… iOS 17.0/watchOS 11.0`). Mark ready / merge with `gh pr merge 201 --rebase --delete-branch` once you choose.
   - Environment gap (named, not hidden): Xcode 27.0's catalog serves no pre-26 iOS/watchOS runtime, so the runtime leg degraded to iOS 26.0 / watchOS 26.0; a genuine iOS 17.x / watchOS 11.x runtime run remains unverified locally.
   - EventKit **deny** path of the iOS smoke was not exercised (grant path confirmed).
-  - Optional: apply the `scripts/test.sh:200-201` comment wording nit ("net move") if desired.
+  - Optional: none outstanding (the `scripts/test.sh` comment-wording nit was applied).
