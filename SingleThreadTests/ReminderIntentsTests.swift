@@ -30,4 +30,17 @@ struct ReminderIntentsTests {
                 == String.en("Skip Reminder", bundle: .main),
             "skip intent title resolves from the app catalog")
     }
+
+    // MARK: WhatsNextIntent
+
+    @Test
+    func whatsNextIntentIsDiscoverable() {
+        _ = WhatsNextIntent()
+        #expect(WhatsNextIntent.isDiscoverable, "whats-next intent is discoverable")
+    }
+
+    @Test
+    func whatsNextIntentTitleResolves() {
+        #expect(WhatsNextIntent.title.key == "What's Next", "title resolves to its catalog key")
+    }
 }
