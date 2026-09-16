@@ -12,6 +12,10 @@ public enum ReminderIntentOutcome: Equatable, Sendable {
     case nothingToDo
     /// Reminders exist but are all skipped/excluded/hidden.
     case nothingLeftToDo
+    /// The free-tier mutation cap is reached; the task exists but cannot be changed.
+    case cannotMutate
+    /// The EventKit write failed; the task exists but the change did not persist.
+    case failed
     /// The next visible reminder's title.
     case next(String)
     /// The title of the reminder that was just completed.
@@ -47,10 +51,12 @@ public enum ReminderIntentSupport {
     }
 
     /// Captures the visible title *before* mutating (completion filters it out),
-    /// then awaits the durable save. No throw for the empty/gated case.
+    /// then awaits the durable save. Distinguishes an empty/hidden list from the
+    /// free-tier cap (`.cannotMutate`) and a failed EventKit write (`.failed`).
     public static func completeOutcome(for store: ReminderStore) async -> ReminderIntentOutcome {
         guard let title = store.visibleReminders.first?.title else { return noVisibleOutcome(for: store) }
-        guard await store.completeCurrentReminder() else { return .nothingToDo }
+        guard store.canMutate else { return .cannotMutate }
+        guard await store.completeCurrentReminder() else { return .failed }
         return .completed(title)
     }
 
@@ -59,7 +65,10 @@ public enum ReminderIntentSupport {
     /// fire-and-forget `skipCurrentReminder`).
     public static func skipOutcome(for store: ReminderStore) -> ReminderIntentOutcome {
         guard let title = store.visibleReminders.first?.title else { return noVisibleOutcome(for: store) }
-        guard store.skipCurrentReminderImmediately() else { return .nothingToDo }
+        guard store.canMutate else { return .cannotMutate }
+        // The skip write cannot throw; this guard is defensive against a skip
+        // refused despite a visible, mutable reminder.
+        guard store.skipCurrentReminderImmediately() else { return .failed }
         return .skipped(title)
     }
 
@@ -80,6 +89,10 @@ public enum ReminderIntentSupport {
             "There's nothing to do right now."
         case .nothingLeftToDo:
             "Everything is skipped for now."
+        case .cannotMutate:
+            "You've reached the free limit. Upgrade to keep going."
+        case .failed:
+            "Couldn't update that task. Please try again."
         case let .next(title):
             "Your next task is \(title)."
         case let .completed(title):

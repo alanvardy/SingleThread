@@ -708,6 +708,8 @@ public enum ReminderIntentOutcome: Equatable, Sendable {
     case noAccess
     case nothingToDo        // list genuinely empty
     case nothingLeftToDo    // reminders exist but all skipped/excluded/hidden
+    case cannotMutate       // free-tier cap reached
+    case failed             // EventKit write failed
     case next(String)
     case completed(String)
     case skipped(String)
@@ -724,9 +726,11 @@ private static func noVisibleOutcome(for store: ReminderStore) -> ReminderIntent
 
 - `nextOutcome`: replace `return .nothingToDo` with `return noVisibleOutcome(for: store)`.
 - `completeOutcome` / `skipOutcome`: replace the **first** `guard` fallback
-  (no visible title) with `noVisibleOutcome(for: store)`; keep the
-  mutation-failure fallback as `.nothingToDo` (gated/save-failed — Phase 2/3
-  tests pin this).
+  (no visible title) with `noVisibleOutcome(for: store)`; then guard `store.canMutate`
+  (`false` ⇒ `.cannotMutate`), and a `false` mutation return ⇒ `.failed`.
+  *(Revised in review — the original plan kept the mutation-failure fallback as
+  `.nothingToDo`, which misreported gated/save-failed states; the Phase 2/3 tests
+  now pin `.cannotMutate`.)*
 
 Add the `.nothingLeftToDo` arm:
 
@@ -743,6 +747,8 @@ case .nothingLeftToDo:
 | Key | en | zh-Hans | es | ja | de | fr |
 |---|---|---|---|---|---|---|
 | `Everything is skipped for now.` | Everything is skipped for now. | 目前所有任务都已跳过。 | Todo está omitido por ahora. | 今はすべてスキップされています。 | Alles ist vorerst übersprungen. | Tout est passé pour le moment. |
+| `You've reached the free limit. Upgrade to keep going.` | You've reached the free limit. Upgrade to keep going. | 你已达到免费上限。升级后可继续使用。 | Has alcanzado el límite gratuito. Mejora para continuar. | 無料の上限に達しました。続けるにはアップグレードしてください。 | Du hast das kostenlose Limit erreicht. Führe ein Upgrade durch, um weiterzumachen. | Vous avez atteint la limite gratuite. Passez à la version payante pour continuer. |
+| `Couldn't update that task. Please try again.` | Couldn't update that task. Please try again. | 无法更新该任务。请重试。 | No se pudo actualizar esa tarea. Inténtalo de nuevo. | タスクを更新できませんでした。もう一度お試しください。 | Die Aufgabe konnte nicht aktualisiert werden. Bitte versuche es erneut. | Impossible de mettre à jour cette tâche. Veuillez réessayer. |
 
 #### 3. Phrase variants — modify
 
@@ -820,7 +826,7 @@ func nextOutcomeDistinguishesHiddenFromEmpty() {
 @Test
 func everyOutcomeHasANonEmptyDialog() {
     let outcomes: [ReminderIntentOutcome] = [
-        .noAccess, .nothingToDo, .nothingLeftToDo,
+        .noAccess, .nothingToDo, .nothingLeftToDo, .cannotMutate, .failed,
         .next("A"), .completed("A"), .skipped("A")
     ]
     for outcome in outcomes {

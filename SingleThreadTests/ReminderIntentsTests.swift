@@ -41,7 +41,10 @@ struct ReminderIntentsTests {
 
     @Test
     func whatsNextIntentTitleResolves() {
-        #expect(WhatsNextIntent.title.key == "What's Next", "title resolves to its catalog key")
+        #expect(
+            String(localized: WhatsNextIntent.title)
+                == String.en("What's Next", bundle: .main),
+            "whats-next intent title resolves from the app catalog")
     }
 
     // MARK: CompleteCurrentTaskIntent
@@ -52,12 +55,28 @@ struct ReminderIntentsTests {
         #expect(CompleteCurrentTaskIntent.isDiscoverable, "complete task intent is discoverable")
     }
 
+    @Test
+    func completeCurrentTaskIntentTitleResolves() {
+        #expect(
+            String(localized: CompleteCurrentTaskIntent.title)
+                == String.en("Complete Current Task", bundle: .main),
+            "complete task intent title resolves from the app catalog")
+    }
+
     // MARK: SkipCurrentTaskIntent
 
     @Test
     func skipCurrentTaskIntentIsDiscoverable() {
         _ = SkipCurrentTaskIntent()
         #expect(SkipCurrentTaskIntent.isDiscoverable, "skip task intent is discoverable")
+    }
+
+    @Test
+    func skipCurrentTaskIntentTitleResolves() {
+        #expect(
+            String(localized: SkipCurrentTaskIntent.title)
+                == String.en("Skip Current Task", bundle: .main),
+            "skip task intent title resolves from the app catalog")
     }
 
     // MARK: Title collisions (design Risk 6)

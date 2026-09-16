@@ -17,12 +17,14 @@ public final class InMemoryEventStore: EventKitStoring {
         reminders: [EKReminder] = [],
         calendars: [EKCalendar] = [],
         deliverCompletionOffMain: Bool = false,
+        saveError: Error? = nil,
         // Calendar assigned by ``makeReminder(title:notes:dueDate:recurrenceRule:)``.
         // Falls back to `calendars.first` when nil.
         defaultCalendar: EKCalendar? = nil) {
         allReminders = reminders
         self.calendars = calendars
         self.deliverCompletionOffMain = deliverCompletionOffMain
+        self.saveError = saveError
         self.defaultCalendar = defaultCalendar
     }
 
@@ -35,6 +37,14 @@ public final class InMemoryEventStore: EventKitStoring {
     /// Number of times `requestFullAccessToReminders()` was called; lets tests
     /// prove an intent never prompts.
     public private(set) var requestFullAccessCallCount = 0
+
+    /// Number of times `save(_:commit:)` was called; lets tests prove a mutation
+    /// reached EventKit rather than passing on a shared object reference.
+    public private(set) var saveCallCount = 0
+
+    /// When set, `save(_:commit:)` throws this instead of persisting; lets tests
+    /// drive the failed-write branch of `ReminderIntentSupport`.
+    public let saveError: Error?
 
     // MARK: EventKitStoring
 
@@ -90,6 +100,10 @@ public final class InMemoryEventStore: EventKitStoring {
         public func refreshSourcesIfNecessary() {}
 
         public func save(_ reminder: EKReminder, commit _: Bool) throws {
+            saveCallCount += 1
+            if let saveError {
+                throw saveError
+            }
             allReminders.append(reminder)
         }
 

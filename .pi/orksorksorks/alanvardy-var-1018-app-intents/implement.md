@@ -53,10 +53,10 @@ Across all four phases (each verified with `make format`, `make lint`, targeted
   (only `Localizable.xcstrings` exists under `SingleThread/Resources/`). Per the plan's conditional,
   no phrase translations were filled. If CI's Xcode 26.6 extraction differs, the phrases catalog
   may appear there — worth confirming in the review/gate.
-- **Design-phase artifacts were never committed**: `design.md`, `research.md`, `structure.md`,
-  `conventions.md`, `task.md`, `large.md`, `questions.md` under `.pi/orksorksorks/alanvardy-var-1018-app-intents/`
-  remain untracked (only `plan.md` was committed with Phase 1). They predate the implement step;
-  decide whether to include them before merge.
+- **Design-phase artifacts**: `design.md`, `research.md`, `structure.md`,
+  `conventions.md`, `task.md`, `large.md`, `questions.md` under
+  `.pi/orksorksorks/alanvardy-var-1018-app-intents/` were committed during the
+  review step (they had been left untracked after `plan.md` landed with Phase 1).
 - **Small worker adaptations from plan literals** (all semantic-preserving, compiled/passed):
   `perform()` bodies use the Swift if-expression form; the Phase 4 `makeStore` fixture passes
   `hasHidden` after `authorizationStatus` to match `ReminderStore`'s declaration order; extra
@@ -64,3 +64,29 @@ Across all four phases (each verified with `make format`, `make lint`, targeted
 - **UI tests**: none added — there is no UI-test seam for system intent invocation (per AGENTS.md policy).
 - **Full gate**: the CI-identical `./scripts/test.sh` has NOT yet run — launch it once via the
   `run-gate` skill (one async gate subagent, managed worktree) after review.
+
+## Review fixes (applied post-review)
+
+- **Outcome accuracy**: `ReminderIntentOutcome` gains `.cannotMutate` (free-tier
+  cap) and `.failed` (EventKit write failure). `completeOutcome`/`skipOutcome`
+  guard `store.canMutate` before mutating, so a gated or failed write no longer
+  reports "There's nothing to do right now." Two new six-language catalog keys;
+  design decision 6 and the Phase 4 plan bullet were back-patched.
+- **Test evidence**: `InMemoryEventStore` now records `saveCallCount` and can
+  throw an injected `saveError`; the persistence test asserts the save reached
+  EventKit, and the skip-durability test asserts the injected
+  `SkippedReminderStore` was written.
+- **Test quality**: the new intent titles resolve through the `.main` bundle
+  (not just `.key`), a direct `value(for:)` test was added, and a duplicate
+  empty-list case was removed.
+- **Declined/deferred**: App Shortcut phrase localization (needs an
+  `AppShortcuts.xcstrings` the build does not currently extract, and is
+  unverifiable without a device) and the `makeGatedStore` standard-defaults /
+  `showsUndatedReminders` nits.
+
+## Full gate verdict
+
+The full CI-identical `./scripts/test.sh` ran at `c6ca90f5` via the `run-gate`
+skill and passed every stage (format, SwiftLint, iOS build + UI smoke, watch
+build + UI smoke + watch unit suites, Periphery) except the three pre-annotated
+local-only macOS `EntitlementStoreTests`. Log: `/tmp/gate-1018.log`.
