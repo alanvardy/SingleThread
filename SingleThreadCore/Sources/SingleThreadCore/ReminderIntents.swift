@@ -1,4 +1,5 @@
 import AppIntents
+import EventKit
 import Foundation
 
 /// Completes the current (first visible) reminder. Invoked from the widget's
@@ -48,5 +49,32 @@ public struct SkipReminderIntent: AppIntent {
         // skip logic and writing UserDefaults directly.
         store.skipCurrentReminderImmediately()
         return .result()
+    }
+}
+
+/// Returns the current next task's title, spoken and usable as a Shortcuts value.
+public struct WhatsNextIntent: AppIntent {
+    // MARK: Lifecycle
+
+    public init() {}
+
+    // MARK: Public
+
+    public static let title: LocalizedStringResource = "What's Next"
+    public static let isDiscoverable = true
+
+    @MainActor
+    public func perform() async throws -> some IntentResult & ReturnsValue<String> & ProvidesDialog {
+        let eventStore = EKEventStore()
+        let outcome: ReminderIntentOutcome = if let store = await ReminderIntentSupport.makeStore(
+            eventStore: eventStore,
+            authorizationStatus: EKEventStore.authorizationStatus(for: .reminder)) {
+            ReminderIntentSupport.nextOutcome(for: store)
+        } else {
+            .noAccess
+        }
+        return .result(
+            value: ReminderIntentSupport.value(for: outcome),
+            dialog: IntentDialog(ReminderIntentSupport.dialog(for: outcome)))
     }
 }

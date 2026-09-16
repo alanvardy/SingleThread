@@ -32,6 +32,10 @@ public final class InMemoryEventStore: EventKitStoring {
     /// so a caller can observe them via `allReminders` if desired.
     public private(set) var allReminders: [EKReminder]
 
+    /// Number of times `requestFullAccessToReminders()` was called; lets tests
+    /// prove an intent never prompts.
+    public private(set) var requestFullAccessCallCount = 0
+
     // MARK: EventKitStoring
 
     public func authorizationStatus(for _: EKEntityType) -> EKAuthorizationStatus {
@@ -43,7 +47,8 @@ public final class InMemoryEventStore: EventKitStoring {
     }
 
     public func requestFullAccessToReminders() async throws -> Bool {
-        true
+        requestFullAccessCallCount += 1
+        return true
     }
 
     public func predicateForIncompleteReminders(
