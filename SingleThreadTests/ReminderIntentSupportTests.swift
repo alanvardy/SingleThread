@@ -59,6 +59,42 @@ struct ReminderIntentSupportTests {
         #expect(ReminderIntentSupport.nextOutcome(for: makeStore(with: [])) == .nothingToDo)
     }
 
+    // MARK: completeOutcome
+
+    @Test
+    func completeOutcomeNamesTheCompletedTask() async {
+        let reminder = makeReminder(title: "Buy milk")
+        let store = makeStore(with: [reminder])
+        #expect(await ReminderIntentSupport.completeOutcome(for: store) == .completed("Buy milk"))
+    }
+
+    @Test
+    func completeOutcomeIsNothingToDoWhenEmpty() async {
+        #expect(await ReminderIntentSupport.completeOutcome(for: makeStore(with: [])) == .nothingToDo)
+    }
+
+    @Test
+    func completeOutcomeIsNothingToDoWhenMutationGated() async {
+        let reminder = makeReminder(title: "Buy milk")
+        let store = makeGatedStore(with: [reminder])
+        #expect(await ReminderIntentSupport.completeOutcome(for: store) == .nothingToDo)
+    }
+
+    @Test
+    func completeOutcomePersistsThroughInMemoryEventStore() async {
+        let reminder = makeReminder(title: "Buy milk")
+        let eventStore = InMemoryEventStore(reminders: [reminder])
+        let store = ReminderStore(
+            eventStore: eventStore,
+            loadsReminders: false,
+            reminders: [reminder],
+            authorizationStatus: .fullAccess,
+            entitlementStore: EntitlementStore(testingWithEntitled: true),
+            settle: noopSettle)
+        _ = await ReminderIntentSupport.completeOutcome(for: store)
+        #expect(eventStore.allReminders.first?.isCompleted == true, "completion is persisted")
+    }
+
     // MARK: Private
 
     // MARK: Fixtures
@@ -73,6 +109,20 @@ struct ReminderIntentSupportTests {
             skippedIDs: skippedIDs,
             authorizationStatus: .fullAccess,
             entitlementStore: EntitlementStore(testingWithEntitled: true),
+            settle: noopSettle)
+    }
+
+    private func makeGatedStore(with reminders: [EKReminder]) -> ReminderStore {
+        let defaults = UserDefaults.standard
+        let key = UUID().uuidString
+        defaults.set(EntitlementStore.freemiumCap, forKey: key) // count == 100 → canMutate false
+        return ReminderStore(
+            eventStore: InMemoryEventStore(reminders: reminders),
+            loadsReminders: false,
+            reminders: reminders,
+            authorizationStatus: .fullAccess,
+            completionCounter: CompletionCounterStore(defaults: defaults, key: key),
+            entitlementStore: EntitlementStore(testingWithEntitled: false),
             settle: noopSettle)
     }
 }

@@ -525,10 +525,10 @@ func completeCurrentTaskIntentIsDiscoverable() {
 ### Verification
 
 #### Automated
-- [ ] `scripts/test-one.sh SingleThreadTests/ReminderIntentSupportTests`
-- [ ] `scripts/test-one.sh SingleThreadTests/ReminderIntentsTests`
-- [ ] `make test`
-- [ ] `make build`
+- [x] `scripts/test-one.sh SingleThreadTests/ReminderIntentSupportTests`
+- [x] `scripts/test-one.sh SingleThreadTests/ReminderIntentsTests`
+- [x] `make test`
+- [x] `make build`
 
 #### Manual
 - [ ] Run "Complete Current Task" from the Shortcuts app **and** the app-icon

@@ -43,4 +43,12 @@ struct ReminderIntentsTests {
     func whatsNextIntentTitleResolves() {
         #expect(WhatsNextIntent.title.key == "What's Next", "title resolves to its catalog key")
     }
+
+    // MARK: CompleteCurrentTaskIntent
+
+    @Test
+    func completeCurrentTaskIntentIsDiscoverable() {
+        _ = CompleteCurrentTaskIntent()
+        #expect(CompleteCurrentTaskIntent.isDiscoverable, "complete task intent is discoverable")
+    }
 }

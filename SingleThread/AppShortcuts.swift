@@ -10,5 +10,10 @@ struct SingleThreadShortcuts: AppShortcutsProvider {
             phrases: ["What's next in \(.applicationName)"],
             shortTitle: "What's Next",
             systemImageName: "list.bullet")
+        AppShortcut(
+            intent: CompleteCurrentTaskIntent(),
+            phrases: ["Complete the current task in \(.applicationName)"],
+            shortTitle: "Complete Current Task",
+            systemImageName: "checkmark.circle")
     }
 }
