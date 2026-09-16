@@ -78,3 +78,28 @@ public struct WhatsNextIntent: AppIntent {
             dialog: IntentDialog(ReminderIntentSupport.dialog(for: outcome)))
     }
 }
+
+/// Completes the current (first visible) task from a system surface.
+public struct CompleteCurrentTaskIntent: AppIntent {
+    // MARK: Lifecycle
+
+    public init() {}
+
+    // MARK: Public
+
+    public static let title: LocalizedStringResource = "Complete Current Task"
+    public static let isDiscoverable = true
+
+    @MainActor
+    public func perform() async throws -> some IntentResult & ProvidesDialog {
+        let eventStore = EKEventStore()
+        let outcome: ReminderIntentOutcome = if let store = await ReminderIntentSupport.makeStore(
+            eventStore: eventStore,
+            authorizationStatus: EKEventStore.authorizationStatus(for: .reminder)) {
+            await ReminderIntentSupport.completeOutcome(for: store)
+        } else {
+            .noAccess
+        }
+        return .result(dialog: IntentDialog(ReminderIntentSupport.dialog(for: outcome)))
+    }
+}

@@ -12,6 +12,8 @@ public enum ReminderIntentOutcome: Equatable, Sendable {
     case nothingToDo
     /// The next visible reminder's title.
     case next(String)
+    /// The title of the reminder that was just completed.
+    case completed(String)
 }
 
 /// Shared, `@MainActor` construction + outcome/dialog logic for the three
@@ -38,6 +40,14 @@ public enum ReminderIntentSupport {
         return .next(title)
     }
 
+    /// Captures the visible title *before* mutating (completion filters it out),
+    /// then awaits the durable save. No throw for the empty/gated case.
+    public static func completeOutcome(for store: ReminderStore) async -> ReminderIntentOutcome {
+        guard let title = store.visibleReminders.first?.title else { return .nothingToDo }
+        guard await store.completeCurrentReminder() else { return .nothingToDo }
+        return .completed(title)
+    }
+
     /// The value returned to Shortcuts; every non-answer returns "".
     public static func value(for outcome: ReminderIntentOutcome) -> String {
         if case let .next(title) = outcome {
@@ -55,6 +65,8 @@ public enum ReminderIntentSupport {
             "There's nothing to do right now."
         case let .next(title):
             "Your next task is \(title)."
+        case let .completed(title):
+            "Marked \(title) as done."
         }
     }
 }
