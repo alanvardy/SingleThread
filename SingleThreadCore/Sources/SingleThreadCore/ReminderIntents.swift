@@ -103,3 +103,28 @@ public struct CompleteCurrentTaskIntent: AppIntent {
         return .result(dialog: IntentDialog(ReminderIntentSupport.dialog(for: outcome)))
     }
 }
+
+/// Skips the current (first visible) task from a system surface.
+public struct SkipCurrentTaskIntent: AppIntent {
+    // MARK: Lifecycle
+
+    public init() {}
+
+    // MARK: Public
+
+    public static let title: LocalizedStringResource = "Skip Current Task"
+    public static let isDiscoverable = true
+
+    @MainActor
+    public func perform() async throws -> some IntentResult & ProvidesDialog {
+        let eventStore = EKEventStore()
+        let outcome: ReminderIntentOutcome = if let store = await ReminderIntentSupport.makeStore(
+            eventStore: eventStore,
+            authorizationStatus: EKEventStore.authorizationStatus(for: .reminder)) {
+            ReminderIntentSupport.skipOutcome(for: store)
+        } else {
+            .noAccess
+        }
+        return .result(dialog: IntentDialog(ReminderIntentSupport.dialog(for: outcome)))
+    }
+}

@@ -681,10 +681,10 @@ func skipCurrentTaskIntentIsDiscoverable() {
 ### Verification
 
 #### Automated
-- [ ] `scripts/test-one.sh SingleThreadTests/ReminderIntentSupportTests`
-- [ ] `scripts/test-one.sh SingleThreadTests/ReminderIntentsTests`
-- [ ] `make test`
-- [ ] `make build`
+- [x] `scripts/test-one.sh SingleThreadTests/ReminderIntentSupportTests`
+- [x] `scripts/test-one.sh SingleThreadTests/ReminderIntentsTests`
+- [x] `make test`
+- [x] `make build`
 
 #### Manual
 - [ ] Run "Skip Current Task" from the app-icon long-press menu; confirm the

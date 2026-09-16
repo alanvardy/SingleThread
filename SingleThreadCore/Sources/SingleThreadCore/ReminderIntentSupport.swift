@@ -14,6 +14,8 @@ public enum ReminderIntentOutcome: Equatable, Sendable {
     case next(String)
     /// The title of the reminder that was just completed.
     case completed(String)
+    /// The title of the reminder that was just skipped.
+    case skipped(String)
 }
 
 /// Shared, `@MainActor` construction + outcome/dialog logic for the three
@@ -48,6 +50,15 @@ public enum ReminderIntentSupport {
         return .completed(title)
     }
 
+    /// Skips the first visible reminder synchronously; the skip set is written
+    /// before this returns (`skipCurrentReminderImmediately`, never the
+    /// fire-and-forget `skipCurrentReminder`).
+    public static func skipOutcome(for store: ReminderStore) -> ReminderIntentOutcome {
+        guard let title = store.visibleReminders.first?.title else { return .nothingToDo }
+        guard store.skipCurrentReminderImmediately() else { return .nothingToDo }
+        return .skipped(title)
+    }
+
     /// The value returned to Shortcuts; every non-answer returns "".
     public static func value(for outcome: ReminderIntentOutcome) -> String {
         if case let .next(title) = outcome {
@@ -67,6 +78,8 @@ public enum ReminderIntentSupport {
             "Your next task is \(title)."
         case let .completed(title):
             "Marked \(title) as done."
+        case let .skipped(title):
+            "Skipped \(title)."
         }
     }
 }

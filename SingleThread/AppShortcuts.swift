@@ -15,5 +15,10 @@ struct SingleThreadShortcuts: AppShortcutsProvider {
             phrases: ["Complete the current task in \(.applicationName)"],
             shortTitle: "Complete Current Task",
             systemImageName: "checkmark.circle")
+        AppShortcut(
+            intent: SkipCurrentTaskIntent(),
+            phrases: ["Skip the current task in \(.applicationName)"],
+            shortTitle: "Skip Current Task",
+            systemImageName: "arrow.uturn.forward")
     }
 }
