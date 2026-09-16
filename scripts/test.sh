@@ -199,8 +199,10 @@ verify_deployment_target() {
         fi
     done < "$package"
 
-    # 3) Per-platform count drift: a literal swapped between platforms (or
-    #    added/removed) must fail even when the total is unchanged.
+    # 3) Per-platform count drift: a net move between platforms (or a
+    #    literal added/removed) must fail even when the total is unchanged.
+    #    (A strict 1:1 exchange that leaves each platform's count identical is
+    #    not caught by any count-based scheme.)
     [[ "$ios_target" -eq "$EXPECTED_IOS_LITERALS" ]] || {
         echo "    ✗ IPHONEOS literal count $ios_target (expected $EXPECTED_IOS_LITERALS)"; drift=1; }
     [[ "$watchos_target" -eq "$EXPECTED_WATCHOS_LITERALS" ]] || {
