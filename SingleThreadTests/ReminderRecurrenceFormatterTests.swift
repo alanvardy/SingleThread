@@ -1,4 +1,5 @@
 import EventKit
+import Foundation
 import SingleThreadCore
 import Testing
 
@@ -25,6 +26,6 @@ struct ReminderRecurrenceFormatterTests {
 
     private func formatted(frequency: EKRecurrenceFrequency, interval: Int) -> String? {
         let rule = EKRecurrenceRule(recurrenceWith: frequency, interval: interval, end: nil)
-        return ReminderRecurrenceFormatter.format([rule])
+        return ReminderRecurrenceFormatter.format([rule])?.resolved(in: Locale(identifier: "en"))
     }
 }

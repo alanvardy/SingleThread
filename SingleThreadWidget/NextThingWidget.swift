@@ -129,8 +129,8 @@ struct NextThingWidgetView: View {
             messageView(
                 title: SharedStrings.remindersAccess,
                 systemImage: "lock.shield",
-                message: String(
-                    localized: "Open SingleThread to enable access.",
+                message: LocalizedStringResource(
+                    "Open SingleThread to enable access.",
                     table: "Localizable",
                     bundle: .main))
         case let .empty(hasHidden):
@@ -172,7 +172,10 @@ struct NextThingWidgetView: View {
         }
     }
 
-    private func messageView(title: String, systemImage: String, message: String?) -> some View {
+    private func messageView(
+        title: LocalizedStringResource,
+        systemImage: String,
+        message: LocalizedStringResource?) -> some View {
         VStack(spacing: 6) {
             Image(systemName: systemImage)
                 .font(.title2)

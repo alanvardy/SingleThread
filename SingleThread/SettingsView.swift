@@ -89,7 +89,7 @@ struct SettingsView: View {
                             viewModel: viewModel)
                     } label: {
                         SettingsLinkLabel(
-                            title: LocalizedStringKey(SharedStrings.reminder),
+                            title: SharedStrings.reminder,
                             systemImage: "bell.badge",
                             caption: "Choose what information is shown with each reminder.")
                     }
@@ -120,8 +120,8 @@ struct SettingsView: View {
                             caption: "Manage the wallpaper and its appearance.")
                     }
                     .accessibilityIdentifier("settingsBackgroundRow")
-                    let purchaseTitle = LocalizedStringKey(
-                        entitlementStore.isEntitled ? "Manage Purchase" : "Unlock")
+                    let purchaseTitle: LocalizedStringResource =
+                        entitlementStore.isEntitled ? "Manage Purchase" : "Unlock"
                     let purchaseIcon = entitlementStore.isEntitled ? "checkmark.seal" : "lock.open"
                     NavigationLink {
                         PurchaseSettingsView(entitlementStore: entitlementStore)

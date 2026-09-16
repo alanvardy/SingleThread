@@ -12,90 +12,90 @@ public enum SharedStrings {
     /// Note: "Medium" intentionally stays in two catalogs — App (font-size
     /// picker, es "Mediano") and Core (priority level, es "Media") — same
     /// English word, different UI contexts and translations. Not deduplicated.
-    public static var completeAction: String {
-        String(localized: "Complete", table: "Localizable", bundle: .module)
+    public static var completeAction: LocalizedStringResource {
+        LocalizedStringResource("Complete", table: "Localizable", bundle: .module)
     }
 
     // periphery:ignore
     /// "Complete Reminder" (title case) — used by macOS command menus and menu bar.
-    public static var completeReminder: String {
-        String(localized: "Complete Reminder", table: "Localizable", bundle: .module)
+    public static var completeReminder: LocalizedStringResource {
+        LocalizedStringResource("Complete Reminder", table: "Localizable", bundle: .module)
     }
 
     /// "Reminder" — used by confirmation dialogs, navigation titles, and macOS command menus.
-    public static var reminder: String {
-        String(localized: "Reminder", table: "Localizable", bundle: .module)
+    public static var reminder: LocalizedStringResource {
+        LocalizedStringResource("Reminder", table: "Localizable", bundle: .module)
     }
 
-    public static var skipAction: String {
-        String(localized: "Skip", table: "Localizable", bundle: .module)
+    public static var skipAction: LocalizedStringResource {
+        LocalizedStringResource("Skip", table: "Localizable", bundle: .module)
     }
 
     // periphery:ignore
     /// "Skip Reminder" (title case) — used by macOS command menus and menu bar.
-    public static var skipReminder: String {
-        String(localized: "Skip Reminder", table: "Localizable", bundle: .module)
+    public static var skipReminder: LocalizedStringResource {
+        LocalizedStringResource("Skip Reminder", table: "Localizable", bundle: .module)
     }
 
-    public static var deleteAction: String {
-        String(localized: "Delete", table: "Localizable", bundle: .module)
+    public static var deleteAction: LocalizedStringResource {
+        LocalizedStringResource("Delete", table: "Localizable", bundle: .module)
     }
 
     /// Nudge banner title: a reminder has been skipped more than five times.
-    public static var skipNudgeTitle: String {
-        String(localized: "Skipped 6 times", table: "Localizable", bundle: .module)
+    public static var skipNudgeTitle: LocalizedStringResource {
+        LocalizedStringResource("Skipped 6 times", table: "Localizable", bundle: .module)
     }
 
-    public static var completeReminderAccessibility: String {
-        String(localized: "Complete reminder", table: "Localizable", bundle: .module)
+    public static var completeReminderAccessibility: LocalizedStringResource {
+        LocalizedStringResource("Complete reminder", table: "Localizable", bundle: .module)
     }
 
-    public static var skipReminderAccessibility: String {
-        String(localized: "Skip reminder", table: "Localizable", bundle: .module)
+    public static var skipReminderAccessibility: LocalizedStringResource {
+        LocalizedStringResource("Skip reminder", table: "Localizable", bundle: .module)
     }
 
-    public static var deleteReminderAccessibility: String {
-        String(localized: "Delete reminder", table: "Localizable", bundle: .module)
+    public static var deleteReminderAccessibility: LocalizedStringResource {
+        LocalizedStringResource("Delete reminder", table: "Localizable", bundle: .module)
     }
 
-    public static var completionGlow: String {
-        String(localized: "Completion glow", table: "Localizable", bundle: .module)
+    public static var completionGlow: LocalizedStringResource {
+        LocalizedStringResource("Completion glow", table: "Localizable", bundle: .module)
     }
 
-    public static var allDone: String {
-        String(localized: "All Done", table: "Localizable", bundle: .module)
+    public static var allDone: LocalizedStringResource {
+        LocalizedStringResource("All Done", table: "Localizable", bundle: .module)
     }
 
-    public static var noReminders: String {
-        String(localized: "No Reminders", table: "Localizable", bundle: .module)
+    public static var noReminders: LocalizedStringResource {
+        LocalizedStringResource("No Reminders", table: "Localizable", bundle: .module)
     }
 
-    public static var repeats: String {
-        String(localized: "Repeats", table: "Localizable", bundle: .module)
+    public static var repeats: LocalizedStringResource {
+        LocalizedStringResource("Repeats", table: "Localizable", bundle: .module)
     }
 
-    public static var alert: String {
-        String(localized: "Alert", table: "Localizable", bundle: .module)
+    public static var alert: LocalizedStringResource {
+        LocalizedStringResource("Alert", table: "Localizable", bundle: .module)
     }
 
-    public static var remindersAccess: String {
-        String(localized: "Reminders Access", table: "Localizable", bundle: .module)
+    public static var remindersAccess: LocalizedStringResource {
+        LocalizedStringResource("Reminders Access", table: "Localizable", bundle: .module)
     }
 
-    public static var requestingAccess: String {
-        String(localized: "Requesting access…", table: "Localizable", bundle: .module)
+    public static var requestingAccess: LocalizedStringResource {
+        LocalizedStringResource("Requesting access…", table: "Localizable", bundle: .module)
     }
 
-    public static var nothingDueRightNow: String {
-        String(localized: "Nothing due right now", table: "Localizable", bundle: .module)
+    public static var nothingDueRightNow: LocalizedStringResource {
+        LocalizedStringResource("Nothing due right now", table: "Localizable", bundle: .module)
     }
 
-    public static var noRemindersYet: String {
-        String(localized: "No reminders yet", table: "Localizable", bundle: .module)
+    public static var noRemindersYet: LocalizedStringResource {
+        LocalizedStringResource("No reminders yet", table: "Localizable", bundle: .module)
     }
 
-    public static func priorityAccessibilityLabel(_ levelName: String) -> String {
-        String(localized: "\(levelName) priority", table: "Localizable", bundle: .module)
+    public static func priorityAccessibilityLabel(_ levelName: LocalizedStringResource) -> LocalizedStringResource {
+        LocalizedStringResource("\(levelName) priority", table: "Localizable", bundle: .module)
     }
 }
 

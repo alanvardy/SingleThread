@@ -20,7 +20,7 @@ struct SettingsCaption: View {
 /// NavigationLink label with a title, system image, and caption subtitle.
 /// Used for the eight root settings rows.
 struct SettingsLinkLabel: View {
-    let title: LocalizedStringKey
+    let title: LocalizedStringResource
     let systemImage: String
     let caption: LocalizedStringKey
 

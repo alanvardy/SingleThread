@@ -67,4 +67,18 @@ struct AppLanguageTests {
     func systemTitleLocalizesThroughTheCatalog() {
         #expect(AppLanguage.system.title.resolved(in: Locale(identifier: "de")) == "System")
     }
+
+    @Test
+    func sharedStringResolvesToEveryShippedLanguage() {
+        let expected: [String: String] = [
+            "en": "Skip", "zh-Hans": "跳过", "es": "Omitir",
+            "ja": "スキップ", "de": "Überspringen", "fr": "Passer"
+        ]
+        // SharedStrings.skipAction is a resource in Phase 2.
+        for (identifier, value) in expected {
+            #expect(
+                SharedStrings.skipAction.resolved(in: Locale(identifier: identifier)) == value,
+                "Skip in \(identifier)")
+        }
+    }
 }

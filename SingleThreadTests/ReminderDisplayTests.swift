@@ -149,7 +149,7 @@ struct ReminderDisplayTests {
         let display = ReminderDisplay(reminder: reminder)
         #expect(display.hasRecurrence == spec.expectedHasRecurrence, "has-recurrence for rule added: \(spec.addsRule)")
         #expect(
-            display.recurrenceSummary == spec.expectedSummary,
+            display.recurrenceSummary?.resolved(in: Locale(identifier: "en")) == spec.expectedSummary,
             "summary for rule added: \(spec.addsRule)")
     }
 }

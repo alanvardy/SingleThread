@@ -27,7 +27,7 @@ public struct ReminderDisplay: Equatable, Sendable {
         priorityMarker: String = "",
         listName: String? = nil,
         hasRecurrence: Bool = false,
-        recurrenceSummary: String? = nil,
+        recurrenceSummary: LocalizedStringResource? = nil,
         hasAlarms: Bool = false) {
         self.title = title
         self.notes = notes
@@ -47,7 +47,7 @@ public struct ReminderDisplay: Equatable, Sendable {
     public let priorityMarker: String
     public let listName: String?
     public let hasRecurrence: Bool
-    public let recurrenceSummary: String?
+    public let recurrenceSummary: LocalizedStringResource?
     public let hasAlarms: Bool
 
     // MARK: Attributed variants

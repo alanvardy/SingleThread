@@ -43,9 +43,9 @@ final class ContentViewModel {
 
     /// Copy + icon describing why the reminder list has nothing to show.
     struct EmptyStateCopy {
-        let title: String
+        let title: LocalizedStringResource
         let systemImage: String
-        let description: String
+        let description: LocalizedStringResource
     }
 
     let store: ReminderStore
@@ -102,18 +102,18 @@ final class ContentViewModel {
     static func emptyStateCopy(hasHidden: Bool) -> EmptyStateCopy {
         if hasHidden {
             return EmptyStateCopy(
-                title: String(localized: "Nothing due", table: "Localizable", bundle: .main),
+                title: LocalizedStringResource("Nothing due", table: "Localizable", bundle: .main),
                 systemImage: "calendar",
-                description: String(
-                    localized: hiddenRemindersDescription,
+                description: LocalizedStringResource(
+                    hiddenRemindersDescription,
                     table: "Localizable",
                     bundle: .main))
         }
         return EmptyStateCopy(
             title: SharedStrings.noReminders,
             systemImage: "checklist",
-            description: String(
-                localized: "You don't have any reminders yet.",
+            description: LocalizedStringResource(
+                "You don't have any reminders yet.",
                 table: "Localizable",
                 bundle: .main))
     }
@@ -122,8 +122,8 @@ final class ContentViewModel {
         EmptyStateCopy(
             title: SharedStrings.allDone,
             systemImage: "checkmark.circle",
-            description: String(
-                localized: allDoneDescription,
+            description: LocalizedStringResource(
+                allDoneDescription,
                 table: "Localizable",
                 bundle: .main))
     }

@@ -631,18 +631,18 @@ for this phase.
 ### Verification
 
 #### Automated
-- [ ] `scripts/test-one.sh SingleThreadTests/LocalizationTests` — green
+- [x] `scripts/test-one.sh SingleThreadTests/LocalizationTests` — green
       (proves the catalogs still satisfy the six-language + plural invariants).
-- [ ] `scripts/test-one.sh SingleThreadTests/AppLanguageTests` — green incl.
+- [x] `scripts/test-one.sh SingleThreadTests/AppLanguageTests` — green incl.
       `sharedStringResolvesToEveryShippedLanguage`.
-- [ ] `scripts/test-one.sh SingleThreadTests/ReminderRecurrenceFormatterTests` +
+- [x] `scripts/test-one.sh SingleThreadTests/ReminderRecurrenceFormatterTests` +
       `ReminderDisplayTests` + `ShowRecurrenceTests` + `SingleThreadTests` +
       `ReminderSkipTests` — green.
-- [ ] `make watch-build` — proves the watch consumers adapted to the resource
+- [x] `make watch-build` — proves the watch consumers adapted to the resource
       shape (`watch-build` builds the watch target; the widget builds with the
       app).
-- [ ] `make build` — the widget/app consumers compile.
-- [ ] `make format && make lint` — clean.
+- [x] `make build` — the widget/app consumers compile.
+- [x] `make format && make lint` — clean.
 
 #### Manual
 - [ ] Launch, pick Deutsch: the main screen’s Complete/Skip/Delete/All Done/No

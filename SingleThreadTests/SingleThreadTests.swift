@@ -33,37 +33,39 @@ struct SingleThreadTests {
     @Test
     func contentViewEmptyStatesShowDistinctCopy() {
         let emptyCopy = ContentViewModel.emptyStateCopy(hasHidden: false)
-        #expect(emptyCopy.title == String.en("No Reminders", bundle: .core))
+        #expect(emptyCopy.title.resolved(in: Locale(identifier: "en")) == String.en("No Reminders", bundle: .core))
         #expect(emptyCopy.systemImage == "checklist")
-        #expect(emptyCopy.description == String.en(
+        #expect(emptyCopy.description.resolved(in: Locale(identifier: "en")) == String.en(
             "You don't have any reminders yet.", bundle: .main, table: "Localizable"))
 
         let nothingDueCopy = ContentViewModel.emptyStateCopy(hasHidden: true)
-        #expect(nothingDueCopy.title == String.en("Nothing due", bundle: .main))
+        #expect(nothingDueCopy.title.resolved(in: Locale(identifier: "en")) == String.en("Nothing due", bundle: .main))
         #expect(nothingDueCopy.systemImage == "calendar")
         #if os(macOS)
-            #expect(nothingDueCopy.description == String.en(
+            #expect(nothingDueCopy.description.resolved(in: Locale(identifier: "en")) == String.en(
                 "Only today's and overdue reminders show here — press the refresh button in the top left corner.",
                 bundle: .main, table: "Localizable"))
         #else
-            #expect(nothingDueCopy.description == String.en(
+            #expect(nothingDueCopy.description.resolved(in: Locale(identifier: "en")) == String.en(
                 "Only today's and overdue reminders show here — pull to refresh.",
                 bundle: .main, table: "Localizable"))
         #endif
-        #expect(emptyCopy.title != nothingDueCopy.title)
+        #expect(
+            emptyCopy.title.resolved(in: Locale(identifier: "en"))
+                != nothingDueCopy.title.resolved(in: Locale(identifier: "en")))
     }
 
     @Test
     func contentViewAllDoneShowsAllDoneCopy() {
         let allDoneCopy = ContentViewModel.allDoneStateCopy()
-        #expect(allDoneCopy.title == String.en("All Done", bundle: .core))
+        #expect(allDoneCopy.title.resolved(in: Locale(identifier: "en")) == String.en("All Done", bundle: .core))
         #expect(allDoneCopy.systemImage == "checkmark.circle")
         #if os(macOS)
-            #expect(allDoneCopy.description == String.en(
+            #expect(allDoneCopy.description.resolved(in: Locale(identifier: "en")) == String.en(
                 "Press the refresh button in the top left corner to see all your reminders again.",
                 bundle: .main, table: "Localizable"))
         #else
-            #expect(allDoneCopy.description == String.en(
+            #expect(allDoneCopy.description.resolved(in: Locale(identifier: "en")) == String.en(
                 "Pull to refresh to see all your reminders again.",
                 bundle: .main, table: "Localizable"))
         #endif
