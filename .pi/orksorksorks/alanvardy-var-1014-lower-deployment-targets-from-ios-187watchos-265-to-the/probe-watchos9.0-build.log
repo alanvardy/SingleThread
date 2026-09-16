@@ -1,0 +1,583 @@
+xcodebuild -scheme SingleThreadWatch -destination 'generic/platform=watchOS Simulator' -configuration Debug -derivedDataPath 'DerivedData' build
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild -scheme SingleThreadWatch -destination "generic/platform=watchOS Simulator" -configuration Debug -derivedDataPath DerivedData build
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  SingleThreadCore: /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore @ local
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (4 targets)
+    Target 'SingleThreadWatch' in project 'SingleThread'
+        ➜ Explicit dependency on target 'SingleThreadCore-product' in project 'SingleThreadCore'
+    Target 'SingleThreadCore-product' in project 'SingleThreadCore'
+        ➜ Explicit dependency on target 'SingleThreadCore' in project 'SingleThreadCore'
+        ➜ Explicit dependency on target 'SingleThreadCore_SingleThreadCore' in project 'SingleThreadCore'
+    Target 'SingleThreadCore' in project 'SingleThreadCore'
+        ➜ Explicit dependency on target 'SingleThreadCore_SingleThreadCore' in project 'SingleThreadCore'
+    Target 'SingleThreadCore_SingleThreadCore' in project 'SingleThreadCore' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/Resources/Localizable.xcstrings
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadWatch/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --dry-run --output-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchsimulator/SingleThreadWatch.build /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadWatch/Resources/Localizable.xcstrings
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+Build description signature: 17d5606e43bdaa08b8e5c73fb1bc2e4f
+Build description path: /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/XCBuildData/17d5606e43bdaa08b8e5c73fb1bc2e4f.xcbuilddata
+ClangStatCache /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/watchsimulator27.0-24R360-c50668d93734557a32a78b937f5ceaf1.sdkstatcache
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang-stat-cache /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/watchsimulator27.0-24R360-c50668d93734557a32a78b937f5ceaf1.sdkstatcache
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/SingleThreadCore_SingleThreadCore.DependencyMetadataFileList (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/SingleThreadCore_SingleThreadCore.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/empty-SingleThreadCore_SingleThreadCore.plist (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/empty-SingleThreadCore_SingleThreadCore.plist
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/SingleThreadCore_SingleThreadCore.DependencyStaticMetadataFileList (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/SingleThreadCore_SingleThreadCore.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/SingleThreadCore.DependencyMetadataFileList (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/SingleThreadCore.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/SingleThreadCore.modulemap (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/SingleThreadCore.modulemap
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/SingleThreadCore.DependencyStaticMetadataFileList (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/SingleThreadCore.DependencyStaticMetadataFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore_const_extract_protocols.json (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore.SwiftFileList (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore.SwiftFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore.LinkFileList (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore.LinkFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore.SwiftConstValuesFileList (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore-OutputFileMap.json (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore_const_extract_protocols.json (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore_const_extract_protocols.json
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore.SwiftFileList (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore.SwiftFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore.SwiftConstValuesFileList (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore.SwiftConstValuesFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore.LinkFileList (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore.LinkFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore-OutputFileMap.json (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore-OutputFileMap.json
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources/resource_bundle_accessor.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources/resource_bundle_accessor.swift
+
+Copy /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/GeneratedModuleMaps-watchsimulator/SingleThreadCore.modulemap /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/SingleThreadCore.modulemap (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copy -exclude .DS_Store -exclude CVS -exclude .svn -exclude .git -exclude .hg -resolve-src-symlinks /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/SingleThreadCore.modulemap /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/GeneratedModuleMaps-watchsimulator
+
+MkDir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    /bin/mkdir -p /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchsimulator/SingleThreadWatch.build/SingleThreadWatch.DependencyMetadataFileList (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchsimulator/SingleThreadWatch.build/SingleThreadWatch.DependencyMetadataFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchsimulator/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch.LinkFileList (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchsimulator/SingleThreadWatch.build/Objects-normal/arm64/SingleThreadWatch.LinkFileList
+
+WriteAuxiliaryFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchsimulator/SingleThreadWatch.build/Objects-normal/x86_64/SingleThreadWatch.LinkFileList (in target 'SingleThreadWatch' from project 'SingleThread')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the
+    write-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThread.build/Debug-watchsimulator/SingleThreadWatch.build/Objects-normal/x86_64/SingleThreadWatch.LinkFileList
+
+ProcessInfoPlistFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/Info.plist /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/empty-SingleThreadCore_SingleThreadCore.plist (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-infoPlistUtility /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/empty-SingleThreadCore_SingleThreadCore.plist -producttype com.apple.product-type.bundle -expandbuildsettings -format binary -platform watchsimulator -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/Info.plist
+
+CompileXCStrings /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/ /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/Resources/Localizable.xcstrings (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcstringstool compile --output-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/Resources/Localizable.xcstrings
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/zh-Hans.lproj/Localizable.stringsdict /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/zh-Hans.lproj/Localizable.stringsdict (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.stringsdict --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/zh-Hans.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/zh-Hans.lproj/Localizable.stringsdict
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/zh-Hans.lproj/Localizable.stringsdict:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/zh-Hans.lproj/Localizable.strings /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/zh-Hans.lproj/Localizable.strings (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/zh-Hans.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/zh-Hans.lproj/Localizable.strings
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/zh-Hans.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/fr.lproj/Localizable.stringsdict /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/fr.lproj/Localizable.stringsdict (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.stringsdict --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/fr.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/fr.lproj/Localizable.stringsdict
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/fr.lproj/Localizable.stringsdict:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/ja.lproj/Localizable.stringsdict /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/ja.lproj/Localizable.stringsdict (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.stringsdict --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/ja.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/ja.lproj/Localizable.stringsdict
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/ja.lproj/Localizable.stringsdict:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/ja.lproj/Localizable.strings /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/ja.lproj/Localizable.strings (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/ja.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/ja.lproj/Localizable.strings
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/ja.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/fr.lproj/Localizable.strings /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/fr.lproj/Localizable.strings (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/fr.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/fr.lproj/Localizable.strings
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/fr.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/es.lproj/Localizable.strings /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/es.lproj/Localizable.strings (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/es.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/es.lproj/Localizable.strings
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/es.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/es.lproj/Localizable.stringsdict /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/es.lproj/Localizable.stringsdict (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.stringsdict --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/es.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/es.lproj/Localizable.stringsdict
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/es.lproj/Localizable.stringsdict:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/en.lproj/Localizable.stringsdict /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/en.lproj/Localizable.stringsdict (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.stringsdict --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/en.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/en.lproj/Localizable.stringsdict
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/en.lproj/Localizable.stringsdict:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/en.lproj/Localizable.strings /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/en.lproj/Localizable.strings (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/en.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/en.lproj/Localizable.strings
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/en.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/de.lproj/Localizable.stringsdict /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/de.lproj/Localizable.stringsdict (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.stringsdict --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/de.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/de.lproj/Localizable.stringsdict
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/de.lproj/Localizable.stringsdict:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CopyStringsFile /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/de.lproj/Localizable.strings /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/de.lproj/Localizable.strings (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-copyStrings --validate --outputencoding binary --outfilename Localizable.strings --outdir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle/de.lproj -- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/de.lproj/Localizable.strings
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore_SingleThreadCore-b.build/de.lproj/Localizable.strings:1:1: note: detected encoding of input file as Unicode (UTF-8) (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+
+CodeSign /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    
+    Signing Identity:     "Sign to Run Locally"
+    
+    /usr/bin/codesign --force --sign - --timestamp\=none --generate-entitlement-der /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle: replacing existing signature
+
+RegisterExecutionPolicyException /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    builtin-RegisterExecutionPolicyException /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle
+
+Touch /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle (in target 'SingleThreadCore_SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore
+    /usr/bin/touch -c /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadCore_SingleThreadCore.bundle
+
+SwiftDriver SingleThreadCore normal x86_64 com.apple.xcode.tools.swift.compiler (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -parse-as-library -module-name SingleThreadCore -Onone @/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_AVAILABLE -DXcode -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk -target x86_64-apple-watchos9.0-simulator -g -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -index-store-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/usr/lib -F /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk/Developer/Library/Frameworks -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/watchsimulator27.0-24R360-c50668d93734557a32a78b937f5ceaf1.sdkstatcache -output-file-map /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -package-name singlethreadcore -emit-const-values -const-gather-protocols-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore_const_extract_protocols.json -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/include -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources-normal/x86_64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources/x86_64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/x86_64/SingleThreadCore-Swift.h -working-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+SwiftDriver SingleThreadCore normal arm64 com.apple.xcode.tools.swift.compiler (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftDriver -- /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc -parse-as-library -module-name SingleThreadCore -Onone @/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore.SwiftFileList -DSWIFT_PACKAGE -DDEBUG -DSWIFT_MODULE_RESOURCE_BUNDLE_AVAILABLE -DXcode -plugin-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/plugins/testing -enable-experimental-feature DebugDescriptionMacro -sdk /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk -target arm64-apple-watchos9.0-simulator -g -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex -Xfrontend -serialize-debugging-options -profile-coverage-mapping -profile-generate -enable-testing -index-store-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Index.noindex/DataStore -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -swift-version 6 -I /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/usr/lib -F /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk/Developer/Library/Frameworks -c -j12 -enable-batch-mode -incremental -Xcc -ivfsstatcache -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/watchsimulator27.0-24R360-c50668d93734557a32a78b937f5ceaf1.sdkstatcache -output-file-map /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore-OutputFileMap.json -save-temps -no-color-diagnostics -explicit-module-build -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -clang-scanner-module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex -sdk-module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKExplicitPrecompiledModules -emit-dependencies -emit-module -emit-module-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore.swiftmodule -serialize-diagnostics -dependency-scan-serialize-diagnostics-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore-dependency-scan.dia -validate-clang-modules-once -clang-build-session-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -package-name singlethreadcore -emit-const-values -const-gather-protocols-list /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore_const_extract_protocols.json -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/include -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources-normal/arm64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources/arm64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -emit-objc-header -emit-objc-header-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore-Swift.h -working-directory /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj -experimental-emit-module-separately -disable-cmo
+
+SwiftCompile normal arm64 Compiling\ CompletionCounterStore.swift,\ CompletionGlow.swift,\ CompletionMomentumOverlay.swift,\ DailyCompletionStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionCounterStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionMomentumOverlay.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/DailyCompletionStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionCounterStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile CompletionCounterStore.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile CompletionGlow.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionMomentumOverlay.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile CompletionMomentumOverlay.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/DailyCompletionStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile DailyCompletionStore.swift
+
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift:12:2: error: 'Observable()' is only available in watchOS 10.0 or newer
+10 | /// Triggering while active is safe — the timer resets.
+11 | @MainActor
+12 | @Observable
+   |  `- error: 'Observable()' is only available in watchOS 10.0 or newer
+13 | public final class CompletionGlow {
+14 |     // MARK: Lifecycle
+
+macro expansion @Observable:1:2: error: 'ObservationTracked()' is only available in watchOS 10.0 or newer
+`- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift:21:5: note: expanded code originates here
+10 | /// Triggering while active is safe — the timer resets.
+11 | @MainActor
+12 | @Observable
+   | `- note: in expansion of macro 'Observable' on property 'isActive' here
+13 | public final class CompletionGlow {
+   |                    `- note: add '@available' attribute to enclosing class
+14 |     // MARK: Lifecycle
+15 | 
+   :
+19 | 
+20 |     /// `true` while the green overlay should be visible in the view.
+21 |     public private(set) var isActive = false
+   +--- macro expansion @Observable ------------------------------------
+   |1 | @ObservationTracked
+   |  |  `- error: 'ObservationTracked()' is only available in watchOS 10.0 or newer
+   +--------------------------------------------------------------------
+22 | 
+23 |     /// Seconds the glow stays visible before auto‑dismissing.
+
+macro expansion @Observable:1:2: error: 'ObservationTracked()' is only available in watchOS 10.0 or newer
+`- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift:27:5: note: expanded code originates here
+10 | /// Triggering while active is safe — the timer resets.
+11 | @MainActor
+12 | @Observable
+   | `- note: in expansion of macro 'Observable' on property 'duration' here
+13 | public final class CompletionGlow {
+   |                    `- note: add '@available' attribute to enclosing class
+14 |     // MARK: Lifecycle
+15 | 
+   :
+25 |     /// animation envelope on watchOS otherwise fades the glow out before
+26 |     /// it is perceptible.
+27 |     public var duration: TimeInterval = 0.50
+   +--- macro expansion @Observable ------------------------------------
+   |1 | @ObservationTracked
+   |  |  `- error: 'ObservationTracked()' is only available in watchOS 10.0 or newer
+   +--------------------------------------------------------------------
+28 | 
+29 |     /// Shows the glow, resetting the auto‑dismiss timer if already active.
+
+SwiftCompile normal arm64 Compiling\ EntitlementState.swift,\ EntitlementStore.swift,\ EventKitStoring.swift,\ EventStoreChangedObserver.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EntitlementState.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EventKitStoring.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EventStoreChangedObserver.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EntitlementState.swift:9:2: error: 'Observable()' is only available in watchOS 10.0 or newer
+ 7 | /// the watch, so it only lives for the current process.
+ 8 | @MainActor
+ 9 | @Observable
+   |  `- error: 'Observable()' is only available in watchOS 10.0 or newer
+10 | public final class EntitlementState {
+11 |     // MARK: Lifecycle
+
+macro expansion @Observable:1:2: error: 'ObservationTracked()' is only available in watchOS 10.0 or newer
+`- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EntitlementState.swift:17:5: note: expanded code originates here
+ 7 | /// the watch, so it only lives for the current process.
+ 8 | @MainActor
+ 9 | @Observable
+   | `- note: in expansion of macro 'Observable' on property 'isEnabled' here
+10 | public final class EntitlementState {
+   |                    `- note: add '@available' attribute to enclosing class
+11 |     // MARK: Lifecycle
+12 | 
+   :
+15 |     // MARK: Public
+16 | 
+17 |     public private(set) var isEnabled: Bool = false
+   +--- macro expansion @Observable ------------------------------------
+   |1 | @ObservationTracked
+   |  |  `- error: 'ObservationTracked()' is only available in watchOS 10.0 or newer
+   +--------------------------------------------------------------------
+18 | 
+19 |     public func apply(_ value: Bool) {
+
+macro expansion @Observable:1:2: error: 'ObservationIgnored()' is only available in watchOS 10.0 or newer
+`- /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EntitlementState.swift:22:1: note: expanded code originates here
+ 7 | /// the watch, so it only lives for the current process.
+ 8 | @MainActor
+ 9 | @Observable
+   | `- note: in expansion of macro 'Observable' on class 'EntitlementState' here
+10 | public final class EntitlementState {
+   |                    `- note: add '@available' attribute to enclosing class
+11 |     // MARK: Lifecycle
+12 | 
+   :
+20 |         isEnabled = value
+21 |     }
+22 | }
+   +--- macro expansion @Observable ------------------------------------
+   | 1 | @ObservationIgnored private let _$observationRegistrar = Observation.ObservationRegistrar()
+   |   |  `- error: 'ObservationIgnored()' is only available in watchOS 10.0 or newer
+   | 2 | 
+   | 3 | internal nonisolated func access<$s16SingleThreadCore16EntitlementState10ObservablefMm_6MemberfMu_>(
+   +--------------------------------------------------------------------
+23 | 
+
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EntitlementState.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile EntitlementState.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile EntitlementStore.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EventKitStoring.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile EventKitStoring.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EventStoreChangedObserver.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile EventStoreChangedObserver.swift
+
+SwiftCompile normal arm64 Compiling\ AppearanceModePreference.swift,\ BoolPreferenceKey.swift,\ BoolPreferenceStore.swift,\ CodeSpanFormatter.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/AppearanceModePreference.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/BoolPreferenceKey.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/BoolPreferenceStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CodeSpanFormatter.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/AppearanceModePreference.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile AppearanceModePreference.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/BoolPreferenceKey.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile BoolPreferenceKey.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/BoolPreferenceStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile BoolPreferenceStore.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CodeSpanFormatter.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile CodeSpanFormatter.swift
+
+SwiftCompile normal arm64 Compiling\ ExcludedListStore.swift,\ InMemoryEventStore.swift,\ ListContent.swift,\ LocalizedString+Shared.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ExcludedListStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/InMemoryEventStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ListContent.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/LocalizedString+Shared.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/InMemoryEventStore.swift:38:10: error: 'fullAccess' is only available in watchOS 10.0 or newer
+ 11 | /// mirror `predicateForIncompleteReminders`).
+ 12 | @MainActor
+ 13 | public final class InMemoryEventStore: EventKitStoring {
+    |                    `- note: add '@available' attribute to enclosing class
+ 14 |     // MARK: Lifecycle
+ 15 | 
+    :
+ 35 |     // MARK: EventKitStoring
+ 36 | 
+ 37 |     public func authorizationStatus(for _: EKEntityType) -> EKAuthorizationStatus {
+    |                 `- note: add '@available' attribute to enclosing instance method
+ 38 |         .fullAccess
+    |          |- error: 'fullAccess' is only available in watchOS 10.0 or newer
+    |          `- note: add 'if #available' version check
+ 39 |     }
+ 40 | 
+Failed frontend command:
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swift-frontend -frontend -c /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources/resource_bundle_accessor.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ActionMenuGate.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/AppGroup.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/AppInfo.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/AppearanceModePreference.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/BoolPreferenceKey.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/BoolPreferenceStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CodeSpanFormatter.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionCounterStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionMomentumOverlay.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/DailyCompletionStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EntitlementState.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EntitlementStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EventKitStoring.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/EventStoreChangedObserver.swift -primary-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ExcludedListStore.swift -primary-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/InMemoryEventStore.swift -primary-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ListContent.swift -primary-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/LocalizedString+Shared.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/MinimumDisplayDuration.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/NotificationPreference.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/NotificationScheduler.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/OrientationPreference.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/PendingCompletionLogic.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/PendingCompletionStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/PreferenceHolder.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDateFilter.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDeepLink.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDictationParser.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDisplay.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderIntents.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderRecurrenceFormatter.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderSkip.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderSort.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ResumptionGate.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/SkipCountStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/SortOption.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/StaleReminderRechecker.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/TranscriptionAccumulator.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/UITestingSeed.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/UndoStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/UserNotificationCentering.swift -supplementary-output-file-map /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/supplementaryOutputs-10 -target arm64-apple-watchos9.0-simulator -module-can-import-version SwiftUI 8.0.84.1 8.0.84 -module-can-import-version UIKit 9127.0.84.1 9127.0.84 -disable-cross-import-overlay-search -swift-module-cross-import AppIntents /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator.sdk/System/Library/Frameworks/AppIntents.framework/Modules/AppIntents.swiftcrossimport/HealthKit.swiftoverlay -swift-module-cross-import AppIntents /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator.sdk/System/Library/Frameworks/AppIntents.framework/Modules/AppIntents.swiftcrossimport/SwiftUI.swiftoverlay -swift-module-cross-import AppIntents /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator.sdk/System/Library/Frameworks/AppIntents.framework/Modules/AppIntents.swiftcrossimport/UIKit.swiftoverlay -swift-module-cross-import AppIntents /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk/System/Library/Frameworks/AppIntents.framework/Modules/AppIntents.swiftcrossimport/HealthKit.swiftoverlay -swift-module-cross-import AppIntents /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk/System/Library/Frameworks/AppIntents.framework/Modules/AppIntents.swiftcrossimport/SwiftUI.swiftoverlay -swift-module-cross-import AppIntents /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk/System/Library/Frameworks/AppIntents.framework/Modules/AppIntents.swiftcrossimport/UIKit.swiftoverlay -swift-module-cross-import RelevanceKit /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator.sdk/System/Library/Frameworks/RelevanceKit.framework/Modules/RelevanceKit.swiftcrossimport/MapKit.swiftoverlay -swift-module-cross-import RelevanceKit /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk/System/Library/Frameworks/RelevanceKit.framework/Modules/RelevanceKit.swiftcrossimport/MapKit.swiftoverlay -swift-module-cross-import StoreKit /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator.sdk/System/Library/Frameworks/StoreKit.framework/Modules/StoreKit.swiftcrossimport/SwiftUI.swiftoverlay -swift-module-cross-import StoreKit /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk/System/Library/Frameworks/StoreKit.framework/Modules/StoreKit.swiftcrossimport/SwiftUI.swiftoverlay -swift-module-cross-import UserNotifications /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator.sdk/System/Library/Frameworks/UserNotifications.framework/Modules/UserNotifications.swiftcrossimport/AppIntents.swiftoverlay -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/lib/swift/host/plugins/libAppIntentsMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/bin/swift-plugin-server\#AppIntentsMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/lib/swift/host/plugins/libFoundationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/bin/swift-plugin-server\#FoundationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/lib/swift/host/plugins/libObservationMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/bin/swift-plugin-server\#ObservationMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/lib/swift/host/plugins/libPreviewsMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/bin/swift-plugin-server\#PreviewsMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftMacros -load-resolved-plugin /Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/lib/swift/host/plugins/libSwiftUIMacros.dylib\#/Applications/Xcode.app/Contents/Developer/Platforms/WatchOS.platform/Developer/usr/bin/swift-plugin-server\#SwiftUIMacros -disable-implicit-swift-modules -Xcc -fno-implicit-modules -Xcc -fno-implicit-module-maps -explicit-swift-module-map-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore-dependencies-1.json -Xllvm -aarch64-use-tbi -enable-objc-interop -sdk /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk -I /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator -Isystem /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/usr/lib -F /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator -F /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/Library/Frameworks -F /Applications/Xcode.app/Contents/Developer/Platforms/WatchSimulator.platform/Developer/SDKs/WatchSimulator27.0.sdk/Developer/Library/Frameworks -module-cache-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules -no-color-diagnostics -Xcc -fno-color-diagnostics -enable-testing -g -debug-info-format\=dwarf -dwarf-version\=4 -profile-generate -profile-coverage-mapping -swift-version 6 -Onone -D SWIFT_PACKAGE -D DEBUG -D SWIFT_MODULE_RESOURCE_BUNDLE_AVAILABLE -D Xcode -serialize-debugging-options -enable-experimental-feature DebugDescriptionMacro -empty-abi-descriptor -validate-clang-modules-once -clang-build-session-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/ModuleCache.noindex/Session.modulevalidation -Xcc -working-directory -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj -enable-anonymous-context-mangled-names -file-compilation-dir /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj -Xcc -D_LIBCPP_HARDENING_MODE\=_LIBCPP_HARDENING_MODE_DEBUG -Xcc -ivfsstatcache -Xcc /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKStatCaches.noindex/watchsimulator27.0-24R360-c50668d93734557a32a78b937f5ceaf1.sdkstatcache -Xcc -fmodules-prune-interval\=86400 -Xcc -fmodules-prune-after\=345600 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/include -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources-normal/arm64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources/arm64 -Xcc -I/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/DerivedSources -Xcc -DSWIFT_PACKAGE -Xcc -DDEBUG\=1 -no-auto-bridging-header-chaining -module-name SingleThreadCore -package-name singlethreadcore -const-gather-protocols-file /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore_const_extract_protocols.json -disable-clang-spi -clang-target arm64-apple-watchos27.0-simulator -target-sdk-version 27.0 -target-sdk-name watchsimulator27.0 -in-process-plugin-server-path /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/lib/swift/host/libSwiftInProcPluginServer.dylib -parse-as-library -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/ExcludedListStore.o -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/InMemoryEventStore.o -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/ListContent.o -o /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/LocalizedString+Shared.o -debug-module-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/SingleThreadCore.swiftmodule -index-unit-output-path /SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/ExcludedListStore.o -index-unit-output-path /SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/InMemoryEventStore.o -index-unit-output-path /SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/ListContent.o -index-unit-output-path /SingleThreadCore.build/Debug-watchsimulator/SingleThreadCore-t.build/Objects-normal/arm64/LocalizedString+Shared.o -index-store-path /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Index.noindex/DataStore -index-system-modules
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ExcludedListStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ExcludedListStore.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/InMemoryEventStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile InMemoryEventStore.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ListContent.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ListContent.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/LocalizedString+Shared.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile LocalizedString+Shared.swift
+
+SwiftCompile normal arm64 Compiling\ ReminderDeepLink.swift,\ ReminderDictationParser.swift,\ ReminderDisplay.swift,\ ReminderIntents.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDeepLink.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDictationParser.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDisplay.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderIntents.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDeepLink.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ReminderDeepLink.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDictationParser.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ReminderDictationParser.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDisplay.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ReminderDisplay.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderIntents.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ReminderIntents.swift
+
+SwiftCompile normal arm64 Compiling\ PendingCompletionLogic.swift,\ PendingCompletionStore.swift,\ PreferenceHolder.swift,\ ReminderDateFilter.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/PendingCompletionLogic.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/PendingCompletionStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/PreferenceHolder.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDateFilter.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/PendingCompletionLogic.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile PendingCompletionLogic.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/PendingCompletionStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile PendingCompletionStore.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/PreferenceHolder.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile PreferenceHolder.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderDateFilter.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ReminderDateFilter.swift
+
+SwiftCompile normal arm64 Compiling\ ResumptionGate.swift,\ SkipCountStore.swift,\ SkippedReminderSyncService.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ResumptionGate.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/SkipCountStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ResumptionGate.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ResumptionGate.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/SkipCountStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile SkipCountStore.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/SkippedReminderSyncService.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile SkippedReminderSyncService.swift
+
+SwiftCompile normal arm64 Compiling\ ReminderRecurrenceFormatter.swift,\ ReminderSkip.swift,\ ReminderSort.swift,\ ReminderStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderRecurrenceFormatter.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderSkip.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderSort.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderRecurrenceFormatter.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ReminderRecurrenceFormatter.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderSkip.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ReminderSkip.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderSort.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ReminderSort.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ReminderStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile ReminderStore.swift
+
+SwiftEmitModule normal arm64 Emitting\ module\ for\ SingleThreadCore (in target 'SingleThreadCore' from project 'SingleThreadCore')
+/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CompletionGlow.swift:12:2: error: 'Observable()' is only available in watchOS 10.0 or newer
+10 | /// Triggering while active is safe — the timer resets.
+11 | @MainActor
+12 | @Observable
+   |  `- error: 'Observable()' is only available in watchOS 10.0 or newer
+13 | public final class CompletionGlow {
+14 |     // MARK: Lifecycle
+
+
+SwiftCompile normal arm64 (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    
+
+SwiftCompile normal arm64 Compiling\ SortOption.swift,\ StaleReminderRechecker.swift,\ TranscriptionAccumulator.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/SortOption.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/StaleReminderRechecker.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/TranscriptionAccumulator.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/SortOption.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile SortOption.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/StaleReminderRechecker.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile StaleReminderRechecker.swift
+
+SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/TranscriptionAccumulator.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile TranscriptionAccumulator.swift
+
+SwiftEmitModule normal x86_64 Emitting\ module\ for\ SingleThreadCore (in target 'SingleThreadCore' from project 'SingleThreadCore')
+
+SwiftCompile normal x86_64 (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    
+
+SwiftCompile normal x86_64 Compiling\ AppearanceModePreference.swift,\ BoolPreferenceKey.swift,\ BoolPreferenceStore.swift,\ CodeSpanFormatter.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/AppearanceModePreference.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/BoolPreferenceKey.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/BoolPreferenceStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CodeSpanFormatter.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+
+SwiftCompile normal x86_64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/AppearanceModePreference.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile AppearanceModePreference.swift
+
+SwiftCompile normal x86_64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/BoolPreferenceKey.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile BoolPreferenceKey.swift
+
+SwiftCompile normal x86_64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/BoolPreferenceStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile BoolPreferenceStore.swift
+
+SwiftCompile normal x86_64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/CodeSpanFormatter.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile CodeSpanFormatter.swift
+
+SwiftCompile normal x86_64 Compiling\ MinimumDisplayDuration.swift,\ NotificationPreference.swift,\ NotificationScheduler.swift,\ OrientationPreference.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/MinimumDisplayDuration.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/NotificationPreference.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/NotificationScheduler.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/OrientationPreference.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+
+SwiftCompile normal x86_64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/MinimumDisplayDuration.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile MinimumDisplayDuration.swift
+
+SwiftCompile normal x86_64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/NotificationPreference.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile NotificationPreference.swift
+
+SwiftCompile normal x86_64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/NotificationScheduler.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile NotificationScheduler.swift
+
+SwiftCompile normal x86_64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/OrientationPreference.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+    cd /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThread.xcodeproj
+    builtin-SwiftPerFileCompile OrientationPreference.swift
+
+PruneExplicitPrecompiledModules /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/SwiftExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/SDKExplicitPrecompiledModules
+
+PruneExplicitPrecompiledModules /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Intermediates.noindex/ExplicitPrecompiledModules
+
+note: Removed stale file '/Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/DerivedData/Build/Products/Debug-watchsimulator/SingleThreadWatch.app/Frameworks'
+
+** BUILD FAILED **
+
+
+The following build commands failed:
+	SwiftCompile normal arm64 Compiling\ ExcludedListStore.swift,\ InMemoryEventStore.swift,\ ListContent.swift,\ LocalizedString+Shared.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ExcludedListStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/InMemoryEventStore.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/ListContent.swift /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/LocalizedString+Shared.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+	SwiftCompile normal arm64 /Users/vardy/dev/alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the/SingleThreadCore/Sources/SingleThreadCore/InMemoryEventStore.swift (in target 'SingleThreadCore' from project 'SingleThreadCore')
+	Building project SingleThread with scheme SingleThreadWatch and configuration Debug
+(3 failures)
+make: *** [watch-build] Error 65

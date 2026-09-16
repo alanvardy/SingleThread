@@ -1,0 +1,19 @@
+==> Using this worktree's simulator BFB5C8FB-5ED5-48AD-9149-298E20FCB4E6
+Monitoring boot status for sim-alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the (BFB5C8FB-5ED5-48AD-9149-298E20FCB4E6).
+Device already booted, nothing to do.
+
+==> Pruning XCTest runtimes older than 1h…
+==> Removed 1 stale runtime director(ies).
+==> Verifying deployment targets / package floors
+    (iOS 17.0, watchOS 10.0, macOS 26.5)…
+    ✗ WATCHOS = 11.0 (expected 10.0)
+    ✗ WATCHOS = 11.0 (expected 10.0)
+    ✗ WATCHOS = 11.0 (expected 10.0)
+    ✗ WATCHOS = 11.0 (expected 10.0)
+    ✗ WATCHOS = 11.0 (expected 10.0)
+    ✗ WATCHOS = 11.0 (expected 10.0)
+    ✗ package .watchOS = 11.0 (expected 10.0)
+
+❌ Deployment-target drift: not every literal matches the settled floor set
+   (iOS 17.0 / watchOS 10.0 / macOS 26.5).
+   Fix SingleThread.xcodeproj/project.pbxproj and SingleThreadCore/Package.swift.
