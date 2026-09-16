@@ -10,6 +10,8 @@ public enum ReminderIntentOutcome: Equatable, Sendable {
     case noAccess
     /// No visible reminder and the list is genuinely empty.
     case nothingToDo
+    /// Reminders exist but are all skipped/excluded/hidden.
+    case nothingLeftToDo
     /// The next visible reminder's title.
     case next(String)
     /// The title of the reminder that was just completed.
@@ -22,6 +24,8 @@ public enum ReminderIntentOutcome: Equatable, Sendable {
 /// discoverable reminder intents.
 @MainActor
 public enum ReminderIntentSupport {
+    // MARK: Public
+
     /// Builds an already-reloaded store for an intent, or `nil` when access is
     /// not `.fullAccess`. Never prompts, never calls `start()`/`requestAccess()`.
     public static func makeStore(
@@ -37,7 +41,7 @@ public enum ReminderIntentSupport {
 
     public static func nextOutcome(for store: ReminderStore) -> ReminderIntentOutcome {
         guard let title = store.visibleReminders.first?.title else {
-            return .nothingToDo
+            return noVisibleOutcome(for: store)
         }
         return .next(title)
     }
@@ -45,7 +49,7 @@ public enum ReminderIntentSupport {
     /// Captures the visible title *before* mutating (completion filters it out),
     /// then awaits the durable save. No throw for the empty/gated case.
     public static func completeOutcome(for store: ReminderStore) async -> ReminderIntentOutcome {
-        guard let title = store.visibleReminders.first?.title else { return .nothingToDo }
+        guard let title = store.visibleReminders.first?.title else { return noVisibleOutcome(for: store) }
         guard await store.completeCurrentReminder() else { return .nothingToDo }
         return .completed(title)
     }
@@ -54,7 +58,7 @@ public enum ReminderIntentSupport {
     /// before this returns (`skipCurrentReminderImmediately`, never the
     /// fire-and-forget `skipCurrentReminder`).
     public static func skipOutcome(for store: ReminderStore) -> ReminderIntentOutcome {
-        guard let title = store.visibleReminders.first?.title else { return .nothingToDo }
+        guard let title = store.visibleReminders.first?.title else { return noVisibleOutcome(for: store) }
         guard store.skipCurrentReminderImmediately() else { return .nothingToDo }
         return .skipped(title)
     }
@@ -74,6 +78,8 @@ public enum ReminderIntentSupport {
             "Enable access in Settings to see your reminders." // existing App-catalog key
         case .nothingToDo:
             "There's nothing to do right now."
+        case .nothingLeftToDo:
+            "Everything is skipped for now."
         case let .next(title):
             "Your next task is \(title)."
         case let .completed(title):
@@ -81,5 +87,13 @@ public enum ReminderIntentSupport {
         case let .skipped(title):
             "Skipped \(title)."
         }
+    }
+
+    // MARK: Private
+
+    /// Distinguishes an empty list from one where reminders exist but nothing
+    /// is visible (all skipped/excluded/hidden).
+    private static func noVisibleOutcome(for store: ReminderStore) -> ReminderIntentOutcome {
+        store.allSkipped || store.hasHidden ? .nothingLeftToDo : .nothingToDo
     }
 }

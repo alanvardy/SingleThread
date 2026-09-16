@@ -48,10 +48,31 @@ struct ReminderIntentSupportTests {
     }
 
     @Test
-    func nextOutcomeIsNothingToDoWhenAllSkipped() {
+    func nextOutcomeReportsNothingLeftToDoWhenAllSkipped() {
         let reminder = makeReminder(title: "A")
         let store = makeStore(with: [reminder], skippedIDs: [reminder.calendarItemIdentifier])
-        #expect(ReminderIntentSupport.nextOutcome(for: store) == .nothingToDo)
+        #expect(ReminderIntentSupport.nextOutcome(for: store) == .nothingLeftToDo)
+    }
+
+    @Test
+    func nextOutcomeDistinguishesHiddenFromEmpty() {
+        #expect(ReminderIntentSupport.nextOutcome(for: makeStore(with: [])) == .nothingToDo)
+        #expect(
+            ReminderIntentSupport.nextOutcome(for: makeStore(with: [], hasHidden: true))
+                == .nothingLeftToDo)
+    }
+
+    @Test
+    func everyOutcomeHasANonEmptyDialog() {
+        let outcomes: [ReminderIntentOutcome] = [
+            .noAccess, .nothingToDo, .nothingLeftToDo,
+            .next("A"), .completed("A"), .skipped("A")
+        ]
+        for outcome in outcomes {
+            #expect(
+                !ReminderIntentSupport.dialog(for: outcome).key.isEmpty,
+                "\(outcome) has a dialog")
+        }
     }
 
     @Test
@@ -132,13 +153,15 @@ struct ReminderIntentSupportTests {
 
     private func makeStore(
         with reminders: [EKReminder],
-        skippedIDs: Set<String> = []) -> ReminderStore {
+        skippedIDs: Set<String> = [],
+        hasHidden: Bool = false) -> ReminderStore {
         ReminderStore(
             eventStore: InMemoryEventStore(reminders: reminders),
             loadsReminders: false,
             reminders: reminders,
             skippedIDs: skippedIDs,
             authorizationStatus: .fullAccess,
+            hasHidden: hasHidden,
             entitlementStore: EntitlementStore(testingWithEntitled: true),
             settle: noopSettle)
     }
