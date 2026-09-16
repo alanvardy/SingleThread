@@ -96,7 +96,6 @@ this ticket.
 
 ## 7. Commit covered by the gate
 
-- HEAD at the time of writing: `df53dc62` (Phase 2).
-- SHA of the Phase 3 commit this record accompanies: `42196cea` (recorded when
-  this record was finalized). The gate covers the **branch tip at launch** — the
-  parent captures `git rev-parse --short HEAD` when the gate subagent starts.
+- Phase 3 hardening commit: `ca5c8d1b`.
+- The gate covers the **branch tip at launch** — the parent records
+  `git rev-parse --short HEAD` when the gate subagent starts (see `gate.md`).
