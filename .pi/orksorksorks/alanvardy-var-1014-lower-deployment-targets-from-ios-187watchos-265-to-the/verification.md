@@ -96,7 +96,10 @@ this ticket.
    `Apple Watch Series 11 (46mm)` sims, none at `OS:latest`) — documented local
    env issue, not a regression — and was re-launched with the UDID pin
    `platform=watchOS Simulator,id=3F69EA19-…` (the exact pattern CI uses).
-   CI on PR #201: **no checks reported yet** (draft PR) — pending.
+   CI on PR #201: **cannot report pre-merge** — `ci.yml` triggers on pushes to
+   `main` only (no `pull_request` trigger), so PR checks will never run on this
+   branch; CI adjudicates **post-merge** (the local CI-identical full gate is the
+   pre-merge evidence, PASS above).
 
 ## 7. Commit covered by the gate
 
