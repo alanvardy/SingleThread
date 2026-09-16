@@ -96,8 +96,9 @@ erroring.
 - `ReminderIntentOutcome` gains `.completed(String)`.
 - `static func completeOutcome(for store: ReminderStore) async -> ReminderIntentOutcome` —
   captures `store.visibleReminders.first?.title` **before** the mutation
-  (after completion it is filtered out), then `await store.completeCurrentReminder()`;
-  `false` ⇒ `.nothingToDo`. No `throw` for the empty case (design decision 6).
+  (after completion it is filtered out), then guards `store.canMutate`
+  (`false` ⇒ `.cannotMutate`) and awaits `store.completeCurrentReminder()`
+  (`false` ⇒ `.failed`). No `throw` for the empty case (design decision 6, revised in review).
 - `public struct CompleteCurrentTaskIntent: AppIntent` — new, `isDiscoverable = true`,
   `title = "Complete Current Task"` (distinct from the widget's "Complete Reminder", Risk 6),
   `perform() async throws -> some IntentResult & ProvidesDialog`.
@@ -108,8 +109,9 @@ the second `AppShortcut` follows Phase 1's shape exactly (no new provider mechan
 
 **Tests**: `completeOutcomeNamesTheCompletedTask` (happy),
 `completeOutcomeIsNothingToDoWhenEmpty` (sad),
-`completeOutcomeIsNothingToDoWhenMutationGated` (sad: freemium cap via injected `EntitlementStore`),
-`completeOutcomePersistsThroughInMemoryEventStore` (happy: reminder is completed in the store),
+`completeOutcomeReportsFreeLimitWhenMutationGated` (sad: freemium cap via injected `EntitlementStore`),
+`completeOutcomeReportsFailureWhenSaveThrows` (sad: EventKit save error),
+`completeOutcomePersistsThroughInMemoryEventStore` (happy: `saveCallCount == 1` and the reminder is completed),
 `completeCurrentTaskIntentIsDiscoverable`.
 
 **Verify**: `make test` + `make build`; manual: run the shortcut from Shortcuts
@@ -131,8 +133,9 @@ path, design decision 8), so a suspend-after-return cannot lose it.
 
 - `ReminderIntentOutcome` gains `.skipped(String)`.
 - `static func skipOutcome(for store: ReminderStore) -> ReminderIntentOutcome` — **sync**,
-  captures the pre-skip title, calls `skipCurrentReminderImmediately()`
-  (never the fire-and-forget `skipCurrentReminder()`), `false` ⇒ `.nothingToDo`.
+  captures the pre-skip title, guards `store.canMutate` (`false` ⇒ `.cannotMutate`),
+  then calls `skipCurrentReminderImmediately()` (never the fire-and-forget
+  `skipCurrentReminder()`); a refused skip ⇒ `.failed`.
 - `public struct SkipCurrentTaskIntent: AppIntent` — new, `isDiscoverable = true`,
   `title = "Skip Current Task"`, `perform() async throws -> some IntentResult & ProvidesDialog`.
 - Third `AppShortcut`; `dialog(for:)` gains `.skipped`.
@@ -142,9 +145,9 @@ synchronous by contract — no `await` between the mutation and the returned dia
 
 **Tests**: `skipOutcomeNamesTheSkippedTask` (happy),
 `skipOutcomeIsNothingToDoWhenEmpty` (sad),
-`skipOutcomeIsNothingToDoWhenMutationGated` (sad),
-`skipOutcomeWritesSkipSetBeforeReturning` (happy: `skippedIDs` already contains the id
-on the line after the call — the durability assertion),
+`skipOutcomeReportsFreeLimitWhenMutationGated` (sad),
+`skipOutcomePersistsSkipSetBeforeReturning` (happy: both in-memory `skippedIDs` and the
+injected `SkippedReminderStore` contain the id after the call — the durability assertion),
 `skipCurrentTaskIntentIsDiscoverable`.
 
 **Verify**: `make test` + `make build`; manual: app-icon long-press skip, then
@@ -168,7 +171,8 @@ localized (not raw English) on a non-English device.
 - `ReminderIntentOutcome` gains a distinct case for "everything is skipped/hidden"
   (derived from `allSkipped` / `listContent == .empty(hasHidden:)`, `ReminderStore.swift:164-180`)
   so `nextOutcome`/`completeOutcome`/`skipOutcome` return it in place of `.nothingToDo`;
-  `dialog(for:)` maps all three states distinctly.
+  `dialog(for:)` maps all three states distinctly. *(Post-review, the enum also
+  carries `.cannotMutate` for the freemium cap and `.failed` for a failed write.)*
 - `Localizable.xcstrings` gains the new dialog + `shortTitle` entries (Core's
   catalog does not hold AppIntent keys, `ReminderIntentsTests.swift:15-16`); phrases
   gain variants, each still containing `\(.applicationName)`.
@@ -176,7 +180,7 @@ localized (not raw English) on a non-English device.
   on local Xcode 27.0 **and** the CI 26.6 floor (design Risk 4); add only what
   both accept.
 
-**Contract**: outcome-to-message mapping is now total over all four states; no
+**Contract**: outcome-to-message mapping is now total over every outcome state; no
 caller constructs message text.
 
 **Tests**: `nextOutcomeReportsNothingLeftToDoWhenAllSkipped` (sad),

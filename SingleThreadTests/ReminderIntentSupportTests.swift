@@ -5,6 +5,10 @@ import Testing
 
 private let noopSettle: ReminderStoreSettle = {}
 
+private enum TestError: Error {
+    case saveFailed
+}
+
 @MainActor
 @Suite(.serialized)
 struct ReminderIntentSupportTests {
@@ -65,7 +69,7 @@ struct ReminderIntentSupportTests {
     @Test
     func everyOutcomeHasANonEmptyDialog() {
         let outcomes: [ReminderIntentOutcome] = [
-            .noAccess, .nothingToDo, .nothingLeftToDo,
+            .noAccess, .nothingToDo, .nothingLeftToDo, .cannotMutate, .failed,
             .next("A"), .completed("A"), .skipped("A")
         ]
         for outcome in outcomes {
@@ -75,9 +79,18 @@ struct ReminderIntentSupportTests {
         }
     }
 
+    // MARK: value
+
     @Test
-    func nextOutcomeIsNothingToDoWhenEmpty() {
-        #expect(ReminderIntentSupport.nextOutcome(for: makeStore(with: [])) == .nothingToDo)
+    func valueReturnsTitleOnlyForNextOutcome() {
+        #expect(ReminderIntentSupport.value(for: .next("Buy milk")) == "Buy milk")
+        let nonAnswers: [ReminderIntentOutcome] = [
+            .noAccess, .nothingToDo, .nothingLeftToDo, .cannotMutate, .failed,
+            .completed("A"), .skipped("A")
+        ]
+        for outcome in nonAnswers {
+            #expect(ReminderIntentSupport.value(for: outcome).isEmpty, "\(outcome) has no value")
+        }
     }
 
     // MARK: completeOutcome
@@ -95,10 +108,24 @@ struct ReminderIntentSupportTests {
     }
 
     @Test
-    func completeOutcomeIsNothingToDoWhenMutationGated() async {
+    func completeOutcomeReportsFreeLimitWhenMutationGated() async {
         let reminder = makeReminder(title: "Buy milk")
         let store = makeGatedStore(with: [reminder])
-        #expect(await ReminderIntentSupport.completeOutcome(for: store) == .nothingToDo)
+        #expect(await ReminderIntentSupport.completeOutcome(for: store) == .cannotMutate)
+    }
+
+    @Test
+    func completeOutcomeReportsFailureWhenSaveThrows() async {
+        let reminder = makeReminder(title: "Buy milk")
+        let eventStore = InMemoryEventStore(reminders: [reminder], saveError: TestError.saveFailed)
+        let store = ReminderStore(
+            eventStore: eventStore,
+            loadsReminders: false,
+            reminders: [reminder],
+            authorizationStatus: .fullAccess,
+            entitlementStore: EntitlementStore(testingWithEntitled: true),
+            settle: noopSettle)
+        #expect(await ReminderIntentSupport.completeOutcome(for: store) == .failed)
     }
 
     @Test
@@ -113,6 +140,7 @@ struct ReminderIntentSupportTests {
             entitlementStore: EntitlementStore(testingWithEntitled: true),
             settle: noopSettle)
         _ = await ReminderIntentSupport.completeOutcome(for: store)
+        #expect(eventStore.saveCallCount == 1, "completion reached EventKit exactly once")
         #expect(eventStore.allReminders.first?.isCompleted == true, "completion is persisted")
     }
 
@@ -131,20 +159,24 @@ struct ReminderIntentSupportTests {
     }
 
     @Test
-    func skipOutcomeIsNothingToDoWhenMutationGated() {
+    func skipOutcomeReportsFreeLimitWhenMutationGated() {
         let reminder = makeReminder(title: "Buy milk")
         let store = makeGatedStore(with: [reminder])
-        #expect(ReminderIntentSupport.skipOutcome(for: store) == .nothingToDo)
+        #expect(ReminderIntentSupport.skipOutcome(for: store) == .cannotMutate)
     }
 
     @Test
-    func skipOutcomeWritesSkipSetBeforeReturning() {
+    func skipOutcomePersistsSkipSetBeforeReturning() {
         let reminder = makeReminder(title: "Buy milk")
-        let store = makeStore(with: [reminder])
+        let skipStore = makeEphemeralSkipStore()
+        let store = makeStore(with: [reminder], skipStore: skipStore)
         _ = ReminderIntentSupport.skipOutcome(for: store)
         #expect(
             store.skippedIDs.contains(reminder.calendarItemIdentifier),
-            "the skip set is durable before the intent returns")
+            "the in-memory skip set is updated")
+        #expect(
+            skipStore.load().contains(reminder.calendarItemIdentifier),
+            "the skip set is persisted before the intent returns")
     }
 
     // MARK: Private
@@ -154,9 +186,11 @@ struct ReminderIntentSupportTests {
     private func makeStore(
         with reminders: [EKReminder],
         skippedIDs: Set<String> = [],
-        hasHidden: Bool = false) -> ReminderStore {
+        hasHidden: Bool = false,
+        skipStore: SkippedReminderStore = SkippedReminderStore()) -> ReminderStore {
         ReminderStore(
             eventStore: InMemoryEventStore(reminders: reminders),
+            skipStore: skipStore,
             loadsReminders: false,
             reminders: reminders,
             skippedIDs: skippedIDs,
@@ -164,6 +198,12 @@ struct ReminderIntentSupportTests {
             hasHidden: hasHidden,
             entitlementStore: EntitlementStore(testingWithEntitled: true),
             settle: noopSettle)
+    }
+
+    private func makeEphemeralSkipStore() -> SkippedReminderStore {
+        let suiteName = "ReminderIntentSupportTests-\(UUID().uuidString)"
+        let defaults = UserDefaults(suiteName: suiteName) ?? .standard
+        return SkippedReminderStore(defaults: defaults, key: UUID().uuidString)
     }
 
     private func makeGatedStore(with reminders: [EKReminder]) -> ReminderStore {

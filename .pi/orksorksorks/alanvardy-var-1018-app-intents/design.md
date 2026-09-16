@@ -132,13 +132,18 @@ Do **not** follow these:
    "nothing to do" dialog. Both are successful `.result(dialog:)` outcomes, not
    throws.
 6. **Complete and Skip return `some IntentResult & ProvidesDialog`** naming the
-   task on success, and the "nothing to do" dialog on a `false` return from the
-   store. No `throw` for the empty case: a throw in Shortcuts reads as an error,
-   whereas "there was nothing to do" is a legitimate successful outcome.
-7. **Success/failure signal**: `completeCurrentReminder()` returns `Bool`
-   (`false` = nothing visible / gated / save failed) and
-   `skipCurrentReminderImmediately()` returns `Bool`. Both feed the dialog; no
-   new store API is needed.
+   task on success. No `throw` for the empty case: a throw in Shortcuts reads as
+   an error, whereas an outcome dialog is a legitimate successful result. The
+   dialog is chosen per outcome: empty list → "nothing to do"; all
+   skipped/excluded/hidden → "everything is skipped"; free-tier cap → an upgrade
+   message (`.cannotMutate`); failed write → a "try again" message (`.failed`).
+   *(Revised in review — the original design collapsed gated/save-failed into
+   "nothing to do", which misreported both states.)*
+7. **Success/failure signal**: `completeCurrentReminder()` /
+   `skipCurrentReminderImmediately()` return `Bool`. `store.canMutate` is checked
+   before mutating so the freemium cap gets `.cannotMutate`; a `false` return
+   after that guard means the write failed → `.failed`. No new store API is
+   needed.
 8. **Skip uses `skipCurrentReminderImmediately()`** (synchronous,
    persisted-before-return, `ReminderStore.swift:434-449`) rather than the
    fire-and-forget `skipCurrentReminder()`. This is how the ticket's
