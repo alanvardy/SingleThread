@@ -59,4 +59,12 @@ struct ReminderIntentsTests {
         _ = SkipCurrentTaskIntent()
         #expect(SkipCurrentTaskIntent.isDiscoverable, "skip task intent is discoverable")
     }
+
+    // MARK: Title collisions (design Risk 6)
+
+    @Test
+    func intentTitlesDoNotCollideWithWidgetIntentTitles() {
+        #expect(CompleteCurrentTaskIntent.title.key != CompleteReminderIntent.title.key)
+        #expect(SkipCurrentTaskIntent.title.key != SkipReminderIntent.title.key)
+    }
 }

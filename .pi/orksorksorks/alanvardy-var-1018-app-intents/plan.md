@@ -850,14 +850,14 @@ func intentTitlesDoNotCollideWithWidgetIntentTitles() {
 ### Verification
 
 #### Automated
-- [ ] `make format` (SwiftFormat; verify it did not rename any `@Test` — unit
+- [x] `make format` (SwiftFormat; verify it did not rename any `@Test` — unit
       test names must not start with `test`)
-- [ ] `make lint` (`swiftformat --lint` + `swiftlint --strict`)
-- [ ] `scripts/test-one.sh SingleThreadTests/ReminderIntentSupportTests`
-- [ ] `scripts/test-one.sh SingleThreadTests/ReminderIntentsTests`
-- [ ] `make test`
-- [ ] `make build`
-- [ ] `make mac-build` (explicitly compiles the app + provider under the local
+- [x] `make lint` (`swiftformat --lint` + `swiftlint --strict`)
+- [x] `scripts/test-one.sh SingleThreadTests/ReminderIntentSupportTests`
+- [x] `scripts/test-one.sh SingleThreadTests/ReminderIntentsTests`
+- [x] `make test`
+- [x] `make build`
+- [x] `make mac-build` (explicitly compiles the app + provider under the local
       Xcode 27.0 macOS SDK)
 
 #### Manual
