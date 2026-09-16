@@ -103,6 +103,7 @@ struct NextThingWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: NextThingProvider()) { entry in
             NextThingWidgetView(entry: entry)
+                .environment(\.locale, AppLanguagePreference().load().locale)
                 .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName(

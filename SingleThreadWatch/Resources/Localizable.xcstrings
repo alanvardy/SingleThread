@@ -77,6 +77,28 @@
         "de" : { "stringUnit" : { "state" : "translated", "value" : "Neu planen auf" } },
         "fr" : { "stringUnit" : { "state" : "translated", "value" : "Replanifier pour" } }
       }
+    },
+    "Couldn't reschedule. Try again with your iPhone nearby." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Couldn't reschedule. Try again with your iPhone nearby." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "无法重新安排。请靠近 iPhone 后重试。" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "No se pudo reprogramar. Inténtalo de nuevo con tu iPhone cerca." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "再スケジュールできませんでした。iPhone を近づけてもう一度お試しください。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Neu planen fehlgeschlagen. Versuch es erneut mit deinem iPhone in der Nähe." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Impossible de replanifier. Réessayez avec votre iPhone à proximité." } }
+      }
+    },
+    "Your reminder wasn't updated." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your reminder wasn't updated." } },
+        "zh-Hans" : { "stringUnit" : { "state" : "translated", "value" : "您的提醒未更新。" } },
+        "es" : { "stringUnit" : { "state" : "translated", "value" : "Tu recordatorio no se actualizó." } },
+        "ja" : { "stringUnit" : { "state" : "translated", "value" : "リマインダーは更新されませんでした。" } },
+        "de" : { "stringUnit" : { "state" : "translated", "value" : "Deine Erinnerung wurde nicht aktualisiert." } },
+        "fr" : { "stringUnit" : { "state" : "translated", "value" : "Votre rappel n'a pas été mis à jour." } }
+      }
     }
   },
   "version" : "1.0"

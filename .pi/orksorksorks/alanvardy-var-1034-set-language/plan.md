@@ -848,10 +848,10 @@ Construct a `SkippedReminderSyncService` with an isolated `.standard` key, call
 ### Verification
 
 #### Automated
-- [ ] `scripts/test-one.sh SingleThreadTests/AppLanguageSyncTests` — green, 3 cases ran.
-- [ ] `make watch-test` — green incl. `watchAppLanguageReceiveUpdatesLocaleState`.
-- [ ] `make watch-build` — watch app + widget compile.
-- [ ] `make format && make lint` — clean.
+- [x] `scripts/test-one.sh SingleThreadTests/AppLanguageSyncTests` — green, 3 cases ran.
+- [x] `make watch-test` — green incl. `watchAppLanguageReceiveUpdatesLocaleState`.
+- [x] `make watch-build` — watch app + widget compile.
+- [x] `make format && make lint` — clean.
 
 #### Manual
 - [ ] Pair a watch sim (see `simulator-pairing` skill), launch both apps, pick

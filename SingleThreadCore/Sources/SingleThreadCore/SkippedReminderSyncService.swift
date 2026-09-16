@@ -65,7 +65,9 @@ import os
                 fallback: true),
             completionCounter: CompletionCounterStore = CompletionCounterStore(),
             entitlementStore: EntitlementStore? = nil,
+            appLanguageStore: AppLanguagePreference = AppLanguagePreference(),
             sendsShowDate: Bool = true,
+            sendsAppLanguage: Bool = false,
             sendsShowRecurrence: Bool = true,
             sendsShowAlarms: Bool = true,
             sendsShowList: Bool = true,
@@ -88,7 +90,9 @@ import os
             // default argument to this nonisolated init; every call site runs on
             // the main actor, so creating it lazily via `assumeIsolated` is safe.
             self.entitlementStore = entitlementStore ?? MainActor.assumeIsolated { EntitlementStore() }
+            self.appLanguageStore = appLanguageStore
             self.sendsShowDate = sendsShowDate
+            self.sendsAppLanguage = sendsAppLanguage
             self.sendsShowRecurrence = sendsShowRecurrence
             self.sendsShowAlarms = sendsShowAlarms
             self.sendsShowList = sendsShowList
@@ -135,6 +139,11 @@ import os
         /// write-once-before-activate / `nonisolated(unsafe)` rationale as
         /// `onCompleteReminderReceived`.
         public nonisolated(unsafe) var onShowDateReceived: ((Bool) -> Void)?
+
+        /// Hook invoked on the counterpart watch when the iPhone's chosen language
+        /// arrives. Same write-once-before-activate / `nonisolated(unsafe)` rationale
+        /// as `onShowDateReceived`.
+        public nonisolated(unsafe) var onAppLanguageReceived: ((AppLanguage) -> Void)?
 
         /// Hook fired on the counterpart when the "show recurrence" preference arrives
         /// in an application context. Passes the received value. Same
@@ -224,6 +233,11 @@ import os
                     PayloadKey.sortOption: sortStore.load().rawValue,
                     PayloadKey.completionCount: completionCounter.count
                 ]
+                // The phone's chosen language rides the same latest-wins context so
+                // the watch renders in it without a companion app.
+                if sendsAppLanguage {
+                    context[PayloadKey.appLanguage] = appLanguageStore.load().rawValue
+                }
                 // Only sync an explicit choice. A never-set key is omitted so a
                 // fresh device keeps its own default-on instead of receiving the
                 // sender's absent-value `false` and turning the cluster off.
@@ -350,6 +364,7 @@ import os
             static let rescheduleReminderIdentifier = "rescheduleReminderIdentifier"
             static let showUndatedReminders = "showUndatedReminders"
             static let sortOption = "sortOption"
+            static let appLanguage = "appLanguage"
             static let showDate = "showDate"
             static let showRecurrence = "showRecurrence"
             static let showAlarms = "showAlarms"
@@ -376,7 +391,9 @@ import os
         private let enableActionButtonsStore: BoolPreferenceStore
         private let completionCounter: CompletionCounterStore
         private let entitlementStore: EntitlementStore
+        private let appLanguageStore: AppLanguagePreference
         private let sendsShowDate: Bool
+        private let sendsAppLanguage: Bool
         private let sendsShowRecurrence: Bool
         private let sendsShowAlarms: Bool
         private let sendsShowList: Bool
@@ -487,9 +504,15 @@ import os
         }
 
         /// Decodes the remaining keys (skip counts + enable-action-buttons +
-        /// freemium entitlement/completion count). Kept in its own method so
-        /// `apply(context:)` stays within SwiftLint's 50-line function-body limit.
+        /// app language + freemium entitlement/completion count). Kept in its
+        /// own method so `apply(context:)` stays within SwiftLint's 50-line
+        /// function-body limit.
         private func applyRemaining(context: [String: Any]) {
+            if let rawValue = context[PayloadKey.appLanguage] as? String {
+                appLanguageStore.setRawValue(rawValue)
+                let handler = onAppLanguageReceived
+                handler?(AppLanguage(rawValue: rawValue) ?? .system)
+            }
             if let enableActionButtons = context[PayloadKey.enableActionButtons] as? Bool {
                 enableActionButtonsStore.set(enableActionButtons)
                 let handler = onEnableActionButtonsReceived

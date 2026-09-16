@@ -71,6 +71,11 @@ struct InterfaceSettingsView: View {
                 }
             }
             .accessibilityIdentifier("languagePicker")
+            #if os(iOS) || os(macOS)
+                .onChange(of: appLanguage) { _, _ in
+                    viewModel.showPreferenceChanged()
+                }
+            #endif
             #if os(iOS)
                 Toggle(isOn: $allowsLandscape) {
                     Label {

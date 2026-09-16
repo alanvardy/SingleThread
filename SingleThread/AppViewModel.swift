@@ -396,6 +396,7 @@ final class AppViewModel {
                 showCompletionGlowStore: Self.showPreferenceStore(.showCompletionGlow, fallback: true),
                 entitlementStore: store.entitlementStore,
                 sendsShowDate: true,
+                sendsAppLanguage: true,
                 sendsEntitled: true)
             // Assign the handler before activating: the service documents a
             // write-once-before-activate invariant, and a completion message
@@ -491,18 +492,25 @@ final class AppViewModel {
                 fallback: true).isEnabled
             let currentEnableActionButtons = BoolPreferenceStore(
                 key: BoolPreferenceKey.enableActionButtons.rawValue, fallback: true).isEnabled
+            let currentAppLanguage = AppLanguagePreference().load()
             if currentShowDate != lastShowDate
                 || currentShowRecurrence != lastShowRecurrence
                 || currentShowAlarms != lastShowAlarms
                 || currentShowList != lastShowList
                 || currentShowCompletionGlow != lastShowCompletionGlow
-                || currentEnableActionButtons != lastEnableActionButtons {
+                || currentEnableActionButtons != lastEnableActionButtons
+                || currentAppLanguage != lastAppLanguage {
+                // Resync the process-wide holder with the stored value so a writer
+                // that only touched the App Group key (not `AppLocaleState`) still
+                // leaves state consistent. Idempotent when the picker already set it.
+                AppLocaleState.current.set(currentAppLanguage)
                 lastShowDate = currentShowDate
                 lastShowRecurrence = currentShowRecurrence
                 lastShowAlarms = currentShowAlarms
                 lastShowList = currentShowList
                 lastShowCompletionGlow = currentShowCompletionGlow
                 lastEnableActionButtons = currentEnableActionButtons
+                lastAppLanguage = currentAppLanguage
                 syncService?.pushAll()
             }
         }
@@ -525,6 +533,7 @@ final class AppViewModel {
             fallback: true).isEnabled
         private var lastEnableActionButtons = BoolPreferenceStore(
             key: BoolPreferenceKey.enableActionButtons.rawValue, fallback: true).isEnabled
+        private var lastAppLanguage = AppLanguagePreference().load()
 
         private var syncDefaultsObserver: NSObjectProtocol?
     #endif
