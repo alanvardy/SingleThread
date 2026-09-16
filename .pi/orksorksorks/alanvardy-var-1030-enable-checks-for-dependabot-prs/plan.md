@@ -114,7 +114,7 @@ the exact snippets above, applied to a scratch copy of `ci.yml`, produce no new
 
 #### Automated
 
-- [ ] `actionlint` reports **no new findings** — baseline-compare, because `ci.yml` already carries 4 pre-existing `shellcheck SC2086` findings (ci.yml:33, 102, 160, 261) and `actionlint` already exits non-zero *before* this change:
+- [x] `actionlint` reports **no new findings** — baseline-compare, because `ci.yml` already carries 4 pre-existing `shellcheck SC2086` findings (ci.yml:33, 102, 160, 261) and `actionlint` already exits non-zero *before* this change:
   ```bash
   git show HEAD:.github/workflows/ci.yml > /tmp/ci-before.yml
   actionlint /tmp/ci-before.yml 2>&1 | sed 's#^/tmp/ci-before.yml##' | sort > /tmp/find-before.txt
@@ -122,15 +122,15 @@ the exact snippets above, applied to a scratch copy of `ci.yml`, produce no new
   diff /tmp/find-before.txt /tmp/find-after.txt
   ```
   Pass condition: `diff` prints nothing. (Validated this session: identical findings, before and after.)
-- [ ] The gate landed on exactly six jobs — must print `6`:
+- [x] The gate landed on exactly six jobs — must print `6`:
   ```bash
   grep -c "github.event.pull_request.user.login == 'dependabot\[bot\]'" .github/workflows/ci.yml
   ```
-- [ ] The trigger landed exactly once, under `on:` — must print `1`:
+- [x] The trigger landed exactly once, under `on:` — must print `1`:
   ```bash
   grep -c '^  pull_request:$' .github/workflows/ci.yml
   ```
-- [ ] The diff is one file, additions only:
+- [x] The diff is one file, additions only:
   ```bash
   git diff --stat && git status --porcelain
   ```
