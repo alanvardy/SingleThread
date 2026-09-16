@@ -29,7 +29,7 @@ changed by this ticket; the only production-file diff is `scripts/test.sh`
 - [x] Probes 3a–3d: `probe-gate-watchos-swap.log` (`✗ WATCHOS literal count 5`), `probe-gate-literal-removed.log` (count 5 again), `probe-gate-package-removed.log` (`✗ package .watchOS count 0`), `probe-gate-clean.log` (`✓ … iOS 17.0 × 8, watchOS 11.0 × 6, macOS 26.5 × 6; package .iOS 1, .watchOS 1, .macOS 1`)
 - [x] `make format` / `make lint` exit 0; `make mac-test` at `platform=macOS`, floor still 26.5
 - [x] Full gate via `run-gate`: **PASS** (covered `a6931e17`; 658 passed / 3 known local-only macOS `EntitlementStoreTests` annotated; `gate.md` saved). Run 1 aborted at the watch UI stage on the name-only `WATCH_TEST_SIM` ambiguity (documented env issue); run 2 with the UDID pin (`3F69EA19-…`, CI's own pattern) completed every stage
-- [ ] CI on PR #201 green — **no checks reported yet** (draft PR; CI will adjudicate once checks run on the branch)
+- [ ] CI on PR #201 green — **cannot report pre-merge** (`ci.yml` triggers on pushes to `main` only); the CI-identical full gate passed locally instead; CI adjudicates post-merge
 
 ## Manual Verification Items (from the plan)
 
