@@ -22,8 +22,23 @@
   `make -pn` shows the default `WATCH_TEST_SIM` =
   `platform=watchOS Simulator,id=3F69EA19-…` with CLI/env overrides winning and
   the name-form fallback preserved. `make format` + `make lint` clean (0
-  violations). Full multi-hour `./scripts/test.sh` gate launched once via the
-  run-gate skill after commits — verdict appended below when it completes.
+  violations).
+
+**Full gate (run-gate skill, async gate subagent, managed worktree, branch tip
+`f0507bd5`, no `WATCH_TEST_SIM` override):** every stage REACHED. Watch UI tests
+stage — the ticket target — **reached and passed**: preflight pinned
+`platform=watchOS Simulator,id=3F69EA19-301C-4978-AA7B-A63DE7CE69F5` in both
+build-for-testing and test-without-building; `testLaunchAndRenderSmoke()` ran
+and succeeded (5.6 s) on `Clone 1 of Apple Watch Series 11 (46mm)`; the old
+`Unable to find a device matching the provided destination specifier` symptom
+is absent from the whole log. iOS UI tests, watch unit tests, Watch build,
+Periphery, format/lint all PASS. The only failure was the final macOS-stage
+`EntitlementStoreTests` trio
+(`isEntitledSurvivesStoreRecreation`, `initialRefreshSettlesResolvedFlag`,
+`hostStoreKitIsClean`) — the deterministic, documented pre-existing local-only
+StoreKit failures (AGENTS.md: don't debug; CI mac-tests green on fresh
+runners), unrelated to this branch; per policy no re-run. Gate report:
+`/tmp/gate-alanvardy-var-1016.log`, artifacts under subagent-artifacts.
 - **Reviewer findings**: 0 blockers. 4 optional P2 nits, deferred (each mirrors
   a pre-existing iOS pattern or a convenience-only make target): (1) the
   `Makefile` parse-time `$(shell xcrun simctl …)` runs on every make invocation
@@ -34,4 +49,6 @@
   die at `bootstatus` (same exposure as the iOS path); (4) `set -euo pipefail`
   surfaces a raw `simctl` error if the `simctl list` command itself fails
   (same pre-existing behavior as the iOS resolution).
-- **Remaining manual items**: full-gate verdict pending (acceptance criterion).
+- **Remaining manual items**: none for this change. Overall local gate exit is
+  non-zero only due to the pre-existing macOS `EntitlementStoreTests` trio
+  (documented local-only; CI is authoritative for those).
