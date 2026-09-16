@@ -571,13 +571,13 @@ authoritative.
 ### Verification
 
 #### Automated
-- [ ] `probe-gate-watchos-swap.log` contains `❌ Deployment-target drift` + `✗ WATCHOS literal count 5` (and no `==> Unit tests`)
-- [ ] `probe-gate-literal-removed.log` contains `✗ WATCHOS literal count 5` (total-count change alone does not satisfy this)
-- [ ] `probe-gate-package-removed.log` contains `✗ package .watchOS count 0`
-- [ ] `probe-gate-clean.log` contains `✓ All deployment-target + package-floor literals match` with `iOS 17.0 × 8, watchOS 11.0 × 6, macOS 26.5 × 6; package .iOS 1, .watchOS 1, .macOS 1`
-- [ ] `git status --short` clean of floor files after every probe; `rg -c` counts still 8/6/6 and 1/1/1
-- [ ] `make format` and `make lint` exit 0
-- [ ] `make mac-test` runs against `platform=macOS` with the floor still 26.5
+- [x] `probe-gate-watchos-swap.log` contains `❌ Deployment-target drift` + `✗ WATCHOS literal count 5` (and no `==> Unit tests`)
+- [x] `probe-gate-literal-removed.log` contains `✗ WATCHOS literal count 5` (total-count change alone does not satisfy this)
+- [x] `probe-gate-package-removed.log` contains `✗ package .watchOS count 0`
+- [x] `probe-gate-clean.log` contains `✓ All deployment-target + package-floor literals match` with `iOS 17.0 × 8, watchOS 11.0 × 6, macOS 26.5 × 6; package .iOS 1, .watchOS 1, .macOS 1`
+- [x] `git status --short` clean of floor files after every probe; `rg -c` counts still 8/6/6 and 1/1/1
+- [x] `make format` and `make lint` exit 0
+- [x] `make mac-test` runs against `platform=macOS` with the floor still 26.5
 - [ ] Gate subagent verdict is **PASS** for `git rev-parse --short HEAD` == the tip committed before launch; `gate.md` saved
 - [ ] CI on PR #201 is green (authoritative)
 
