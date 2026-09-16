@@ -1,0 +1,24 @@
+# Done
+
+- **Branch / head SHA**: `alanvardy-var-1014-lower-deployment-targets-from-ios-187watchos-265-to-the` @ `63daf98d025b6f136d367776d654da02b4fe272a` (HEAD == `origin/…`, working tree clean, no rebase in progress)
+- **Mechanical checks**:
+  - `bash -n scripts/test.sh` — syntax OK
+  - `shellcheck scripts/test.sh` — clean (no findings)
+  - Extracted `verify_deployment_target()` guard run verbatim — **green**: `iOS 17.0 × 8, watchOS 11.0 × 6, macOS 26.5 × 6; package .iOS 1, .watchOS 1, .macOS 1`
+  - `rg -c` on `project.pbxproj` — IPHONEOS=8, WATCHOS=6, MACOSX=6 (matches guards)
+  - Full CI-identical `./scripts/test.sh` gate — **PASS** on gate-covered HEAD `a6931e17` (658 tests; only the 3 annotated pre-existing local-only macOS `EntitlementStoreTests` failures). The two commits after `a6931e17` (`02c3ed43`, `63daf98d`) touch only `.pi/orksorksorks/…/implement.md`, `plan.md`, `verification.md`, so the verdict still applies to the code.
+  - `make format` / `make lint` — exit 0 (per `implement.md`).
+- **Review outcome**: One bounded fresh-context `reviewer` (diff: `scripts/test.sh` only; all other changes are evidence artifacts) returned **no blockers, no fixes worth doing now**. Independently verified:
+  - Per-platform token extraction cannot cross-match (`IPHONEOS`/`MACOSX`/`WATCHOS` are pairwise substring-disjoint; `\.iOS` cannot match inside `.watchOS`/`.macOS`), so every line increments exactly one counter.
+  - The `*)` catch-all is unreachable from real input (outer `if` gate restricts to the three tokens) and would fail loudly if a fourth platform appeared.
+  - Claimed regression coverage holds: the old collapsed-total guard would have passed a net WATCHOS→MACOSX swap; the new per-platform counts fail it (`WATCHOS literal count 5`).
+  - `set -e`/`set -u` safe: each `[[ … ]] || { …; drift=1; }` OR-list returns 0; all counters initialized inline; mismatch still sets `drift=1` → `exit 1`.
+  - Corrected comment facts verified against `project.pbxproj`: `SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx"` (lines 775/825/850/879/907/931), `CODE_SIGN_ENTITLEMENTS[sdk=macosx*]` (742/792), no Catalyst token.
+  - **Optional nit (not applied — non-autofix run, policy defers optional improvements):** the comment at `scripts/test.sh:200-201` ("a literal swapped between platforms … must fail") is accurate for a *net* move but overstates for a strict 1:1 exchange (a compensating swap leaves counts 6/6 and passes). Suggested wording: "a net move between platforms". Cosmetic; deferring to user.
+  - Reviewer merge verdict: **OK — ship it.**
+- **Remaining manual items**:
+  - CI cannot report pre-merge — `ci.yml` triggers on pushes to `main` only; CI adjudicates post-merge. The local CI-identical gate is the pre-merge evidence.
+  - PR #201 is still a **draft**; its title is already corrected (`… iOS 17.0/watchOS 11.0`). Mark ready / merge with `gh pr merge 201 --rebase --delete-branch` once you choose.
+  - Environment gap (named, not hidden): Xcode 27.0's catalog serves no pre-26 iOS/watchOS runtime, so the runtime leg degraded to iOS 26.0 / watchOS 26.0; a genuine iOS 17.x / watchOS 11.x runtime run remains unverified locally.
+  - EventKit **deny** path of the iOS smoke was not exercised (grant path confirmed).
+  - Optional: apply the `scripts/test.sh:200-201` comment wording nit ("net move") if desired.
