@@ -578,7 +578,7 @@ authoritative.
 - [x] `git status --short` clean of floor files after every probe; `rg -c` counts still 8/6/6 and 1/1/1
 - [x] `make format` and `make lint` exit 0
 - [x] `make mac-test` runs against `platform=macOS` with the floor still 26.5
-- [ ] Gate subagent verdict is **PASS** for `git rev-parse --short HEAD` == the tip committed before launch; `gate.md` saved
+- [x] Gate subagent verdict is **PASS** for `git rev-parse --short HEAD` == the tip committed before launch (`a6931e17`); `gate.md` saved
 - [ ] CI on PR #201 is green (authoritative)
 
 #### Manual
