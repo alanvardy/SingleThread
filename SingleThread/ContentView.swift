@@ -216,7 +216,8 @@ struct ContentView: View {
             .accessibilityValue(
                 viewModel.isRefreshing
                     ? LocalizedStringResource("Refreshing", table: "Localizable", bundle: .main)
-                    : LocalizedStringResource("", table: "Localizable", bundle: .main))
+                    .resolvedInAppLanguage()
+                    : "")
             .accessibilityLabel("Refresh")
             .accessibilityIdentifier("refreshButton")
             .accessibilityAddTraits(.isButton)
