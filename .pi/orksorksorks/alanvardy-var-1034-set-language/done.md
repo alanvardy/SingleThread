@@ -1,18 +1,20 @@
 # Done
 
 - **Branch / head SHA**: `alanvardy-var-1034-set-language` · final commit
-  `0344ae46` (rebased onto `origin/main` `da2a4915`, pushed; `DELETEME`
+  `68d66f3c` (rebased onto `origin/main` `da2a4915`, pushed; `DELETEME`
   removed in `068f7145`).
 - **Mechanical checks**:
   - `make format` + `make lint` (SwiftFormat `--lint` + `swiftlint --strict`):
-    **pass**, 0 violations (193 files).
+    **pass**, 0 violations (194 files, incl. the new
+    `SingleThread/AppLanguage+Presentation.swift`).
   - `make build` (iOS `build-for-testing`, worktree sim
     `D4C34BCA-7C96-418E-BDD3-BB22738A69C7`): **TEST BUILD SUCCEEDED**.
-  - Targeted iOS suites after the fixes: `AppLanguageTests` (7/7),
-    `AppLanguageSyncTests` (3/3), `LocalizationTests` (5/5) — **all pass**;
-    the two new UI tests
-    `testLanguageSelectionChangesVisibleString` and
-    `testUnsupportedStoredLanguageFallsBackToSystem` — **both pass**.
+  - Targeted iOS suites after every fix: `AppLanguageTests` (7/7),
+    `AppLanguageSyncTests` (3/3), `LocalizationTests` (5/5),
+    `SettingsViewTests` (all pass); UI tests
+    `testLanguageSelectionChangesVisibleString`,
+    `testUnsupportedStoredLanguageFallsBackToSystem`, and
+    `testLaunchAndRenderSmoke` (accessibility audit) — **all pass**.
   - Full `./scripts/test.sh` (async gate subagent, worktree at `068f7145`):
     **aborted at the Periphery stage before any test suite ran.** 7 findings:
     5 are the documented local Xcode-27 index-reuse false positives
@@ -33,17 +35,19 @@
     fallback it claimed to test. The rewrite is removed; the seam now leaves
     the staged value intact and `AppLocaleState` validates on its own startup
     read (UI test re-run green).
-  - **Deferred / optional**: (P2-2) `nonisolated storedEffectiveLocale`
+  - **Optional improvements, applied on request**: (P2-3) moved
+    `AppLanguage.title` out of `SingleThreadCore` into the app target
+    (`SingleThread/AppLanguage+Presentation.swift`), mirroring
+    `SortOption`/`TextSize` — Core no longer names the App bundle.
+    (Nit) `ContentView`'s refresh `accessibilityValue` now uses the existing
+    `resolvedInAppLanguage()` / empty-`String` pattern instead of an empty-key
+    `LocalizedStringResource`.
+  - **Deferred / no action**: (P2-2) `nonisolated storedEffectiveLocale`
     reading `UserDefaults` off the main actor is fine — `UserDefaults` is
     documented thread-safe and the compiler accepted it; no change.
-    (P2-3) `AppLanguage.title` living in Core with `bundle: .main` is a
-    consistency nit; low risk (only the app picker uses it, never the watch),
-    deferred to avoid a refactor at merge time. (P2-4) the appLanguage sync
-    key is pushed unconditionally rather than gated on "explicitly set";
-    behaviourally benign (`.system` ≈ device locale) — comment-only.
-    Optional nits: the empty-key `LocalizedStringResource("")` accessibility
-    branch in `ContentView`, and the widget timeline refresh question — both
-    left as-is (manual item below).
+    (P2-4) the appLanguage sync key is pushed unconditionally rather than
+    gated on "explicitly set"; behaviourally benign (`.system` ≈ device
+    locale). The widget timeline-refresh question remains a manual check.
 - **Remaining manual items** (from `implement.md`; not run here): the
   on-device/simulator checklist — non-English system locale picker flip, cold
   launch persistence, System reset, German/Japanese reminder + settings +
