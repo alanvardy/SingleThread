@@ -19,11 +19,6 @@ public enum AppLanguage: String, CaseIterable, Sendable {
         self == .system ? .current : Locale(identifier: rawValue)
     }
 
-    /// BCP-47 identifier, or `nil` when following the system.
-    public var localeIdentifier: String? {
-        self == .system ? nil : rawValue
-    }
-
     /// Picker label. `.system` localizes through the App catalog; the six
     /// language names are endonyms deliberately left out of every catalog so
     /// they render verbatim (cataloging them would also trip
