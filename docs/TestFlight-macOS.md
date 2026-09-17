@@ -49,7 +49,9 @@ portal access that live with the team owner:
    product identity; nothing else in the codebase hard-codes the id.
 5. **Mint an App Store Connect API key** (App Store Connect → Users and Access →
    Integrations). It is used **only** for manual uploads — it is a portal secret and
-   must never be checked into CI or this repo.
+   must never be checked into CI or this repo. The Key ID and Issuer ID also power
+   `xcode-cloud` (below); those two values go in the gitignored `.env`, the `.p8`
+   stays in `~/.appstoreconnect/private_keys/`.
 
 ## Local signed smoke — `make mac-run`
 
@@ -98,6 +100,25 @@ Upload path:
 Then wait for App Store Connect processing, fill out TestFlight compliance, and
 submit for beta review. Uploads are intentionally manual: they need the ASC API key
 or a logged-in App Store Connect session, not repo state.
+
+## Starting an Xcode Cloud build from the command line
+
+The Xcode Cloud workflow builds `main` on every push, so most runs need nothing
+more than a `git push`. To start one by hand — a failed commit, a flaky run, a
+re-run without a new commit:
+
+```bash
+xcode-cloud build                 # branch main, from this checkout
+xcode-cloud build --clean --wait  # clean build, poll to the outcome
+xcode-cloud status                # the last few build runs
+```
+
+`xcode-cloud` (dotfiles `pi/agent/bin/xcode-cloud`) goes through the App Store
+Connect API, which is the only programmatic door — Xcode has no CLI for Xcode
+Cloud. It reads the Key ID and Issuer ID from this repo's gitignored `.env`
+(copy `.env.example`); the key from step 5 above also works for uploads. API
+builds count as *manual* builds, so `main` must stay in the workflow's start
+conditions, and each run consumes Xcode Cloud compute hours like any other.
 
 ## Reference commands (all committed and current)
 

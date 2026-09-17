@@ -46,5 +46,9 @@ iOSInjectionProject/
 # Pi agent artifacts
 .pi-subagents/
 
+# Machine-local secrets for the `xcode-cloud` helper (Key ID / Issuer ID).
+# `.env.example` is the committed template.
+.env
+
 DerivedDataPhase4/
 DerivedDataPhase5/
