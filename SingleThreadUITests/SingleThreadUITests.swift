@@ -67,4 +67,62 @@ final class SingleThreadUITests: XCTestCase {
             try app.performAccessibilityAudit()
         #endif
     }
+
+    /// End-to-end language flow: the settings sheet's Interface screen starts in
+    /// the system (English test) locale, then switching the picker to Deutsch
+    /// re-localizes the presented screen's own label with no relaunch. This is
+    /// the only place any unit test could not observe: the environment-locale
+    /// propagation through the presented sheet and its pushed row is a SwiftUI
+    /// runtime behavior.
+    @MainActor
+    func testLanguageSelectionChangesVisibleString() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing"]
+        app.launch()
+
+        XCTAssertTrue(app.buttons["settingsButton"].waitForExistence(timeout: 5),
+                      "Settings gear should render")
+        app.buttons["settingsButton"].tap()
+        XCTAssertTrue(app.buttons["settingsInterfaceRow"].waitForExistence(timeout: 5),
+                      "Interface row should render")
+        app.buttons["settingsInterfaceRow"].tap()
+
+        // English baseline, then switch to Deutsch.
+        XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 5),
+                      "English Appearance label should render first")
+        app.buttons["languagePicker"].tap()
+        // The picker presents its options asynchronously; wait for the German
+        // option (matching any element type, since menu rows may surface as
+        // buttons or static texts) so the tap doesn't race the presentation.
+        let deutsch = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", "Deutsch")).firstMatch
+        XCTAssertTrue(deutsch.waitForExistence(timeout: 5),
+                      "German option should appear in the language picker")
+        deutsch.tap()
+
+        // The Interface screen's own label re-localizes with no relaunch.
+        XCTAssertTrue(
+            app.staticTexts["Darstellung"].waitForExistence(timeout: 5),
+            "Appearance label should re-localize to German after selection")
+        XCTAssertFalse(app.staticTexts["Appearance"].exists)
+    }
+
+    /// Sad path: an unsupported stored raw value degrades to `.system`, so the
+    /// system (English) test-locale labels render instead of falling into a
+    /// stale or broken language.
+    @MainActor
+    func testUnsupportedStoredLanguageFallsBackToSystem() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["--ui-testing", "--ui-testing-app-language", "klingon"]
+        app.launch()
+        XCTAssertTrue(app.buttons["settingsButton"].waitForExistence(timeout: 5),
+                      "Settings gear should render")
+        app.buttons["settingsButton"].tap()
+        XCTAssertTrue(app.buttons["settingsInterfaceRow"].waitForExistence(timeout: 5),
+                      "Interface row should render")
+        app.buttons["settingsInterfaceRow"].tap()
+        // `.system` under the (English) test locale → the source labels render.
+        XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 5),
+                      "Appearance should render from the system locale")
+    }
 }

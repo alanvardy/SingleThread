@@ -45,12 +45,23 @@
             .disabled(store.visibleReminders.first == nil)
         }
 
-        CommandMenu("Appearance") {
-            Picker("Appearance", selection: appearanceMode) {
-                Text("System").tag(AppearanceMode.system)
-                Text("Light").tag(AppearanceMode.light)
-                Text("Dark").tag(AppearanceMode.dark)
-            }
+        CommandMenu(
+            LocalizedStringResource("Appearance", table: "Localizable", bundle: .main)
+                .resolvedInAppLanguage()) {
+            Picker(
+                LocalizedStringResource("Appearance", table: "Localizable", bundle: .main)
+                    .resolvedInAppLanguage(),
+                selection: appearanceMode) {
+                    Text(
+                        LocalizedStringResource("System", table: "Localizable", bundle: .main)
+                            .resolvedInAppLanguage()).tag(AppearanceMode.system)
+                    Text(
+                        LocalizedStringResource("Light", table: "Localizable", bundle: .main)
+                            .resolvedInAppLanguage()).tag(AppearanceMode.light)
+                    Text(
+                        LocalizedStringResource("Dark", table: "Localizable", bundle: .main)
+                            .resolvedInAppLanguage()).tag(AppearanceMode.dark)
+                }
         }
     }
 #endif

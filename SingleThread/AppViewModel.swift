@@ -232,6 +232,15 @@ final class AppViewModel {
                     UserDefaults.standard.set(false, forKey: "showSwipePrompt")
                 }
                 AppGroup.defaults.set(true, forKey: "enableActionButtons")
+                // `--ui-testing-app-language <raw>` stages an unsupported stored
+                // raw value for the UI-test sad path; the validated read below
+                // degrades it to `.system`. Placed after the branch's reset writes
+                // so it is not wiped.
+                if let index = arguments.firstIndex(of: "--ui-testing-app-language"),
+                   index + 1 < arguments.count {
+                    AppLanguagePreference().setRawValue(arguments[index + 1])
+                    AppLocaleState.current.set(AppLanguagePreference().load()) // validates → .system
+                }
                 // Build the reminder through `InMemoryEventStore.makeReminder` so it is
                 // backed by the store's persistent `EKEventStore`. A local `EKEventStore()`
                 // would be deallocated when this scope exits, crashing any later reads of

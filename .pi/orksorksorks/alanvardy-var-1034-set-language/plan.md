@@ -1171,11 +1171,11 @@ func testUnsupportedStoredLanguageFallsBackToSystem() throws {
 ### Verification
 
 #### Automated
-- [ ] `scripts/test-one.sh SingleThreadUITests/SingleThreadUITests/testLanguageSelectionChangesVisibleString`
+- [x] `scripts/test-one.sh SingleThreadUITests/SingleThreadUITests/testLanguageSelectionChangesVisibleString`
       — green, and the run executed ≥1 case.
-- [ ] `scripts/test-one.sh SingleThreadUITests/SingleThreadUITests/testUnsupportedStoredLanguageFallsBackToSystem`
+- [x] `scripts/test-one.sh SingleThreadUITests/SingleThreadUITests/testUnsupportedStoredLanguageFallsBackToSystem`
       — green.
-- [ ] `make format && make lint` — clean.
+- [x] `make format && make lint` — clean.
 
 #### Manual
 - [ ] Switch language while a reminder card and a reschedule sheet are open — the
