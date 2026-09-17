@@ -157,6 +157,17 @@ struct SingleThreadTests {
         #expect(sheetDescription.contains("Cancel"))
         #expect(!sheetDescription.contains("SingleThreadButtonModifier"))
     }
+
+    @Test
+    func rescheduleStringResolvesInGerman() {
+        // Phase-4 spine: the Reschedule confirmation resolves against the chosen
+        // app language, not the system locale. The catalog German value differs
+        // from the English key, so a system-language-only resolution would fail.
+        let german = LocalizedStringResource("Reschedule", table: "Localizable", bundle: .main)
+            .resolved(in: Locale(identifier: "de"))
+        #expect(german == "Neu planen")
+        #expect(german != "Reschedule")
+    }
 }
 
 struct ReminderDateFilterTests {

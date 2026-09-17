@@ -956,11 +956,11 @@ the catalog-wide invariant is the contract.)
 ### Verification
 
 #### Automated
-- [ ] `scripts/test-one.sh SingleThreadTests/LocalizationTests` — green.
-- [ ] `scripts/test-one.sh SingleThreadTests/SingleThreadTests` — green.
-- [ ] `scripts/test-one.sh SingleThreadTests/SortOptionTests` — green.
-- [ ] `make format && make lint` — clean.
-- [ ] `rg -n 'String\(localized:' SingleThread SingleThreadCore` — only Phase 5
+- [x] `scripts/test-one.sh SingleThreadTests/LocalizationTests` — green.
+- [x] `scripts/test-one.sh SingleThreadTests/SingleThreadTests` — green.
+- [x] `scripts/test-one.sh SingleThreadTests/SortOptionTests` — green.
+- [x] `make format && make lint` — clean.
+- [x] `rg -n 'String\(localized:' SingleThread SingleThreadCore` — only Phase 5
       sites and the debug-only exceptions remain.
 
 #### Manual

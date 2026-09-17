@@ -24,9 +24,15 @@ struct SortOptionTests {
 
     @Test
     func presentationTitlesAreHumanReadable() {
-        #expect(SortOption.priority.title == String.en("Priority", bundle: .main))
-        #expect(SortOption.dueDate.title == String.en("Due Date", bundle: .main))
-        #expect(SortOption.title.title == String.en("Title", bundle: .main))
+        #expect(
+            SortOption.priority.title.resolved(in: Locale(identifier: "en"))
+                == String.en("Priority", bundle: .main))
+        #expect(
+            SortOption.dueDate.title.resolved(in: Locale(identifier: "en"))
+                == String.en("Due Date", bundle: .main))
+        #expect(
+            SortOption.title.title.resolved(in: Locale(identifier: "en"))
+                == String.en("Title", bundle: .main))
     }
 
     @Test

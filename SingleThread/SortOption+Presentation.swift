@@ -7,11 +7,11 @@ import SwiftUI
 /// / `TextSize` (Core stays SwiftUI-free; the app target owns `title`/`systemImage`).
 extension SortOption {
     /// Human-readable label shown in the settings picker.
-    var title: String {
+    var title: LocalizedStringResource {
         switch self {
-        case .priority: String(localized: "Priority", table: "Localizable", bundle: .main)
-        case .dueDate: String(localized: "Due Date", table: "Localizable", bundle: .main)
-        case .title: String(localized: "Title", table: "Localizable", bundle: .main)
+        case .priority: LocalizedStringResource("Priority", table: "Localizable", bundle: .main)
+        case .dueDate: LocalizedStringResource("Due Date", table: "Localizable", bundle: .main)
+        case .title: LocalizedStringResource("Title", table: "Localizable", bundle: .main)
         }
     }
 

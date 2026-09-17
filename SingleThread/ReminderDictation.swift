@@ -224,19 +224,23 @@ enum DictationError: Error, LocalizedError, Sendable {
     var errorDescription: String? {
         switch self {
         case .alreadyRecording:
-            String(localized: "Already recording.", table: "Localizable", bundle: .main)
+            LocalizedStringResource("Already recording.", table: "Localizable", bundle: .main)
+                .resolvedInAppLanguage()
         case .recognizerUnavailable:
-            String(
-                localized: "Speech recognition is not available.",
+            LocalizedStringResource(
+                "Speech recognition is not available.",
                 table: "Localizable",
                 bundle: .main)
+                .resolvedInAppLanguage()
         case .microphoneDenied:
-            String(
-                localized: "Microphone access was denied.",
+            LocalizedStringResource(
+                "Microphone access was denied.",
                 table: "Localizable",
                 bundle: .main)
+                .resolvedInAppLanguage()
         case .noSpeechDetected:
-            String(localized: "No speech was detected.", table: "Localizable", bundle: .main)
+            LocalizedStringResource("No speech was detected.", table: "Localizable", bundle: .main)
+                .resolvedInAppLanguage()
         }
     }
 }
