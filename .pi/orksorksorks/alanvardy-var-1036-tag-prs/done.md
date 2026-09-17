@@ -1,0 +1,10 @@
+# Done
+
+- **What was built**: Nothing to build — the ticket was already satisfied. Verified (1) `.github/dependabot.yml:13-14` declares `reviewers: ["alanvardy"]` on the sole `github-actions` updates entry (the only ecosystem Dependabot supports for this repo), and (2) all 4 open Dependabot PRs (#189–#192) already list alanvardy in `reviewRequests`. No gap found, so no code/config edit was made (dependabot.yml and ci.yml untouched, per small.md step 3).
+- **Commit SHA(s)**: `5aeafb09` ("chore: remove DELETEME bootstrap marker" — the only commit; required AGENTS.md housekeeping before merge). Pushed; branch `HEAD` == origin.
+- **Verification**:
+  - `gh pr list --repo alanvardy/SingleThread --author "app/dependabot" --state open` → 4 PRs, every one with alanvardy in `reviewRequests` (no `gh pr edit --add-reviewer` needed).
+  - `reviewers: ["alanvardy"]` confirmed in `.github/dependabot.yml:13-14`.
+  - actionlint 1.7.12 baseline-compare vs `origin/main` on `.github/workflows/ci.yml`: **byte-identical normalized finding sets** (the 4 pre-existing `shellcheck SC2086:info` on `echo "DEVELOPMENT_TEAM=" >> $GITHUB_ENV` at lines 33/102/160/261) — no new findings. This is the language-appropriate gate for GitHub automation config; `./scripts/test.sh` is not the gate (no Swift touched).
+- **Reviewer findings**: One bounded fresh-context `reviewer` pass over `git diff main...HEAD` + small.md — **no blockers, no nits**. Confirmed: no-code-change conclusion warranted; DELETEME removal complete and consistent with AGENTS.md (not gitignored, prior precedent `chore: remove DELETEME bootstrap marker` on var-998/var-1030); clean two-commit linear chain, branch pushed with no force-push anomalies.
+- **Remaining manual items**: none. Ticket VAR-1036 closed to `Done` (Linear). PR #210 ("Tag PRs", draft) carries only the DELETEME removal + QRSPI artifacts; since the Dependabot `reviewers` key covers all newly created Dependabot PRs and all current open ones are tagged, no ongoing gap-fill is expected.
