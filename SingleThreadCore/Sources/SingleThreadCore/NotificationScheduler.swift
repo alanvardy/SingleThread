@@ -79,11 +79,13 @@ public final class NotificationScheduler {
         let effectiveHours = intervalHours > 0 ? intervalHours : 48
 
         let content = UNMutableNotificationContent()
-        content.title = String(localized: "SingleThread", table: "Localizable", bundle: .main)
-        content.body = String(
-            localized: "You have \(reminderCount) reminders waiting — open SingleThread!",
+        content.title = LocalizedStringResource("SingleThread", table: "Localizable", bundle: .main)
+            .resolvedInAppLanguage()
+        content.body = LocalizedStringResource(
+            "You have \(reminderCount) reminders waiting — open SingleThread!",
             table: "Localizable",
             bundle: .main)
+            .resolvedInAppLanguage()
         content.sound = .default
 
         let trigger = UNTimeIntervalNotificationTrigger(

@@ -125,7 +125,7 @@ struct ReminderCardView: View {
 
             if showAlarms, display.hasAlarms {
                 Image(systemName: "bell")
-                    .accessibilityLabel(String(localized: "Has alarm", table: "Localizable", bundle: .main))
+                    .accessibilityLabel(LocalizedStringResource("Has alarm", table: "Localizable", bundle: .main))
                     .accessibilityIdentifier("alarmLabel")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -166,12 +166,10 @@ struct ReminderCardView: View {
         .fixedSize(horizontal: true, vertical: false)
         .padding(.vertical, 8)
         .contentShape(Rectangle())
-        .accessibilityLabel(String(
-            format: String(
-                localized: "Skipped %lld times — tap to manage",
-                table: "Localizable",
-                bundle: .main),
-            6))
+        .accessibilityLabel(String(format: LocalizedStringResource(
+            "Skipped %lld times — tap to manage",
+            table: "Localizable",
+            bundle: .main).resolvedInAppLanguage(), 6))
         .accessibilityIdentifier("skipNudgeBanner")
     }
 

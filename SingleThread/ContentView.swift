@@ -215,8 +215,8 @@ struct ContentView: View {
             .disabled(viewModel.isRefreshing)
             .accessibilityValue(
                 viewModel.isRefreshing
-                    ? String(localized: "Refreshing", table: "Localizable", bundle: .main)
-                    : "")
+                    ? LocalizedStringResource("Refreshing", table: "Localizable", bundle: .main)
+                    : LocalizedStringResource("", table: "Localizable", bundle: .main))
             .accessibilityLabel("Refresh")
             .accessibilityIdentifier("refreshButton")
             .accessibilityAddTraits(.isButton)
@@ -730,7 +730,7 @@ extension ContentView {
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                     }
-                    .accessibilityLabel(String(localized: "Processing", table: "Localizable", bundle: .main))
+                    .accessibilityLabel(LocalizedStringResource("Processing", table: "Localizable", bundle: .main))
                 }
             } else if viewModel.dictation.canDictate, showMicrophoneButton {
                 #if os(iOS)
@@ -755,7 +755,7 @@ extension ContentView {
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
                     #if os(iOS)
-                        Button(String(localized: "Open Settings", table: "Localizable", bundle: .main)) {
+                        Button(LocalizedStringResource("Open Settings", table: "Localizable", bundle: .main)) {
                             if let url = URL(string: UIApplication.openSettingsURLString) {
                                 UIApplication.shared.open(url)
                             }

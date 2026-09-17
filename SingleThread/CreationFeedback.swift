@@ -1,3 +1,4 @@
+import SingleThreadCore
 import SwiftUI
 
 // MARK: - CreationFeedback
@@ -26,8 +27,10 @@ enum CreationFeedback {
 
     var accessibilityLabel: String {
         switch self {
-        case .success: String(localized: "Task created", table: "Localizable", bundle: .main)
-        case .failure: String(localized: "Task creation failed", table: "Localizable", bundle: .main)
+        case .success: LocalizedStringResource("Task created", table: "Localizable", bundle: .main)
+            .resolvedInAppLanguage()
+        case .failure: LocalizedStringResource("Task creation failed", table: "Localizable", bundle: .main)
+            .resolvedInAppLanguage()
         }
     }
 }
