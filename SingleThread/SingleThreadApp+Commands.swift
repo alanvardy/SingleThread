@@ -14,26 +14,30 @@
         appearanceMode: Binding<AppearanceMode>,
         showAbout: Binding<Bool>) -> some Commands {
         CommandGroup(replacing: .appInfo) {
-            Button(String(localized: "About SingleThread", table: "Localizable", bundle: .main)) {
+            Button(
+                LocalizedStringResource("About SingleThread", table: "Localizable", bundle: .main)
+                    .resolvedInAppLanguage()) {
                 showAbout.wrappedValue = true
             }
         }
 
         CommandGroup(replacing: .appTermination) {
-            Button(String(localized: "Quit SingleThread", table: "Localizable", bundle: .main)) {
+            Button(
+                LocalizedStringResource("Quit SingleThread", table: "Localizable", bundle: .main)
+                    .resolvedInAppLanguage()) {
                 NSApplication.shared.terminate(nil)
             }
         }
 
-        CommandMenu(SharedStrings.reminder) {
-            Button(SharedStrings.completeReminder) {
+        CommandMenu(SharedStrings.reminder.resolvedInAppLanguage()) {
+            Button(SharedStrings.completeReminder.resolvedInAppLanguage()) {
                 Task { @MainActor in
                     await store.completeCurrentReminder()
                 }
             }
             .disabled(store.visibleReminders.first == nil)
 
-            Button(SharedStrings.skipReminder) {
+            Button(SharedStrings.skipReminder.resolvedInAppLanguage()) {
                 Task { @MainActor in
                     store.skipCurrentReminder()
                 }

@@ -1036,10 +1036,10 @@ test).
 ### Verification
 
 #### Automated
-- [ ] `scripts/test-one.sh SingleThreadTests/LocalizationTests` — green.
-- [ ] `scripts/test-one.sh SingleThreadTests/SettingsViewTests` — green.
-- [ ] `make lint` — clean.
-- [ ] `rg -n 'String\(localized:' SingleThread SingleThreadCore` — only debug-only
+- [x] `scripts/test-one.sh SingleThreadTests/LocalizationTests` — green.
+- [x] `scripts/test-one.sh SingleThreadTests/SettingsViewTests` — green.
+- [x] `make lint` — clean.
+- [x] `rg -n 'String\(localized:' SingleThread SingleThreadCore` — only debug-only
       exceptions remain (`ContentView+iOS.swift:26,28`,
       `ContentView.swift:331,701,711,721`).
 

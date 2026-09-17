@@ -31,7 +31,9 @@
                     }
                     .keyboardShortcut("s", modifiers: [])
                     Divider()
-                    Button(String(localized: "Open SingleThread", table: "Localizable", bundle: .main)) {
+                    Button(
+                        LocalizedStringResource("Open SingleThread", table: "Localizable", bundle: .main)
+                            .resolvedInAppLanguage()) {
                         NSApp.activate(ignoringOtherApps: true)
                         NSApp.windows.first { $0.canBecomeKey }?.makeKeyAndOrderFront(nil)
                     }
