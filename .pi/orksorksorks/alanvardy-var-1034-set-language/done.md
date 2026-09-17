@@ -1,7 +1,7 @@
 # Done
 
-- **Branch / head SHA**: `alanvardy-var-1034-set-language` · final commit
-  `68d66f3c` (rebased onto `origin/main` `da2a4915`, pushed; `DELETEME`
+- **Branch / head SHA**: `alanvardy-var-1034-set-language` · final code commit
+  `a1d045e2` (rebased onto `origin/main` `da2a4915`, pushed; `DELETEME`
   removed in `068f7145`).
 - **Mechanical checks**:
   - `make format` + `make lint` (SwiftFormat `--lint` + `swiftlint --strict`):
@@ -56,3 +56,29 @@
   broken on `origin/main` (iOS-only `SkipSyncSession`), so the macOS-only
   Command/MenuBarExtra edits are eye-reviewed only; CI `mac-tests` will
   compile them once the pre-existing macOS break is fixed.
+
+## Follow-up fix (post-review): navigation titles
+
+**Symptom reported**: switching Japanese → English left the Settings sheet's
+root "Settings" header in Japanese until the sheet was closed and reopened.
+
+**Root cause**: SwiftUI resolves a `LocalizedStringKey` `.navigationTitle` once,
+against the system/per-app language, and does not re-resolve it when
+`.environment(\.locale)` changes (iOS 18+ regression, still present in iOS 26).
+Row labels and pushed screens re-evaluate; the root screen's title does not.
+
+**Fix**: new `SingleThread/LocalizedNavigationTitle.swift`
+(`localizedNavigationTitle`, which resolves the resource against
+`@Environment(\.locale)`) and applied to every settings screen's title (Settings,
+Interface, Notifications, Reminder, Filtering & Sorting, Background, Purchase,
+Excluded Lists, Privacy, About). This keeps navigation state (no `.id(locale)`
+stack re-key, which would pop to root and contradict the live pushed-screen
+behaviour).
+
+**Verification**: extended `testLanguageSelectionChangesVisibleString` to assert
+the pushed title (`Oberfläche`) and the root title (`Einstellungen`) re-localize,
+plus a second switch back to English in the same session. Red-first confirmed
+against the pre-fix code (`TEST FAILED` on the root-title assertion), then green.
+Affected unit suites re-run green (`SettingsViewTests`, `AboutViewTests`,
+`SettingsSubscreenLayoutTests`, `MicrophoneToggleTests`, `AppLanguageTests`);
+`make format`/`make lint` 0 violations.
