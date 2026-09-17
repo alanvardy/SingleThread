@@ -41,6 +41,7 @@ struct SingleThreadApp: App {
                 systemImage: "checkmark.circle",
                 isInserted: $showMenuBarExtra) {
                     MenuBarExtraOptions(store: viewModel.store)
+                        .environment(\.locale, AppLocaleState.current.effectiveLocale)
                 }
                 .menuBarExtraStyle(.menu)
         #endif

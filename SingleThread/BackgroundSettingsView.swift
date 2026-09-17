@@ -67,7 +67,8 @@ struct BackgroundSettingsView: View {
                 .disabled(backgroundImage.isRefreshing)
                 .accessibilityValue(
                     backgroundImage.isRefreshing
-                        ? String(localized: "Refreshing", table: "Localizable", bundle: .main)
+                        ? LocalizedStringResource("Refreshing", table: "Localizable", bundle: .main)
+                        .resolvedInAppLanguage()
                         : "")
                 .accessibilityIdentifier("refreshWallpaperButton")
             }
