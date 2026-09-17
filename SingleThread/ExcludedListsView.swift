@@ -27,7 +27,7 @@ struct ExcludedListsView: View {
                 Text("Excluded lists are hidden from the reminder list.")
             }
         }
-        .navigationTitle("Excluded Lists")
+        .localizedNavigationTitle("Excluded Lists")
         .settingsSubscreenLayout()
     }
 

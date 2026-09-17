@@ -104,7 +104,7 @@ struct ReminderSettingsView: View {
             }
             .accessibilityIdentifier("showCompletionMomentumToggle")
         }
-        .navigationTitle(SharedStrings.reminder)
+        .localizedNavigationTitle(SharedStrings.reminder)
         .settingsSubscreenLayout()
     }
 }

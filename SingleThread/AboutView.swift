@@ -36,7 +36,7 @@ struct AboutView: View {
                 }
             }
         }
-        .navigationTitle("About")
+        .localizedNavigationTitle("About")
         .settingsSubscreenLayout()
     }
 

@@ -34,7 +34,7 @@ struct NotificationsSettingsView: View {
             .pickerStyle(.menu)
             .accessibilityIdentifier("notificationIntervalPicker")
         }
-        .navigationTitle("Notifications")
+        .localizedNavigationTitle("Notifications")
     }
 }
 
