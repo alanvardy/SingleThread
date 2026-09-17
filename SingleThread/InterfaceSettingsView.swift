@@ -153,7 +153,7 @@ struct InterfaceSettingsView: View {
                 .accessibilityIdentifier("showUndoButtonToggle")
             #endif
         }
-        .navigationTitle("Interface")
+        .localizedNavigationTitle("Interface")
         .settingsSubscreenLayout()
     }
 }

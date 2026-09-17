@@ -160,7 +160,7 @@ struct SettingsView: View {
                     .accessibilityAddTraits(.isButton)
                 }
             }
-            .navigationTitle("Settings")
+            .localizedNavigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {

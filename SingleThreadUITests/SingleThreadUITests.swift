@@ -105,6 +105,39 @@ final class SingleThreadUITests: XCTestCase {
             app.staticTexts["Darstellung"].waitForExistence(timeout: 5),
             "Appearance label should re-localize to German after selection")
         XCTAssertFalse(app.staticTexts["Appearance"].exists)
+        // The navigation title must re-localize too. SwiftUI resolves a
+        // LocalizedStringKey navigationTitle once against the system language,
+        // so this is the regression that motivated `localizedNavigationTitle`.
+        XCTAssertTrue(
+            app.navigationBars["Oberfläche"].waitForExistence(timeout: 5),
+            "Navigation title should re-localize to German after selection")
+        XCTAssertFalse(app.navigationBars["Interface"].exists)
+
+        // Back at the settings root, its title must have re-localized too — the
+        // symptom reported as "Settings stayed in Japanese until I reopened the
+        // sheet".
+        app.navigationBars["Oberfläche"].buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(
+            app.navigationBars["Einstellungen"].waitForExistence(timeout: 5),
+            "Root Settings title should re-localize to German without reopening the sheet")
+        XCTAssertFalse(app.navigationBars["Settings"].exists)
+
+        // A second change in the same session must also stick — the navigation
+        // bar must not freeze after its first update.
+        app.buttons["settingsInterfaceRow"].tap()
+        XCTAssertTrue(app.staticTexts["Darstellung"].waitForExistence(timeout: 5),
+                      "Interface screen should still render in German")
+        app.buttons["languagePicker"].tap()
+        let english = app.descendants(matching: .any)
+            .matching(NSPredicate(format: "label == %@", "English")).firstMatch
+        XCTAssertTrue(english.waitForExistence(timeout: 5),
+                      "English option should appear in the language picker")
+        english.tap()
+        XCTAssertTrue(app.navigationBars["Interface"].waitForExistence(timeout: 5),
+                      "Navigation title should re-localize back to English")
+        app.navigationBars["Interface"].buttons.element(boundBy: 0).tap()
+        XCTAssertTrue(app.navigationBars["Settings"].waitForExistence(timeout: 5),
+                      "Root title should follow a second language change")
     }
 
     /// Sad path: an unsupported stored raw value degrades to `.system`, so the

@@ -52,7 +52,7 @@ struct PurchaseSettingsView: View {
                 }
             }
         }
-        .navigationTitle("Unlock")
+        .localizedNavigationTitle("Unlock")
         .settingsSubscreenLayout()
         .task {
             await loadProduct()
