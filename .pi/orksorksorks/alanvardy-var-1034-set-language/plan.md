@@ -1104,9 +1104,9 @@ rg -n 'String\(localized:' SingleThread SingleThreadCore SingleThreadWatch Singl
 rg -n 'SharedStrings\.' SingleThread SingleThreadWatch SingleThreadWidget
 ```
 
-- [ ] No prod `String(localized:)` site outside the debug-only exceptions and
+- [x] No prod `String(localized:)` site outside the debug-only exceptions and
       the intentional non-View `.resolvedInAppLanguage()` conversions.
-- [ ] No `SharedStrings.` accessor consumed as a bare `String`.
+- [x] No `SharedStrings.` accessor consumed as a bare `String`.
 
 #### 5. Widget / watch refresh confirmation
 **Files**: `SingleThreadWidget/NextThingWidget.swift`,
