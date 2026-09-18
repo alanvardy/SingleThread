@@ -440,9 +440,11 @@ import os
         /// `queueUserInfo` (unreachable) fires per call, so a mutating request is
         /// never handed to the transport twice for one attempt. Returns whether the
         /// transport accepted the request: a reachable `sendMessage` is always
-        /// accepted (any transport error arrives asynchronously and is logged),
-        /// while an unreachable queue reports the transport's own acceptance, so a
-        /// refusal surfaces as a failure instead of a silent drop.
+        /// accepted (any transport error arrives asynchronously and is logged), and
+        /// the real `WCSession.queueUserInfo` always accepts too (`transferUserInfo`
+        /// returns a non-optional transfer, so there is no refusal to observe). The
+        /// `Bool` is kept so the `SkipSyncSession` seam can still model a refusing
+        /// transport in tests.
         @discardableResult
         private func deliver(_ payload: [String: Any]) -> Bool {
             if session.isReachable {

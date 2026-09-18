@@ -199,13 +199,19 @@ jobs:
       - name: Unit tests (macOS)
         timeout-minutes: 20
         run: |
+          mkdir -p DerivedData/ci-logs
+          set +e
           xcodebuild -scheme SingleThread \
             -destination "platform=macOS" \
             -derivedDataPath "$DERIVED_DATA" \
             CODE_SIGNING_ALLOWED=NO \
             test \
             -only-testing:SingleThreadTests \
-            -resultBundlePath TestResults-mac.xcresult
+            -resultBundlePath TestResults-mac.xcresult 2>&1 | tee DerivedData/ci-logs/mac-unit-test.log
+          status=${PIPESTATUS[0]}
+          set -e
+          [[ "$status" -eq 0 ]] || exit "$status"
+          bash scripts/check-warnings.sh DerivedData/ci-logs/mac-unit-test.log
 
       - name: Upload test results on failure
         if: failure()

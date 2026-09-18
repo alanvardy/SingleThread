@@ -1,2 +1,2 @@
-/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/StoreKitTest.framework/Headers/SKTestSession.h:118:1: warning: 'SKTestSession' is deprecated: first deprecated in iOS 18.0
+/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator27.0.sdk/Developer/Library/Frameworks/StoreKitTest.framework/Headers/SKTestTransaction.h:34:32: warning: 'SKPaymentTransactionState' is deprecated: first deprecated in iOS 18.0 - Use PurchaseResult from Product.purchase(confirmIn:options:).
 ** BUILD SUCCEEDED **

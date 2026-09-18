@@ -42,7 +42,7 @@ print_offender() {
 allowlist_match() {
     [[ -f "$ALLOWLIST" ]] || return 1
     local line="$1" pattern
-    while IFS= read -r pattern; do
+    while IFS= read -r pattern || [[ -n "$pattern" ]]; do
         [[ -z "${pattern//[[:space:]]/}" ]] && continue
         [[ "$pattern" =~ ^[[:space:]]*# ]] && continue
         [[ "$line" =~ $pattern ]] && return 0
@@ -58,7 +58,10 @@ check_warnings() {
     fi
     local log line offenders=0
     for log in "$@"; do
-        [[ -f "$log" ]] || continue
+        if [[ ! -f "$log" ]]; then
+            echo "❌ warning log not found: $log (fail closed)" >&2
+            return 1
+        fi
         while IFS= read -r line; do
             allowlist_match "$line" && continue
             offenders=$((offenders + 1))
@@ -80,6 +83,9 @@ run_xcodebuild() {
     local log="$1"; shift
     mkdir -p "$(dirname "$log")"
     : > "$log"
+    # The pipeline's exit status is only recoverable with pipefail; do not rely
+    # on the caller having enabled it.
+    set -o pipefail
     local status=0
     "$@" 2>&1 | tee -a "$log" || status=${PIPESTATUS[0]}
     if [[ "$status" -ne 0 ]]; then
