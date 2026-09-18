@@ -731,14 +731,16 @@ not change the CI gate. It is run by hand and by the reviewer.
 
 #### Automated
 
-- [ ] `chmod +x scripts/test-run-devices.sh && bash scripts/test-run-devices.sh`
+- [x] `chmod +x scripts/test-run-devices.sh && bash scripts/test-run-devices.sh`
       → every check `✅`, exit 0
-- [ ] `bash -n scripts/run-devices.sh` and
+- [x] `bash -n scripts/run-devices.sh` and
       `shellcheck -S warning --exclude=SC1111 scripts/run-devices.sh` — clean
-- [ ] `jq -e '.result.devices | length == 8' scripts/fixtures/devicectl-devices.json`
+- [x] `jq -e '.result.devices | length == 8' scripts/fixtures/devicectl-devices.json`
       (or `python3 -c 'import json;print(len(json.load(open("scripts/fixtures/devicectl-devices.json"))["result"]["devices"]))'`)
-- [ ] `git status --short` shows no `.pi/` file and no captured live inventory
-- [ ] `make format` then `make lint` — no Swift changes, but this is the repo's
+- [x] `git status --short` shows no `.pi/` file and no captured live inventory
+      (staged set = the 3 script files + plan.md only; the pre-existing untracked
+      `.pi/orksorksorks/...` workflow artifacts and the live capture in /tmp are not staged)
+- [x] `make format` then `make lint` — no Swift changes, but this is the repo's
       pre-commit pair and must not regress
 
 #### Manual

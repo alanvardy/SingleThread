@@ -335,10 +335,35 @@ if [[ "$RUN_MAC" -eq 1 ]]; then
     fi
 fi
 
+# ── Summary ────────────────────────────────────────────────────────────────────
+echo ""
+echo "==> Summary"
+echo "  iPhone/iPad: ${#DEVICES[@]} launched, $UNREACHABLE_COUNT unreachable"
+if [[ "$RUN_WATCH" -eq 0 ]]; then
+    echo "  Apple Watch: skipped (RUN_WATCH=0)"
+elif [[ ${#WATCH_DEVICES[@]} -eq 0 && "$WATCH_UNREACHABLE_COUNT" -eq 0 ]]; then
+    echo "  Apple Watch: 0 watches found (not a failure)"
+else
+    watch_line="  Apple Watch: $WATCH_LAUNCHED launched, $WATCH_FAILED failed, $WATCH_UNREACHABLE_COUNT unreachable"
+    if [[ "$WATCH_UNREACHABLE_COUNT" -gt 0 ]]; then
+        watch_line="$watch_line  (tunnel down — is the watch on your wrist?)"
+    fi
+    echo "$watch_line"
+    if [[ "$WATCH_LAUNCHED" -gt 0 ]]; then
+        echo "  Watch launch flags: $WATCH_LAUNCH_FORM"
+    fi
+fi
+if [[ "$RUN_MAC" -eq 1 ]]; then
+    echo "  macOS: built and launched"
+else
+    echo "  macOS: skipped (RUN_MAC=0)"
+fi
+
 echo ""
 if [[ "$failures" -eq 0 ]]; then
     summary="Installed and launched on ${#DEVICES[@]} device(s)"
     [[ "$RUN_MAC" -eq 1 ]] && summary="$summary and macOS"
+    [[ "$WATCH_LAUNCHED" -gt 0 ]] && summary="$summary and $WATCH_LAUNCHED Apple Watch(es)"
     echo "✅ $summary."
 else
     echo "❌ $failures step(s) failed — see errors above." >&2
