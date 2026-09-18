@@ -43,12 +43,18 @@ prerequisite) and the branch was rebased + force-synced to the current
 - [x] `make watch-test` — 54/54 watch unit cases (incl. `WatchSyncPipelineTests/aiSortOptionOrdersByPriorityChain` at the watch-floor)
 - [x] `make lint` / `swiftlint --strict` clean (after deviations below)
 - [x] `git rm DELETEME` — done at setup
-- [ ] Full CI-identical gate (`./scripts/test.sh`) — launched ONCE via the
-      `run-gate` skill (async gate subagent, managed worktree at branch tip
-      `34e47df7`, 6h cap, `gate.md` report); **in flight — verdict pending**.
-      The iOS-sim suites above were run against the exact pinned worktree sim
-      and the branch contains no uncommitted changes, so the gate runs the
-      committed tip.
+- [x] Full CI-identical gate (`./scripts/test.sh`) — completed via the
+      `run-gate` skill (dedicated async gate subagent, managed worktree).
+      **Final verdict (run 3, tip `54addad0`): PASS — no new failures.**
+      SwiftFormat/SwiftLint ✓ · iOS build ✓ · watch build ✓ · Periphery
+      `--strict` exit 0 ✓ · iOS UI tests ✓ · watch UI tests ✓ · watch unit
+      tests 40/40 ✓ · macOS unit: 661 passed / 3 failed — the documented
+      pre-existing `EntitlementStoreTests` trio only (report-only per
+      AGENTS.md; CI mac-tests runs fresh runners). The known
+      `PreferenceHolderTests/refreshesOnNotification` flake passed this run.
+      Gate history: run 1 aborted at Periphery (2 dead-code findings, fixed);
+      run 2 aborted at the macOS compile (branch-vs-main drift, fixed by
+      rebase); run 3 green as above.
 
   First gate run result (at `34e47df7`): **FAIL at Periphery, before test
   stages** — 2 findings, both real dead code in Phase-1 test files:
