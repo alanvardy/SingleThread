@@ -99,6 +99,7 @@ struct SettingsView: View {
                             sortOption: $bindings.sortOption,
                             aiSortRules: $bindings.aiSortRules,
                             showUndatedReminders: $bindings.showUndatedReminders,
+                            isAIRankingAvailable: bindings.isAIRankingAvailable,
                             availableLists: availableLists,
                             excludedLists: $excludedLists)
                     } label: {

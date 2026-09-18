@@ -36,6 +36,19 @@ public protocol AIReminderRanking: Sendable {
     /// Returns reminder identifiers best-first. The implementation must be
     /// treated as untrusted (Phase 3 reconciles the result).
     func rank(_ candidates: [AIReminderCandidate], rules: String) async throws -> [String]
+
+    /// Whether this device can rank at all. Declared as a requirement so
+    /// conformers' overrides dispatch through the existential the coordinator
+    /// holds — an extension-only member would be statically dispatched to the
+    /// default and never see a conformer's implementation.
+    var isAvailable: Bool { get }
+}
+
+public extension AIReminderRanking {
+    /// Defaults to `true` so fakes and other conformers need no change.
+    nonisolated var isAvailable: Bool {
+        true
+    }
 }
 
 /// Errors the ranking layer can surface. The coordinator treats every error as
@@ -62,7 +75,14 @@ public final class AISortCoordinator {
 
     public func update(rules: String, candidates: [AIReminderCandidate]) {
         let trimmed = rules.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
+        guard !trimmed.isEmpty, ranker.isAvailable else {
+            // Blank rules or no ranking capability: clear any stale ranking so
+            // the list settles on the `.priority` chain.
+            pending?.cancel()
+            pending = nil
+            emit([:])
+            return
+        }
         pending?.cancel()
         pending = Task { [weak self, ranker] in
             do {

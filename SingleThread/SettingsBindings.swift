@@ -113,6 +113,12 @@ final class SettingsBindings {
         }
     }
 
+    /// `true` when this device can run the on-device ranker. Drives the
+    /// Filter & Sort footer copy; not persisted.
+    var isAIRankingAvailable: Bool {
+        FoundationModelsReminderRanker.isAvailable
+    }
+
     var showDate: Bool {
         get {
             access(keyPath: \.showDate)

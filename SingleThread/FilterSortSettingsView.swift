@@ -13,6 +13,8 @@ struct FilterSortSettingsView: View {
 
     @Binding var showUndatedReminders: Bool
 
+    let isAIRankingAvailable: Bool
+
     let availableLists: [String]
 
     @Binding var excludedLists: Set<String>
@@ -38,7 +40,16 @@ struct FilterSortSettingsView: View {
                 } header: {
                     Text("AI Sort Rules")
                 } footer: {
-                    SettingsCaption(text: "Describe how reminders should be ordered. On-device AI applies these rules.")
+                    if isAIRankingAvailable {
+                        SettingsCaption(
+                            text: "Describe how reminders should be ordered. On-device AI applies these rules.")
+                    } else {
+                        SettingsCaption(
+                            text: LocalizedStringKey(
+                                "Describe how reminders should be ordered. "
+                                    + "This device can't run on-device AI, so "
+                                    + "reminders stay in priority order."))
+                    }
                 }
             }
             Toggle(isOn: $showUndatedReminders) {
@@ -81,6 +92,7 @@ struct FilterSortSettingsView: View {
             sortOption: .constant(.priority),
             aiSortRules: .constant(""),
             showUndatedReminders: .constant(false),
+            isAIRankingAvailable: false,
             availableLists: ["Work", "Personal"],
             excludedLists: .constant([]))
     }
