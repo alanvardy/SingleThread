@@ -1091,9 +1091,13 @@ buys no coverage the unit suites lack. The PR must state this justification.
 - [x] `scripts/test-one.sh SingleThreadTests/UITestingSeedTests` (iOS simulator; 21 cases incl. `resetsAISortRules`)
 - [x] `scripts/test-one.sh SingleThreadTests/SkippedReminderSyncServiceTests` (iOS simulator; 36 cases; the `.ai` round-trip case lives in the sibling suite `SingleThreadTests/AISortOptionTravelTests` — moving it out kept the main struct under the `type_body_length` bound; 1 case, verified separately)
 - [x] `make watch-test` (watch simulator; 54 cases incl. `WatchSyncPipelineTests/aiSortOptionOrdersByPriorityChain`)
-- [ ] Full CI-identical gate ONCE, via the `run-gate` skill (async gate
+- [x] Full CI-identical gate ONCE, via the `run-gate` skill (async gate
       subagent, managed worktree, multi-hour timeout) — never `nohup` it ad-hoc
-      → **launched by the parent after the phases commit**
+      → **completed: PASS (no new failures)**; macOS unit leg fails with only
+      the documented pre-existing `EntitlementStoreTests` trio (report-only)
+      — see implement.md for the three-run gate history (Periphery dead-code
+      fix `68d76909`, main-rebase `SkipSyncSession` fix, await hardening
+      `962d55a2`)
 - [x] `git rm DELETEME` before merge (branch bootstrap marker) — removed in the
       session's setup commit (rebase prerequisite); no DELETEME remains
 
