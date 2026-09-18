@@ -31,4 +31,34 @@ struct FilteredRemindersListViewTests {
         #expect(bodyDescription.contains("kept"))
         #expect(!bodyDescription.contains("skipped"), "the view renders the display list it is handed, nothing else")
     }
+
+    @Test
+    func filteredRemindersListViewExplainsAnEmptySet() {
+        let view = FilteredRemindersListView(displays: [])
+        let bodyDescription = String(describing: view.body)
+
+        #expect(bodyDescription.contains("No reminders match the current filters."))
+    }
+
+    @Test
+    func filteredRemindersListViewCaptionCarriesListAndPriority() {
+        let view = FilteredRemindersListView(displays: [
+            ReminderDisplay(title: "ship it", priorityMarker: "!!", listName: "Work")
+        ])
+        let bodyDescription = String(describing: view.body)
+
+        #expect(bodyDescription.contains("Work"))
+        #expect(bodyDescription.contains("!!"))
+    }
+
+    @Test
+    func filteredRemindersListViewOmitsAbsentCaptionParts() {
+        let view = FilteredRemindersListView(displays: [
+            ReminderDisplay(title: "bare")
+        ])
+        let bodyDescription = String(describing: view.body)
+
+        #expect(bodyDescription.contains("bare"))
+        #expect(!bodyDescription.contains(" · "), "a reminder with no list/date/priority gets no caption line")
+    }
 }
