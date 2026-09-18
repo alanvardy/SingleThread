@@ -83,6 +83,25 @@ struct WatchSyncPipelineTests {
         #expect(!fired)
     }
 
+    @Test
+    func aiSortOptionOrdersByPriorityChain() {
+        let low = watchReminder("low")
+        low.priority = 9
+        let high = watchReminder("high")
+        high.priority = 1
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [low, high],
+            skippedIDs: [],
+            excludedListTitles: [])
+        store.setSortOption(.ai)
+        store.setAIRanking([:])
+        #expect(
+            store.visibleReminders.map(\.title) == ["high", "low"],
+            "off-iOS the .ai option orders by the priority chain — no ranking exists")
+    }
+
     @Test(arguments: [
         ("showUndatedReminders", true),
         ("showRecurrence", false),
