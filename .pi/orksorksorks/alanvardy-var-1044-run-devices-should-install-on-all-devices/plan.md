@@ -323,19 +323,19 @@ do not add an `else` now.
 
 #### Automated
 
-- [ ] `bash -n scripts/run-devices.sh` — clean
-- [ ] `shellcheck -S warning --exclude=SC1111 scripts/run-devices.sh` — clean
+- [x] `bash -n scripts/run-devices.sh` — clean
+- [x] `shellcheck -S warning --exclude=SC1111 scripts/run-devices.sh` — clean
       (`SC1111` is the pre-existing unicode-quote warning at the existing iOS
       "Trust" message; fixing it is out of scope). Plain `shellcheck` exits 1 on
       that pre-existing warning — that is the baseline, not a regression.
-- [ ] All Phase-1 control flow re-run with stubbed tooling (the harness already
+- [x] All Phase-1 control flow re-run with stubbed tooling (the harness already
       exists at `/tmp/var1044-run-devices-new.sh` + `/tmp/var1044-harness.sh` if
       you want to re-derive it; otherwise use the real runs below):
       `bash -c 'cd DerivedData-repo && PATH=/tmp/var1044-stubs:$PATH DEVICES_JSON_IN=<fixture> RUN_MAC=0 bash scripts/run-devices.sh'`
-- [ ] `ls -d DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app`
-- [ ] `codesign -dv --verbose=2 DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app`
+- [x] `ls -d DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app`
+- [x] `codesign -dv --verbose=2 DerivedData/Build/Products/Debug-watchos/SingleThreadWatch.app`
       reports `TeamIdentifier=6NWX2DHB9Q`
-- [ ] `ls -d DerivedData/Build/Products/Debug-iphoneos/SingleThread.app` — the
+- [x] `ls -d DerivedData/Build/Products/Debug-iphoneos/SingleThread.app` — the
       iOS product from the same `DerivedData` is still intact after the watch
       build (shared-DerivedData risk in `design.md`)
 
