@@ -156,6 +156,7 @@ struct AISortCoordinatorTests {
         try? await Task.sleep(for: .milliseconds(1000))
 
         #expect(emitted.count == 1, "a thrown error emits nothing, retaining the previous ranking")
+        #expect(ranker.callCount == 2, "the second (throwing) request still reached the ranker")
     }
 
     @Test
