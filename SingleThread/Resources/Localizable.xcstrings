@@ -608,17 +608,6 @@
         "zh-Hans": { "stringUnit": { "state": "translated", "value": "描述提醒应如何排序，设备端 AI 会应用这些规则。" } }
       }
     },
-    "Describe how reminders should be ordered. This device can't run on-device AI, so reminders stay in priority order.": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": { "stringUnit": { "state": "translated", "value": "Describe how reminders should be ordered. This device can't run on-device AI, so reminders stay in priority order." } },
-        "de": { "stringUnit": { "state": "translated", "value": "Beschreibe, wie Erinnerungen sortiert werden sollen. Dieses Gerät kann keine On-Device-KI ausführen, daher bleibt die Prioritätsreihenfolge erhalten." } },
-        "es": { "stringUnit": { "state": "translated", "value": "Describe cómo deberían ordenarse los recordatorios. Este dispositivo no puede ejecutar IA en el dispositivo, así que el orden por prioridad se mantiene." } },
-        "fr": { "stringUnit": { "state": "translated", "value": "Décrivez comment les rappels doivent être triés. Cet appareil ne peut pas exécuter l'IA sur l'appareil, les rappels restent donc classés par priorité." } },
-        "ja": { "stringUnit": { "state": "translated", "value": "リマインダーの並び順を説明します。このデバイスではオンデバイスAIを実行できないため、優先度順のままになります。" } },
-        "zh-Hans": { "stringUnit": { "state": "translated", "value": "描述提醒应如何排序。此设备无法运行设备端 AI，因此提醒仍按优先级排序。" } }
-      }
-    },
     "Dictate reminder": {
       "extractionState": "manual",
       "localizations": {
@@ -6477,6 +6466,17 @@
             "value": "Afficher « Vous avez terminé N éléments aujourd'hui » après avoir terminé un rappel."
           }
         }
+      }
+    },
+    "This device doesn't support on-device AI, so reminders stay in priority order.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "This device doesn't support on-device AI, so reminders stay in priority order." } },
+        "de": { "stringUnit": { "state": "translated", "value": "Dieses Gerät unterstützt keine On-Device-KI, daher bleiben Erinnerungen in Prioritätsreihenfolge." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Este dispositivo no es compatible con la IA en el dispositivo, así que los recordatorios se mantienen en orden de prioridad." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Cet appareil ne prend pas en charge l'IA sur l'appareil, les rappels restent donc classés par priorité." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "このデバイスはオンデバイスAIに対応していないため、リマインダーは優先度順のままになります。" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "此设备不支持设备端 AI，因此提醒仍按优先级排序。" } }
       }
     }
   },
