@@ -1,3 +1,4 @@
+import Foundation
 import SingleThreadCore
 import Testing
 
@@ -14,16 +15,20 @@ private final class CannedRanker: AIReminderRanking, @unchecked Sendable {
 
     // MARK: Internal
 
-    private(set) var callCount = 0
+    var callCount: Int {
+        lock.withLock { calls }
+    }
 
     func rank(_: [AIReminderCandidate], rules _: String) async throws -> [String] {
-        callCount += 1
+        lock.withLock { calls += 1 }
         return order
     }
 
     // MARK: Private
 
     private let order: [String]
+    private let lock = NSLock()
+    private var calls = 0
 }
 
 /// Reports the ranker unavailable — the coordinator must clear any stale
@@ -41,17 +46,39 @@ private struct UnavailableRanker: AIReminderRanking {
 /// Serves a canned order and can be switched to throwing mid-test without
 /// swapping the coordinator's ranker.
 private final class SwitchableRanker: AIReminderRanking, @unchecked Sendable {
-    var order: [String] = []
-    var shouldThrow = false
-    private(set) var callCount = 0
+    // MARK: Internal
+
+    var order: [String] {
+        get { lock.withLock { storedOrder } }
+        set { lock.withLock { storedOrder = newValue } }
+    }
+
+    var shouldThrow: Bool {
+        get { lock.withLock { storedShouldThrow } }
+        set { lock.withLock { storedShouldThrow = newValue } }
+    }
+
+    var callCount: Int {
+        lock.withLock { calls }
+    }
 
     func rank(_: [AIReminderCandidate], rules _: String) async throws -> [String] {
-        callCount += 1
+        let (order, shouldThrow) = lock.withLock { () -> ([String], Bool) in
+            calls += 1
+            return (storedOrder, storedShouldThrow)
+        }
         if shouldThrow {
             throw AIRankingError.unavailable
         }
         return order
     }
+
+    // MARK: Private
+
+    private let lock = NSLock()
+    private var storedOrder: [String] = []
+    private var storedShouldThrow = false
+    private var calls = 0
 }
 
 /// Never returns until cancelled — proves dedupe of in-flight requests without
@@ -66,16 +93,28 @@ private struct NeverCompletingRanker: AIReminderRanking {
 /// Blocks on the first call, resolves instantly afterwards — proves a stale
 /// in-flight task cannot overwrite a newer generation's ranking.
 private final class BlockOnceRanker: AIReminderRanking, @unchecked Sendable {
-    var order: [String] = ["b", "a"]
-    private(set) var callCount = 0
+    // MARK: Internal
+
+    var callCount: Int {
+        lock.withLock { calls }
+    }
 
     func rank(_: [AIReminderCandidate], rules _: String) async throws -> [String] {
-        callCount += 1
-        if callCount == 1 {
+        let call = lock.withLock { () -> Int in
+            calls += 1
+            return calls
+        }
+        if call == 1 {
             try await Task.sleep(for: .seconds(3600))
         }
         return order
     }
+
+    // MARK: Private
+
+    private let order: [String] = ["b", "a"]
+    private let lock = NSLock()
+    private var calls = 0
 }
 
 // MARK: - AISortCoordinator
@@ -272,12 +311,69 @@ struct AISortCoordinatorTests {
         #expect(emitted == [["b": 0, "a": 1]], "only the newer generation's ranking is emitted")
     }
 
+    @Test
+    func reranksWhenCandidateContentChanges() async {
+        let ranker = CannedRanker(order: ["a", "b"])
+        let coordinator = AISortCoordinator(ranker: ranker, debounce: .milliseconds(20))
+        var emitted: [[String: Int]] = []
+        coordinator.onRankingUpdated = { emitted.append($0) }
+
+        coordinator.update(rules: "clients first", candidates: [candidate("a"), candidate("b")])
+        try? await Task.sleep(for: .milliseconds(1000))
+        #expect(ranker.callCount == 1)
+
+        // Same ids and rules, changed candidate content.
+        coordinator.update(
+            rules: "clients first",
+            candidates: [candidate("a", title: "A renamed"), candidate("b")])
+        try? await Task.sleep(for: .milliseconds(1000))
+
+        #expect(ranker.callCount == 2, "a content-only change re-ranks the same ids")
+        #expect(emitted.count == 2)
+    }
+
+    @Test
+    func reranksWhenContentChangesInFlight() async {
+        let ranker = BlockOnceRanker()
+        let coordinator = AISortCoordinator(ranker: ranker, debounce: .milliseconds(20))
+        var emitted: [[String: Int]] = []
+        coordinator.onRankingUpdated = { emitted.append($0) }
+
+        coordinator.update(rules: "clients first", candidates: [candidate("a"), candidate("b")])
+        try? await Task.sleep(for: .milliseconds(1000))
+        #expect(ranker.callCount == 1, "the first request is parked in its block")
+
+        coordinator.update(
+            rules: "clients first",
+            candidates: [candidate("a", title: "A renamed"), candidate("b")])
+        try? await Task.sleep(for: .milliseconds(1000))
+
+        #expect(ranker.callCount == 2, "a content change supersedes the in-flight request")
+    }
+
+    @Test
+    func skipsRepeatedCompletedRequests() async {
+        let ranker = CannedRanker(order: ["a", "b"])
+        let coordinator = AISortCoordinator(ranker: ranker, debounce: .milliseconds(20))
+        coordinator.onRankingUpdated = { _ in }
+
+        coordinator.update(rules: "clients first", candidates: [candidate("a"), candidate("b")])
+        try? await Task.sleep(for: .milliseconds(1000))
+        #expect(ranker.callCount == 1)
+
+        // An unrelated App-Group write re-issues identical input once settled.
+        coordinator.update(rules: "clients first", candidates: [candidate("a"), candidate("b")])
+        try? await Task.sleep(for: .milliseconds(1000))
+
+        #expect(ranker.callCount == 1, "a completed identical request is not re-run")
+    }
+
     // MARK: Private
 
-    private func candidate(_ identifier: String) -> AIReminderCandidate {
+    private func candidate(_ identifier: String, title: String? = nil) -> AIReminderCandidate {
         AIReminderCandidate(
             identifier: identifier,
-            title: identifier.uppercased(),
+            title: title ?? identifier.uppercased(),
             notes: nil,
             priority: 5,
             dueDate: nil,

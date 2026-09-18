@@ -36,6 +36,7 @@ struct FilterSortSettingsView: View {
                 Section {
                     TextEditor(text: $aiSortRules)
                         .frame(minHeight: 88)
+                        .accessibilityLabel(Text("AI Sort Rules"))
                         .accessibilityIdentifier("aiSortRulesEditor")
                 } header: {
                     Text("AI Sort Rules")

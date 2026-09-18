@@ -1,8 +1,9 @@
 import Foundation
+import os
 
 /// One reminder, flattened to the value data the ranker needs. `Sendable` so it
-/// can cross into the ranking task; `Equatable` for the Phase-3 input digest.
-public struct AIReminderCandidate: Sendable, Equatable {
+/// can cross into the ranking task; `Hashable` for the Phase-3 input digest.
+public struct AIReminderCandidate: Sendable, Equatable, Hashable {
     // MARK: Lifecycle
 
     public init(
@@ -102,17 +103,25 @@ public final class AISortCoordinator {
             // the list settles on the `.priority` chain.
             pending?.cancel()
             pending = nil
+            lastRequestedDigest = nil
+            lastCompletedDigest = nil
             emit([:])
             return
         }
         let digest = Self.digest(rules: trimmed, candidates: candidates)
-        if pending != nil, digest == lastDigest {
+        // Dedupe in-flight repeats, and completed repeats once idle, so an
+        // unrelated App-Group write never re-runs the model for identical input.
+        if pending != nil, digest == lastRequestedDigest {
             return
         }
-        lastDigest = digest
+        if pending == nil, digest == lastCompletedDigest {
+            return
+        }
+        lastRequestedDigest = digest
         generation += 1
         let requestedGeneration = generation
         let requestedCandidates = candidates
+        let requestedDigest = digest
         let wait = debounce
         pending?.cancel()
         pending = Task { [weak self, ranker] in
@@ -122,11 +131,14 @@ public final class AISortCoordinator {
                 let ranked = try await ranker.rank(requestedCandidates, rules: trimmed)
                 guard let self, generation == requestedGeneration else { return }
                 pending = nil
+                lastCompletedDigest = requestedDigest
                 emit(Self.reconcile(ranked, against: requestedCandidates))
             } catch {
                 guard let self, generation == requestedGeneration else { return }
                 pending = nil
-                // Retain the previous ranking.
+                // Retain the previous ranking and leave `lastCompletedDigest`
+                // unset so an identical request is retried.
+                Self.logger.error("AI ranking failed: \(String(describing: error), privacy: .public)")
             }
         }
     }
@@ -138,23 +150,27 @@ public final class AISortCoordinator {
 
     // MARK: Internal
 
-    /// In-memory-only fingerprint of the request inputs; stable because
+    /// Fingerprint of the full request inputs — rules plus every ranked
+    /// candidate field — so a content change re-ranks; stable because
     /// `aiCandidates` is identifier-sorted.
     static func digest(rules: String, candidates: [AIReminderCandidate]) -> Int {
         var hasher = Hasher()
         hasher.combine(rules)
         for candidate in candidates {
-            hasher.combine(candidate.identifier)
+            hasher.combine(candidate)
         }
         return hasher.finalize()
     }
 
     // MARK: Private
 
+    private static let logger = Logger(subsystem: "app.alanvardy.SingleThread", category: "AISort")
+
     private let ranker: any AIReminderRanking
     private let debounce: Duration
     private var pending: Task<Void, Never>?
-    private var lastDigest = 0
+    private var lastRequestedDigest: Int?
+    private var lastCompletedDigest: Int?
     private var generation = 0
 
     private func emit(_ ranking: [String: Int]) {
