@@ -1797,6 +1797,47 @@
         }
       }
     },
+    "No reminders match the current filters.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No reminders match the current filters."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有提醒符合当前的筛选条件。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ningún recordatorio coincide con los filtros actuales."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の絞り込み条件に一致するリマインダーはありません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Erinnerung entspricht den aktuellen Filtern."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun rappel ne correspond aux filtres actuels."
+          }
+        }
+      }
+    },
     "No speech was detected.": {
       "extractionState": "manual",
       "localizations": {
