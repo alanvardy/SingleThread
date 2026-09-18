@@ -60,6 +60,25 @@ prerequisite) and the branch was rebased + force-synced to the current
   adapter suites re-verified green (11 + 1 cases). Gate re-launched at tip
   `68d76909`.
 
+  Second gate run (at `7a4bc695`): Periphery ✓, iOS build ✓, iOS UI tests ✓,
+  watch build + UI tests ✓, watch unit tests ✓ — **FAIL at the macOS unit
+  stage**: `SkipSyncSession` unresolved (compile error, zero cases run). The
+  gate child identified this as **branch-vs-main merge drift**: origin/main
+  advanced with `49bad5fa` (macOS `SkipSyncSession` stub + run-devices
+  honesty fix) while we were implementing. Fixed by rebasing the branch onto
+  the new `origin/main` (conflict-resolved `SortOption+Presentation.swift` /
+  `SortOptionTests.swift` against main's `LocalizedStringResource` refactor)
+  and force-syncing. Post-rebase, the macOS unit stage compiles and runs:
+  **563 passed / 4 failed** — the 3 known pre-existing `EntitlementStoreTests`
+  plus `PreferenceHolderTests/refreshesOnNotification`, which was
+  **baseline-verified failing identically on a clean `origin/main` worktree**
+  (all four documented pre-existing on main; macOS leg has been red since
+  `0bcce49f` — CI mac-tests is skipped on non-dependabot PRs).
+  Coordinator test awaits were also hardened `100ms → 1000ms` (`962d55a2`)
+  — 6 coordinator tests flaked under full-suite macOS host load (green 3×
+  standalone, green full-run after hardening); iOS-sim stage unaffected.
+  Gate re-launched at tip `962d55a2`.
+
 ### Annotated (pre-existing local breakage, not caused by this branch)
 
 - `make mac-build` — fails identically on `origin/main` (local Xcode 27.0 vs
