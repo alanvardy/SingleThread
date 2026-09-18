@@ -24,6 +24,10 @@ final class AppViewModel {
         self.store = store
         usesInMemoryStore = usesInMemory
         store.sortOption = SortOptionStore().load()
+        aiCoordinator = AISortCoordinator(ranker: FoundationModelsReminderRanker())
+        aiCoordinator.onRankingUpdated = { [weak store] ranking in
+            store?.setAIRanking(ranking)
+        }
         Self.registerDefaults()
 
         backgroundImage = BackgroundImageStore()
@@ -34,6 +38,7 @@ final class AppViewModel {
         #if os(iOS) || os(macOS)
             store.onRemindersChanged = { [weak self] in
                 WidgetCenter.shared.reloadAllTimelines()
+                self?.refreshAIRanking()
                 #if os(macOS)
                     Task { @MainActor in
                         await self?.scheduleNotificationsForMacOS()
@@ -48,6 +53,8 @@ final class AppViewModel {
             setupSyncObservation()
             setupEntitlementObservation()
         #endif
+
+        setupAIRankingObservation()
     }
 
     // MARK: Internal
@@ -182,6 +189,9 @@ final class AppViewModel {
     }
 
     // MARK: Private
+
+    private let aiCoordinator: AISortCoordinator
+    private var aiRulesObserver: NSObjectProtocol?
 
     /// The `--url-opener-spy` UI-test seam's shared spy. Reused across
     /// `makeContentViewModel` calls so the view and view model share one
@@ -366,6 +376,29 @@ final class AppViewModel {
             store.setExcludedListTitles(seed.excludedListTitles)
         }
         return store
+    }
+
+    /// Re-ranks the visible set whenever `.ai` is selected. Cheap to call on any
+    /// App-Group write: the guard and the coordinator's input digest absorb the
+    /// noise.
+    private func refreshAIRanking() {
+        guard store.sortOption == .ai else { return }
+        aiCoordinator.update(rules: AISortRulesStore().load(), candidates: store.aiCandidates)
+    }
+
+    /// Observes rule-text edits: `AISortRulesStore` writes to the App Group
+    /// suite, which posts `UserDefaults.didChangeNotification` (the same signal
+    /// `PreferenceHolder` uses). `NotificationCenter` drops the block observer
+    /// when the token is deallocated (same lifecycle as `syncDefaultsObserver`).
+    private func setupAIRankingObservation() {
+        aiRulesObserver = NotificationCenter.default.addObserver(
+            forName: UserDefaults.didChangeNotification,
+            object: AppGroup.defaults,
+            queue: .main) { [weak self] _ in
+                Task { @MainActor in
+                    self?.refreshAIRanking()
+                }
+            }
     }
 
     #if os(macOS)

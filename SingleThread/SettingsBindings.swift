@@ -101,6 +101,18 @@ final class SettingsBindings {
         }
     }
 
+    var aiSortRules: String {
+        get {
+            access(keyPath: \.aiSortRules)
+            return aiRulesStore.load()
+        }
+        set {
+            withMutation(keyPath: \.aiSortRules) {
+                aiRulesStore.save(newValue)
+            }
+        }
+    }
+
     var showDate: Bool {
         get {
             access(keyPath: \.showDate)
@@ -194,6 +206,7 @@ final class SettingsBindings {
         key: BoolPreferenceKey.showUndatedReminders.rawValue,
         fallback: false)
     private let sortStore = SortOptionStore()
+    private let aiRulesStore = AISortRulesStore()
     private let showDatePreference = BoolPreferenceStore(
         key: BoolPreferenceKey.showDate.rawValue,
         fallback: true)

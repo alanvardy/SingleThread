@@ -97,6 +97,7 @@ struct SettingsView: View {
                     NavigationLink {
                         FilterSortSettingsView(
                             sortOption: $bindings.sortOption,
+                            aiSortRules: $bindings.aiSortRules,
                             showUndatedReminders: $bindings.showUndatedReminders,
                             availableLists: availableLists,
                             excludedLists: $excludedLists)

@@ -16,7 +16,7 @@ public nonisolated enum ReminderSort {
         _ rhs: EKReminder,
         using option: SortOption) -> Bool {
         switch option {
-        case .priority:
+        case .priority, .ai:
             if let rank = comparePriorities(lhs, rhs) {
                 return rank == .orderedAscending
             }

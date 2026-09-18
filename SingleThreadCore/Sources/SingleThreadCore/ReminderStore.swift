@@ -141,6 +141,10 @@ public final class ReminderStore {
         public let undoStore = UndoStore()
     #endif
 
+    /// Identifier → rank for the `.ai` sort option. Empty means no ranking is
+    /// available, so ordering falls through to the `.priority` chain.
+    public private(set) var aiRanking: [String: Int] = [:]
+
     /// When `true`, `reload()` fetches with a nil/nil date predicate and keeps
     /// undated reminders plus dated reminders still inside the current window.
     /// Each surface sets this before its own `reload()` (phone from the Settings
@@ -152,11 +156,50 @@ public final class ReminderStore {
         }
     }
 
-    public var visibleReminders: [EKReminder] {
+    /// The visible reminder set with no ordering applied — the base for
+    /// `visibleReminders` and the input surface for `aiCandidates`.
+    public var filteredReminders: [EKReminder] {
         reminders
             .filter { !skippedIDs.contains($0.calendarItemIdentifier) }
             .filter { !excludedListTitles.contains($0.calendar?.title ?? "") }
-            .sorted { ReminderSort.areInIncreasingOrder($0, $1, using: sortOption) }
+    }
+
+    public var visibleReminders: [EKReminder] {
+        let filtered = filteredReminders
+        guard sortOption == .ai, !aiRanking.isEmpty else {
+            return filtered.sorted { ReminderSort.areInIncreasingOrder($0, $1, using: sortOption) }
+        }
+        return filtered.sorted { lhs, rhs in
+            let lhsRank = aiRanking[lhs.calendarItemIdentifier]
+            let rhsRank = aiRanking[rhs.calendarItemIdentifier]
+            switch (lhsRank, rhsRank) {
+            case let (.some(left), .some(right)) where left != right:
+                return left < right
+            case (.some, .none):
+                return true
+            case (.none, .some):
+                return false
+            default:
+                return ReminderSort.areInIncreasingOrder(lhs, rhs, using: .priority)
+            }
+        }
+    }
+
+    /// The visible reminder set as ranker input, in a stable
+    /// (ranking-independent) identifier order so re-ranking the same set never
+    /// changes the Phase-3 input digest.
+    public var aiCandidates: [AIReminderCandidate] {
+        filteredReminders
+            .map { reminder in
+                AIReminderCandidate(
+                    identifier: reminder.calendarItemIdentifier,
+                    title: reminder.title ?? "",
+                    notes: reminder.notes,
+                    priority: reminder.priority,
+                    dueDate: reminder.dueDateComponents?.date,
+                    listTitle: reminder.calendar?.title)
+            }
+            .sorted { $0.identifier < $1.identifier }
     }
 
     /// `true` when reminders exist but are all skipped or excluded — i.e. nothing
@@ -198,6 +241,15 @@ public final class ReminderStore {
     public static func hasHiddenFor(shown: [EKReminder], allIncomplete: [EKReminder]) -> Bool {
         let shownIDs = Set(shown.map(\.calendarItemIdentifier))
         return allIncomplete.contains { !shownIDs.contains($0.calendarItemIdentifier) }
+    }
+
+    /// Assigns a new AI ranking. No hook is fired: `ReminderStore` is
+    /// `@Observable`, so the mutation already invalidates every view that reads
+    /// `visibleReminders`. Firing `onRemindersChanged` here would re-trigger the
+    /// coordinator that produced the ranking.
+    public func setAIRanking(_ ranking: [String: Int]) {
+        guard ranking != aiRanking else { return }
+        aiRanking = ranking
     }
 
     // MARK: - Public methods
