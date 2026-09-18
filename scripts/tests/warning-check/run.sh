@@ -58,6 +58,10 @@ fi
 status=0; check_warnings "$FIXTURES/near-miss.log" >/dev/null || status=$?
 expect_exit 0 "$status" "near-miss log passes"
 
+# 5b) multiple logs aggregate; any offender fails
+status=0; check_warnings "$FIXTURES/clean.log" "$FIXTURES/one-warning.log" >/dev/null || status=$?
+expect_exit 1 "$status" "multi-log aggregation fails"
+
 # 6) missing allowlist fails closed
 status=0; ALLOWLIST="$TMP/does-not-exist" check_warnings "$FIXTURES/clean.log" >/dev/null || status=$?
 expect_exit 1 "$status" "missing allowlist fails closed"

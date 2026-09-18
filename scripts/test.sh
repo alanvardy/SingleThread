@@ -50,6 +50,7 @@ preboot_sim() {
 cd "$(dirname "$0")/.."
 
 LOG_DIR="$DERIVED_DATA/logs"
+rm -rf "$LOG_DIR"
 
 # Prefer this worktree's dedicated simulator when SIM was not set explicitly.
 # This is what keeps parallel agents off each other's simulator (see the
@@ -159,6 +160,21 @@ EXPECTED_PACKAGE_IOS=1         # .iOS("…") in Package.swift
 EXPECTED_PACKAGE_WATCHOS=1     # .watchOS("…") in Package.swift
 EXPECTED_PACKAGE_MACOS=1       # .macOS("…") in Package.swift
 
+# Every xcodebuild invocation must go through run_xcodebuild so its output is
+# scanned for compiler warnings. A bare call is a silent hole in the gate.
+verify_xcodebuild_wrapped() {
+    local script="$SCRIPT_DIR/test.sh"
+    local bare
+    bare="$(grep -cE '^[[:space:]]*xcodebuild' "$script" || true)"
+    echo "==> Verifying every xcodebuild is wrapped"
+    if [[ "$bare" -ne 0 ]]; then
+        echo "    ✗ $bare bare xcodebuild invocation(s) in $script"
+        echo "      Route them through run_xcodebuild <log> xcodebuild …"
+        exit 1
+    fi
+    printf "    ✓ no bare xcodebuild invocations\n"
+}
+
 verify_deployment_target() {
     local pbxproj="SingleThread.xcodeproj/project.pbxproj"
     local package="SingleThreadCore/Package.swift"
@@ -237,6 +253,7 @@ verify_deployment_target() {
 }
 
 verify_deployment_target
+verify_xcodebuild_wrapped
 
 # ── Full pipeline ──────────────────────────────────────────────────────────────
 if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
@@ -288,7 +305,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
 
     echo ""
     echo "==> Watch build…"
-    xcodebuild -scheme "$WATCH_SCHEME" \
+    run_xcodebuild "$LOG_DIR/watch-build.log" xcodebuild -scheme "$WATCH_SCHEME" \
       -destination "$WATCH_SIM" \
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
@@ -300,7 +317,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
 
     echo ""
     echo "==> UI tests…"
-    xcodebuild -scheme "$SCHEME" \
+    run_xcodebuild "$LOG_DIR/ios-ui-test.log" xcodebuild -scheme "$SCHEME" \
       -destination "$SIM" \
       -derivedDataPath "$DERIVED_DATA" \
       test-without-building \
@@ -308,7 +325,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
 
     echo ""
     echo "==> Watch UI tests…"
-    xcodebuild -scheme "$WATCH_SCHEME" \
+    run_xcodebuild "$LOG_DIR/watch-build-for-testing.log" xcodebuild -scheme "$WATCH_SCHEME" \
       -destination "$WATCH_TEST_SIM" \
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
@@ -330,7 +347,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
         fi
     fi
 
-    xcodebuild -scheme "$WATCH_SCHEME" \
+    run_xcodebuild "$LOG_DIR/watch-ui-test.log" xcodebuild -scheme "$WATCH_SCHEME" \
       -destination "$WATCH_TEST_SIM" \
       -derivedDataPath "$DERIVED_DATA" \
       test-without-building \
@@ -338,7 +355,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
 
     echo ""
     echo "==> Watch unit tests…"
-    xcodebuild -scheme "$WATCH_SCHEME" \
+    run_xcodebuild "$LOG_DIR/watch-unit-test.log" xcodebuild -scheme "$WATCH_SCHEME" \
       -destination "$WATCH_TEST_SIM" \
       -derivedDataPath "$DERIVED_DATA" \
       test-without-building \
@@ -346,7 +363,7 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
 
     echo ""
     echo "==> macOS unit tests…"
-    xcodebuild -scheme "$SCHEME" \
+    run_xcodebuild "$LOG_DIR/mac-unit-test.log" xcodebuild -scheme "$SCHEME" \
       -destination "$MAC_SIM" \
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
@@ -361,7 +378,7 @@ fi
 # ── Unit-only ──────────────────────────────────────────────────────────────────
 if [[ "${UNIT_ONLY:-0}" -eq 1 ]]; then
     echo "==> Unit tests (macOS native)…"
-    xcodebuild -scheme "$SCHEME" \
+    run_xcodebuild "$LOG_DIR/mac-unit-only.log" xcodebuild -scheme "$SCHEME" \
       -destination "$MAC_SIM" \
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \
@@ -375,7 +392,7 @@ fi
 
 # ── UI-only ────────────────────────────────────────────────────────────────────
 echo "==> Building (UI tests)…"
-xcodebuild -scheme "$SCHEME" \
+run_xcodebuild "$LOG_DIR/ios-ui-build.log" xcodebuild -scheme "$SCHEME" \
   -destination "$SIM" \
   -configuration Debug \
   -derivedDataPath "$DERIVED_DATA" \
@@ -384,7 +401,7 @@ xcodebuild -scheme "$SCHEME" \
 
 echo ""
 echo "==> UI tests…"
-xcodebuild -scheme "$SCHEME" \
+run_xcodebuild "$LOG_DIR/ios-ui-test-only.log" xcodebuild -scheme "$SCHEME" \
   -destination "$SIM" \
   -derivedDataPath "$DERIVED_DATA" \
   test-without-building \
