@@ -216,6 +216,7 @@ struct SettingsViewTests {
     func filterSortSettingsViewContainsExpectedRows() {
         let view = FilterSortSettingsView(
             sortOption: .constant(.priority),
+            aiSortRules: .constant(""),
             showUndatedReminders: .constant(false),
             availableLists: ["Work"],
             excludedLists: .constant([]))
@@ -241,6 +242,19 @@ struct SettingsViewTests {
                 bodyDescription.contains("SettingsSubscreenLayout"),
                 "Sub-view should top-anchor via SettingsSubscreenLayout on macOS")
         #endif
+    }
+
+    @Test
+    func filterSortSettingsViewRendersAIRulesEditorWhenAISelected() {
+        let view = FilterSortSettingsView(
+            sortOption: .constant(.ai),
+            aiSortRules: .constant("clients first"),
+            showUndatedReminders: .constant(false),
+            availableLists: ["Work"],
+            excludedLists: .constant([]))
+        let bodyDescription = String(describing: view.body)
+
+        #expect(bodyDescription.contains("AI Sort Rules"))
     }
 
     @Test

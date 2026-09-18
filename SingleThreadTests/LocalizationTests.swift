@@ -270,7 +270,9 @@ struct LocalizationTests {
         // fr "Notifications" — standard French UI term, same spelling as English
         ExclusionEntry(catalog: "App", key: "Notifications"),
         // de/fr "Version" — same spelling in German and French
-        ExclusionEntry(catalog: "Core", key: "Version %@")
+        ExclusionEntry(catalog: "Core", key: "Version %@"),
+        // "AI" — standard computing acronym: ja/zh-Hans use "AI", de uses "KI"
+        ExclusionEntry(catalog: "App", key: "AI")
     ]
 
     // Note: "Medium" stays in both guarded catalogs — App (font-size

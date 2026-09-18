@@ -238,6 +238,43 @@ struct ReminderStoreTests {
         #expect(fired == 1, "three identical sets notify exactly once")
     }
 
+    // MARK: - AI ranking
+
+    @Test
+    func aiOptionUsesRankingThenPriorityChain() {
+        let low = makeReminder(title: "low", priority: 9)
+        let high = makeReminder(title: "high", priority: 1)
+        let mid = makeReminder(title: "mid", priority: 5)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [low, high, mid],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        store.setSortOption(.ai)
+        store.setAIRanking([low.calendarItemIdentifier: 0, high.calendarItemIdentifier: 1])
+        #expect(
+            store.visibleReminders.map(\.title) == ["low", "high", "mid"],
+            "ranked first, unranked fall through to the priority chain")
+    }
+
+    @Test
+    func aiFallsBackToPriorityChainWithoutRanking() {
+        let low = makeReminder(title: "low", priority: 9)
+        let high = makeReminder(title: "high", priority: 1)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [low, high],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        store.setSortOption(.ai)
+        #expect(store.visibleReminders.map(\.title) == ["high", "low"], "empty ranking orders by the priority chain")
+        store.setAIRanking([:])
+        #expect(store.aiRanking.isEmpty)
+        #expect(store.visibleReminders.map(\.title) == ["high", "low"], "clearing the ranking keeps the priority chain")
+    }
+
     // MARK: - addReminder
 
     @Test

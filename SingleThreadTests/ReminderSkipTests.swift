@@ -183,6 +183,19 @@ struct ReminderSortTests {
     }
 
     @Test
+    func aiOptionMatchesPriorityChain() {
+        let fixture = [
+            makeReminder(title: "low", priority: 9, dateComponents: date(2), calendarTitle: "Work"),
+            makeReminder(title: "high", priority: 1, calendarTitle: "Home"),
+            makeReminder(title: "mid", priority: 5, dateComponents: date(10)),
+            makeReminder(title: "undated")
+        ]
+        #expect(
+            titles(of: fixture, using: .ai) == titles(of: fixture, using: .priority),
+            ".ai falls back to the priority chain when no ranking is present")
+    }
+
+    @Test
     func dueDateOptionSortsSoonestFirst() {
         let lowSoon = makeReminder(title: "sooner", priority: 9, dateComponents: date(2))
         let highLater = makeReminder(title: "later", priority: 1, dateComponents: date(10))

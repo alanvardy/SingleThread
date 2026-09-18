@@ -12,6 +12,7 @@ extension SortOption {
         case .priority: LocalizedStringResource("Priority", table: "Localizable", bundle: .main)
         case .dueDate: LocalizedStringResource("Due Date", table: "Localizable", bundle: .main)
         case .title: LocalizedStringResource("Title", table: "Localizable", bundle: .main)
+        case .ai: LocalizedStringResource("AI", table: "Localizable", bundle: .main)
         }
     }
 
@@ -21,6 +22,7 @@ extension SortOption {
         case .priority: "exclamationmark.3"
         case .dueDate: "calendar"
         case .title: "textformat.abc"
+        case .ai: "sparkles"
         }
     }
 }

@@ -10,11 +10,12 @@ struct SortOptionTests {
         #expect(SortOption.priority.rawValue == "priority")
         #expect(SortOption.dueDate.rawValue == "dueDate")
         #expect(SortOption.title.rawValue == "title")
+        #expect(SortOption.ai.rawValue == "ai")
     }
 
     @Test
     func allCasesCoverAllOptions() {
-        #expect(SortOption.allCases == [.priority, .dueDate, .title])
+        #expect(SortOption.allCases == [.priority, .dueDate, .title, .ai])
     }
 
     @Test
@@ -33,6 +34,9 @@ struct SortOptionTests {
         #expect(
             SortOption.title.title.resolved(in: Locale(identifier: "en"))
                 == String.en("Title", bundle: .main))
+        #expect(
+            SortOption.ai.title.resolved(in: Locale(identifier: "en"))
+                == String.en("AI", bundle: .main))
     }
 
     @Test
@@ -40,6 +44,7 @@ struct SortOptionTests {
         #expect(!SortOption.priority.systemImage.isEmpty)
         #expect(!SortOption.dueDate.systemImage.isEmpty)
         #expect(!SortOption.title.systemImage.isEmpty)
+        #expect(!SortOption.ai.systemImage.isEmpty)
     }
 }
 

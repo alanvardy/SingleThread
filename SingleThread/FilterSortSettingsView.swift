@@ -9,6 +9,8 @@ import SwiftUI
 struct FilterSortSettingsView: View {
     @Binding var sortOption: SortOption
 
+    @Binding var aiSortRules: String
+
     @Binding var showUndatedReminders: Bool
 
     let availableLists: [String]
@@ -26,6 +28,17 @@ struct FilterSortSettingsView: View {
                 VStack(alignment: .leading) {
                     Text("Sort By")
                     SettingsCaption(text: "Choose the order reminders appear in.")
+                }
+            }
+            if sortOption == .ai {
+                Section {
+                    TextEditor(text: $aiSortRules)
+                        .frame(minHeight: 88)
+                        .accessibilityIdentifier("aiSortRulesEditor")
+                } header: {
+                    Text("AI Sort Rules")
+                } footer: {
+                    SettingsCaption(text: "Describe how reminders should be ordered. On-device AI applies these rules.")
                 }
             }
             Toggle(isOn: $showUndatedReminders) {
@@ -66,6 +79,7 @@ struct FilterSortSettingsView: View {
     NavigationStack {
         FilterSortSettingsView(
             sortOption: .constant(.priority),
+            aiSortRules: .constant(""),
             showUndatedReminders: .constant(false),
             availableLists: ["Work", "Personal"],
             excludedLists: .constant([]))

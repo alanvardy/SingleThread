@@ -10,6 +10,9 @@ public enum SortOption: String, CaseIterable, Sendable {
     case dueDate
     /// Case-insensitive title A→Z → due date.
     case title
+    /// On-device AI ranking against the user's freeform rules, falling back to
+    /// the `.priority` chain when no ranking is available.
+    case ai
 
     // MARK: Public
 

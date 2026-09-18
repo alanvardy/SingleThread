@@ -165,6 +165,28 @@
         }
       }
     },
+    "AI": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "AI" } },
+        "de": { "stringUnit": { "state": "translated", "value": "KI" } },
+        "es": { "stringUnit": { "state": "translated", "value": "IA" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "IA" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "AI" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "AI" } }
+      }
+    },
+    "AI Sort Rules": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "AI Sort Rules" } },
+        "de": { "stringUnit": { "state": "translated", "value": "KI-Sortierregeln" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Reglas de ordenación con IA" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Règles de tri par IA" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "AI並べ替えルール" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "AI 排序规则" } }
+      }
+    },
     "About": {
       "extractionState": "manual",
       "localizations": {
@@ -573,6 +595,28 @@
             "value": "Annuler"
           }
         }
+      }
+    },
+    "Describe how reminders should be ordered. On-device AI applies these rules.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Describe how reminders should be ordered. On-device AI applies these rules." } },
+        "de": { "stringUnit": { "state": "translated", "value": "Beschreibe, wie Erinnerungen sortiert werden sollen. On-Device-KI wendet diese Regeln an." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Describe cómo deberían ordenarse los recordatorios. La IA en el dispositivo aplica estas reglas." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Décrivez comment les rappels doivent être triés. L'IA sur l'appareil applique ces règles." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "リマインダーの並び順を説明します。オンデバイスのAIがこのルールを適用します。" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "描述提醒应如何排序，设备端 AI 会应用这些规则。" } }
+      }
+    },
+    "Describe how reminders should be ordered. This device can't run on-device AI, so reminders stay in priority order.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Describe how reminders should be ordered. This device can't run on-device AI, so reminders stay in priority order." } },
+        "de": { "stringUnit": { "state": "translated", "value": "Beschreibe, wie Erinnerungen sortiert werden sollen. Dieses Gerät kann keine On-Device-KI ausführen, daher bleibt die Prioritätsreihenfolge erhalten." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Describe cómo deberían ordenarse los recordatorios. Este dispositivo no puede ejecutar IA en el dispositivo, así que el orden por prioridad se mantiene." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Décrivez comment les rappels doivent être triés. Cet appareil ne peut pas exécuter l'IA sur l'appareil, les rappels restent donc classés par priorité." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "リマインダーの並び順を説明します。このデバイスではオンデバイスAIを実行できないため、優先度順のままになります。" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "描述提醒应如何排序。此设备无法运行设备端 AI，因此提醒仍按优先级排序。" } }
       }
     },
     "Dictate reminder": {
