@@ -232,6 +232,10 @@ WATCH_FAILED=0
 WATCH_LAUNCH_FORM="none"
 WATCH_LAUNCH_FORM_MIXED=0
 
+# macOS leg status (reported by the summary). Set to the outcome inside the
+# macOS block below so a failed build is not reported as "built and launched".
+MAC_STATUS="not run"
+
 # The first successful watch launch records the flag form that worked; if a
 # later watch needs the other form, say so instead of silently overwriting it.
 record_watch_launch_form() {
@@ -351,14 +355,19 @@ if [[ "$RUN_MAC" -eq 1 ]]; then
       build; then
         echo "❌ macOS build failed." >&2
         failures=$((failures + 1))
+        MAC_STATUS="build failed"
     elif [[ ! -d "$MAC_APP_PATH" ]]; then
         echo "❌ Built macOS app not found at $MAC_APP_PATH" >&2
         failures=$((failures + 1))
+        MAC_STATUS="app not found"
     else
         echo "==> Launching $BUNDLE_ID on macOS…"
         if ! open "$MAC_APP_PATH"; then
             echo "❌ Failed to open $MAC_APP_PATH" >&2
             failures=$((failures + 1))
+            MAC_STATUS="launch failed"
+        else
+            MAC_STATUS="built and launched"
         fi
     fi
 fi
@@ -386,7 +395,7 @@ else
     fi
 fi
 if [[ "$RUN_MAC" -eq 1 ]]; then
-    echo "  macOS: built and launched"
+    echo "  macOS: $MAC_STATUS"
 else
     echo "  macOS: skipped (RUN_MAC=0)"
 fi
