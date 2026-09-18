@@ -45,6 +45,7 @@ final class AppViewModel {
                     }
                 #endif
             }
+            setupAIRankingObservation()
         #endif
 
         // Observe showDate/showRecurrence/showAlarms changes in AppGroup.defaults
@@ -53,8 +54,6 @@ final class AppViewModel {
             setupSyncObservation()
             setupEntitlementObservation()
         #endif
-
-        setupAIRankingObservation()
     }
 
     // MARK: Internal
@@ -382,7 +381,10 @@ final class AppViewModel {
     /// App-Group write: the guard and the coordinator's input digest absorb the
     /// noise.
     private func refreshAIRanking() {
-        guard store.sortOption == .ai else { return }
+        guard store.sortOption == .ai else {
+            aiCoordinator.cancel()
+            return
+        }
         aiCoordinator.update(rules: AISortRulesStore().load(), candidates: store.aiCandidates)
     }
 
