@@ -49,13 +49,19 @@ jobs:
       - name: Build
         timeout-minutes: 20
         run: |
+          mkdir -p DerivedData/ci-logs
+          set +e
           xcodebuild -scheme SingleThread \
             -destination "$SIM" \
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA" \
             build-for-testing \
             -only-testing:SingleThreadTests \
-            -showBuildTimingSummary
+            -showBuildTimingSummary 2>&1 | tee DerivedData/ci-logs/ios-unit-build.log
+          status=${PIPESTATUS[0]}
+          set -e
+          [[ "$status" -eq 0 ]] || exit "$status"
+          bash scripts/check-warnings.sh DerivedData/ci-logs/ios-unit-build.log
 
       - name: Unit tests
         timeout-minutes: 35
@@ -118,13 +124,19 @@ jobs:
       - name: Build
         timeout-minutes: 20
         run: |
+          mkdir -p DerivedData/ci-logs
+          set +e
           xcodebuild -scheme SingleThread \
             -destination "$SIM" \
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA" \
             build-for-testing \
             -only-testing:SingleThreadUITests \
-            -showBuildTimingSummary
+            -showBuildTimingSummary 2>&1 | tee DerivedData/ci-logs/ios-ui-build.log
+          status=${PIPESTATUS[0]}
+          set -e
+          [[ "$status" -eq 0 ]] || exit "$status"
+          bash scripts/check-warnings.sh DerivedData/ci-logs/ios-ui-build.log
 
       - name: UI tests (smoke)
         timeout-minutes: 45
@@ -170,13 +182,19 @@ jobs:
       - name: Build (macOS)
         timeout-minutes: 20
         run: |
+          mkdir -p DerivedData/ci-logs
+          set +e
           xcodebuild -scheme SingleThread \
             -destination "platform=macOS" \
             -configuration Debug \
             -derivedDataPath "$DERIVED_DATA" \
             CODE_SIGNING_ALLOWED=NO \
             build \
-            -showBuildTimingSummary
+            -showBuildTimingSummary 2>&1 | tee DerivedData/ci-logs/mac-build.log
+          status=${PIPESTATUS[0]}
+          set -e
+          [[ "$status" -eq 0 ]] || exit "$status"
+          bash scripts/check-warnings.sh DerivedData/ci-logs/mac-build.log
 
       - name: Unit tests (macOS)
         timeout-minutes: 20
@@ -231,14 +249,24 @@ jobs:
         timeout-minutes: 5
         run: swiftlint lint --strict
 
+      - name: Warning-check self-test
+        timeout-minutes: 2
+        run: bash scripts/tests/warning-check/run.sh
+
       - name: Watch build
         timeout-minutes: 15
         run: |
+          mkdir -p DerivedData/ci-logs
+          set +e
           xcodebuild -scheme SingleThreadWatch \
             -destination "generic/platform=watchOS Simulator" \
             -configuration Debug \
             build \
-            -showBuildTimingSummary
+            -showBuildTimingSummary 2>&1 | tee DerivedData/ci-logs/watch-build.log
+          status=${PIPESTATUS[0]}
+          set -e
+          [[ "$status" -eq 0 ]] || exit "$status"
+          bash scripts/check-warnings.sh DerivedData/ci-logs/watch-build.log
 
       - name: Periphery
         timeout-minutes: 10
@@ -287,6 +315,8 @@ jobs:
       - name: Build watch app + tests
         timeout-minutes: 20
         run: |
+          mkdir -p DerivedData/ci-logs
+          set +e
           xcodebuild -scheme SingleThreadWatch \
             -destination "platform=watchOS Simulator,id=${{ env.WATCH_UDID }}" \
             -configuration Debug \
@@ -294,7 +324,11 @@ jobs:
             build-for-testing \
             -only-testing:SingleThreadWatchUITests \
             -only-testing:SingleThreadWatchTests \
-            -showBuildTimingSummary
+            -showBuildTimingSummary 2>&1 | tee DerivedData/ci-logs/watch-build-for-testing.log
+          status=${PIPESTATUS[0]}
+          set -e
+          [[ "$status" -eq 0 ]] || exit "$status"
+          bash scripts/check-warnings.sh DerivedData/ci-logs/watch-build-for-testing.log
 
       - name: Watch UI tests
         timeout-minutes: 45

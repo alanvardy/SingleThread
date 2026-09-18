@@ -93,6 +93,29 @@ expect_exit 1 "$status" "standalone entry point fails on warning"
 status=0; ALLOWLIST="$FIXTURES/allow" bash "$CHECKER" "$FIXTURES/clean.log" >/dev/null || status=$?
 expect_exit 0 "$status" "standalone entry point passes clean"
 
+# 12) GitHub Actions annotation output shape
+GITHUB_ACTIONS=true
+out="$(check_warnings "$FIXTURES/one-warning.log" 2>&1)" || true
+unset GITHUB_ACTIONS
+if [[ "$out" == *"::warning file=/Users/x/dev/SingleThread/Foo.swift,line=42::"* ]]; then
+    echo "    ✓ annotation output shape"
+    pass=$((pass + 1))
+else
+    echo "    ✗ annotation output shape wrong"
+    fail=$((fail + 1))
+fi
+
+# 13) standalone entry point resolves an absolute allowlist from any cwd
+mkdir -p "$TMP/other"
+status=0
+( cd "$TMP/other" && ALLOWLIST="$FIXTURES/allow" bash "$CHECKER" "$FIXTURES/clean.log" >/dev/null ) || status=$?
+expect_exit 0 "$status" "absolute allowlist works from a non-repo cwd"
+
+# 14) the default (repo-root-relative) allowlist fails closed outside the repo
+status=0
+( cd "$TMP/other" && bash "$CHECKER" "$FIXTURES/clean.log" >/dev/null 2>&1 ) || status=$?
+expect_exit 1 "$status" "default allowlist fails closed outside the repo"
+
 echo ""
 if [[ "$fail" -gt 0 ]]; then
     echo "❌ warning-check: $fail fixture(s) failed"
