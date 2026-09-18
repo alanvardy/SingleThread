@@ -64,14 +64,36 @@ public enum AIRankingError: Error, Equatable {
 public final class AISortCoordinator {
     // MARK: Lifecycle
 
-    public init(ranker: any AIReminderRanking) {
+    public init(ranker: any AIReminderRanking, debounce: Duration = .milliseconds(500)) {
         self.ranker = ranker
+        self.debounce = debounce
     }
 
     // MARK: Public
 
     /// Set by `AppViewModel` to write the ranking into `ReminderStore`.
     public var onRankingUpdated: (([String: Int]) -> Void)?
+
+    /// Drops invented identifiers, dedupes repeats, and appends omitted ones in
+    /// the (identifier-sorted) candidate order. Exposed for direct unit testing.
+    public static func reconcile(
+        _ ranked: [String],
+        against candidates: [AIReminderCandidate]) -> [String: Int] {
+        let known = Set(candidates.map(\.identifier))
+        var ordered: [String] = []
+        var seen: Set<String> = []
+        for identifier in ranked where known.contains(identifier) && seen.insert(identifier).inserted {
+            ordered.append(identifier)
+        }
+        for candidate in candidates where seen.insert(candidate.identifier).inserted {
+            ordered.append(candidate.identifier)
+        }
+        var ranking: [String: Int] = [:]
+        for (index, identifier) in ordered.enumerated() {
+            ranking[identifier] = index
+        }
+        return ranking
+    }
 
     public func update(rules: String, candidates: [AIReminderCandidate]) {
         let trimmed = rules.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -83,15 +105,26 @@ public final class AISortCoordinator {
             emit([:])
             return
         }
+        let digest = Self.digest(rules: trimmed, candidates: candidates)
+        if pending != nil, digest == lastDigest {
+            return
+        }
+        lastDigest = digest
+        generation += 1
+        let requestedGeneration = generation
+        let requestedCandidates = candidates
+        let wait = debounce
         pending?.cancel()
         pending = Task { [weak self, ranker] in
+            try? await Task.sleep(for: wait)
+            guard !Task.isCancelled else { return }
             do {
-                let ranked = try await ranker.rank(candidates, rules: trimmed)
-                guard let self else { return }
+                let ranked = try await ranker.rank(requestedCandidates, rules: trimmed)
+                guard let self, generation == requestedGeneration else { return }
                 pending = nil
-                emit(Self.ranking(from: ranked))
+                emit(Self.reconcile(ranked, against: requestedCandidates))
             } catch {
-                guard let self else { return }
+                guard let self, generation == requestedGeneration else { return }
                 pending = nil
                 // Retain the previous ranking.
             }
@@ -103,20 +136,26 @@ public final class AISortCoordinator {
         pending = nil
     }
 
+    // MARK: Internal
+
+    /// In-memory-only fingerprint of the request inputs; stable because
+    /// `aiCandidates` is identifier-sorted.
+    static func digest(rules: String, candidates: [AIReminderCandidate]) -> Int {
+        var hasher = Hasher()
+        hasher.combine(rules)
+        for candidate in candidates {
+            hasher.combine(candidate.identifier)
+        }
+        return hasher.finalize()
+    }
+
     // MARK: Private
 
     private let ranker: any AIReminderRanking
+    private let debounce: Duration
     private var pending: Task<Void, Never>?
-
-    /// First occurrence wins, so a duplicated identifier never overwrites an
-    /// earlier (better) rank.
-    private static func ranking(from identifiers: [String]) -> [String: Int] {
-        var ranking: [String: Int] = [:]
-        for (index, identifier) in identifiers.enumerated() where ranking[identifier] == nil {
-            ranking[identifier] = index
-        }
-        return ranking
-    }
+    private var lastDigest = 0
+    private var generation = 0
 
     private func emit(_ ranking: [String: Int]) {
         onRankingUpdated?(ranking)
