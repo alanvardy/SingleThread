@@ -1,6 +1,16 @@
 import Foundation
 import os
 
+#if os(macOS)
+    /// `AppViewModel` accepts an optional injected sync session so the
+    /// WatchConnectivity wiring tests can run on any iOS simulator. That
+    /// injection point compiles on macOS too, but `SkipSyncSession` is
+    /// iOS/watchOS-only; this empty stub keeps the optional parameter's type
+    /// resolvable on macOS, where `setupSyncService` is `#if os(iOS)`-gated and
+    /// the value is never used.
+    public protocol SkipSyncSession: AnyObject {}
+#endif
+
 #if os(iOS) || os(watchOS)
     import WatchConnectivity
 

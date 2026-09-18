@@ -112,10 +112,23 @@ check "watch filter emits no traceback on a missing-shape inventory" \
 # devicectl call at exit 0.
 stub_dir="$work/stubs"
 mkdir -p "$stub_dir" \
-    "$work/derived/Build/Products/Debug-watchos/SingleThreadWatch.app"
-printf '#!/usr/bin/env bash\nexit 0\n' > "$stub_dir/xcodebuild"
+    "$work/derived/Build/Products/Debug-watchos/SingleThreadWatch.app" \
+    "$work/derived/Build/Products/Debug/SingleThread.app"
+cat > "$stub_dir/xcodebuild" <<'STUB'
+#!/usr/bin/env bash
+if [[ "${STUB_MAC_BUILD_FAIL:-0}" == "1" ]]; then
+    for arg in "$@"; do
+        if [[ "$arg" == "platform=macOS" ]]; then
+            echo "stub macOS build failure" >&2
+            exit 1
+        fi
+    done
+fi
+exit 0
+STUB
 printf '#!/usr/bin/env bash\nexit 0\n' > "$stub_dir/xcrun"
-chmod +x "$stub_dir/xcodebuild" "$stub_dir/xcrun"
+printf '#!/usr/bin/env bash\nexit 0\n' > "$stub_dir/open"
+chmod +x "$stub_dir/xcodebuild" "$stub_dir/xcrun" "$stub_dir/open"
 
 python3 - "$work" <<'PY'
 import json
@@ -184,6 +197,12 @@ run_flow "no iOS and no watch keeps the iOS fail-fast" 1 \
 run_flow "RUN_WATCH=0 emits no watch output" 1 \
     "No iPhone/iPad with Developer Mode enabled found." "Apple Watch" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0
+run_flow "macOS success is reported in the summary" 0 \
+    "macOS: built and launched" "macOS: build failed" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=1
+run_flow "macOS build failure is reported in the summary" 1 \
+    "macOS: build failed" "macOS: built and launched" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=1 STUB_MAC_BUILD_FAIL=1
 
 echo ""
 if [[ "$fail" -eq 0 ]]; then
