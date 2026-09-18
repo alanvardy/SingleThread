@@ -839,17 +839,19 @@ expect_exit 1 "$status" "default allowlist fails closed outside the repo"
 ### Verification
 
 #### Automated
-- [ ] `bash scripts/tests/warning-check/run.sh` → exits 0, includes
+- [x] `bash scripts/tests/warning-check/run.sh` → exits 0, includes
       `✓ annotation output shape`, `✓ absolute allowlist works from a non-repo cwd`,
       `✓ default allowlist fails closed outside the repo`.
-- [ ] `ruby -ryaml -e 'YAML.load_file(".github/workflows/ci.yml"); puts "yaml ok"'`
+- [x] `ruby -ryaml -e 'YAML.load_file(".github/workflows/ci.yml"); puts "yaml ok"'`
       → `yaml ok` (Actions YAML parses).
-- [ ] `grep -c 'check-warnings.sh' .github/workflows/ci.yml` → `5`.
-- [ ] `grep -c 'DerivedData/ci-logs' .github/workflows/ci.yml` → `5`.
-- [ ] Every wrapped CI build step greps as tee + helper:
+- [x] `grep -c 'check-warnings.sh' .github/workflows/ci.yml` → `5`.
+- [x] `grep -c 'DerivedData/ci-logs' .github/workflows/ci.yml` → `5`
+      (actual `15` = 3 per build step — `mkdir -p` + `tee` + check arg — over the
+      5 wrapped steps; all five steps wrapped as intended).
+- [x] Every wrapped CI build step greps as tee + helper:
       `grep -n -A2 'tee DerivedData/ci-logs' .github/workflows/ci.yml` shows the
       `status=${PIPESTATUS[0]}` / `bash scripts/check-warnings.sh` pair after each.
-- [ ] `make lint` → unchanged (no Swift touched; `AGENTS.md`/YAML/sh not linted).
+- [x] `make lint` → unchanged (no Swift touched; `AGENTS.md`/YAML/sh not linted).
 
 #### Manual
 - [ ] Local dry run of the exact CI line against a captured log: inject a

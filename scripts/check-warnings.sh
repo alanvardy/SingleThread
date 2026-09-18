@@ -22,9 +22,20 @@
 WARNING_PATTERN='^[^:]+:[0-9]+:[0-9]+: warning: '
 ALLOWLIST="${ALLOWLIST:-scripts/xcodebuild-warnings.allow}"
 
-# Print one offender. Plain by default; GitHub Actions annotation under Actions.
+# Print one offender. Under GitHub Actions, emit an annotation so the warning
+# appears on the PR diff; otherwise print a plain indented line.
 print_offender() {
-    echo "    $1"
+    local line="$1"
+    if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
+        local file rest lnum msg
+        file="${line%%:*}"
+        rest="${line#*:}"
+        lnum="${rest%%:*}"
+        msg="${line#*: warning: }"
+        echo "::warning file=$file,line=$lnum::$msg"
+    else
+        echo "    $line"
+    fi
 }
 
 # 0 when <line> matches any non-comment allowlist pattern, 1 otherwise.

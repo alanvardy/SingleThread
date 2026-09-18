@@ -194,6 +194,12 @@ SingleThread/                  # git root
   (`./scripts/test.sh` — formats, lints, builds, Periphery, unit + UI tests),
   launch the `run-gate` skill: one dedicated async gate subagent in a worktree
   with a multi-hour timeout, not an ad-hoc `nohup`.
+- The gate fails on any source-located compiler warning
+  (`<path>:<line>:<col>: warning:`) in any build it runs. Unfixable
+  toolchain/SDK diagnostics belong in `scripts/xcodebuild-warnings.allow` with a
+  one-line rationale; never silence warnings via `Package.swift` flags or CLI
+  `SWIFT_TREAT_WARNINGS_AS_ERRORS` overrides. The checker's own fixtures live in
+  `scripts/tests/warning-check/` and run early in `scripts/test.sh`.
 - New test suites must be added to `Makefile`'s `test` target and
   `scripts/test.sh` if they need explicit `-only-testing` filters.
 - Confirm the change ships with unit-test coverage (see
