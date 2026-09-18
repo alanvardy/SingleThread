@@ -33,6 +33,18 @@ private struct ThrowingRanker: AIReminderRanking {
     }
 }
 
+/// Reports the ranker unavailable — the coordinator must clear any stale
+/// ranking and never call `rank`.
+private struct UnavailableRanker: AIReminderRanking {
+    nonisolated var isAvailable: Bool {
+        false
+    }
+
+    func rank(_: [AIReminderCandidate], rules _: String) async throws -> [String] {
+        throw AIRankingError.unavailable
+    }
+}
+
 /// Serves a canned order and can be switched to throwing mid-test without
 /// swapping the coordinator's ranker.
 private final class SwitchableRanker: AIReminderRanking, @unchecked Sendable {
@@ -88,6 +100,36 @@ struct AISortCoordinatorTests {
         try? await Task.sleep(for: .milliseconds(100))
 
         #expect(emitted.count == 1, "a thrown error emits nothing, retaining the previous ranking")
+    }
+
+    @Test
+    func skipsBlankRules() async {
+        let candidates = [candidate("a"), candidate("b")]
+        let ranker = CannedRanker(order: ["a", "b"])
+        let coordinator = AISortCoordinator(ranker: ranker)
+        var emitted: [[String: Int]] = []
+        coordinator.onRankingUpdated = { emitted.append($0) }
+        let emptyRanking: [String: Int] = [:]
+
+        coordinator.update(rules: "   ", candidates: candidates)
+        try? await Task.sleep(for: .milliseconds(100))
+
+        #expect(emitted == [emptyRanking], "blank rules clear a stale ranking")
+        #expect(ranker.callCount == 0, "the ranker is never called for blank rules")
+    }
+
+    @Test
+    func fallsBackWhenRankerUnavailable() async {
+        let candidates = [candidate("a"), candidate("b")]
+        let coordinator = AISortCoordinator(ranker: UnavailableRanker())
+        var emitted: [[String: Int]] = []
+        coordinator.onRankingUpdated = { emitted.append($0) }
+        let emptyRanking: [String: Int] = [:]
+
+        coordinator.update(rules: "clients first", candidates: candidates)
+        try? await Task.sleep(for: .milliseconds(100))
+
+        #expect(emitted == [emptyRanking], "unavailable ranking capability clears the ranking")
     }
 
     // MARK: Private

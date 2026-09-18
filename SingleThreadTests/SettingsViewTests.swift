@@ -218,6 +218,7 @@ struct SettingsViewTests {
             sortOption: .constant(.priority),
             aiSortRules: .constant(""),
             showUndatedReminders: .constant(false),
+            isAIRankingAvailable: false,
             availableLists: ["Work"],
             excludedLists: .constant([]))
         let bodyDescription = String(describing: view.body)
@@ -250,11 +251,42 @@ struct SettingsViewTests {
             sortOption: .constant(.ai),
             aiSortRules: .constant("clients first"),
             showUndatedReminders: .constant(false),
+            isAIRankingAvailable: false,
             availableLists: ["Work"],
             excludedLists: .constant([]))
         let bodyDescription = String(describing: view.body)
 
         #expect(bodyDescription.contains("AI Sort Rules"))
+    }
+
+    @Test
+    func filterSortSettingsViewFooterExplainsUnavailableAI() {
+        let view = FilterSortSettingsView(
+            sortOption: .constant(.ai),
+            aiSortRules: .constant("clients first"),
+            showUndatedReminders: .constant(false),
+            isAIRankingAvailable: false,
+            availableLists: ["Work"],
+            excludedLists: .constant([]))
+        let bodyDescription = String(describing: view.body)
+
+        #expect(
+            bodyDescription.contains("so reminders stay in priority order"),
+            "unavailable footer explains the priority-order fallback")
+    }
+
+    @Test
+    func filterSortSettingsViewHasNoAIEditorWhenAnotherOptionSelected() {
+        let view = FilterSortSettingsView(
+            sortOption: .constant(.priority),
+            aiSortRules: .constant(""),
+            showUndatedReminders: .constant(false),
+            isAIRankingAvailable: false,
+            availableLists: ["Work"],
+            excludedLists: .constant([]))
+        let bodyDescription = String(describing: view.body)
+
+        #expect(!bodyDescription.contains("AI Sort Rules"))
     }
 
     @Test
