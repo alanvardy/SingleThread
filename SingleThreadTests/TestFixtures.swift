@@ -74,8 +74,10 @@ func inListReminder(title: String, list: String) -> EKReminder {
         var isReachable = true
         /// Recorded `transferUserInfo` deliveries (the unreachable fallback).
         var queuedUserInfo: [[String: Any]] = []
-        /// Whether the fake transport accepts a queued transfer; `false` models
-        /// `transferUserInfo` returning nil (session inactive / counterpart absent).
+        /// Whether the fake transport accepts a queued transfer. `false` models a
+        /// refusing transport for the `SkipSyncSession` seam; the real
+        /// `WCSession.queueUserInfo` always accepts (its `transferUserInfo` never
+        /// returns nil).
         var queueSucceeds = true
         /// When set, `sendMessage` reports it through `errorHandler` synchronously.
         var errorToThrow: (any Error)?

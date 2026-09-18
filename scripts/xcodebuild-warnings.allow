@@ -14,6 +14,7 @@
 # SingleThreadTests warnings-as-errors carve-out
 # (SingleThread.xcodeproj/project.pbxproj:856/885); the log scan sees it because
 # `build-for-testing` compiles SingleThreadTests on the iOS destination too, and
-# the macOS unit build emits the macOS variant. Reconciled against the real
-# diagnostic text (SKTestTransaction.h:34) in Phase 3.
-.*StoreKitTest\.framework/Headers/.*: warning: .*
+# the macOS unit build emits the macOS variant. Pattern pinned to the exact
+# header/line seen in Phase 3 (SKTestTransaction.h:34); if a future SDK moves it,
+# the gate fails loudly instead of silently masking a new diagnostic.
+.*StoreKitTest\.framework/Headers/SKTestTransaction\.h:34:[0-9]+: warning: .*

@@ -46,7 +46,7 @@ expect_exit 0 "$status" "allowlisted-only log passes"
 out=""; status=0
 out="$(check_warnings "$FIXTURES/mixed.log" 2>&1)" || status=$?
 expect_exit 1 "$status" "mixed log fails"
-if [[ "$out" == *"Bar.swift:7:5"* && "$out" != *"SKTestSession.h"* ]]; then
+if [[ "$out" == *"Bar.swift:7:5"* && "$out" != *"SKTestTransaction.h"* ]]; then
     echo "    ✓ mixed log prints only non-allowlisted offenders"
     pass=$((pass + 1))
 else
@@ -67,10 +67,21 @@ status=0; ALLOWLIST="$TMP/does-not-exist" check_warnings "$FIXTURES/clean.log" >
 expect_exit 1 "$status" "missing allowlist fails closed"
 ALLOWLIST="$FIXTURES/allow"
 
+# 6b) missing log fails closed (a typo'd path must not scan nothing silently)
+status=0; check_warnings "$TMP/does-not-exist.log" >/dev/null || status=$?
+expect_exit 1 "$status" "missing log fails closed"
+
 # 7) run_xcodebuild preserves a failing command's exit status
 status=0
 run_xcodebuild "$TMP/fail.log" "$FIXTURES/fake-fail.sh" >/dev/null 2>&1 || status=$?
 expect_exit 7 "$status" "run_xcodebuild preserves exit 7"
+
+# 7b) ...even when the caller has NOT enabled pipefail (tee must not mask it)
+status=0
+set +o pipefail
+run_xcodebuild "$TMP/fail-nopf.log" "$FIXTURES/fake-fail.sh" >/dev/null 2>&1 || status=$?
+set -o pipefail
+expect_exit 7 "$status" "run_xcodebuild preserves exit 7 without caller pipefail"
 
 # 8) run_xcodebuild scans on success (clean command passes)
 status=0
@@ -115,6 +126,11 @@ expect_exit 0 "$status" "absolute allowlist works from a non-repo cwd"
 status=0
 ( cd "$TMP/other" && bash "$CHECKER" "$FIXTURES/clean.log" >/dev/null 2>&1 ) || status=$?
 expect_exit 1 "$status" "default allowlist fails closed outside the repo"
+
+# 15) the allowlist is pinned to the exact header/line: an off-line diagnostic
+# from the same header is NOT allowlisted
+status=0; check_warnings "$FIXTURES/narrow-allowlist.log" >/dev/null || status=$?
+expect_exit 1 "$status" "off-line warning in allowlisted header fails"
 
 echo ""
 if [[ "$fail" -gt 0 ]]; then
