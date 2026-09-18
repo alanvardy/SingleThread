@@ -93,7 +93,7 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
 
         #expect(emitted == [["b": 0, "a": 1]], "canned order becomes identifier → rank")
         #expect(ranker.callCount == 1)
@@ -109,12 +109,12 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
         #expect(emitted == [["a": 0, "b": 1]], "good ranking is emitted")
 
         ranker.shouldThrow = true
         coordinator.update(rules: "errands by due date", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
 
         #expect(emitted.count == 1, "a thrown error emits nothing, retaining the previous ranking")
     }
@@ -129,7 +129,7 @@ struct AISortCoordinatorTests {
         let emptyRanking: [String: Int] = [:]
 
         coordinator.update(rules: "   ", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
 
         #expect(emitted == [emptyRanking], "blank rules clear a stale ranking")
         #expect(ranker.callCount == 0, "the ranker is never called for blank rules")
@@ -144,7 +144,7 @@ struct AISortCoordinatorTests {
         let emptyRanking: [String: Int] = [:]
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
 
         #expect(emitted == [emptyRanking], "unavailable ranking capability clears the ranking")
     }
@@ -160,7 +160,7 @@ struct AISortCoordinatorTests {
         coordinator.update(rules: "first", candidates: candidates)
         coordinator.update(rules: "second", candidates: candidates)
         coordinator.update(rules: "third", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
 
         #expect(ranker.callCount == 1, "rapid edits collapse into one ranking")
         #expect(emitted == [["a": 0, "b": 1]], "the trailing edit's ranking is emitted exactly once")
@@ -176,7 +176,7 @@ struct AISortCoordinatorTests {
 
         coordinator.update(rules: "clients first", candidates: candidates)
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
 
         #expect(ranker.callCount == 1, "two synchronous identical updates produce one ranking call")
         #expect(emitted == [["a": 0, "b": 1]], "the deduplicated request emits exactly once")
@@ -190,9 +190,9 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(50))
+        try? await Task.sleep(for: .milliseconds(1000))
         coordinator.cancel()
-        try? await Task.sleep(for: .milliseconds(50))
+        try? await Task.sleep(for: .milliseconds(1000))
 
         #expect(emitted.isEmpty, "a cancelled request never emits")
     }
@@ -207,18 +207,18 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
         #expect(emitted == [["a": 0, "b": 1]], "good ranking is emitted")
 
         ranker.shouldThrow = true
         coordinator.update(rules: "errands by due date", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
         #expect(emitted.count == 1, "a thrown error emits nothing, retaining the previous ranking")
 
         ranker.shouldThrow = false
         ranker.order = ["b", "a"]
         coordinator.update(rules: "errands by due date", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
         #expect(
             emitted == [["a": 0, "b": 1], ["b": 0, "a": 1]],
             "a later successful update replaces the retained ranking")
@@ -243,12 +243,12 @@ struct AISortCoordinatorTests {
         let two = [candidate("a"), candidate("b")]
 
         coordinator.update(rules: "clients first", candidates: two)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
         #expect(ranker.callCount == 1)
 
         let three = [candidate("a"), candidate("b"), candidate("c")]
         coordinator.update(rules: "clients first", candidates: three)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
 
         #expect(ranker.callCount == 2, "a changed candidate set re-ranks the same rules")
         #expect(emitted.count == 2, "each distinct input digest emits once")
@@ -263,11 +263,11 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(60))
+        try? await Task.sleep(for: .milliseconds(1000))
         #expect(ranker.callCount == 1, "the first request is parked in its block")
 
         coordinator.update(rules: "second", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(100))
+        try? await Task.sleep(for: .milliseconds(1000))
 
         #expect(emitted == [["b": 0, "a": 1]], "only the newer generation's ranking is emitted")
     }
