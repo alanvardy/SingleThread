@@ -26,13 +26,6 @@ private final class CannedRanker: AIReminderRanking, @unchecked Sendable {
     private let order: [String]
 }
 
-/// Always throws — proves errors leave the previous ranking in place.
-private struct ThrowingRanker: AIReminderRanking {
-    func rank(_: [AIReminderCandidate], rules _: String) async throws -> [String] {
-        throw AIRankingError.unavailable
-    }
-}
-
 /// Reports the ranker unavailable — the coordinator must clear any stale
 /// ranking and never call `rank`.
 private struct UnavailableRanker: AIReminderRanking {
