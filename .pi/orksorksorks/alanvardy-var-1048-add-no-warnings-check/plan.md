@@ -566,10 +566,10 @@ Update the closing `✅ warning-check: N fixture(s) passed` count in the summary
 ### Verification
 
 #### Automated
-- [ ] `bash scripts/tests/warning-check/run.sh` → exits 0, includes
+- [x] `bash scripts/tests/warning-check/run.sh` → exits 0, includes
       `✓ multi-log aggregation fails`.
-- [ ] `bash -n scripts/test.sh` → no syntax errors.
-- [ ] `grep -cE '^[[:space:]]*xcodebuild' scripts/test.sh` → `0`.
+- [x] `bash -n scripts/test.sh` → no syntax errors.
+- [x] `grep -cE '^[[:space:]]*xcodebuild' scripts/test.sh` → `0`.
 - [ ] `bash -c 'source scripts/check-warnings.sh; ALLOWLIST=scripts/xcodebuild-warnings.allow; check_warnings DerivedData/logs/ios-build.log DerivedData/logs/watch-build.log'`
       → exits 0 on a clean tree (reuses Phase 1's `ios-build.log`, adds the watch
       log by running the wrapped watch build once).
