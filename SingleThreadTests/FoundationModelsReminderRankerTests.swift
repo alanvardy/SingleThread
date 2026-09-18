@@ -1,5 +1,4 @@
 @testable import SingleThread
-import SingleThreadCore
 import Testing
 
 /// Deterministic under any host/CI: the assertions never invoke the model,
