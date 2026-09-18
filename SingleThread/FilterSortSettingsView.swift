@@ -3,9 +3,11 @@ import SwiftUI
 
 // MARK: - FilterSortSettingsView
 
-/// Filtering and sorting preferences: sort order, show-undated toggle, and the
-/// Excluded Lists sub-menu. Takes only the bindings it needs rather than the
-/// full bag so it cannot accidentally mutate unrelated preferences.
+/// Filtering and sorting preferences: sort order, show-undated toggle, the
+/// Excluded Lists sub-menu, and a preview of the currently visible set. Takes
+/// only the bindings it needs rather than the full bag so it cannot
+/// accidentally mutate unrelated preferences. The store is read-only and
+/// exists solely to render the list preview.
 struct FilterSortSettingsView: View {
     @Binding var sortOption: SortOption
 
@@ -18,6 +20,15 @@ struct FilterSortSettingsView: View {
     let availableLists: [String]
 
     @Binding var excludedLists: Set<String>
+
+    let store: ReminderStore
+
+    /// The current visible set as display rows — sorted and filtered by the
+    /// store exactly as the main reminder card sees it. Internal so tests can
+    /// assert the order without rendering the pushed destination.
+    var listDisplays: [ReminderDisplay] {
+        store.visibleReminders.map { reminder in ReminderDisplay(reminder: reminder) }
+    }
 
     var body: some View {
         Form {
@@ -86,6 +97,21 @@ struct FilterSortSettingsView: View {
                     }
                 }
             }
+            Section {
+                NavigationLink {
+                    FilteredRemindersListView(displays: listDisplays)
+                } label: {
+                    Label {
+                        VStack(alignment: .leading) {
+                            Text("View sorted and filtered list")
+                            SettingsCaption(text: "Preview how your reminders are ordered right now.")
+                        }
+                    } icon: {
+                        Image(systemName: "list.number")
+                    }
+                }
+                .accessibilityIdentifier("filterSortShowListRow")
+            }
         }
         .localizedNavigationTitle("Filtering & Sorting")
         .settingsSubscreenLayout()
@@ -102,6 +128,7 @@ struct FilterSortSettingsView: View {
             showUndatedReminders: .constant(false),
             isAIRankingAvailable: false,
             availableLists: ["Work", "Personal"],
-            excludedLists: .constant([]))
+            excludedLists: .constant([]),
+            store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false))
     }
 }

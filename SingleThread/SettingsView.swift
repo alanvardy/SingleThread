@@ -18,12 +18,14 @@ struct SettingsView: View {
     init(
         bindings: SettingsBindings,
         backgroundImage: BackgroundImageStore,
+        store: ReminderStore,
         availableLists: [String],
         excludedLists: Binding<Set<String>>,
         entitlementStore: EntitlementStore = EntitlementStore(),
         viewModel: SettingsViewModel = SettingsViewModel()) {
         self.bindings = bindings
         self.viewModel = viewModel
+        self.store = store
         self.backgroundImage = backgroundImage
         self.availableLists = availableLists
         self.entitlementStore = entitlementStore
@@ -101,7 +103,8 @@ struct SettingsView: View {
                             showUndatedReminders: $bindings.showUndatedReminders,
                             isAIRankingAvailable: bindings.isAIRankingAvailable,
                             availableLists: availableLists,
-                            excludedLists: $excludedLists)
+                            excludedLists: $excludedLists,
+                            store: store)
                     } label: {
                         SettingsLinkLabel(
                             title: "Filtering & Sorting",
@@ -185,6 +188,7 @@ struct SettingsView: View {
     @Bindable private var bindings: SettingsBindings
 
     private let viewModel: SettingsViewModel
+    private let store: ReminderStore
     private let backgroundImage: BackgroundImageStore
     private let availableLists: [String]
     private let entitlementStore: EntitlementStore
@@ -196,6 +200,7 @@ struct SettingsView: View {
     SettingsView(
         bindings: SettingsBindings(),
         backgroundImage: BackgroundImageStore(),
+        store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
         availableLists: ["Work", "Personal"],
         excludedLists: .constant([]))
 }
@@ -212,6 +217,7 @@ struct SettingsView: View {
     SettingsView(
         bindings: bag,
         backgroundImage: BackgroundImageStore(),
+        store: ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false),
         availableLists: ["Work", "Personal"],
         excludedLists: .constant([]))
         .preferredColorScheme(AppearanceMode.dark.colorScheme)

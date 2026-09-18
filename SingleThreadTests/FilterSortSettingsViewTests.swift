@@ -1,3 +1,4 @@
+import EventKit
 @testable import SingleThread
 import SingleThreadCore
 import SwiftUI
@@ -15,11 +16,12 @@ struct FilterSortSettingsViewTests {
             showUndatedReminders: .constant(false),
             isAIRankingAvailable: false,
             availableLists: ["Work"],
-            excludedLists: .constant([]))
+            excludedLists: .constant([]),
+            store: makeEmptyReminderStore())
         let bodyDescription = String(describing: view.body)
 
         let expectedLabels = [
-            "Sort By", "Show undated reminders", "Excluded Lists"
+            "Sort By", "Show undated reminders", "Excluded Lists", "View sorted and filtered list"
         ]
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
@@ -28,7 +30,8 @@ struct FilterSortSettingsViewTests {
         let expectedCaptions = [
             "Choose the order reminders appear in.",
             "Include reminders that have no due date.",
-            "Hide specific lists from the reminder view."
+            "Hide specific lists from the reminder view.",
+            "Preview how your reminders are ordered right now."
         ]
         for caption in expectedCaptions {
             #expect(bodyDescription.contains(caption))
@@ -48,7 +51,8 @@ struct FilterSortSettingsViewTests {
             showUndatedReminders: .constant(false),
             isAIRankingAvailable: false,
             availableLists: ["Work"],
-            excludedLists: .constant([]))
+            excludedLists: .constant([]),
+            store: makeEmptyReminderStore())
         let bodyDescription = String(describing: view.body)
 
         #expect(bodyDescription.contains("AI Sort Rules"))
@@ -62,7 +66,8 @@ struct FilterSortSettingsViewTests {
             showUndatedReminders: .constant(false),
             isAIRankingAvailable: false,
             availableLists: ["Work"],
-            excludedLists: .constant([]))
+            excludedLists: .constant([]),
+            store: makeEmptyReminderStore())
         let bodyDescription = String(describing: view.body)
 
         #expect(
@@ -84,7 +89,8 @@ struct FilterSortSettingsViewTests {
             showUndatedReminders: .constant(false),
             isAIRankingAvailable: true,
             availableLists: ["Work"],
-            excludedLists: .constant([]))
+            excludedLists: .constant([]),
+            store: makeEmptyReminderStore())
         let bodyDescription = String(describing: view.body)
 
         #expect(
@@ -106,7 +112,8 @@ struct FilterSortSettingsViewTests {
             showUndatedReminders: .constant(false),
             isAIRankingAvailable: false,
             availableLists: ["Work"],
-            excludedLists: .constant([]))
+            excludedLists: .constant([]),
+            store: makeEmptyReminderStore())
         let bodyDescription = String(describing: view.body)
 
         #expect(
@@ -122,9 +129,60 @@ struct FilterSortSettingsViewTests {
             showUndatedReminders: .constant(false),
             isAIRankingAvailable: false,
             availableLists: ["Work"],
-            excludedLists: .constant([]))
+            excludedLists: .constant([]),
+            store: makeEmptyReminderStore())
         let bodyDescription = String(describing: view.body)
 
         #expect(!bodyDescription.contains("AI Sort Rules"))
+    }
+
+    /// The list rows are the store's sorted and filtered visible set: skipped
+    /// IDs and excluded-list reminders are absent, and priority order holds.
+    @Test
+    func filterSortSettingsViewListDisplaysMatchVisibleReminders() {
+        let high = makeReminder(title: "high", priority: 1)
+        let low = makeReminder(title: "low", priority: 9)
+        let skipped = makeReminder(title: "skipped", priority: 1)
+        let excluded = makeReminder(title: "excluded", calendarTitle: "Work")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [low, high, skipped, excluded],
+            skippedIDs: [skipped.calendarItemIdentifier],
+            authorizationStatus: .fullAccess,
+            excludedListTitles: ["Work"])
+        let view = FilterSortSettingsView(
+            sortOption: .constant(.priority),
+            aiSortRules: .constant(""),
+            showUndatedReminders: .constant(false),
+            isAIRankingAvailable: false,
+            availableLists: ["Work"],
+            excludedLists: .constant(["Work"]),
+            store: store)
+
+        #expect(view.listDisplays.map(\.title) == ["high", "low"])
+    }
+
+    /// Sad path: an empty visible set maps to an empty row list rather than a
+    /// stale or crashy surface.
+    @Test
+    func filterSortSettingsViewListDisplaysEmptyWhenNothingVisible() {
+        let only = makeReminder(title: "gone", priority: 1)
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [only],
+            skippedIDs: [only.calendarItemIdentifier],
+            authorizationStatus: .fullAccess)
+        let view = FilterSortSettingsView(
+            sortOption: .constant(.priority),
+            aiSortRules: .constant(""),
+            showUndatedReminders: .constant(false),
+            isAIRankingAvailable: false,
+            availableLists: [],
+            excludedLists: .constant([]),
+            store: store)
+
+        #expect(view.listDisplays.isEmpty)
     }
 }
