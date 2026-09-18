@@ -9,7 +9,7 @@
     // swiftlint:disable file_length
 
     @MainActor
-    struct SkippedReminderSyncServiceTests { // swiftlint:disable:this type_body_length
+    struct SkippedReminderSyncServiceTests {
         // MARK: Internal
 
         // MARK: - Activation
@@ -253,29 +253,6 @@
             #expect(!received)
             service.session(WCSession.default, didReceiveApplicationContext: [:])
             #expect(sortStore.load() == .dueDate) // unchanged
-        }
-
-        @Test
-        func sortOptionAITravelsAsRawValue() throws {
-            let suffix = UUID().uuidString
-            let fake = FakeSession()
-            let sendSortStore = SortOptionStore(defaults: .standard, key: "test-send-sort-ai-\(suffix)")
-            sendSortStore.save(.ai)
-            let sendService = SkippedReminderSyncService(
-                session: fake,
-                skipStore: SkippedReminderStore(defaults: .standard, key: "test-send-skip-ai-\(suffix)"),
-                sortStore: sendSortStore)
-            sendService.pushAll()
-            let context = try #require(fake.lastContext)
-            #expect(context["sortOption"] as? String == "ai", ".ai travels as its raw value")
-
-            let receiveSortStore = SortOptionStore(defaults: .standard, key: "test-recv-sort-ai-\(suffix)")
-            let receiveService = SkippedReminderSyncService(
-                session: fake,
-                skipStore: SkippedReminderStore(defaults: .standard, key: "test-recv-skip-ai-\(suffix)"),
-                sortStore: receiveSortStore)
-            receiveService.session(WCSession.default, didReceiveApplicationContext: ["sortOption": "ai"])
-            #expect(receiveSortStore.load() == .ai, "the receiving side decodes the new case")
         }
 
         // MARK: - Completion relay
@@ -668,6 +645,36 @@
 
             #expect(countStore.load() == ["a": 1]) // unchanged
             #expect(!fired) // absent key is a no-op for the handler too
+        }
+    }
+
+    // MARK: - AI sort option travel
+
+    /// `.ai` round-trips over the sync payload like any other option. Kept in its
+    /// own struct so the main suite stays under the `type_body_length` bound.
+    @MainActor
+    struct AISortOptionTravelTests {
+        @Test
+        func sortOptionAITravelsAsRawValue() throws {
+            let suffix = UUID().uuidString
+            let fake = FakeSession()
+            let sendSortStore = SortOptionStore(defaults: .standard, key: "test-send-sort-ai-\(suffix)")
+            sendSortStore.save(.ai)
+            let sendService = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-send-skip-ai-\(suffix)"),
+                sortStore: sendSortStore)
+            sendService.pushAll()
+            let context = try #require(fake.lastContext)
+            #expect(context["sortOption"] as? String == "ai", ".ai travels as its raw value")
+
+            let receiveSortStore = SortOptionStore(defaults: .standard, key: "test-recv-sort-ai-\(suffix)")
+            let receiveService = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-recv-skip-ai-\(suffix)"),
+                sortStore: receiveSortStore)
+            receiveService.session(WCSession.default, didReceiveApplicationContext: ["sortOption": "ai"])
+            #expect(receiveSortStore.load() == .ai, "the receiving side decodes the new case")
         }
     }
 #endif
