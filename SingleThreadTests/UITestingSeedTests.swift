@@ -163,6 +163,20 @@ struct UITestingSeedTests {
     }
 
     @Test
+    func resetsAISortRules() {
+        AppGroup.defaults.set("x", forKey: AISortRulesStore.defaultsKey)
+        UITestingSeed.resetPersistedState()
+        #expect(AppGroup.defaults.string(forKey: AISortRulesStore.defaultsKey) == nil)
+
+        let standardStore = AISortRulesStore(defaults: .standard, key: AISortRulesStore.defaultsKey)
+        standardStore.save("x")
+        defer { UserDefaults.standard.removeObject(forKey: AISortRulesStore.defaultsKey) }
+        #expect(standardStore.load() == "x")
+        UITestingSeed.resetPersistedState()
+        #expect(standardStore.load().isEmpty, "the standard-suite copy is cleared too")
+    }
+
+    @Test
     func returnsNilWhenSeedAbsentOrMalformed() {
         #expect(UITestingSeed.fromLaunchArguments([]) == nil)
         #expect(UITestingSeed.fromLaunchArguments(["--seed"]) == nil)

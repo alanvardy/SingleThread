@@ -92,6 +92,7 @@ public struct UITestingSeed {
         "showCompletionMomentum",
         "showUndatedReminders",
         "sortOption",
+        "aiSortRules",
         "completionCount",
         DailyCompletionStore.defaultsMarkerKey,
         DailyCompletionStore.defaultsCountKey,

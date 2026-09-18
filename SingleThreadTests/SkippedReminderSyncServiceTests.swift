@@ -4,8 +4,12 @@
     import Testing
     import WatchConnectivity
 
+    // The sortOption-round-trip suite (incl. `.ai`) keeps this file above the
+    // `file_length` threshold — same treatment as `ReminderStoreTests.swift`.
+    // swiftlint:disable file_length
+
     @MainActor
-    struct SkippedReminderSyncServiceTests {
+    struct SkippedReminderSyncServiceTests { // swiftlint:disable:this type_body_length
         // MARK: Internal
 
         // MARK: - Activation
@@ -249,6 +253,29 @@
             #expect(!received)
             service.session(WCSession.default, didReceiveApplicationContext: [:])
             #expect(sortStore.load() == .dueDate) // unchanged
+        }
+
+        @Test
+        func sortOptionAITravelsAsRawValue() throws {
+            let suffix = UUID().uuidString
+            let fake = FakeSession()
+            let sendSortStore = SortOptionStore(defaults: .standard, key: "test-send-sort-ai-\(suffix)")
+            sendSortStore.save(.ai)
+            let sendService = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-send-skip-ai-\(suffix)"),
+                sortStore: sendSortStore)
+            sendService.pushAll()
+            let context = try #require(fake.lastContext)
+            #expect(context["sortOption"] as? String == "ai", ".ai travels as its raw value")
+
+            let receiveSortStore = SortOptionStore(defaults: .standard, key: "test-recv-sort-ai-\(suffix)")
+            let receiveService = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-recv-skip-ai-\(suffix)"),
+                sortStore: receiveSortStore)
+            receiveService.session(WCSession.default, didReceiveApplicationContext: ["sortOption": "ai"])
+            #expect(receiveSortStore.load() == .ai, "the receiving side decodes the new case")
         }
 
         // MARK: - Completion relay
