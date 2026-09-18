@@ -425,9 +425,11 @@ re-attempt them and must not surface a raw 4016 for them.
 
 #### Automated
 
-- [ ] `bash -n scripts/run-devices.sh` and
+- [x] `bash -n scripts/run-devices.sh` and
       `shellcheck -S warning --exclude=SC1111 scripts/run-devices.sh` — clean
-- [ ] Stub control flow (the harness this plan was validated with) confirms:
+      (one transient SC2034 remains: `WATCH_LAUNCH_FORM` is written here and read
+      by the Phase 3 summary — resolves at Phase 3, same as Phase 1's pair)
+- [x] Stub control flow (the harness this plan was validated with) confirms:
       reachable watch + `RUN_MAC=0` → install and launch invoked once with the
       CoreDevice `identifier`; unreachable-only watch → zero install attempts
       and exit 1.
