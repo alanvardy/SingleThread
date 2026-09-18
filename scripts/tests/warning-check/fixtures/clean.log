@@ -1,0 +1,3 @@
+CompileSwift normal arm64 /Users/x/dev/SingleThread/Foo.swift
+Ld /Users/x/dev/DerivedData/Build/Products/Debug/SingleThread.app/Contents/MacOS/SingleThread
+** BUILD SUCCEEDED **

@@ -1,0 +1,5 @@
+warning: Run script build phase 'Embed lib' will be run during every build because it does not specify any outputs. To address this warning, either add output dependencies to the script phase, or configure it to run in every build by unchecking "Based on dependency analysis".
+    note: saw foo.swift:1:1: warning: deprecated API inside test output prose
+Test Suite 'Selected tests' started at 2026-01-01 00:00:00.000
+Test Case '-[SingleThreadUITests testLaunch]' passed (0.123 seconds)
+** BUILD SUCCEEDED **

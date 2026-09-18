@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/check-warnings.sh"
+
 # ── Configuration ──────────────────────────────────────────────────────────────
 # Destination is resolved after cd: an explicit SIM wins, else this worktree's
 # dedicated simulator from .simulator_id, else the shared default device.
@@ -45,6 +48,8 @@ preboot_sim() {
 }
 
 cd "$(dirname "$0")/.."
+
+LOG_DIR="$DERIVED_DATA/logs"
 
 # Prefer this worktree's dedicated simulator when SIM was not set explicitly.
 # This is what keeps parallel agents off each other's simulator (see the
@@ -248,8 +253,12 @@ if [[ "${UNIT_ONLY:-0}" -eq 0 && "${UI_ONLY:-0}" -eq 0 ]]; then
     swiftlint lint --strict
 
     echo ""
+    echo "==> Warning-check self-test…"
+    bash "$SCRIPT_DIR/tests/warning-check/run.sh"
+
+    echo ""
     echo "==> Building…"
-    xcodebuild -scheme "$SCHEME" \
+    run_xcodebuild "$LOG_DIR/ios-build.log" xcodebuild -scheme "$SCHEME" \
       -destination "$SIM" \
       -configuration Debug \
       -derivedDataPath "$DERIVED_DATA" \

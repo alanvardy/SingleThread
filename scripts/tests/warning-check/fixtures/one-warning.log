@@ -1,0 +1,3 @@
+CompileSwift normal arm64 /Users/x/dev/SingleThread/Foo.swift
+/Users/x/dev/SingleThread/Foo.swift:42:9: warning: variable 'unusedThing' was never used; consider replacing with '_'
+** BUILD SUCCEEDED **
