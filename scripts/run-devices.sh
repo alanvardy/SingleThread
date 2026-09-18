@@ -61,6 +61,10 @@ if [[ -n "$DEVICES_JSON_IN" ]]; then
         echo "❌ DEVICES_JSON_IN=$DEVICES_JSON_IN could not be read." >&2
         exit 1
     fi
+    if ! python3 -c 'import json, sys; json.load(open(sys.argv[1]))' "$DEVICES_JSON" 2>/dev/null; then
+        echo "❌ DEVICES_JSON_IN=$DEVICES_JSON_IN is not valid JSON." >&2
+        exit 1
+    fi
 elif ! xcrun devicectl list devices -j "$DEVICES_JSON" >/dev/null 2>&1; then
     echo "❌ devicectl could not list devices." >&2
     echo "   Plug in a device, unlock it, and tap “Trust”, then retry." >&2
@@ -83,7 +87,9 @@ with open(sys.argv[1], encoding="utf-8") as fh:
     payload = json.load(fh)
 
 with open(sys.argv[2], "a", encoding="utf-8") as unreachable_log:
-    for device in payload["result"]["devices"]:
+    result = payload.get("result") if isinstance(payload, dict) else None
+    devices = result.get("devices", []) if isinstance(result, dict) else []
+    for device in devices:
         hardware = device.get("hardwareProperties", {})
         props = device.get("deviceProperties", {})
         if hardware.get("platform") != "iOS":
@@ -140,7 +146,9 @@ with open(sys.argv[1], encoding="utf-8") as fh:
     payload = json.load(fh)
 
 with open(sys.argv[2], "a", encoding="utf-8") as unreachable_log:
-    for device in payload["result"]["devices"]:
+    result = payload.get("result") if isinstance(payload, dict) else None
+    devices = result.get("devices", []) if isinstance(result, dict) else []
+    for device in devices:
         hardware = device.get("hardwareProperties", {})
         props = device.get("deviceProperties", {})
         if hardware.get("platform") != "watchOS":
@@ -177,18 +185,28 @@ PY
     fi
 fi
 
+# A discovered physical watch is a reason to continue even with no reachable
+# iOS device: the watch app is built below, and an unreachable watch is reported
+# as a failed step instead of being masked by an iOS-only early exit. With
+# RUN_WATCH=0 both watch arrays stay empty, so this is false and the run keeps
+# the pre-watch iOS-only behavior.
+WATCH_BUILD_NEEDED=0
+if [[ "$RUN_WATCH" -eq 1 ]] && [[ ${#WATCH_DEVICES[@]} -gt 0 || "$WATCH_UNREACHABLE_COUNT" -gt 0 ]]; then
+    WATCH_BUILD_NEEDED=1
+fi
+
 if [[ ${#DEVICES[@]} -eq 0 ]]; then
-    if [[ "$UNREACHABLE_COUNT" -gt 0 && ${#WATCH_DEVICES[@]} -eq 0 ]]; then
+    if [[ "$UNREACHABLE_COUNT" -gt 0 && "$WATCH_BUILD_NEEDED" -eq 0 ]]; then
         echo "❌ $UNREACHABLE_COUNT device(s) found but unreachable — see messages above (unlock the device and connect it to this Mac's Wi-Fi, then retry)." >&2
         exit 1
     fi
     if [[ "$RUN_MAC" -eq 1 ]]; then
-        if [[ ${#WATCH_DEVICES[@]} -gt 0 || "$WATCH_UNREACHABLE_COUNT" -gt 0 ]]; then
+        if [[ "$WATCH_BUILD_NEEDED" -eq 1 ]]; then
             echo "  (no iPhone/iPad with Developer Mode enabled found — macOS + Apple Watch run only)"
         else
             echo "  (no iPhone/iPad with Developer Mode enabled found — macOS run only)"
         fi
-    elif [[ ${#WATCH_DEVICES[@]} -gt 0 ]]; then
+    elif [[ "$WATCH_BUILD_NEEDED" -eq 1 ]]; then
         echo "  (no iPhone/iPad with Developer Mode enabled found — Apple Watch run only)"
     else
         echo "❌ No iPhone/iPad with Developer Mode enabled found." >&2
@@ -203,18 +221,26 @@ failures=0
 failures=$((failures + UNREACHABLE_COUNT))
 failures=$((failures + WATCH_UNREACHABLE_COUNT))
 
-# The watch app is built whenever a physical watch was discovered — reachability
-# is irrelevant to a build, and building here is the only way to exercise the
-# device-signed watch product without depending on the tunnel being up.
-WATCH_BUILD_NEEDED=0
-if [[ "$RUN_WATCH" -eq 1 ]] && [[ ${#WATCH_DEVICES[@]} -gt 0 || "$WATCH_UNREACHABLE_COUNT" -gt 0 ]]; then
-    WATCH_BUILD_NEEDED=1
-fi
+# iOS leg counters (reported by the Phase 3 summary). A device is counted as
+# launched only once devicectl launch exits 0, so a failed install is not
+# reported as "launched".
+IOS_LAUNCHED=0
 
 # Watch leg counters (reported by the Phase 3 summary).
 WATCH_LAUNCHED=0
 WATCH_FAILED=0
 WATCH_LAUNCH_FORM="none"
+WATCH_LAUNCH_FORM_MIXED=0
+
+# The first successful watch launch records the flag form that worked; if a
+# later watch needs the other form, say so instead of silently overwriting it.
+record_watch_launch_form() {
+    if [[ "$WATCH_LAUNCH_FORM" == "none" ]]; then
+        WATCH_LAUNCH_FORM="$1"
+    elif [[ "$WATCH_LAUNCH_FORM" != "$1" ]]; then
+        WATCH_LAUNCH_FORM_MIXED=1
+    fi
+}
 
 # ── Build once for all devices ────────────────────────────────────────────────
 if [[ ${#DEVICES[@]} -gt 0 ]]; then
@@ -245,7 +271,9 @@ if [[ ${#DEVICES[@]} -gt 0 ]]; then
         fi
 
         echo "==> Launching on ${device_name}…"
-        if ! xcrun devicectl device process launch --terminate-existing --activate --device "$device_id" "$BUNDLE_ID"; then
+        if xcrun devicectl device process launch --terminate-existing --activate --device "$device_id" "$BUNDLE_ID"; then
+            IOS_LAUNCHED=$((IOS_LAUNCHED + 1))
+        else
             echo "❌ Launch failed on $device_name." >&2
             failures=$((failures + 1))
         fi
@@ -295,12 +323,12 @@ if [[ "$WATCH_BUILD_NEEDED" -eq 1 ]]; then
             echo "==> Launching $WATCH_BUNDLE_ID on ${watch_name}…"
             if xcrun devicectl device process launch --terminate-existing --activate --device "$watch_id" "$WATCH_BUNDLE_ID"; then
                 WATCH_LAUNCHED=$((WATCH_LAUNCHED + 1))
-                WATCH_LAUNCH_FORM="--terminate-existing --activate"
+                record_watch_launch_form "--terminate-existing --activate"
             else
                 echo "⚠️  --activate was rejected (it is not supported on every watchOS version) — retrying without it…" >&2
                 if xcrun devicectl device process launch --terminate-existing --device "$watch_id" "$WATCH_BUNDLE_ID"; then
                     WATCH_LAUNCHED=$((WATCH_LAUNCHED + 1))
-                    WATCH_LAUNCH_FORM="--terminate-existing"
+                    record_watch_launch_form "--terminate-existing"
                 else
                     echo "❌ Watch launch failed on $watch_name (both the --activate and the minimal form failed)." >&2
                     failures=$((failures + 1))
@@ -338,11 +366,11 @@ fi
 # ── Summary ────────────────────────────────────────────────────────────────────
 echo ""
 echo "==> Summary"
-echo "  iPhone/iPad: ${#DEVICES[@]} launched, $UNREACHABLE_COUNT unreachable"
+echo "  iPhone/iPad: $IOS_LAUNCHED/${#DEVICES[@]} launched, $UNREACHABLE_COUNT unreachable"
 if [[ "$RUN_WATCH" -eq 0 ]]; then
     echo "  Apple Watch: skipped (RUN_WATCH=0)"
 elif [[ ${#WATCH_DEVICES[@]} -eq 0 && "$WATCH_UNREACHABLE_COUNT" -eq 0 ]]; then
-    echo "  Apple Watch: 0 watches found (not a failure)"
+    echo "  Apple Watch: no installable watch found (not a failure)"
 else
     watch_line="  Apple Watch: $WATCH_LAUNCHED launched, $WATCH_FAILED failed, $WATCH_UNREACHABLE_COUNT unreachable"
     if [[ "$WATCH_UNREACHABLE_COUNT" -gt 0 ]]; then
@@ -350,7 +378,11 @@ else
     fi
     echo "$watch_line"
     if [[ "$WATCH_LAUNCHED" -gt 0 ]]; then
-        echo "  Watch launch flags: $WATCH_LAUNCH_FORM"
+        if [[ "$WATCH_LAUNCH_FORM_MIXED" -eq 1 ]]; then
+            echo "  Watch launch flags: $WATCH_LAUNCH_FORM (a later watch needed the other form)"
+        else
+            echo "  Watch launch flags: $WATCH_LAUNCH_FORM"
+        fi
     fi
 fi
 if [[ "$RUN_MAC" -eq 1 ]]; then
