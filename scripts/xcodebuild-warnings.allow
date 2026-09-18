@@ -8,10 +8,12 @@
 # genuinely cannot be fixed in this repo belong here -- never use this file to
 # silence a warning we could fix at the source.
 
-# StoreKitTest's SDK headers reference a symbol deprecated in iOS 18. The header
-# is toolchain-owned, so the diagnostic cannot be fixed in this repo. This is the
-# same diagnostic behind the SingleThreadTests warnings-as-errors carve-out
+# StoreKitTest's SDK headers reference a symbol deprecated in iOS 18 (macOS
+# build: macOS 15). The header is toolchain-owned, so the diagnostic cannot be
+# fixed in this repo. This is the same diagnostic behind the
+# SingleThreadTests warnings-as-errors carve-out
 # (SingleThread.xcodeproj/project.pbxproj:856/885); the log scan sees it because
-# `build-for-testing` compiles SingleThreadTests on the iOS destination too.
-# Reconciled against the real diagnostic text in Phase 3.
+# `build-for-testing` compiles SingleThreadTests on the iOS destination too, and
+# the macOS unit build emits the macOS variant. Reconciled against the real
+# diagnostic text (SKTestTransaction.h:34) in Phase 3.
 .*StoreKitTest\.framework/Headers/.*: warning: .*

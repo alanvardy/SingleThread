@@ -26,8 +26,9 @@ import os
             errorHandler: ((any Error) -> Void)?)
         /// Queue a message for delivery when the counterpart is unreachable.
         /// Named `queueUserInfo` (not `transferUserInfo`) because the SDK call
-        /// returns a `WCSessionUserInfoTransfer`, bridged to a `Bool` here:
-        /// `false` means the transport refused the queued transfer.
+        /// returns a `WCSessionUserInfoTransfer`. The SDK enqueues the dictionary
+        /// unconditionally (transfer continues after the app exits), so this is
+        /// always accepted; `false` is never returned by the real transport.
         @discardableResult
         func queueUserInfo(_ userInfo: [String: Any]) -> Bool
     }
@@ -35,7 +36,8 @@ import os
     extension WCSession: SkipSyncSession {
         @discardableResult
         public func queueUserInfo(_ userInfo: [String: Any]) -> Bool {
-            transferUserInfo(userInfo) != nil
+            _ = transferUserInfo(userInfo)
+            return true
         }
     }
 
