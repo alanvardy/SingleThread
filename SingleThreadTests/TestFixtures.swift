@@ -10,6 +10,13 @@ import Speech
 /// it, so a deallocated store crashes (SIGTRAP) when any property is read.
 @MainActor let sharedTestEventStore = EKEventStore()
 
+/// A `ReminderStore` that never touches EventKit, for view-construction tests
+/// that only need the view to build.
+@MainActor
+func makeEmptyReminderStore() -> ReminderStore {
+    ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
+}
+
 /// Construction only — never saved through EventKit.
 @MainActor
 func makeReminder(
