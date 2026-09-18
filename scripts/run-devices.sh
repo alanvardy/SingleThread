@@ -273,6 +273,41 @@ if [[ "$WATCH_BUILD_NEEDED" -eq 1 ]]; then
         echo "   scheme's destination (generic/platform=watchOS) and the Products dir." >&2
         failures=$((failures + 1))
         WATCH_FAILED=$((WATCH_FAILED + 1))
+    else
+        for entry in "${WATCH_DEVICES[@]}"; do
+            watch_id="${entry%%|*}"
+            watch_name="${entry#*|}"
+
+            echo ""
+            echo "==> Installing on ${watch_name}…"
+            if ! watch_install_output=$(xcrun devicectl device install app --device "$watch_id" "$WATCH_APP_PATH" 2>&1); then
+                echo "$watch_install_output" >&2
+                echo "❌ Watch install failed on $watch_name." >&2
+                if [[ "$watch_install_output" == *4016* ]]; then
+                    echo "   devicectl lost the connection to the watch mid-run (error 4016) — put it on" >&2
+                    echo "   your wrist, unlock its paired iPhone, keep it near this Mac, then retry." >&2
+                fi
+                failures=$((failures + 1))
+                WATCH_FAILED=$((WATCH_FAILED + 1))
+                continue
+            fi
+
+            echo "==> Launching $WATCH_BUNDLE_ID on ${watch_name}…"
+            if xcrun devicectl device process launch --terminate-existing --activate --device "$watch_id" "$WATCH_BUNDLE_ID"; then
+                WATCH_LAUNCHED=$((WATCH_LAUNCHED + 1))
+                WATCH_LAUNCH_FORM="--terminate-existing --activate"
+            else
+                echo "⚠️  --activate was rejected (it is not supported on every watchOS version) — retrying without it…" >&2
+                if xcrun devicectl device process launch --terminate-existing --device "$watch_id" "$WATCH_BUNDLE_ID"; then
+                    WATCH_LAUNCHED=$((WATCH_LAUNCHED + 1))
+                    WATCH_LAUNCH_FORM="--terminate-existing"
+                else
+                    echo "❌ Watch launch failed on $watch_name (both the --activate and the minimal form failed)." >&2
+                    failures=$((failures + 1))
+                    WATCH_FAILED=$((WATCH_FAILED + 1))
+                fi
+            fi
+        done
     fi
 fi
 
