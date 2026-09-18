@@ -34,22 +34,29 @@ struct FilterSortSettingsView: View {
             }
             if sortOption == .ai {
                 Section {
-                    TextEditor(text: $aiSortRules)
-                        .frame(minHeight: 88)
-                        .accessibilityLabel(Text("AI Sort Rules"))
-                        .accessibilityIdentifier("aiSortRulesEditor")
+                    if isAIRankingAvailable {
+                        TextEditor(text: $aiSortRules)
+                            .frame(minHeight: 88)
+                            .accessibilityLabel(Text("AI Sort Rules"))
+                            .accessibilityIdentifier("aiSortRulesEditor")
+                    } else {
+                        // No point offering a rules editor the device cannot use;
+                        // explain the fallback instead.
+                        Label {
+                            Text(LocalizedStringKey(
+                                "This device doesn't support on-device AI, "
+                                    + "so reminders stay in priority order."))
+                        } icon: {
+                            Image(systemName: "info.circle")
+                        }
+                        .accessibilityIdentifier("aiSortUnavailableMessage")
+                    }
                 } header: {
                     Text("AI Sort Rules")
                 } footer: {
                     if isAIRankingAvailable {
                         SettingsCaption(
                             text: "Describe how reminders should be ordered. On-device AI applies these rules.")
-                    } else {
-                        SettingsCaption(
-                            text: LocalizedStringKey(
-                                "Describe how reminders should be ordered. "
-                                    + "This device can't run on-device AI, so "
-                                    + "reminders stay in priority order."))
                     }
                 }
             }
