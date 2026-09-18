@@ -16,11 +16,7 @@ MAC_SIM="platform=macOS"
 SCHEME="SingleThread"
 WATCH_SCHEME="SingleThreadWatch"
 DERIVED_DATA="DerivedData"
-# Delete XCTest simulator runtimes older than this many hours. Keeps space in
-# check without ever touching runtimes from an in-flight parallel test run.
-# Override with RUNTIME_AGE_HOURS=... on the command line.
-RUNTIME_AGE_HOURS="${RUNTIME_AGE_HOURS:-1}"
-RUNTIMES_DIR="$HOME/Library/Developer/XCTestDevices"
+
 
 # Pin a name-only simulator destination to its concrete UDID: with multiple
 # runtimes installed a bare `name=…` destination is ambiguous (iOS hangs, the
@@ -73,42 +69,6 @@ if [[ "$SIM" == *",id="* ]]; then
     preboot_sim "${SIM##*id=}"
 fi
 
-# Clean up abandoned XCTests runtimes. Each UI test run leaves a fresh
-# ~3 GB runtime in ~/Library/Developer/XCTestDevices that Xcode never prunes.
-# This deletes only entries older than RUNTIME_AGE_HOURS, so it cannot
-# interfere with parallel tests that are actively writing to a runtime.
-cleanup_xctest_runtimes() {
-    if [[ ! -d "$RUNTIMES_DIR" ]]; then
-        echo "    (no $RUNTIMES_DIR; nothing to clean)"
-        return
-    fi
-
-    local now cutoff_sec
-    local removed=0
-    now=$(date +%s)
-    cutoff_sec=$((RUNTIME_AGE_HOURS * 3600))
-
-    echo "==> Pruning XCTest runtimes older than ${RUNTIME_AGE_HOURS}h…"
-    for entry in "$RUNTIMES_DIR"/*; do
-        # Skip non-directories and symlinks.
-        [[ -d "$entry" ]] || continue
-        [[ -L "$entry" ]] && continue
-
-        local mtime
-        mtime=$(stat -f '%m' "$entry" 2>/dev/null) || continue
-        if ((now - mtime > cutoff_sec)); then
-            rm -rf "$entry"
-            removed=$((removed + 1))
-        fi
-    done
-
-    if [[ "$removed" -gt 0 ]]; then
-        echo "==> Removed $removed stale runtime director(ies)."
-    else
-        echo "==> No stale runtimes to remove."
-    fi
-}
-
 # ── Mode ───────────────────────────────────────────────────────────────────────
 MODE="${1:-full}"
 case "$MODE" in
@@ -124,10 +84,13 @@ case "$MODE" in
         ;;
 esac
 
-# Reclaim space before any test/build runs. Safe under parallel execution:
-# only entries older than RUNTIME_AGE_HOURS are removed, and APFS keeps open
-# handles alive anyway, so an in-flight UI test is never disturbed.
-cleanup_xctest_runtimes
+# Reclaim age-expired build/test caches before this worktree starts building —
+# the moment reclamation is cheapest, since nothing here is mid-build yet. The
+# policy is shared across repositories (XCTest test clones, stale .xcresult
+# bundles, idle cargo artifact dirs) and is age-gated so it can never disturb a
+# concurrent gate's in-flight artifacts. It is a no-op when the helper is not
+# installed — CI and any other machine — so a clean checkout behaves identically.
+command -v disk-clean >/dev/null 2>&1 && disk-clean || true
 
 # ── Deployment-target consistency guard ──────────────────────────────────────
 # Enforces the settled floor set (VAR-1015): iOS drops from 18.7 to 17.0 — the
