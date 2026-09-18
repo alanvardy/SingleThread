@@ -87,8 +87,11 @@ public final class EntitlementStore {
 
     /// `nonisolated(unsafe)` so `deinit` (nonisolated) can cancel the observation
     /// task; the task captures `self` weakly and is only read/written on the
-    /// main actor in normal operation.
-    private nonisolated(unsafe) var observationTask: Task<Void, Never>?
+    /// main actor in normal operation. `@ObservationIgnored` keeps `@Observable`
+    /// from lowering this to a tracked peer, avoiding Swift's warning about
+    /// `nonisolated(unsafe)` having "no effect" (same pattern as
+    /// `PreferenceHolder.observer`).
+    @ObservationIgnored private nonisolated(unsafe) var observationTask: Task<Void, Never>?
 
     private func observeTransactionUpdates() async {
         for await verificationResult in Transaction.updates {

@@ -675,10 +675,10 @@ the split.
 ### Verification
 
 #### Automated
-- [ ] `bash scripts/tests/warning-check/run.sh` → exits 0.
-- [ ] `bash -c 'source scripts/check-warnings.sh; check_warnings DerivedData/logs/ios-build.log DerivedData/logs/watch-build.log DerivedData/logs/mac-unit-test.log'`
+- [x] `bash scripts/tests/warning-check/run.sh` → exits 0.
+- [x] `bash -c 'source scripts/check-warnings.sh; check_warnings DerivedData/logs/ios-build.log DerivedData/logs/watch-build.log DerivedData/logs/mac-unit-test.log'`
       → exits 0, prints `✓ no un-allowlisted compiler warnings`.
-- [ ] Red-first proof per allowlist entry: temporarily comment the entry out,
+- [x] Red-first proof per allowlist entry: temporarily comment the entry out,
       re-run `check_warnings` on the log known to contain it → exits 1 naming
       exactly that diagnostic; restore the entry → exits 0.
 

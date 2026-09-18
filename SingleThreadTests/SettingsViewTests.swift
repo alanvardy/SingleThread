@@ -419,7 +419,7 @@ struct SettingsViewTests {
 
             // Absent key → the @AppStorage property and the seeded bag both read on.
             UserDefaults.standard.removeObject(forKey: key)
-            var view = ContentView(loadsReminders: false, eventStore: InMemoryEventStore())
+            let view = ContentView(loadsReminders: false, eventStore: InMemoryEventStore())
             #expect(view.showMenuBarExtra)
             #expect(view.makeSettingsBag().showMenuBarExtra)
 
