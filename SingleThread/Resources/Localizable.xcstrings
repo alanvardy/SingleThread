@@ -1264,6 +1264,47 @@
         }
       }
     },
+    "Couldn't apply your AI sort rules.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't apply your AI sort rules."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法应用你的 AI 排序规则。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No se pudieron aplicar tus reglas de ordenación con IA."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "AI 並べ替えルールを適用できませんでした。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine KI-Sortierregeln konnten nicht angewendet werden."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d'appliquer vos règles de tri par IA."
+          }
+        }
+      }
+    },
     "Enable reminder notifications": {
       "extractionState": "manual",
       "localizations": {
@@ -2410,6 +2451,17 @@
             "value": "Indicateur de répétition"
           }
         }
+      }
+    },
+    "Refresh": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Refresh" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aktualisieren" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Actualizar" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Actualiser" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "更新" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "刷新" } }
       }
     },
     "Refresh wallpaper": {
@@ -3973,42 +4025,23 @@
     "View sorted and filtered list": {
       "extractionState": "manual",
       "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "View sorted and filtered list"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "查看已排序和筛选的列表"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ver la lista ordenada y filtrada"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "並べ替えと絞り込みを適用したリストを表示"
-          }
-        },
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sortierte und gefilterte Liste anzeigen"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Afficher la liste triée et filtrée"
-          }
-        }
+        "en": { "stringUnit": { "state": "translated", "value": "View sorted and filtered list" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Sortierte und gefilterte Liste anzeigen" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Ver la lista ordenada y filtrada" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Afficher la liste triée et filtrée" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "並べ替えと絞り込みを適用したリストを表示" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "查看已排序和筛选的列表" } }
+      }
+    },
+    "Write rules and see how they reorder your reminders.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Write rules and see how they reorder your reminders." } },
+        "de": { "stringUnit": { "state": "translated", "value": "Schreibe Regeln und sieh, wie sie deine Erinnerungen umsortieren." } },
+        "es": { "stringUnit": { "state": "translated", "value": "Escribe reglas y observa cómo reordenan tus recordatorios." } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Écrivez des règles et voyez comment elles réordonnent vos rappels." } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ルールを書き、リマインダーがどのように並べ替えられるか確認します。" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "编写规则，看看提醒如何重新排序。" } }
       }
     },
     "You don't have any reminders yet.": {

@@ -118,6 +118,12 @@ public final class ReminderStore {
     /// to reload widget timelines.
     public var onRemindersChanged: (() -> Void)?
 
+    /// Hook invoked when a surface asks for the AI ranking to be recomputed even
+    /// though the rules and candidate set are unchanged — the AI Sort Rules
+    /// sub-menu's refresh button. Wired by the app layer to the coordinator;
+    /// Core never reads UserDefaults.
+    public var onAIRerankRequested: (() -> Void)?
+
     /// Hook invoked when `showsUndatedReminders` changes. Wired by the iPhone app
     /// layer to push the combined sync context to the watch.
     public var onShowUndatedRemindersChanged: ((Bool) -> Void)?
@@ -250,6 +256,13 @@ public final class ReminderStore {
     public func setAIRanking(_ ranking: [String: Int]) {
         guard ranking != aiRanking else { return }
         aiRanking = ranking
+    }
+
+    /// Asks the app layer to re-run the AI ranking even when the rules and
+    /// candidate set are unchanged (the coordinator otherwise dedupes identical
+    /// inputs). A no-op when nothing is wired, as in previews and tests.
+    public func requestAIRerank() {
+        onAIRerankRequested?()
     }
 
     // MARK: - Public methods

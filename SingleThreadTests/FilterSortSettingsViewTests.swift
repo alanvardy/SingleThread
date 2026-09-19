@@ -43,46 +43,29 @@ struct FilterSortSettingsViewTests {
         #endif
     }
 
+    /// AI sort is disabled, so the Sort By picker offers only the menu options:
+    /// the `.ai` case stays in the enum for a later re-enable but is never
+    /// presented, nor handed to the picker as a selection.
     @Test
-    func filterSortSettingsViewShowsAISectionWhenAIUnavailable() {
+    func filterSortSettingsViewChoicesExcludeDisabledAI() {
         let view = FilterSortSettingsView(
-            sortOption: .constant(.ai),
-            aiSortRules: .constant("clients first"),
+            sortOption: .constant(.priority),
+            aiSortRules: .constant(""),
             showUndatedReminders: .constant(false),
-            isAIRankingAvailable: false,
+            isAIRankingAvailable: true,
             availableLists: ["Work"],
             excludedLists: .constant([]),
             store: makeEmptyReminderStore())
-        let bodyDescription = String(describing: view.body)
 
-        #expect(bodyDescription.contains("AI Sort Rules"))
+        #expect(view.sortOptionChoices == [.priority, .dueDate, .title])
+        #expect(!view.sortOptionChoices.contains(.ai))
     }
 
+    /// The AI rules editor and the sorted/filtered preview live behind one
+    /// pushed sub-menu row, so both are reachable while AI sort is selected.
+    /// It replaces the standalone preview row, which has no editor to sit beside.
     @Test
-    func filterSortSettingsViewHidesEditorAndExplainsWhenAIUnavailable() {
-        let view = FilterSortSettingsView(
-            sortOption: .constant(.ai),
-            aiSortRules: .constant("clients first"),
-            showUndatedReminders: .constant(false),
-            isAIRankingAvailable: false,
-            availableLists: ["Work"],
-            excludedLists: .constant([]),
-            store: makeEmptyReminderStore())
-        let bodyDescription = String(describing: view.body)
-
-        #expect(
-            !bodyDescription.contains("clients first"),
-            "the rules-editor binding is not rendered when the device cannot run on-device AI")
-        #expect(
-            bodyDescription.contains("This device doesn't support on-device AI"),
-            "unavailable device is told on-device AI is unsupported")
-        #expect(
-            !bodyDescription.contains("On-device AI applies these rules."),
-            "unavailable device does not get the editor guidance footer")
-    }
-
-    @Test
-    func filterSortSettingsViewShowsAIRulesEditorWhenAIAvailable() {
+    func filterSortSettingsViewShowsAIRulesSubmenuWhenAISelected() {
         let view = FilterSortSettingsView(
             sortOption: .constant(.ai),
             aiSortRules: .constant("clients first"),
@@ -93,46 +76,30 @@ struct FilterSortSettingsViewTests {
             store: makeEmptyReminderStore())
         let bodyDescription = String(describing: view.body)
 
+        #expect(bodyDescription.contains("AI Sort Rules"))
         #expect(
-            bodyDescription.contains("clients first"),
-            "the rules editor (and its binding) is rendered when the device can run on-device AI")
+            bodyDescription.contains("Write rules and see how they reorder your reminders."),
+            "the AI row advertises the rules editor and preview it pushes")
         #expect(
-            bodyDescription.contains("On-device AI applies these rules."),
-            "available device gets the rules guidance footer")
-        #expect(
-            !bodyDescription.contains("This device doesn't support on-device AI"),
-            "available device is not told on-device AI is unsupported")
+            !bodyDescription.contains("View sorted and filtered list"),
+            "the AI sub-menu carries the preview instead of the standalone row")
     }
 
+    /// Every non-AI sort option keeps the standalone preview row.
     @Test
-    func filterSortSettingsViewFooterExplainsUnavailableAI() {
-        let view = FilterSortSettingsView(
-            sortOption: .constant(.ai),
-            aiSortRules: .constant("clients first"),
-            showUndatedReminders: .constant(false),
-            isAIRankingAvailable: false,
-            availableLists: ["Work"],
-            excludedLists: .constant([]),
-            store: makeEmptyReminderStore())
-        let bodyDescription = String(describing: view.body)
-
-        #expect(
-            bodyDescription.contains("so reminders stay in priority order"),
-            "unavailable footer explains the priority-order fallback")
-    }
-
-    @Test
-    func filterSortSettingsViewHasNoAIEditorWhenAnotherOptionSelected() {
+    func filterSortSettingsViewShowsStandaloneListForNonAISorts() {
         let view = FilterSortSettingsView(
             sortOption: .constant(.priority),
             aiSortRules: .constant(""),
             showUndatedReminders: .constant(false),
-            isAIRankingAvailable: false,
+            isAIRankingAvailable: true,
             availableLists: ["Work"],
             excludedLists: .constant([]),
             store: makeEmptyReminderStore())
         let bodyDescription = String(describing: view.body)
 
+        #expect(bodyDescription.contains("View sorted and filtered list"))
+        #expect(bodyDescription.contains("Preview how your reminders are ordered right now."))
         #expect(!bodyDescription.contains("AI Sort Rules"))
     }
 

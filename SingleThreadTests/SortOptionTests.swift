@@ -18,6 +18,17 @@ struct SortOptionTests {
         #expect(SortOption.allCases == [.priority, .dueDate, .title, .ai])
     }
 
+    /// AI sort is disabled: the menu offers every case except `.ai`, and the
+    /// disabled case reports itself unselectable so the store and sync guard it.
+    @Test
+    func menuOptionsWithholdTheDisabledAIOption() {
+        #expect(SortOption.menuOptions == [.priority, .dueDate, .title])
+        #expect(!SortOption.ai.isSelectable)
+        #expect(SortOption.priority.isSelectable)
+        #expect(SortOption.dueDate.isSelectable)
+        #expect(SortOption.title.isSelectable)
+    }
+
     @Test
     func defaultsKeyIsTheSharedConstant() {
         #expect(SortOption.defaultsKey == "sortOption")
@@ -71,5 +82,27 @@ struct SortOptionStoreTests {
         let store = SortOptionStore(defaults: .standard, key: key)
         store.save(.dueDate)
         #expect(store.load() == .dueDate)
+    }
+
+    /// A value persisted before AI sort was disabled must not keep ranking: it
+    /// degrades to `.priority` on read, so the picker is never handed a
+    /// selection it cannot offer.
+    @Test
+    func loadDegradesDisabledAIOptionToPriority() {
+        let key = "test-sort-disabled-ai-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        UserDefaults.standard.set(SortOption.ai.rawValue, forKey: key)
+        let store = SortOptionStore(defaults: .standard, key: key)
+        #expect(store.load() == .priority)
+    }
+
+    @Test
+    func saveNeverPersistsDisabledAIOption() {
+        let key = "test-sort-save-ai-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        let store = SortOptionStore(defaults: .standard, key: key)
+        store.save(.ai)
+        #expect(UserDefaults.standard.string(forKey: key) == SortOption.priority.rawValue)
+        #expect(store.load() == .priority)
     }
 }

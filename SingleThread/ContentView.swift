@@ -262,6 +262,13 @@ struct ContentView: View {
                 }
             #endif
         }
+        #if os(iOS)
+        .overlay(alignment: .top) {
+            if showsAISortFailureBanner {
+                aiSortFailureBanner
+            }
+        }
+        #endif
         .animation(
             reduceMotion ? nil : .easeInOut(duration: 0.4),
             value: viewModel.completionGlow.isActive)
