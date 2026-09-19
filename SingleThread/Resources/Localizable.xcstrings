@@ -1797,6 +1797,47 @@
         }
       }
     },
+    "No reminders match the current filters.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No reminders match the current filters."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "没有提醒符合当前的筛选条件。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ningún recordatorio coincide con los filtros actuales."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の絞り込み条件に一致するリマインダーはありません。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keine Erinnerung entspricht den aktuellen Filtern."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun rappel ne correspond aux filtres actuels."
+          }
+        }
+      }
+    },
     "No speech was detected.": {
       "extractionState": "manual",
       "localizations": {
@@ -2244,6 +2285,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "Appuyez sur le bouton d'actualisation en haut à gauche pour revoir tous vos rappels."
+          }
+        }
+      }
+    },
+    "Preview how your reminders are ordered right now.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preview how your reminders are ordered right now."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "预览提醒当前的排列顺序。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Previsualiza el orden actual de tus recordatorios."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "現在の並び順をプレビューします。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeigt eine Vorschau der aktuellen Reihenfolge deiner Erinnerungen."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aperçu de l'ordre actuel de vos rappels."
           }
         }
       }
@@ -3150,6 +3232,47 @@
         }
       }
     },
+    "Sorted & Filtered": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sorted & Filtered"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "排序与筛选"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordenados y filtrados"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "並べ替えと絞り込み"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sortiert & gefiltert"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Triés et filtrés"
+          }
+        }
+      }
+    },
     "Speech recognition access is required.": {
       "extractionState": "manual",
       "localizations": {
@@ -3843,6 +3966,47 @@
           "stringUnit": {
             "state": "translated",
             "value": "Afficher dans Rappels"
+          }
+        }
+      }
+    },
+    "View sorted and filtered list": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View sorted and filtered list"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "查看已排序和筛选的列表"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ver la lista ordenada y filtrada"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "並べ替えと絞り込みを適用したリストを表示"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sortierte und gefilterte Liste anzeigen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher la liste triée et filtrée"
           }
         }
       }

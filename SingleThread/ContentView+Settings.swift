@@ -9,6 +9,7 @@ extension ContentView {
         let withAppearance = SettingsView(
             bindings: bag,
             backgroundImage: viewModel.backgroundImage,
+            store: viewModel.store,
             availableLists: viewModel.store.availableLists,
             excludedLists: excludedListsBinding,
             entitlementStore: viewModel.store.entitlementStore,

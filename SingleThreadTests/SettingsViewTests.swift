@@ -53,6 +53,7 @@ struct SettingsViewTests {
         let view = SettingsView(
             bindings: SettingsBindings(),
             backgroundImage: BackgroundImageStore(),
+            store: makeEmptyReminderStore(),
             availableLists: [],
             excludedLists: .constant([]),
             entitlementStore: EntitlementStore())
