@@ -161,6 +161,12 @@ struct FilterSortSettingsViewTests {
             store: store)
 
         #expect(view.listDisplays.map(\.title) == ["high", "low"])
+
+        // The pushed destination is what the row hands to the list surface:
+        // its display rows must reach the body, not just the computed property.
+        let bodyDescription = String(describing: view.body)
+        #expect(bodyDescription.contains("high"))
+        #expect(!bodyDescription.contains("skipped"))
     }
 
     /// Sad path: an empty visible set maps to an empty row list rather than a
