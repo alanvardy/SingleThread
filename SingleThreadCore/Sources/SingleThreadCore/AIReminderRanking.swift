@@ -75,6 +75,15 @@ public final class AISortCoordinator {
     /// Set by `AppViewModel` to write the ranking into `ReminderStore`.
     public var onRankingUpdated: (([String: Int]) -> Void)?
 
+    /// Set by `AppViewModel` (iOS) to raise the failure banner. Fired only for a
+    /// *runtime* failure — the ranker reported itself available and then threw
+    /// something other than ``AIRankingError/unavailable``. The blank-rules and
+    /// unavailable paths stay silent: those are the documented fallback, not
+    /// errors. Dismissal needs no second seam — ``onRankingUpdated`` clears the
+    /// banner, and it fires on every settled ranking including the deliberate
+    /// `[:]` fallback.
+    public var onRankingFailed: ((Error) -> Void)?
+
     /// Drops invented identifiers, dedupes repeats, and appends omitted ones in
     /// the (identifier-sorted) candidate order. Exposed for direct unit testing.
     public static func reconcile(
@@ -96,7 +105,7 @@ public final class AISortCoordinator {
         return ranking
     }
 
-    public func update(rules: String, candidates: [AIReminderCandidate]) {
+    public func update(rules: String, candidates: [AIReminderCandidate], force: Bool = false) {
         let trimmed = rules.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, ranker.isAvailable else {
             // Blank rules or no ranking capability: clear any stale ranking so
@@ -111,11 +120,15 @@ public final class AISortCoordinator {
         let digest = Self.digest(rules: trimmed, candidates: candidates)
         // Dedupe in-flight repeats, and completed repeats once idle, so an
         // unrelated App-Group write never re-runs the model for identical input.
-        if pending != nil, digest == lastRequestedDigest {
-            return
-        }
-        if pending == nil, digest == lastCompletedDigest {
-            return
+        // `force` bypasses both: the AI Sort Rules refresh button must re-run
+        // the model even when nothing about the request changed.
+        if !force {
+            if pending != nil, digest == lastRequestedDigest {
+                return
+            }
+            if pending == nil, digest == lastCompletedDigest {
+                return
+            }
         }
         lastRequestedDigest = digest
         generation += 1
@@ -139,6 +152,9 @@ public final class AISortCoordinator {
                 // Retain the previous ranking and leave `lastCompletedDigest`
                 // unset so an identical request is retried.
                 Self.logger.error("AI ranking failed: \(String(describing: error), privacy: .public)")
+                if !Self.isFallback(error) {
+                    onRankingFailed?(error)
+                }
             }
         }
     }
@@ -149,6 +165,14 @@ public final class AISortCoordinator {
     }
 
     // MARK: Internal
+
+    /// `true` for the errors that mean "fall back to the priority chain" rather
+    /// than "something went wrong": the ranker advertised itself as available,
+    /// but the model reported unavailable mid-flight. Those must not raise a
+    /// failure banner — the Settings screen already explains the fallback.
+    static func isFallback(_ error: Error) -> Bool {
+        (error as? AIRankingError) == .unavailable
+    }
 
     /// Fingerprint of the full request inputs — rules plus every ranked
     /// candidate field — so a content change re-ranks; stable because

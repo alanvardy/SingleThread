@@ -483,8 +483,10 @@ import os
                 let handler = onShowUndatedRemindersReceived
                 handler?(received)
             }
+            // A currently-disabled option (`.ai`) arriving over sync is ignored
+            // like an unknown raw value; the payload can never re-enable it.
             if let rawValue = context[PayloadKey.sortOption] as? String,
-               let option = SortOption(rawValue: rawValue) {
+               let option = SortOption(rawValue: rawValue), option.isSelectable {
                 sortStore.save(option)
                 let handler = onSortOptionReceived
                 handler?(option)

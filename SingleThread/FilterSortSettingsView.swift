@@ -3,11 +3,16 @@ import SwiftUI
 
 // MARK: - FilterSortSettingsView
 
-/// Filtering and sorting preferences: sort order, show-undated toggle, the
-/// Excluded Lists sub-menu, and a preview of the currently visible set. Takes
-/// only the bindings it needs rather than the full bag so it cannot
-/// accidentally mutate unrelated preferences. The store is read-only and
-/// exists solely to render the list preview.
+/// Filtering and sorting preferences: sort order, the AI Sort Rules sub-menu
+/// (rules editor plus the sorted & filtered preview), the show-undated toggle,
+/// and the Excluded Lists sub-menu. The non-AI options push the standalone
+/// sorted & filtered preview instead. Takes only the bindings it needs rather
+/// than the full bag so it cannot accidentally mutate unrelated preferences.
+/// The store is read-only and exists solely to feed those previews.
+///
+/// AI sort is currently disabled — the picker offers `SortOption.menuOptions`,
+/// which withholds `.ai` — so the AI Sort Rules section below is unreachable
+/// from the picker. It is kept in place for a later re-enable.
 struct FilterSortSettingsView: View {
     @Binding var sortOption: SortOption
 
@@ -23,9 +28,16 @@ struct FilterSortSettingsView: View {
 
     let store: ReminderStore
 
+    /// The options the Sort By picker offers. Kept as a named property so a test
+    /// can pin the menu to `SortOption.menuOptions` (which withholds the disabled
+    /// `.ai`) rather than the full `allCases`.
+    var sortOptionChoices: [SortOption] {
+        SortOption.menuOptions
+    }
+
     /// The current visible set as display rows — sorted and filtered by the
-    /// store exactly as the main reminder card sees it. Internal so tests can
-    /// assert the order without rendering the pushed destination.
+    /// store exactly as the main reminder card sees it. Feeds the standalone
+    /// preview pushed for every non-AI sort option.
     var listDisplays: [ReminderDisplay] {
         store.visibleReminders.map { reminder in ReminderDisplay(reminder: reminder) }
     }
@@ -33,7 +45,7 @@ struct FilterSortSettingsView: View {
     var body: some View {
         Form {
             Picker(selection: $sortOption) {
-                ForEach(SortOption.allCases, id: \.self) { option in
+                ForEach(sortOptionChoices, id: \.self) { option in
                     Label(option.title, systemImage: option.systemImage)
                         .tag(option)
                 }
@@ -45,30 +57,23 @@ struct FilterSortSettingsView: View {
             }
             if sortOption == .ai {
                 Section {
-                    if isAIRankingAvailable {
-                        TextEditor(text: $aiSortRules)
-                            .frame(minHeight: 88)
-                            .accessibilityLabel(Text("AI Sort Rules"))
-                            .accessibilityIdentifier("aiSortRulesEditor")
-                    } else {
-                        // No point offering a rules editor the device cannot use;
-                        // explain the fallback instead.
+                    NavigationLink {
+                        AISortRulesView(
+                            aiSortRules: $aiSortRules,
+                            isAIRankingAvailable: isAIRankingAvailable,
+                            store: store)
+                    } label: {
                         Label {
-                            Text(LocalizedStringKey(
-                                "This device doesn't support on-device AI, "
-                                    + "so reminders stay in priority order."))
+                            VStack(alignment: .leading) {
+                                Text("AI Sort Rules")
+                                SettingsCaption(
+                                    text: "Write rules and see how they reorder your reminders.")
+                            }
                         } icon: {
-                            Image(systemName: "info.circle")
+                            Image(systemName: "wand.and.stars")
                         }
-                        .accessibilityIdentifier("aiSortUnavailableMessage")
                     }
-                } header: {
-                    Text("AI Sort Rules")
-                } footer: {
-                    if isAIRankingAvailable {
-                        SettingsCaption(
-                            text: "Describe how reminders should be ordered. On-device AI applies these rules.")
-                    }
+                    .accessibilityIdentifier("aiSortRulesRow")
                 }
             }
             Toggle(isOn: $showUndatedReminders) {
@@ -97,20 +102,25 @@ struct FilterSortSettingsView: View {
                     }
                 }
             }
-            Section {
-                NavigationLink {
-                    FilteredRemindersListView(displays: listDisplays)
-                } label: {
-                    Label {
-                        VStack(alignment: .leading) {
-                            Text("View sorted and filtered list")
-                            SettingsCaption(text: "Preview how your reminders are ordered right now.")
+            // The standalone preview has no rules editor to sit beside, so it
+            // only appears for the non-AI options — `.ai` shows the same rows
+            // inside the AI Sort Rules sub-menu instead.
+            if sortOption != .ai {
+                Section {
+                    NavigationLink {
+                        FilteredRemindersListView(displays: listDisplays)
+                    } label: {
+                        Label {
+                            VStack(alignment: .leading) {
+                                Text("View sorted and filtered list")
+                                SettingsCaption(text: "Preview how your reminders are ordered right now.")
+                            }
+                        } icon: {
+                            Image(systemName: "list.number")
                         }
-                    } icon: {
-                        Image(systemName: "list.number")
                     }
+                    .accessibilityIdentifier("filterSortShowListRow")
                 }
-                .accessibilityIdentifier("filterSortShowListRow")
             }
         }
         .localizedNavigationTitle("Filtering & Sorting")

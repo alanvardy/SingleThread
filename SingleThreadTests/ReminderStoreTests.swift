@@ -1216,6 +1216,23 @@ struct ReloadPendingCompletionTests {
     }
 }
 
+// MARK: - AI rerank hook
+
+@MainActor
+struct ReminderStoreAIRerankHookTests {
+    @Test
+    func requestAIRerankForwardsToTheWiredHook() {
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
+        #expect(store.onAIRerankRequested == nil, "no rerank hook is wired by default")
+        var requested = false
+        store.onAIRerankRequested = { requested = true }
+
+        store.requestAIRerank()
+
+        #expect(requested, "the store forwards a rerank request to the wired hook")
+    }
+}
+
 // MARK: - makeReminder test seam
 
 #if !os(watchOS)

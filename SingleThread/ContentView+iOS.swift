@@ -122,3 +122,61 @@ import SwiftUI
         }
     }
 #endif
+
+// MARK: - AI sort failure banner (iOS)
+
+// The non-blocking banner raised when on-device AI ranking fails at runtime.
+// Kept in a separate extension so `ContentView`'s own body stays within
+// SwiftLint's `type_body_length` budget.
+#if os(iOS)
+    extension ContentView {
+        /// Whether the failure banner is on screen: only while a runtime ranking
+        /// failure is outstanding. Extracted from `body` so the gate is unit
+        /// testable without rendering the tree.
+        var showsAISortFailureBanner: Bool {
+            appViewModel?.aiSortFailed == true
+        }
+
+        /// What the failure banner tells the user. A `LocalizedStringResource`
+        /// against the app catalog so the key only lives in this one place (and
+        /// `LocalizationTests` enforces all six languages for it).
+        static var aiSortFailureMessage: LocalizedStringResource {
+            LocalizedStringResource(
+                "Couldn't apply your AI sort rules.",
+                table: "Localizable",
+                bundle: .main)
+        }
+
+        /// Non-blocking banner raised when on-device AI ranking failed at runtime.
+        /// The coordinator retains the last good ranking, so the list behind it is
+        /// still usable — this informs and offers a retry rather than blocking.
+        /// Anchored below the corner plates so it covers neither them nor the
+        /// vertically-centred reminder card.
+        var aiSortFailureBanner: some View {
+            VStack(spacing: 8) {
+                Label {
+                    Text(Self.aiSortFailureMessage)
+                } icon: {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                }
+                .font(.footnote)
+                Button("Try Again") {
+                    appViewModel?.retryAIRanking()
+                }
+                .font(.footnote.bold())
+                .padding(.vertical, 10)
+                .padding(.horizontal, 20)
+                .contentShape(Rectangle())
+                .accessibilityIdentifier("aiSortRetryButton")
+                .accessibilityAddTraits(.isButton)
+            }
+            .padding(.vertical, 12)
+            .padding(.horizontal, 16)
+            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
+            .padding(.horizontal, 40)
+            .padding(.top, 72) // clear the corner buttons (56pt plates + 8pt inset)
+            .accessibilityElement(children: .contain)
+            .accessibilityIdentifier("aiSortFailureBanner")
+        }
+    }
+#endif

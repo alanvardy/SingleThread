@@ -19,15 +19,14 @@ final class AppViewModel {
 
     init(
         arguments: [String] = ProcessInfo.processInfo.arguments,
-        session: (any SkipSyncSession)? = nil) {
+        session: (any SkipSyncSession)? = nil,
+        ranker: any AIReminderRanking = FoundationModelsReminderRanker(),
+        aiRankingDebounce: Duration = .milliseconds(500)) {
         let (store, usesInMemory) = Self.makeStore(arguments: arguments)
         self.store = store
         usesInMemoryStore = usesInMemory
         store.sortOption = SortOptionStore().load()
-        aiCoordinator = AISortCoordinator(ranker: FoundationModelsReminderRanker())
-        aiCoordinator.onRankingUpdated = { [weak store] ranking in
-            store?.setAIRanking(ranking)
-        }
+        aiCoordinator = AISortCoordinator(ranker: ranker, debounce: aiRankingDebounce)
         Self.registerDefaults()
 
         backgroundImage = BackgroundImageStore()
@@ -44,6 +43,11 @@ final class AppViewModel {
                         await self?.scheduleNotificationsForMacOS()
                     }
                 #endif
+            }
+            // The AI Sort Rules refresh button: bypass the coordinator's
+            // input-digest dedupe so a tap always re-runs the model.
+            store.onAIRerankRequested = { [weak self] in
+                self?.refreshAIRanking(force: true)
             }
             setupAIRankingObservation()
         #endif
@@ -67,6 +71,16 @@ final class AppViewModel {
     let notificationScheduler = NotificationScheduler()
     #if os(iOS)
         private(set) var syncService: SkippedReminderSyncService?
+    #endif
+
+    #if os(iOS)
+        /// `true` while the last on-device ranking attempt ended in a *runtime*
+        /// failure — the ranker reported available, then threw. Drives
+        /// `ContentView`'s non-blocking failure banner. The last good ranking
+        /// stays in effect behind the banner (the coordinator retains it), and
+        /// the banner clears on the next settled ranking or when AI sort is
+        /// deselected.
+        private(set) var aiSortFailed = false
     #endif
 
     #if os(iOS)
@@ -186,6 +200,16 @@ final class AppViewModel {
         }
         return viewModel
     }
+
+    #if os(iOS)
+        /// Re-runs the current rules against the current candidates — the failure
+        /// banner's "Try Again" action. The coordinator's input digest does not
+        /// absorb this: a failed request leaves `lastCompletedDigest` unset, so the
+        /// retry reaches the ranker.
+        func retryAIRanking() {
+            refreshAIRanking()
+        }
+    #endif
 
     // MARK: Private
 
@@ -379,13 +403,26 @@ final class AppViewModel {
 
     /// Re-ranks the visible set whenever `.ai` is selected. Cheap to call on any
     /// App-Group write: the guard and the coordinator's input digest absorb the
-    /// noise.
-    private func refreshAIRanking() {
+    /// noise. `force` bypasses that dedupe for the AI Sort Rules refresh button,
+    /// which must re-run the model even when the inputs are unchanged.
+    private func refreshAIRanking(force: Bool = false) {
         guard store.sortOption == .ai else {
             aiCoordinator.cancel()
+            clearAISortFailure()
             return
         }
-        aiCoordinator.update(rules: AISortRulesStore().load(), candidates: store.aiCandidates)
+        aiCoordinator.update(
+            rules: AISortRulesStore().load(),
+            candidates: store.aiCandidates,
+            force: force)
+    }
+
+    /// Clears the iOS AI-failure banner. A no-op on macOS, which currently has no
+    /// banner — the same runtime failure falls back silently there.
+    private func clearAISortFailure() {
+        #if os(iOS)
+            aiSortFailed = false
+        #endif
     }
 
     /// Observes rule-text edits: `AISortRulesStore` writes to the App Group
@@ -393,6 +430,17 @@ final class AppViewModel {
     /// `PreferenceHolder` uses). `NotificationCenter` drops the block observer
     /// when the token is deallocated (same lifecycle as `syncDefaultsObserver`).
     private func setupAIRankingObservation() {
+        // Success (and the deliberate `[:]` fallback) both emit, so this single
+        // seam is also what dismisses the failure banner.
+        aiCoordinator.onRankingUpdated = { [weak self] ranking in
+            self?.store.setAIRanking(ranking)
+            self?.clearAISortFailure()
+        }
+        #if os(iOS)
+            aiCoordinator.onRankingFailed = { [weak self] _ in
+                self?.aiSortFailed = true
+            }
+        #endif
         aiRulesObserver = NotificationCenter.default.addObserver(
             forName: UserDefaults.didChangeNotification,
             object: AppGroup.defaults,

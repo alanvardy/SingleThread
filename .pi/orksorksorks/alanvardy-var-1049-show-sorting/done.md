@@ -1,8 +1,10 @@
 # Done
 
-- **Branch / head SHA**: `alanvardy-var-1049-show-sorting` @ `7d8ba46d` (the
-  `done.md` commit that follows is docs-only). Rebased and pushed with
-  `--force-with-lease`; no rebase conflicts were present at review time.
+- **Branch / head SHA**: `alanvardy-var-1049-show-sorting` @ `5340b064` —
+  `7d8ba46d` review marker, then `5340b064` (`fix(VAR-1049): make
+  AppGroup.defaults a stable instance so App-Group observers fire`, see
+  "Follow-up fix" below). Rebased and pushed with `--force-with-lease`; no
+  rebase conflicts were present at review time.
 
 - **Mechanical checks**:
   - `make lint` (SwiftFormat `--lint` + `swiftlint --strict`): 0 violations /
@@ -102,3 +104,18 @@
     `SkippedReminderSyncServiceTests` / `EnableActionButtonsMigrationTests` all
     pass; `make format` clean, `make lint` 0 violations, `make watch-build` and
     `make mac-build` succeed.
+  - **Gate**: two full CI-identical runs. Run 1 (`c5eaa31b`) **FAIL** — the new
+    notification-closure test tripped the source-warning gate with
+    `#SendableClosureCaptures` (mutation of a captured `var` in a `@Sendable`
+    closure); fixed at source by counting through an `NSLock`-backed
+    `@unchecked Sendable` box (`NotificationCounter`), verified locally with
+    `build-for-testing` + `scripts/check-warnings.sh` (`✓ no un-allowlisted
+    compiler warnings`). Run 2 (`5340b064`) **PASS on every branch-relevant
+    stage** — format/lint, warning-check self-test 20/20 fixtures, iOS build,
+    watch build, **Periphery zero findings**, iOS UI 3/3, watch UI, watch unit;
+    the only non-zero leg is the documented pre-existing local macOS
+    `EntitlementStoreTests` trio (`isEntitledSurvivesStoreRecreation`,
+    `initialRefreshSettlesResolvedFlag`, `hostStoreKitIsClean`) — CI
+    mac-tests is authoritative and green on fresh runners. Log:
+    `/tmp/gate-alanvardy-var-1049-show-sorting.log`. This `done.md` update is a
+    docs-only commit after the gated tip.

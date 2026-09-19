@@ -117,6 +117,20 @@ private final class BlockOnceRanker: AIReminderRanking, @unchecked Sendable {
     private var calls = 0
 }
 
+// MARK: - Failing fakes
+
+/// Reports itself available, then throws an error that is *not*
+/// `AIRankingError.unavailable` — the runtime failure the banner reports.
+private struct FailingRanker: AIReminderRanking {
+    func rank(_: [AIReminderCandidate], rules _: String) async throws -> [String] {
+        throw RankerCrashed()
+    }
+}
+
+/// Distinguishable from the `unavailable` fallback the coordinator treats as
+/// expected.
+private struct RankerCrashed: Error {}
+
 // MARK: - AISortCoordinator
 
 @MainActor
@@ -223,6 +237,28 @@ struct AISortCoordinatorTests {
     }
 
     @Test
+    func forceReranksIdenticalInputs() async {
+        let candidates = [candidate("a"), candidate("b")]
+        let ranker = CannedRanker(order: ["a", "b"])
+        let coordinator = AISortCoordinator(ranker: ranker, debounce: .milliseconds(20))
+        var emitted: [[String: Int]] = []
+        coordinator.onRankingUpdated = { emitted.append($0) }
+
+        coordinator.update(rules: "clients first", candidates: candidates)
+        try? await Task.sleep(for: .milliseconds(1000))
+        #expect(ranker.callCount == 1)
+
+        coordinator.update(rules: "clients first", candidates: candidates)
+        try? await Task.sleep(for: .milliseconds(1000))
+        #expect(ranker.callCount == 1, "an identical non-forced update stays deduplicated")
+
+        coordinator.update(rules: "clients first", candidates: candidates, force: true)
+        try? await Task.sleep(for: .milliseconds(1000))
+        #expect(ranker.callCount == 2, "a forced update re-runs the ranker despite identical input")
+        #expect(emitted.count == 2, "the forced re-rank emits again")
+    }
+
+    @Test
     func cancelsInFlightRequest() async {
         let candidates = [candidate("a"), candidate("b")]
         let coordinator = AISortCoordinator(ranker: NeverCompletingRanker(), debounce: .milliseconds(20))
@@ -262,6 +298,58 @@ struct AISortCoordinatorTests {
         #expect(
             emitted == [["a": 0, "b": 1], ["b": 0, "a": 1]],
             "a later successful update replaces the retained ranking")
+    }
+
+    @Test
+    func reportsRuntimeFailureToObserver() async {
+        let candidates = [candidate("a"), candidate("b")]
+        let coordinator = AISortCoordinator(ranker: FailingRanker(), debounce: .milliseconds(20))
+        var failureCount = 0
+        coordinator.onRankingFailed = { _ in failureCount += 1 }
+        var emitted: [[String: Int]] = []
+        coordinator.onRankingUpdated = { emitted.append($0) }
+
+        coordinator.update(rules: "clients first", candidates: candidates)
+        try? await Task.sleep(for: .milliseconds(1000))
+
+        #expect(failureCount == 1, "a runtime failure reaches the status seam")
+        #expect(emitted.isEmpty, "a failed request emits nothing, retaining the previous ranking")
+    }
+
+    @Test
+    func doesNotReportUnavailableAsARuntimeFailure() async {
+        let candidates = [candidate("a"), candidate("b")]
+        let ranker = SwitchableRanker()
+        ranker.shouldThrow = true // throws AIRankingError.unavailable
+        let coordinator = AISortCoordinator(ranker: ranker, debounce: .milliseconds(20))
+        var failureCount = 0
+        coordinator.onRankingFailed = { _ in failureCount += 1 }
+
+        coordinator.update(rules: "clients first", candidates: candidates)
+        try? await Task.sleep(for: .milliseconds(1000))
+
+        #expect(
+            failureCount == 0,
+            "mid-flight unavailability is the documented fallback, not a reportable failure")
+    }
+
+    @Test
+    func silentPathsNeverReportFailures() async {
+        let candidates = [candidate("a"), candidate("b")]
+        let blankRules = AISortCoordinator(ranker: FailingRanker(), debounce: .milliseconds(20))
+        var blankFailures = 0
+        blankRules.onRankingFailed = { _ in blankFailures += 1 }
+        blankRules.update(rules: "   ", candidates: candidates)
+
+        let unavailable = AISortCoordinator(ranker: UnavailableRanker())
+        var unavailableFailures = 0
+        unavailable.onRankingFailed = { _ in unavailableFailures += 1 }
+        unavailable.update(rules: "clients first", candidates: candidates)
+
+        try? await Task.sleep(for: .milliseconds(1000))
+
+        #expect(blankFailures == 0, "blank rules are a user choice, not a failure")
+        #expect(unavailableFailures == 0, "an unsupported device is explained in Settings, not a banner")
     }
 
     @Test

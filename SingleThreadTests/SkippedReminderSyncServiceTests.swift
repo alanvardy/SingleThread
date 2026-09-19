@@ -4,8 +4,8 @@
     import Testing
     import WatchConnectivity
 
-    // The sortOption-round-trip suite (incl. `.ai`) keeps this file above the
-    // `file_length` threshold — same treatment as `ReminderStoreTests.swift`.
+    // The AI-option sync suite keeps this file above the `file_length`
+    // threshold — same treatment as `ReminderStoreTests.swift`.
     // swiftlint:disable file_length
 
     @MainActor
@@ -648,33 +648,42 @@
         }
     }
 
-    // MARK: - AI sort option travel
+    // MARK: - Disabled AI sort option
 
-    /// `.ai` round-trips over the sync payload like any other option. Kept in its
-    /// own struct so the main suite stays under the `type_body_length` bound.
+    /// AI sort is withheld from the sort menu, so `.ai` must not travel as a
+    /// selectable option: a persisted value degrades on read, the payload carries
+    /// the degraded value, and a legacy `"ai"` context is ignored like an unknown
+    /// raw value. Kept in its own struct so the main suite stays under the
+    /// `type_body_length` bound.
     @MainActor
     struct AISortOptionTravelTests {
         @Test
-        func sortOptionAITravelsAsRawValue() throws {
+        func disabledAISortOptionDoesNotTravelOrApply() throws {
             let suffix = UUID().uuidString
             let fake = FakeSession()
             let sendSortStore = SortOptionStore(defaults: .standard, key: "test-send-sort-ai-\(suffix)")
             sendSortStore.save(.ai)
+            #expect(sendSortStore.load() == .priority, "a withheld value degrades on read")
             let sendService = SkippedReminderSyncService(
                 session: fake,
                 skipStore: SkippedReminderStore(defaults: .standard, key: "test-send-skip-ai-\(suffix)"),
                 sortStore: sendSortStore)
             sendService.pushAll()
             let context = try #require(fake.lastContext)
-            #expect(context["sortOption"] as? String == "ai", ".ai travels as its raw value")
+            #expect(
+                context["sortOption"] as? String == "priority",
+                "the payload never carries a disabled option")
 
             let receiveSortStore = SortOptionStore(defaults: .standard, key: "test-recv-sort-ai-\(suffix)")
+            receiveSortStore.save(.dueDate)
             let receiveService = SkippedReminderSyncService(
                 session: fake,
                 skipStore: SkippedReminderStore(defaults: .standard, key: "test-recv-skip-ai-\(suffix)"),
                 sortStore: receiveSortStore)
             receiveService.session(WCSession.default, didReceiveApplicationContext: ["sortOption": "ai"])
-            #expect(receiveSortStore.load() == .ai, "the receiving side decodes the new case")
+            #expect(
+                receiveSortStore.load() == .dueDate,
+                "a legacy `ai` context is ignored, not applied or persisted")
         }
     }
 #endif
