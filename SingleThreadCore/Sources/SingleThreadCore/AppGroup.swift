@@ -13,7 +13,16 @@ public enum AppGroup {
     /// `UserDefaults` backed by the shared App Group, falling back to
     /// `.standard` when the group is unavailable (watchOS, unregistered
     /// simulators, and previews).
-    public static var defaults: UserDefaults {
-        UserDefaults(suiteName: suiteName) ?? .standard
-    }
+    ///
+    /// Deliberately a single cached instance. `UserDefaults.didChangeNotification`
+    /// is posted with the *changing* instance as its `object`, and this app's
+    /// observers (`PreferenceHolder`, the AI-rules and watch-sync observers in
+    /// `AppViewModel`) filter on `object: AppGroup.defaults`. As a computed
+    /// property this returned a fresh `UserDefaults` per access, so those
+    /// observers never matched a write and silently never fired — editing the AI
+    /// sort rules did not re-rank, and App-Group preference changes did not
+    /// refresh the main view. `UserDefaults` is documented thread-safe, hence
+    /// `nonisolated(unsafe)`.
+    public nonisolated(unsafe) static let defaults: UserDefaults =
+        .init(suiteName: suiteName) ?? .standard
 }

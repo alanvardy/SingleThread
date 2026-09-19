@@ -76,3 +76,29 @@
     watch jobs, lint/warning-check self-test) must be green. The three local
     macOS `EntitlementStoreTests` failures will still present locally;
     expected and unrelated.
+
+- **Follow-up fix — AI sort rules did not re-rank** (reviewer-reported; folded
+  into this PR at the reviewer's request):
+  - **Symptom**: typing rules in Filtering & Sorting → AI Sort Rules did not
+    change the order (reported against the VAR-1031 feature, whose on-device
+    checklist was never run).
+  - **Root cause**: `AppGroup.defaults` was a computed property, so every
+    access returned a fresh `UserDefaults(suiteName:)` instance.
+    `UserDefaults.didChangeNotification` carries the *changing* instance as its
+    `object`, so the `object: AppGroup.defaults`-filtered observers
+    (`PreferenceHolder`, `AppViewModel`'s AI-rules and watch-sync observers)
+    never matched a write and silently never fired. Rule edits never reached
+    `AISortCoordinator`, and the sort-picker → `store.setSortOption` bridge
+    (`ContentView.onChange(of: preferences.sortOption)`) was equally dead.
+  - **Fix**: `AppGroup.defaults` is now a single cached instance
+    (`nonisolated(unsafe) static let`; `UserDefaults` is documented
+    thread-safe), so the existing `object:` filters match as designed.
+  - **Red-first proof**: `AppGroupTests.defaultsIsAStableInstance` and
+    `AppGroupTests.objectFilteredObserverSeesAppGroupWrites` both FAIL against
+    the pre-fix property and pass after (confirmed by temporarily restoring the
+    computed property).
+  - **Checks**: `AppGroupTests` 4/4, `PreferenceHolderTests` 2/2,
+    `EnableActionButtonsSyncTests` / `EntitlementSyncTests` /
+    `SkippedReminderSyncServiceTests` / `EnableActionButtonsMigrationTests` all
+    pass; `make format` clean, `make lint` 0 violations, `make watch-build` and
+    `make mac-build` succeed.
