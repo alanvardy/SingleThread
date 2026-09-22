@@ -8,6 +8,10 @@
     // threshold — same treatment as `ReminderStoreTests.swift`.
     // swiftlint:disable file_length
 
+    // The sort round-trip proofs grew the struct past the 500-line
+    // `type_body_length` threshold — same treatment as `ReminderStoreTests.swift`.
+    // swiftlint:disable type_body_length
+
     @MainActor
     struct SkippedReminderSyncServiceTests {
         // MARK: Internal
@@ -81,6 +85,21 @@
             #expect((context["showUndatedReminders"] as? Bool) == true)
             #expect(context["sortOption"] as? String == "dueDate")
             #expect((context["showDate"] as? Bool) == false)
+        }
+
+        @Test
+        func sendsDefaultSortOption() throws {
+            let fake = FakeSession()
+            let suffix = UUID().uuidString
+            let sortStore = SortOptionStore(defaults: .standard, key: "test-sort-send-default-\(suffix)")
+            sortStore.save(.default)
+            let service = SkippedReminderSyncService(
+                session: fake,
+                skipStore: SkippedReminderStore(defaults: .standard, key: "test-send-default-skip-\(suffix)"),
+                sortStore: sortStore)
+            service.pushAll()
+            let context = try #require(fake.lastContext)
+            #expect(context["sortOption"] as? String == "default")
         }
 
         // MARK: - Skip-set receive
@@ -237,6 +256,22 @@
             ])
             #expect(sortStore.load() == .title)
             #expect(received == .title)
+        }
+
+        @Test
+        func receivesAndPersistsDefaultSortOption() {
+            let fake = FakeSession()
+            let skipStore = SkippedReminderStore(
+                defaults: .standard, key: "test-recv-skip-default-\(UUID().uuidString)")
+            let sortStore = SortOptionStore(defaults: .standard, key: "test-recv-sort-default-\(UUID().uuidString)")
+            let service = SkippedReminderSyncService(session: fake, skipStore: skipStore, sortStore: sortStore)
+            var received: SortOption?
+            service.onSortOptionReceived = { received = $0 }
+            service.session(
+                WCSession.default,
+                didReceiveApplicationContext: ["sortOption": "default"])
+            #expect(sortStore.load() == .default)
+            #expect(received == .default)
         }
 
         @Test
@@ -686,4 +721,5 @@
                 "a legacy `ai` context is ignored, not applied or persisted")
         }
     }
+    // swiftlint:enable type_body_length
 #endif

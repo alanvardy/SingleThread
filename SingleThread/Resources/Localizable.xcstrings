@@ -4902,6 +4902,17 @@
         }
       }
     },
+    "Default": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Default"
+          }
+        }
+      }
+    },
     "Due Date": {
       "extractionState": "manual",
       "localizations": {

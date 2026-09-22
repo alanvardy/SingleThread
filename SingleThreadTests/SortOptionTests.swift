@@ -89,6 +89,17 @@ struct SortOptionStoreTests {
         #expect(store.load() == .dueDate)
     }
 
+    /// `.default` is offered by the menu, so it must round-trip through the
+    /// store without being coerced back to the `.priority` fallback.
+    @Test
+    func saveAndLoadRoundTripsDefault() {
+        let key = "test-sort-roundtrip-default-\(UUID().uuidString)"
+        defer { UserDefaults.standard.removeObject(forKey: key) }
+        let store = SortOptionStore(defaults: .standard, key: key)
+        store.save(.default)
+        #expect(store.load() == .default)
+    }
+
     /// A value persisted before AI sort was disabled must not keep ranking: it
     /// degrades to `.priority` on read, so the picker is never handed a
     /// selection it cannot offer.
