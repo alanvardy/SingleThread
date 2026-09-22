@@ -11,6 +11,10 @@ import Testing
 /// `ReminderStore` `settle:` seam so skip-path tests don't pay a real wait.
 private let noopSettle: ReminderStoreSettle = {}
 
+// swiftlint:disable type_body_length
+/// This suite sits at the `type_body_length` warning threshold (500) even before
+/// the `.default` feature; the added store test legitimately crosses it, so use a
+/// symbol-local disable (mirrors the file-layer `file_length` disable above).
 @MainActor
 @Suite(.serialized)
 struct ReminderStoreTests {
@@ -203,6 +207,24 @@ struct ReminderStoreTests {
         #expect(
             reorderStore.visibleReminders.map(\.title) == ["LowSooner", "HighLater"],
             "dueDate option reorders visible reminders")
+    }
+
+    @Test
+    func defaultOptionPreservesProvidedOrder() {
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            loadsReminders: false,
+            reminders: [
+                makeReminder(title: "C"),
+                makeReminder(title: "A"),
+                makeReminder(title: "B")
+            ],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        store.setSortOption(.default)
+        #expect(
+            store.visibleReminders.map(\.title) == ["C", "A", "B"],
+            "default option preserves the raw API-provided order")
     }
 
     @Test
@@ -1321,4 +1343,5 @@ struct ReminderStoreAIRerankHookTests {
             #expect(reminder.calendar == eventStore.defaultCalendarForNewReminders())
         }
     }
+    // swiftlint:enable type_body_length
 #endif

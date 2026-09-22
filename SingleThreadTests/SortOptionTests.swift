@@ -7,6 +7,7 @@ import Testing
 struct SortOptionTests {
     @Test
     func rawValuesMatchPayloadKeys() {
+        #expect(SortOption.default.rawValue == "default")
         #expect(SortOption.priority.rawValue == "priority")
         #expect(SortOption.dueDate.rawValue == "dueDate")
         #expect(SortOption.title.rawValue == "title")
@@ -15,14 +16,15 @@ struct SortOptionTests {
 
     @Test
     func allCasesCoverAllOptions() {
-        #expect(SortOption.allCases == [.priority, .dueDate, .title, .ai])
+        #expect(SortOption.allCases == [.default, .priority, .dueDate, .title, .ai])
     }
 
     /// AI sort is disabled: the menu offers every case except `.ai`, and the
     /// disabled case reports itself unselectable so the store and sync guard it.
     @Test
     func menuOptionsWithholdTheDisabledAIOption() {
-        #expect(SortOption.menuOptions == [.priority, .dueDate, .title])
+        #expect(SortOption.menuOptions == [.default, .priority, .dueDate, .title])
+        #expect(SortOption.default.isSelectable)
         #expect(!SortOption.ai.isSelectable)
         #expect(SortOption.priority.isSelectable)
         #expect(SortOption.dueDate.isSelectable)
@@ -36,6 +38,8 @@ struct SortOptionTests {
 
     @Test
     func presentationTitlesAreHumanReadable() {
+        #expect(
+            SortOption.default.title.resolved(in: Locale(identifier: "en")) == "Default")
         #expect(
             SortOption.priority.title.resolved(in: Locale(identifier: "en"))
                 == String.en("Priority", bundle: .main))
@@ -52,6 +56,7 @@ struct SortOptionTests {
 
     @Test
     func presentationSystemImagesAreValidSFSymbols() {
+        #expect(!SortOption.default.systemImage.isEmpty)
         #expect(!SortOption.priority.systemImage.isEmpty)
         #expect(!SortOption.dueDate.systemImage.isEmpty)
         #expect(!SortOption.title.systemImage.isEmpty)
