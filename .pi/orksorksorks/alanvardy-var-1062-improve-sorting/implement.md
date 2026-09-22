@@ -44,6 +44,12 @@ Also on the branch (bootstrap): `fb0ed9ea` removes the `DELETEME` placeholder ma
 - [ ] Pick "Default" on the phone, then confirm the watch reflects the same selection after a sync (or in the simulator with the paired watch) and shows raw API order.
 
 ## Notes / Deviations
+- Review-stage gate fix: the Phase-2 `"Default"` catalog entry was en-only per plan.md,
+  which failed `LocalizationTests.catalogsHaveAllSixLanguages()` (every catalog key must
+  carry all six languages). Added zh-Hans/es/ja/de/fr translations
+  (默认 / Predeterminado / デフォルト / Standard / Par défaut); plan.md's localization
+  decision was back-patched. `scripts/test-one.sh SingleThreadTests/LocalizationTests`
+  now passes (5 cases).
 - One small justified deviation in Phase 1: `ReminderStoreTests.swift` gained a symbol-local
   `// swiftlint:disable type_body_length` (+ matching `enable`) because the added store test
   crosses the 500-line `type_body_length` warning floor; lint passes with 0 violations.

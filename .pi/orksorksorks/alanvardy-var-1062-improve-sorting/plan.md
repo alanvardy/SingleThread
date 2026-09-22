@@ -22,8 +22,10 @@ functional walking skeleton, (2) persistence/sync proof plus the localized label
   backward compatible" — so existing users who never chose a sort keep Priority. `.default`
   is selectable and, once chosen, persists and syncs as raw value `"default"`.
 - **`.default` is first in `menuOptions`** (`[.default, .priority, .dueDate, .title]`).
-- **Localization**: add an `en` entry for "Default" to the string catalog only; other
-  locales fall back to English until the translation flow fills them in.
+- **Localization**: add a `"Default"` entry to the app string catalog in all **six**
+  supported languages (en, zh-Hans, es, ja, de, fr). `LocalizationTests.catalogsHaveAllSixLanguages()`
+  requires every catalog key to carry all six, so the original "en-only, fall back to
+  English" plan was wrong — confirmed by the review-stage gate (see implement.md).
 
 ---
 
@@ -217,7 +219,8 @@ Insert a `"Default"` key immediately before the `"Due Date"` entry (alphabetical
 },
 ```
 
-Other locales intentionally fall back to English; do not invent translations.
+Other locales must carry all six supported languages: `LocalizationTests.catalogsHaveAllSixLanguages()`
+fails on an en-only key.
 
 ### Verification
 
