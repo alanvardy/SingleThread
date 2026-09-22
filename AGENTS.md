@@ -7,7 +7,8 @@
   `grep` without a loop; `bash -c '…'` (or `/tmp/x.sh`) for loops, heredocs
   and `$( )`; `set VAR val` instead of `VAR=val`; `$status` instead of `$?`.
   Any `fish:`-prefixed line is a rejection — switch immediately, never re-send
-  a variant. Applies to the parent **and** to every fan-out child.
+  a variant. Quote globs even in an accepted multi-file grep (`rg -g '*.swift'`).
+  Applies to the parent **and** to every fan-out child.
 
 ## Build & Test
 
@@ -47,9 +48,8 @@
   default to `@MainActor`; do not wrap in `Task { @MainActor in }` there —
   it's redundant. The `SingleThreadCore` package, widget, and test targets do
   **not** enable it — annotate `@MainActor` explicitly where needed in those.
-- The compiler language mode is **Swift 6** (`SWIFT_VERSION = 6.0`).
-  `SWIFT_APPROACHABLE_CONCURRENCY = YES` is also set (the Xcode 26 default),
-  which keeps concurrency diagnostics approachable.
+- Swift 6 language mode (`SWIFT_VERSION = 6.0`) with
+  `SWIFT_APPROACHABLE_CONCURRENCY = YES` (the Xcode 26 default).
 
 ## Persistence (EventKit + App Group)
 
@@ -63,10 +63,16 @@
   `UserDefaults.standard`** — on simulator the suite always exists, so the
   two diverge silently. This includes `--ui-testing`/`--seed` launch-arg
   seams.
+- **`AppGroup.defaults` must be a single cached instance** — each
+  `UserDefaults(suiteName:)` returns a fresh object, and `didChangeNotification`'s
+  `object` is the changing instance, so a computed property makes `object:`-filtered
+  observers never fire (rule edits silently never re-rank). Guard:
+  `AppGroupTests.defaultsIsAStableInstance`.
 - Previews and tests inject a pre-populated `ReminderStore` (or use
   `loadsReminders: false`) instead of a real `EKEventStore`.
 - `UserDefaults` (incl. `AppGroup.defaults`) is **not** `Sendable` — verify
   concurrency claims for shared types against the compiler.
+- AI ranking/sorting data flow: see `.pi/skills/ai-sorting/SKILL.md`.
 
 ## Purchases (StoreKit)
 
@@ -98,7 +104,7 @@ SingleThread/                  # git root
 
 ## QRSPI Workflow
 
-- Phases run through the orksorksorks CLI — see `~/.pi/agent/AGENTS.md` "Workflow" and `.pi/skills/qrspi/SKILL.md`.
+- Phases run through the orksorksorks CLI — see `~/.pi/agent/AGENTS.md` "Workflow" and the `qrspi` skill.
 - All QRSPI work — decompose, research, design, plan — happens directly on
   the main ticket's current branch. **No child subtasks** / **no separate
   design PR/branch**. Artifacts live under `.pi/orksorksorks/<current-branch>/`
@@ -166,18 +172,12 @@ SingleThread/                  # git root
   delete) without a real `EKEventStore` or a TCC prompt. Use it for the rare
   UI tests that are justified; reuse the existing `--ui-testing` seam on
   watchOS.
-- **Gate staging**: phase subagents verify with a build plus targeted
-  `-only-testing:` suites only; the full `./scripts/test.sh` runs ONCE after
-  the phases commit, via the `run-gate` skill (async gate subagent, managed
-  worktree, multi-hour timeout). Never `nohup … > /tmp/gate.log &` it ad-hoc.
-  After two UI-stage contention failures, stop re-running locally — CI is
-  authoritative.
+- **Gate staging**: phase subagents verify with a build + targeted
+  `-only-testing:` suites; the full gate runs ONCE after the phases commit via
+  the `run-gate` skill — never `nohup` it. Two UI-stage failures → CI is authority.
 - Conflict-laden rebases are NOT resolution-edited mid-review: stop, and
   resolve (`git checkout --theirs` / manual continue) in a separate scoped
   fix commit before review resumes.
-- **A bug fix is red-first-proven only if the run executed the test** — check
-  that at least one case ran; a zero-match `-only-testing:` exits 0.
-
 ## Accessibility Testing
 
 - UI tests include `testAccessibilityAudit()` (`performAccessibilityAudit`) +
@@ -190,10 +190,8 @@ SingleThread/                  # git root
 ## Before Committing
 
 - Run `make format` then `make lint` in-line first (fast — catch format/lint
-  before burning the slow gate). For the full CI-identical pipeline
-  (`./scripts/test.sh` — formats, lints, builds, Periphery, unit + UI tests),
-  launch the `run-gate` skill: one dedicated async gate subagent in a worktree
-  with a multi-hour timeout, not an ad-hoc `nohup`.
+  before burning the slow gate). The full CI-identical `./scripts/test.sh`
+  pipeline runs via the `run-gate` skill (see Gate staging).
 - The gate fails on any source-located compiler warning
   (`<path>:<line>:<col>: warning:`) in any build it runs. Unfixable
   toolchain/SDK diagnostics belong in `scripts/xcodebuild-warnings.allow` with a
