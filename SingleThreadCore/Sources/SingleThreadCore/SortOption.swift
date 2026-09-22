@@ -5,13 +5,17 @@ import Foundation
 /// no SwiftUI); presentation lives in the app target.
 public enum SortOption: String, CaseIterable, Sendable {
     /// Raw API order: items are shown in the order the API provides them.
-    /// The no-reordering baseline, offered first in the sort menu.
+    /// The no-reordering baseline, offered first in the sort menu. EventKit's
+    /// fetch order is not a documented stable order, so this can appear to
+    /// change across reloads.
     case `default`
     /// Priority rank → due date → title.
     case priority
     /// Due date soonest-first (dated before undated) → priority → title.
     case dueDate
-    /// Case-insensitive title A→Z, title only.
+    /// Case-insensitive title A→Z, title only. Duplicate titles keep their
+    /// input order (no secondary tie-break), so the head element is not
+    /// deterministic for equal titles.
     case title
     /// On-device AI ranking against the user's freeform rules, falling back to
     /// the `.priority` chain when no ranking is available. Currently disabled:

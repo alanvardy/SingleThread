@@ -10,7 +10,8 @@ public nonisolated enum ReminderSort {
         areInIncreasingOrder(lhs, rhs, using: .priority)
     }
 
-    /// Option-aware comparator.
+    /// Option-aware comparator. ``SortOption/default`` imposes no ordering and
+    /// always returns `false`; every other option returns a strict weak order.
     public static func areInIncreasingOrder(
         _ lhs: EKReminder,
         _ rhs: EKReminder,
