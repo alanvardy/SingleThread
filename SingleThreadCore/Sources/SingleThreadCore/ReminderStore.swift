@@ -172,6 +172,7 @@ public final class ReminderStore {
 
     public var visibleReminders: [EKReminder] {
         let filtered = filteredReminders
+        guard sortOption != .default else { return filtered }
         guard sortOption == .ai, !aiRanking.isEmpty else {
             return filtered.sorted { ReminderSort.areInIncreasingOrder($0, $1, using: sortOption) }
         }

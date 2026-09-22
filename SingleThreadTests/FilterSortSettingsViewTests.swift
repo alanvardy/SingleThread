@@ -57,7 +57,7 @@ struct FilterSortSettingsViewTests {
             excludedLists: .constant([]),
             store: makeEmptyReminderStore())
 
-        #expect(view.sortOptionChoices == [.priority, .dueDate, .title])
+        #expect(view.sortOptionChoices == [.default, .priority, .dueDate, .title])
         #expect(!view.sortOptionChoices.contains(.ai))
     }
 

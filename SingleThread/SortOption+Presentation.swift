@@ -9,6 +9,7 @@ extension SortOption {
     /// Human-readable label shown in the settings picker.
     var title: LocalizedStringResource {
         switch self {
+        case .default: LocalizedStringResource("Default", table: "Localizable", bundle: .main)
         case .priority: LocalizedStringResource("Priority", table: "Localizable", bundle: .main)
         case .dueDate: LocalizedStringResource("Due Date", table: "Localizable", bundle: .main)
         case .title: LocalizedStringResource("Title", table: "Localizable", bundle: .main)
@@ -19,6 +20,7 @@ extension SortOption {
     /// SF Symbol shown alongside the label in the picker.
     var systemImage: String {
         switch self {
+        case .default: "arrow.up.arrow.down"
         case .priority: "exclamationmark.3"
         case .dueDate: "calendar"
         case .title: "textformat.abc"

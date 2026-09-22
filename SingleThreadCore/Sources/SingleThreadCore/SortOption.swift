@@ -4,11 +4,14 @@ import Foundation
 /// Group under ``defaultsKey``. Mirrors `ReminderPriority` (pure Core logic,
 /// no SwiftUI); presentation lives in the app target.
 public enum SortOption: String, CaseIterable, Sendable {
-    /// Today's compound order: priority rank → due date → title.
+    /// Raw API order: items are shown in the order the API provides them.
+    /// The no-reordering baseline, offered first in the sort menu.
+    case `default`
+    /// Priority rank → due date → title.
     case priority
-    /// Due date soonest-first (dated before undated) → title.
+    /// Due date soonest-first (dated before undated) → priority → title.
     case dueDate
-    /// Case-insensitive title A→Z → due date.
+    /// Case-insensitive title A→Z, title only.
     case title
     /// On-device AI ranking against the user's freeform rules, falling back to
     /// the `.priority` chain when no ranking is available. Currently disabled:
@@ -26,7 +29,7 @@ public enum SortOption: String, CaseIterable, Sendable {
 
     /// The options the sort menu offers, in display order. `.ai` is deliberately
     /// absent while on-device AI sorting is disabled.
-    public static let menuOptions: [Self] = [.priority, .dueDate, .title]
+    public static let menuOptions: [Self] = [.default, .priority, .dueDate, .title]
 
     /// Whether this option can be chosen, i.e. is offered by the sort menu. A
     /// disabled option may still be named by a stored or synced raw value, but
