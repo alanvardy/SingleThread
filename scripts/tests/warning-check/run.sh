@@ -7,6 +7,10 @@
 set -euo pipefail
 cd "$(dirname "$0")/../../.."
 
+# Hermetic against ambient CI env: the annotation output path is exercised
+# explicitly by the annotation-shape fixture (#12), not by the caller's env.
+unset GITHUB_ACTIONS
+
 CHECKER="$PWD/scripts/check-warnings.sh"
 FIXTURES="$PWD/scripts/tests/warning-check/fixtures"
 TMP="$(mktemp -d)"
