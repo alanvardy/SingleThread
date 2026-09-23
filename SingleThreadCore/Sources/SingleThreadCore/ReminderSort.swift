@@ -1,4 +1,5 @@
 import EventKit
+import Foundation
 
 /// Pure ordering for reminders across the user-selectable ``SortOption`` modes.
 public nonisolated enum ReminderSort {
@@ -57,12 +58,21 @@ public nonisolated enum ReminderSort {
         }
     }
 
-    private static func compareDueDates(_ lhs: EKReminder, _ rhs: EKReminder) -> ComparisonResult? {
+    private static func compareDueDates(
+        _ lhs: EKReminder,
+        _ rhs: EKReminder,
+        calendar: Calendar = .current) -> ComparisonResult? {
         let lhsDate = lhs.dueDateComponents?.date
         let rhsDate = rhs.dueDateComponents?.date
         switch (lhsDate, rhsDate) {
-        case let (.some(left), .some(right)) where left != right:
-            return left < right ? .orderedAscending : .orderedDescending
+        case let (.some(left), .some(right)):
+            let lhsDay = calendar.startOfDay(for: left)
+            let rhsDay = calendar.startOfDay(for: right)
+            if lhsDay != rhsDay {
+                return lhsDay < rhsDay ? .orderedAscending : .orderedDescending
+            }
+            // Same calendar day: fall through to priority then title.
+            return nil
         case (.some, .none):
             return .orderedAscending
         case (.none, .some):

@@ -213,6 +213,28 @@ struct ReminderSortTests {
     }
 
     @Test
+    func dueDateOptionBucketsByDayThenPriority() {
+        // Two reminders on the same calendar day with different stored times; the
+        // earlier-timed one has the lower priority. Day-bucketing must let
+        // priority win even though its stored time is later.
+        let earlyLow = makeReminder(title: "early-low", priority: 9, dateComponents: timedDate(2, hour: 8, minute: 0))
+        let lateHigh = makeReminder(title: "late-high", priority: 1, dateComponents: timedDate(2, hour: 17, minute: 0))
+        #expect(
+            titles(of: [earlyLow, lateHigh], using: .dueDate) == ["late-high", "early-low"],
+            "higher priority wins on the same calendar day even when its stored time is later")
+    }
+
+    @Test
+    func dueDateOptionSortsDifferentDaysSoonestFirst() {
+        // Different calendar days sort soonest-first regardless of priority.
+        let soonLow = makeReminder(title: "soon", priority: 9, dateComponents: timedDate(2, hour: 17, minute: 0))
+        let laterHigh = makeReminder(title: "later", priority: 1, dateComponents: timedDate(5, hour: 8, minute: 0))
+        #expect(
+            titles(of: [soonLow, laterHigh], using: .dueDate) == ["soon", "later"],
+            "different days sort soonest-first regardless of priority")
+    }
+
+    @Test
     func titleOptionSortsCaseInsensitively() {
         let zebra = makeReminder(title: "Zebra", priority: 1) // priority ignored
         let apple = makeReminder(title: "apple", priority: 9)
@@ -259,5 +281,9 @@ struct ReminderSortTests {
 
     private func date(_ day: Int) -> DateComponents {
         DateComponents(year: 2024, month: 1, day: day)
+    }
+
+    private func timedDate(_ day: Int, hour: Int, minute: Int) -> DateComponents {
+        DateComponents(year: 2024, month: 1, day: day, hour: hour, minute: minute)
     }
 }
