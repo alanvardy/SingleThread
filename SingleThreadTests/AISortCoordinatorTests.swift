@@ -83,11 +83,23 @@ private final class SwitchableRanker: AIReminderRanking, @unchecked Sendable {
 
 /// Never returns until cancelled — proves dedupe of in-flight requests without
 /// racing a completion.
-private struct NeverCompletingRanker: AIReminderRanking {
+private final class NeverCompletingRanker: AIReminderRanking, @unchecked Sendable {
+    // MARK: Internal
+
+    var callCount: Int {
+        lock.withLock { calls }
+    }
+
     func rank(_: [AIReminderCandidate], rules _: String) async throws -> [String] {
+        lock.withLock { calls += 1 }
         try await Task.sleep(for: .seconds(3600))
         return []
     }
+
+    // MARK: Private
+
+    private let lock = NSLock()
+    private var calls = 0
 }
 
 /// Blocks on the first call, resolves instantly afterwards — proves a stale
@@ -146,7 +158,7 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { emitted == [["b": 0, "a": 1]] }
 
         #expect(emitted == [["b": 0, "a": 1]], "canned order becomes identifier → rank")
         #expect(ranker.callCount == 1)
@@ -162,12 +174,13 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { emitted == [["a": 0, "b": 1]] }
         #expect(emitted == [["a": 0, "b": 1]], "good ranking is emitted")
 
         ranker.shouldThrow = true
         coordinator.update(rules: "errands by due date", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 2 }
+        await drainMainActor()
 
         #expect(emitted.count == 1, "a thrown error emits nothing, retaining the previous ranking")
         #expect(ranker.callCount == 2, "the second (throwing) request still reached the ranker")
@@ -183,7 +196,7 @@ struct AISortCoordinatorTests {
         let emptyRanking: [String: Int] = [:]
 
         coordinator.update(rules: "   ", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { emitted.count == 1 }
 
         #expect(emitted == [emptyRanking], "blank rules clear a stale ranking")
         #expect(ranker.callCount == 0, "the ranker is never called for blank rules")
@@ -198,7 +211,7 @@ struct AISortCoordinatorTests {
         let emptyRanking: [String: Int] = [:]
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { emitted.count == 1 }
 
         #expect(emitted == [emptyRanking], "unavailable ranking capability clears the ranking")
     }
@@ -214,7 +227,7 @@ struct AISortCoordinatorTests {
         coordinator.update(rules: "first", candidates: candidates)
         coordinator.update(rules: "second", candidates: candidates)
         coordinator.update(rules: "third", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 1 && emitted.count == 1 }
 
         #expect(ranker.callCount == 1, "rapid edits collapse into one ranking")
         #expect(emitted == [["a": 0, "b": 1]], "the trailing edit's ranking is emitted exactly once")
@@ -230,7 +243,7 @@ struct AISortCoordinatorTests {
 
         coordinator.update(rules: "clients first", candidates: candidates)
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 1 && emitted.count == 1 }
 
         #expect(ranker.callCount == 1, "two synchronous identical updates produce one ranking call")
         #expect(emitted == [["a": 0, "b": 1]], "the deduplicated request emits exactly once")
@@ -245,15 +258,15 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { emitted.count == 1 }
         #expect(ranker.callCount == 1)
 
+        // An identical non-forced update is deduplicated synchronously.
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
         #expect(ranker.callCount == 1, "an identical non-forced update stays deduplicated")
 
         coordinator.update(rules: "clients first", candidates: candidates, force: true)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 2 && emitted.count == 2 }
         #expect(ranker.callCount == 2, "a forced update re-runs the ranker despite identical input")
         #expect(emitted.count == 2, "the forced re-rank emits again")
     }
@@ -261,14 +274,15 @@ struct AISortCoordinatorTests {
     @Test
     func cancelsInFlightRequest() async {
         let candidates = [candidate("a"), candidate("b")]
-        let coordinator = AISortCoordinator(ranker: NeverCompletingRanker(), debounce: .milliseconds(20))
+        let ranker = NeverCompletingRanker()
+        let coordinator = AISortCoordinator(ranker: ranker, debounce: .milliseconds(20))
         var emitted: [[String: Int]] = []
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 1 }
         coordinator.cancel()
-        try? await Task.sleep(for: .milliseconds(1000))
+        await drainMainActor()
 
         #expect(emitted.isEmpty, "a cancelled request never emits")
     }
@@ -283,18 +297,19 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { emitted == [["a": 0, "b": 1]] }
         #expect(emitted == [["a": 0, "b": 1]], "good ranking is emitted")
 
         ranker.shouldThrow = true
         coordinator.update(rules: "errands by due date", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 2 }
+        await drainMainActor()
         #expect(emitted.count == 1, "a thrown error emits nothing, retaining the previous ranking")
 
         ranker.shouldThrow = false
         ranker.order = ["b", "a"]
         coordinator.update(rules: "errands by due date", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { emitted.count == 2 }
         #expect(
             emitted == [["a": 0, "b": 1], ["b": 0, "a": 1]],
             "a later successful update replaces the retained ranking")
@@ -310,7 +325,7 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { failureCount == 1 }
 
         #expect(failureCount == 1, "a runtime failure reaches the status seam")
         #expect(emitted.isEmpty, "a failed request emits nothing, retaining the previous ranking")
@@ -326,7 +341,8 @@ struct AISortCoordinatorTests {
         coordinator.onRankingFailed = { _ in failureCount += 1 }
 
         coordinator.update(rules: "clients first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 1 }
+        await drainMainActor()
 
         #expect(
             failureCount == 0,
@@ -346,7 +362,7 @@ struct AISortCoordinatorTests {
         unavailable.onRankingFailed = { _ in unavailableFailures += 1 }
         unavailable.update(rules: "clients first", candidates: candidates)
 
-        try? await Task.sleep(for: .milliseconds(1000))
+        await drainMainActor()
 
         #expect(blankFailures == 0, "blank rules are a user choice, not a failure")
         #expect(unavailableFailures == 0, "an unsupported device is explained in Settings, not a banner")
@@ -371,12 +387,12 @@ struct AISortCoordinatorTests {
         let two = [candidate("a"), candidate("b")]
 
         coordinator.update(rules: "clients first", candidates: two)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { emitted.count == 1 }
         #expect(ranker.callCount == 1)
 
         let three = [candidate("a"), candidate("b"), candidate("c")]
         coordinator.update(rules: "clients first", candidates: three)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 2 && emitted.count == 2 }
 
         #expect(ranker.callCount == 2, "a changed candidate set re-ranks the same rules")
         #expect(emitted.count == 2, "each distinct input digest emits once")
@@ -391,11 +407,11 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "first", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 1 }
         #expect(ranker.callCount == 1, "the first request is parked in its block")
 
         coordinator.update(rules: "second", candidates: candidates)
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 2 && emitted.count == 1 }
 
         #expect(emitted == [["b": 0, "a": 1]], "only the newer generation's ranking is emitted")
     }
@@ -408,14 +424,14 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: [candidate("a"), candidate("b")])
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { emitted.count == 1 }
         #expect(ranker.callCount == 1)
 
         // Same ids and rules, changed candidate content.
         coordinator.update(
             rules: "clients first",
             candidates: [candidate("a", title: "A renamed"), candidate("b")])
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 2 && emitted.count == 2 }
 
         #expect(ranker.callCount == 2, "a content-only change re-ranks the same ids")
         #expect(emitted.count == 2)
@@ -429,13 +445,13 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { emitted.append($0) }
 
         coordinator.update(rules: "clients first", candidates: [candidate("a"), candidate("b")])
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 1 }
         #expect(ranker.callCount == 1, "the first request is parked in its block")
 
         coordinator.update(
             rules: "clients first",
             candidates: [candidate("a", title: "A renamed"), candidate("b")])
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 2 }
 
         #expect(ranker.callCount == 2, "a content change supersedes the in-flight request")
     }
@@ -447,17 +463,38 @@ struct AISortCoordinatorTests {
         coordinator.onRankingUpdated = { _ in }
 
         coordinator.update(rules: "clients first", candidates: [candidate("a"), candidate("b")])
-        try? await Task.sleep(for: .milliseconds(1000))
+        await waitUntil { ranker.callCount == 1 }
         #expect(ranker.callCount == 1)
 
         // An unrelated App-Group write re-issues identical input once settled.
         coordinator.update(rules: "clients first", candidates: [candidate("a"), candidate("b")])
-        try? await Task.sleep(for: .milliseconds(1000))
+        await drainMainActor()
 
         #expect(ranker.callCount == 1, "a completed identical request is not re-run")
     }
 
     // MARK: Private
+
+    /// Polls until `condition` holds (or `timeout` elapses). Under parallel Swift
+    /// Testing on macOS the coordinator's debounced MainActor task can be delayed
+    /// past any fixed sleep, so the tests must await the *condition*, not a duration.
+    private func waitUntil(timeout: Duration = .seconds(20), _ condition: () -> Bool) async {
+        let clock = ContinuousClock()
+        let deadline = clock.now + timeout
+        while !condition(), clock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+    }
+
+    /// Gives queued MainActor work a bounded number of turns, for the few negative
+    /// assertions that have no positive signal to poll on.
+    private func drainMainActor(for duration: Duration = .milliseconds(300)) async {
+        let clock = ContinuousClock()
+        let deadline = clock.now + duration
+        while clock.now < deadline {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
+    }
 
     private func candidate(_ identifier: String, title: String? = nil) -> AIReminderCandidate {
         AIReminderCandidate(
