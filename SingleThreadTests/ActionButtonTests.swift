@@ -27,6 +27,28 @@ import Testing
         func buttonsShowWhenToggleOnAndReminderVisible() {
             let viewModel = makeViewModel(store: storeWithReminder())
             viewModel.enableActionButtons = true
+            viewModel.hasLoadedReminders = true
+            #expect(viewModel.showsActionButtons)
+        }
+
+        /// Reproduces the cold-open ordering: on app open, the view injects
+        /// ``enableActionButtons`` before ``task()`` has settled the reminders, so the
+        /// gate is dead (hidden) even though a visible reminder exists. Once
+        /// ``task()`` flips ``hasLoadedReminders`` after ``store.start()`` returns, the
+        /// gate comes alive and the action-button cluster appears without needing a
+        /// swipe re-render. (The first assertion dead-checks the flag ordering; a
+        /// pre-fix gate that only required `enableActionButtons` + a visible reminder
+        /// would fail it, reproducing the reported bug.)
+        @Test
+        func buttonsAppearAfterRemindersSettleOnStartupPath() {
+            let viewModel = makeViewModel(store: storeWithReminder())
+            viewModel.enableActionButtons = true
+            // Gate dead right after flag injection — pre-settle, even with a visible
+            // reminder.
+            #expect(!viewModel.showsActionButtons)
+            // Reminders settle (`task()` flipping `hasLoadedReminders` after
+            // `await store.start()` returns) → gate comes alive.
+            viewModel.hasLoadedReminders = true
             #expect(viewModel.showsActionButtons)
         }
 
@@ -34,6 +56,7 @@ import Testing
         func buttonsHiddenWhenToggleOff() {
             let viewModel = makeViewModel(store: storeWithReminder())
             viewModel.enableActionButtons = false
+            viewModel.hasLoadedReminders = true
             #expect(!viewModel.showsActionButtons)
         }
 
@@ -48,6 +71,7 @@ import Testing
                 authorizationStatus: .fullAccess)
             let viewModel = makeViewModel(store: store)
             viewModel.enableActionButtons = true
+            viewModel.hasLoadedReminders = true
             #expect(!viewModel.showsActionButtons)
         }
 
@@ -66,6 +90,7 @@ import Testing
                 authorizationStatus: .fullAccess)
             let viewModel = makeViewModel(store: store)
             viewModel.enableActionButtons = true
+            viewModel.hasLoadedReminders = true
             #expect(!viewModel.showsActionButtons)
         }
 

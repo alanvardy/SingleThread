@@ -77,11 +77,24 @@ final class ContentViewModel {
         var enableActionButtons = true
 
         /// Whether the bottom-bar action buttons (iOS cluster / macOS Complete -
+        /// Skip - Delete - menu) render: the toggle must be on, reminders must
+        /// have settled, AND a visible reminder must exist. Injected via
+        /// ``enableActionButtons``; testable without a live view.
+        ///
+        /// Flipped to `true` by ``task(showUndatedReminders:)`` as soon as
+        /// ``ReminderStore.start()`` returns (reminders have landed). An
+        /// `@Observable` stored var, so flipping it fires a re-evaluation of the
+        /// branch and reveals the cluster on the initial open path — where the
+        /// view injects ``enableActionButtons`` before reminders finish loading,
+        /// so the gate used to stay closed until a swipe forced a re-render.
+        var hasLoadedReminders = false
+
+        /// Whether the bottom-bar action buttons (iOS cluster / macOS Complete -
         /// Skip - Delete - menu) render: the toggle must be on AND a visible
         /// reminder must exist. Injected via ``enableActionButtons``; testable
         /// without a live view.
         var showsActionButtons: Bool {
-            enableActionButtons && store.visibleReminders.first != nil
+            enableActionButtons && hasLoadedReminders && store.visibleReminders.first != nil
         }
     #endif
 
@@ -133,6 +146,10 @@ final class ContentViewModel {
     func task(showUndatedReminders: Bool) async {
         store.showsUndatedReminders = showUndatedReminders
         await store.start()
+        // Reminders have settled (`start()` awaits `reload()`, which populates
+        // `store.reminders`). Flip the observably-tracked flag so the action buttons
+        // gate re-evaluates and reveals the cluster on the cold-open path.
+        hasLoadedReminders = true
         rechecker = makeRechecker(store)
         rechecker?.start()
         defer { rechecker?.stop(); rechecker = nil }
