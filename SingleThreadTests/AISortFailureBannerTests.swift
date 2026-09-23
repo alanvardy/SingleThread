@@ -66,7 +66,7 @@
             #expect(!contentView.showsAISortFailureBanner, "no banner before any ranking attempt")
 
             appViewModel.retryAIRanking()
-            await settle()
+            await waitUntil { appViewModel.aiSortFailed }
 
             #expect(appViewModel.aiSortFailed, "a throwing ranker raises the flag")
             #expect(contentView.showsAISortFailureBanner, "the ContentView gate reads the flag")
@@ -74,7 +74,7 @@
 
             ranker.succeeds = true
             appViewModel.retryAIRanking()
-            await settle()
+            await waitUntil { !appViewModel.aiSortFailed && !appViewModel.store.aiRanking.isEmpty }
 
             #expect(!appViewModel.aiSortFailed, "the next settled ranking dismisses the banner")
             #expect(!contentView.showsAISortFailureBanner)
@@ -89,12 +89,12 @@
 
             appViewModel.store.sortOption = .ai
             appViewModel.retryAIRanking()
-            await settle()
+            await waitUntil { appViewModel.aiSortFailed }
             let attemptsAfterFailure = ranker.callCount
 
             ranker.succeeds = true
             appViewModel.retryAIRanking()
-            await settle()
+            await waitUntil { ranker.callCount == attemptsAfterFailure + 1 }
 
             #expect(
                 ranker.callCount == attemptsAfterFailure + 1,
@@ -108,7 +108,7 @@
 
             appViewModel.store.sortOption = .ai
             appViewModel.retryAIRanking()
-            await settle()
+            await waitUntil { appViewModel.aiSortFailed }
             #expect(appViewModel.aiSortFailed)
 
             appViewModel.store.setSortOption(.priority)
@@ -133,11 +133,12 @@
         // MARK: Private
 
         /// Builds the model over the deterministic `--ui-testing` store, parks the
-        /// sort option so the run starts from a known state, stages non-blank rules
-        /// in the shared App Group suite (what `refreshAIRanking` reads), then
-        /// drains that write's `UserDefaults.didChangeNotification` so the test's
-        /// own ranking attempt is the only one. Returns the previous rules text for
-        /// the caller's `defer`.
+        /// sort option so the run starts from a known state, and stages non-blank
+        /// rules in the shared App Group suite (what `refreshAIRanking` reads),
+        /// then briefly drains that write's `UserDefaults.didChangeNotification`.
+        /// The sort option is parked at `.priority`, so the save kicks no ranking
+        /// — the drain is just to keep the test's own ranking attempt the only one.
+        /// Returns the previous rules text for the caller's `defer`.
         private func prepare(ranker: any AIReminderRanking) async -> (AppViewModel, String) {
             // The debounce is shortened so the tests do not wait out the
             // production 500 ms.
@@ -149,7 +150,7 @@
             model.store.sortOption = .priority
             let previousRules = AISortRulesStore().load()
             AISortRulesStore().save("clients first")
-            await settle()
+            await drainMainActor(for: .milliseconds(300))
             return (model, previousRules)
         }
 
@@ -161,9 +162,26 @@
             AISortRulesStore().save(rules)
         }
 
-        /// The injected debounce plus the ranking hop.
-        private func settle() async {
-            try? await Task.sleep(for: .milliseconds(200))
+        /// Polls until `condition` holds (or `timeout` elapses). Under parallel Swift
+        /// Testing the AppViewModel's debounced MainActor ranking can be delayed
+        /// past any fixed sleep, so the tests must await the *condition*, not a
+        /// duration.
+        private func waitUntil(timeout: Duration = .seconds(20), _ condition: () -> Bool) async {
+            let clock = ContinuousClock()
+            let deadline = clock.now + timeout
+            while !condition(), clock.now < deadline {
+                try? await Task.sleep(for: .milliseconds(10))
+            }
+        }
+
+        /// Gives queued MainActor work a bounded number of turns, for the few negative
+        /// assertions that have no positive signal to poll on.
+        private func drainMainActor(for duration: Duration = .milliseconds(300)) async {
+            let clock = ContinuousClock()
+            let deadline = clock.now + duration
+            while clock.now < deadline {
+                try? await Task.sleep(for: .milliseconds(10))
+            }
         }
     }
 #endif
