@@ -86,7 +86,7 @@ app-extension test target:
   math, authorization → `.noAccess` gate)
   (`SingleThreadCore/Sources/SingleThreadCore/NextThingWidgetLogic.swift:39`).
 - Covered by `SingleThreadTests/NextThingWidgetLogicTests.swift`
-  (`refreshDateAddsInterval`, `displayPreferencesApplyPerKeyFallbacks`,
+  (`refreshDateAddsInterval`, `displayPreferencesDefaultPerKeyFallbacks`,
   `displayPreferencesReadPersistedOverrides`, `accessDeniedYieldsNoAccess`).
 
 The SwiftUI `NextThingWidgetView` remains intentionally untested
