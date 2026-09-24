@@ -119,6 +119,22 @@ You are running the full CI-identical gate for SingleThread in this worktree.
 - A failure your diff didn't touch is likely pre-existing on `origin/main` —
   verify with git blame / CI history before debugging.
 
+## Teardown (required)
+
+The gate is a read-only lane, so its worktree is disposable the moment the
+verdict is recorded. Remove it — do not leave it behind (they accumulate to
+tens of GB under `<repo-parent>/worktrees/`):
+
+```fish
+pi_worktree_clean --dry-run   # review the candidates
+pi_worktree_clean             # remove clean, idle lanes
+```
+
+To remove only this run's lane: `worktree_remove <worktree-path>` (this also
+deletes its `.simulator_id` simulator and closes its herdr workspace). The
+`pi-worktree-cleanup` skill explains the guards — why only clean, idle,
+non-cwd lanes are removed and why a branch with unique commits is kept.
+
 ## After two UI-stage contention failures
 
 Stop re-running locally. CI is authoritative — push and let
