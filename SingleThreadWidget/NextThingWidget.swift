@@ -44,54 +44,39 @@ struct NextThingProvider: TimelineProvider {
     func getTimeline(in _: Context, completion: @escaping @Sendable (Timeline<NextThingEntry>) -> Void) {
         Task {
             let entry = await Self.makeEntry()
-            let refresh = Date().addingTimeInterval(Self.refreshInterval)
+            let refresh = NextThingWidgetLogic.nextRefreshDate(from: Date())
             completion(Timeline(entries: [entry], policy: .after(refresh)))
         }
     }
 
     // MARK: Private
 
-    /// How soon to re-ask EventKit for a possibly-changed current reminder.
-    /// Was 15 min; shortened so an out-of-band completion/deletion clears the
-    /// widget sooner. This is the widget's entire staleness mechanism — no
-    /// rechecker (design decision 5).
-    private static let refreshInterval: TimeInterval = 5 * 60
-
     @MainActor
     private static func makeEntry() async -> NextThingEntry {
         let date = Date()
-        let showsDate = BoolPreferenceStore(key: BoolPreferenceKey.showDate.rawValue, fallback: true).isEnabled
-        let showsList = BoolPreferenceStore(key: BoolPreferenceKey.showList.rawValue, fallback: false).isEnabled
-        let showsRecurrence = BoolPreferenceStore(
-            key: BoolPreferenceKey.showRecurrence.rawValue,
-            fallback: true).isEnabled
-        let showsAlarms = BoolPreferenceStore(
-            key: BoolPreferenceKey.showAlarms.rawValue,
-            fallback: true).isEnabled
-        switch EKEventStore.authorizationStatus(for: .reminder) {
-        case .fullAccess:
-            let store = ReminderStore(loadsReminders: true)
-            store.showsUndatedReminders = BoolPreferenceStore(
-                key: BoolPreferenceKey.showUndatedReminders.rawValue,
-                fallback: false).isEnabled
-            store.setSortOption(SortOptionStore().load())
-            await store.reload()
-            return NextThingEntry(
-                date: date,
-                state: store.listContent,
-                showsDate: showsDate,
-                showsList: showsList,
-                showsRecurrence: showsRecurrence,
-                showsAlarms: showsAlarms)
-        default:
+        let preferences = NextThingDisplayPreferences()
+        guard NextThingWidgetLogic.isAccessGranted(EKEventStore.authorizationStatus(for: .reminder)) else {
             return NextThingEntry(
                 date: date,
                 state: .noAccess,
-                showsDate: showsDate,
-                showsList: showsList,
-                showsRecurrence: showsRecurrence,
-                showsAlarms: showsAlarms)
+                showsDate: preferences.showsDate,
+                showsList: preferences.showsList,
+                showsRecurrence: preferences.showsRecurrence,
+                showsAlarms: preferences.showsAlarms)
         }
+        let store = ReminderStore(loadsReminders: true)
+        store.showsUndatedReminders = BoolPreferenceStore(
+            key: BoolPreferenceKey.showUndatedReminders.rawValue,
+            fallback: false).isEnabled
+        store.setSortOption(SortOptionStore().load())
+        await store.reload()
+        return NextThingEntry(
+            date: date,
+            state: store.listContent,
+            showsDate: preferences.showsDate,
+            showsList: preferences.showsList,
+            showsRecurrence: preferences.showsRecurrence,
+            showsAlarms: preferences.showsAlarms)
     }
 }
 
