@@ -81,6 +81,45 @@ private final class SwitchableRanker: AIReminderRanking, @unchecked Sendable {
     private var calls = 0
 }
 
+/// Throws a settable error, then succeeds once cleared — proves the
+/// coordinator retries identical input after a failure (it leaves
+/// `lastCompletedDigest` unset) and that a silent fallback re-arms re-ranking.
+private final class ErrorSwitchableRanker: AIReminderRanking, @unchecked Sendable {
+    // MARK: Internal
+
+    var order: [String] {
+        get { lock.withLock { storedOrder } }
+        set { lock.withLock { storedOrder = newValue } }
+    }
+
+    var error: Error? {
+        get { lock.withLock { storedError } }
+        set { lock.withLock { storedError = newValue } }
+    }
+
+    var callCount: Int {
+        lock.withLock { calls }
+    }
+
+    func rank(_: [AIReminderCandidate], rules _: String) async throws -> [String] {
+        let (order, error) = lock.withLock { () -> ([String], Error?) in
+            calls += 1
+            return (storedOrder, storedError)
+        }
+        if let error {
+            throw error
+        }
+        return order
+    }
+
+    // MARK: Private
+
+    private let lock = NSLock()
+    private var storedOrder: [String] = []
+    private var storedError: Error?
+    private var calls = 0
+}
+
 /// Never returns until cancelled — proves dedupe of in-flight requests without
 /// racing a completion.
 private final class NeverCompletingRanker: AIReminderRanking, @unchecked Sendable {
@@ -471,6 +510,58 @@ struct AISortCoordinatorTests {
         await drainMainActor()
 
         #expect(ranker.callCount == 1, "a completed identical request is not re-run")
+    }
+
+    @Test
+    func retriesIdenticalRequestAfterRuntimeFailure() async {
+        let candidates = [candidate("a"), candidate("b")]
+        let ranker = ErrorSwitchableRanker()
+        ranker.order = ["a", "b"]
+        ranker.error = RankerCrashed()
+        let coordinator = AISortCoordinator(ranker: ranker, debounce: .milliseconds(20))
+        var emitted: [[String: Int]] = []
+        coordinator.onRankingUpdated = { emitted.append($0) }
+        coordinator.onRankingFailed = { _ in }
+
+        coordinator.update(rules: "clients first", candidates: candidates)
+        await waitUntil { ranker.callCount == 1 }
+        await drainMainActor()
+        #expect(ranker.callCount == 1)
+        #expect(emitted.isEmpty, "a runtime failure retains the previous ranking")
+
+        ranker.error = nil
+        coordinator.update(rules: "clients first", candidates: candidates)
+        await waitUntil { emitted == [["a": 0, "b": 1]] }
+
+        #expect(
+            ranker.callCount == 2,
+            "a failed request leaves no completed digest, so identical input retries")
+        #expect(emitted == [["a": 0, "b": 1]], "the retry emits the ranking")
+    }
+
+    @Test
+    func reRanksAfterSilentFallbackClearsTheDigest() async {
+        let candidates = [candidate("a"), candidate("b")]
+        let ranker = CannedRanker(order: ["a", "b"])
+        let coordinator = AISortCoordinator(ranker: ranker, debounce: .milliseconds(20))
+        var emitted: [[String: Int]] = []
+        coordinator.onRankingUpdated = { emitted.append($0) }
+
+        coordinator.update(rules: "clients first", candidates: candidates)
+        await waitUntil { ranker.callCount == 1 }
+        #expect(ranker.callCount == 1)
+
+        coordinator.update(rules: "   ", candidates: candidates)
+        await waitUntil { emitted.count == 1 }
+        #expect(ranker.callCount == 1, "blank rules never reach the ranker")
+
+        coordinator.update(rules: "clients first", candidates: candidates)
+        await waitUntil { emitted.count == 3 }
+
+        #expect(
+            ranker.callCount == 2,
+            "the fallback cleared the digest, so the same rules re-rank")
+        #expect(emitted.count == 3, "blank fallback emits [:] and the re-rank emits its ordering")
     }
 
     // MARK: Private
