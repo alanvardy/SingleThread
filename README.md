@@ -55,3 +55,9 @@ Your reminders. One at a time. In order. At your pace.
     </picture>
   </a>
 </p>
+
+## Also from Alan
+
+- **[Exzeitable](https://github.com/alanvardy/exzeitable)** — Dynamically updating, searchable, sortable data tables for Phoenix LiveView, from one database query and one module.
+- **[CheckStitch](https://github.com/alanvardy/CheckStitch)** — Turns a checklist into Apple Reminders, one reminder per item, in one tap. iPhone, iPad, Mac, and Apple Watch.
+- **[orksorksorks](https://github.com/alanvardy/orksorksorks)** — A small Rust CLI that drives step-based coding-agent workflows from a single TOML config.
