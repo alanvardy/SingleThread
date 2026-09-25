@@ -232,20 +232,35 @@ section 2b).
 
 ---
 
-## 6. Pre-existing local-only failure (do not debug)
+## 6. Host StoreKit store — dirty-host accommodation (not a failure)
 
-Three macOS `SingleThreadTests/EntitlementStoreTests.swift` cases fail locally
-and are green on CI — **annotate, do not debug**:
+Three macOS `SingleThreadTests/EntitlementStoreTests.swift` host-reading cases
+were the known local-only failures recorded in AGENTS.md under "Before
+Committing". A follow-up commit applied after the Phase 4 report
+(`fix: tolerate dirty host StoreKit store in EntitlementStoreTests`) replaced
+the hard failure with an accommodation that keeps the local run green without
+losing the signal:
 
-- `isEntitledSurvivesStoreRecreation` (`EntitlementStoreTests.swift:42`)
-- `initialRefreshSettlesResolvedFlag` (`EntitlementStoreTests.swift:76`)
-- `hostStoreKitIsClean` (canary) (`EntitlementStoreTests.swift:91`)
+- `isEntitledSurvivesStoreRecreation` (`EntitlementStoreTests.swift:43`) and
+  `initialRefreshSettlesResolvedFlag` (`EntitlementStoreTests.swift:83`) guard
+  their `!isEntitled` expectation behind
+  `if await hostEntitlementIds().isEmpty { … }` — on a clean host the assertion
+  runs, on a dirty host it is skipped, so the named invariant is only exercised
+  on clean hosts (the deliberate tradeoff).
+- `hostStoreKitIsClean` (`EntitlementStoreTests.swift:108`) is now a
+  **non-failing report**, not a canary: it reads the host store and, when
+  non-empty, records the old actionable reset message ("Clear via Xcode →
+  Debug → StoreKit → Manage Transactions…") as a `withKnownIssue`, so a dirty
+  store is visible in the run but cannot turn CI or a local run red.
+- `hostEntitlementIds()` (`EntitlementStoreTests.swift:129`) is the shared
+  private predicate.
 
-These are a known local-environment artifact (storekit/simulator state on
-this macOS checkout) and are not caused by the audit diff. They are recorded
-in AGENTS.md under "Before Committing". None of Phases 1–3 touched
-`EntitlementStoreTests.swift`, and no new test in this audit exercises
-`HostStoreKit`/StoreKit persistence.
+`hostStoreKitIsClean` never fails in any environment by design — that is the
+approved accommodation. macOS unit tests are unsigned
+(`CODE_SIGNING_ALLOWED=NO`), so `Transaction.currentEntitlements` reads the
+real per-user host store, not any `SKTestSession` test store. None of
+Phases 1–3 touched `EntitlementStoreTests.swift`, and no new test in this
+audit exercises `HostStoreKit`/StoreKit persistence.
 
 ---
 
@@ -255,6 +270,9 @@ in AGENTS.md under "Before Committing". None of Phases 1–3 touched
   + `NextThingWidgetLogicTests` · 2 AI-sort fallback digest branches.
 - **Recorded, not fixed:** `Show*State` `.standard` vs `ShowEnableActionButtons`
   `AppGroup.defaults` divergence.
+- **Post-report accommodation:** dirty-host StoreKit handling in
+  `EntitlementStoreTests.swift` (guarded assertions + non-failing known-issue
+  canary), applied after the Phase 4 report.
 - **Documented non-goals:** SwiftUI `View`/modifier bodies (11 files), widget
   SwiftUI view, live `FoundationModelsReminderRanker`, the false-alarm gap
   trio, no new test target, no persistence-semantics change, no

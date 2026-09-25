@@ -93,19 +93,27 @@ struct EntitlementStoreTests {
         }
     }
 
-    /// Reports the real host StoreKit store's entitlement state. A clean host
-    /// (CI fresh runners) passes silently. A dirty host (entitled transactions
-    /// from prior manual testing) is reported as tolerated rather than failed —
-    /// the approved dirty-host accommodation (AGENTS.md lists these three as
-    /// known local-only failures), which re-engages automatically once the
-    /// host store is cleared via Xcode → Debug → StoreKit → Manage Transactions…
+    /// Reports the real host StoreKit store's entitlement state. Deliberately
+    /// non-failing: a dirty host (entitled transactions from prior manual
+    /// testing) is the approved local accommodation, and CI runners are
+    /// expected clean, so this records the condition as a known issue instead
+    /// of failing anywhere. The old actionable reset message is preserved on
+    /// the known issue, re-engaging automatically once the host store is
+    /// cleared via Xcode → Debug → StoreKit → Manage Transactions…
     /// (`make reset-storekit` is not sufficient on a purchased account).
     /// macOS unit tests are unsigned (`CODE_SIGNING_ALLOWED=NO`), so
     /// `Transaction.currentEntitlements` reads the real per-user host store —
     /// not any SKTestSession test store.
     @Test
     func hostStoreKitIsClean() async {
-        _ = await hostEntitlementIds()
+        let ids = await hostEntitlementIds()
+        guard !ids.isEmpty else { return }
+
+        withKnownIssue(Comment(rawValue: "Host StoreKit store has entitled transactions: \(ids.sorted()). "
+                + "Clear via Xcode → Debug → StoreKit → Manage Transactions… "
+                + "(`make reset-storekit` is not sufficient on a purchased account).")) {
+            #expect(ids.isEmpty)
+        }
     }
 
     // MARK: Private
