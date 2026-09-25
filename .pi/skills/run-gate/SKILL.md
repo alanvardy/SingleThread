@@ -82,10 +82,17 @@ You are running the full CI-identical gate for SingleThread in this worktree.
 
 1. cd to the repo root and confirm you are on the branch tip
    (git rev-parse --short HEAD).
-2. Run the gate in the background of YOUR OWN bash so you can watch it:
-   nohup ./scripts/test.sh > /tmp/gate-<branch>.log 2>&1 & echo $!
-   If the default iPhone 17 name destination is ambiguous, pin it:
-   SIM='platform=iOS Simulator,id=<UDID>' ./scripts/test.sh
+2. Launch the gate detached from a temp script — your command tool is fish,
+   which has no `nohup` and no `$!`, so `nohup … & echo $!` is rejected.
+   `write` /tmp/gate-<branch>.sh:
+   #!/bin/bash
+   set -uo pipefail
+   export SIM='platform=iOS Simulator,id=<UDID>'
+   echo $$ > /tmp/gate-<branch>.pid
+   exec ./scripts/test.sh > /tmp/gate-<branch>.log 2>&1
+   Then launch it detached and record the printed pid:
+   bash -c 'nohup bash /tmp/gate-<branch>.sh >/dev/null 2>&1 & echo $!'
+   On any `fish:` rejection, do not retry a variant — go through /tmp.
 3. Watchdog with SHORT-LIVED bash calls — one `sleep 60` + `wc -c <log>` per
    turn, never a single long-open command (a 240s-open bash call trips the
    needs-attention controller and wedges the lane). If the log is stalled, kill
