@@ -1,16 +1,17 @@
 # Test-Suite Audit Report — VAR-1075
 
-Status: **Draft — pending full-gate confirmation.** This report is the
-deliverable for Phase 4 of the test-suite audit. It records concrete gaps
-closed in Phases 1–3, one finding left for user triage, and the remaining
-gaps named as explicit non-goals. It does **not** claim the full CI-identical
-gate has passed — that runs once after Phases 1–3 commit via the `run-gate`
-skill, and the Phase 4 manual checkbox items are intentionally left unchecked.
+Status: **Confirmed — full CI-identical gate passed at `9219a69a`.** This
+report is the deliverable for Phase 4 of the test-suite audit. It records
+concrete gaps closed in Phases 1–3, one finding left for user triage, and the
+remaining gaps named as explicit non-goals. The full pipeline
+(`./scripts/test.sh`: format, lint, warning check, iOS/watch builds, Periphery,
+unit + UI tests, macOS unit tests) is green; the Phase 4 manual items are
+marked done or left for the reviewer as noted.
 
 Companion artifacts in this directory (`research.md`, `structure.md`,
 `conventions.md`, `design.md`) contain the original audit basis. Every claim
-below is tied to a `file:line` verified against the current checkout at the
-time of writing.
+below is tied to a `file:line` verified against the checkout gated at
+`9219a69a`.
 
 ---
 
