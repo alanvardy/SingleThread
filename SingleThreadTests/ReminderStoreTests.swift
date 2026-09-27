@@ -506,6 +506,23 @@ struct ReminderStoreTests {
         #expect(!completed)
     }
 
+    @Test
+    func completeReminderSkipsSaveWhenIdentifierIsEmpty() async {
+        // makeReminder builds an EKReminder that is never saved, so its
+        // calendarItemIdentifier is nil/empty — reproducing the reported crash
+        // where EventKit `save` throws on a nil key.
+        let eventStore = InMemoryEventStore()
+        let store = ReminderStore(
+            eventStore: eventStore,
+            loadsReminders: false,
+            reminders: [makeReminder(title: "Untitled")],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let completed = await store.completeReminder(identifier: "")
+        #expect(!completed, "completing a nil-identifier reminder is handled without crashing")
+        #expect(eventStore.saveCallCount == 0, "EventKit save is never reached with a nil key")
+    }
+
     // MARK: - start / reload guards
 
     @Test

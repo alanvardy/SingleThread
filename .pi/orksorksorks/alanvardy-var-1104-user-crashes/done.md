@@ -1,0 +1,7 @@
+# Done
+
+- **What was built**: Guarded `ReminderStore.completeReminder(identifier:)` so a reminder with a nil/empty `calendarItemIdentifier` returns `false` before `eventStore.save(reminder, commit:)` is reached, preventing the EventKit `-[__NSDictionaryM setObject:forKeyedSubscript:]: key cannot be nil` crash (`EXC_CRASH`/SIGABRT) on the swiped-to-complete flow. Added a Swift Testing unit test reproducing the symptom.
+- **Commit SHA(s)**: `0eaaf65ebcb58007f8c52ff460a1b79d539a587f` ("fix: guard completeReminder against nil identifier EventKit save crash") — pushed to `alanvardy-var-1104-user-crashes`.
+- **Verification**: `make format` (changes intact), `make lint` (0 violations, 0 serious in 214 files); targeted macOS-host run `-only-testing:SingleThreadTests/ReminderStoreTests` TEST SUCCEEDED, including `ReminderStoreTests/completeReminderSkipsSaveWhenIdentifierIsEmpty()` passed. (Full iOS-simulator `./scripts/test.sh` CI gate was not run per SMALL bounds; the repo's simulator infra was flaky this session.)
+- **Reviewer findings**: No blockers; verdict OK. One optional nit — the `!identifier.isEmpty` check could be folded into the existing guard chain, but placement after the lookup is functionally identical and the standalone comment is informative; not changed.
+- **Remaining manual items**: `DELETEME` is deleted in the worktree but uncommitted — per AGENTS.md it must be `git rm`'d (committed) before this branch merges. The full `./scripts/test.sh` gate should be run on stable simulator infra before merge to confirm end-to-end.

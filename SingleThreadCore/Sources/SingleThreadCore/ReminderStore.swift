@@ -316,6 +316,10 @@ public final class ReminderStore {
                     $0.calendarItemIdentifier == identifier && !$0.isCompleted
                 })
             else { return false }
+            // A reminder whose identifier is empty must never reach EventKit's
+            // `save`, which crashes on a nil key (`-[__NSDictionaryM
+            // setObject:forKeyedSubscript:]: key cannot be nil`).
+            guard !identifier.isEmpty else { return false }
             do {
                 reminder.isCompleted = true
                 try eventStore.save(reminder, commit: true)
