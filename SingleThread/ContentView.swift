@@ -350,8 +350,6 @@ struct ContentView: View {
 
     @State private var isShowingSettings = false
 
-    @State private var dragOffset: CGFloat = 0
-
     /// Drives the freemium upgrade-prompt sheet (shown only when the free tier
     /// cap is exhausted and the user has not purchased the unlock IAP). Also
     /// read and written directly (see `upgradePrompt`) so Periphery under Xcode
@@ -458,25 +456,16 @@ struct ContentView: View {
                                 showNudge: viewModel.isNudged(reminder.calendarItemIdentifier),
                                 onNudgeTap: openNudgeSheet,
                                 maxWidth: CardWidth.maxContentWidth(viewportWidth: geometry.size.width))
-                                .contentShape(Rectangle())
-                                .offset(x: dragOffset)
-                                .simultaneousGesture(
-                                    DragGesture(minimumDistance: 10)
-                                        .onChanged { value in
-                                            dragOffset = value.translation.width
-                                        }
-                                        .onEnded { value in
-                                            let outcome = SwipeGesture.outcome(for: value.translation)
-                                            dragOffset = 0
-                                            switch outcome {
-                                            case .complete:
-                                                Task { await viewModel.completeCurrentReminder() }
-                                            case .skip:
-                                                viewModel.skipCurrentReminder()
-                                            case .none:
-                                                break
-                                            }
-                                        })
+                                .swipeToAct { outcome in
+                                    switch outcome {
+                                    case .complete:
+                                        Task { await viewModel.completeCurrentReminder() }
+                                    case .skip:
+                                        viewModel.skipCurrentReminder()
+                                    case .none:
+                                        break
+                                    }
+                                }
                                 .listRowBackground(viewModel.rowChromeBackground)
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 12)
