@@ -350,6 +350,8 @@ struct ContentView: View {
 
     @State private var isShowingSettings = false
 
+    @State private var dragOffset: CGFloat = 0
+
     /// Drives the freemium upgrade-prompt sheet (shown only when the free tier
     /// cap is exhausted and the user has not purchased the unlock IAP). Also
     /// read and written directly (see `upgradePrompt`) so Periphery under Xcode
@@ -456,6 +458,25 @@ struct ContentView: View {
                                 showNudge: viewModel.isNudged(reminder.calendarItemIdentifier),
                                 onNudgeTap: openNudgeSheet,
                                 maxWidth: CardWidth.maxContentWidth(viewportWidth: geometry.size.width))
+                                .contentShape(Rectangle())
+                                .offset(x: dragOffset)
+                                .simultaneousGesture(
+                                    DragGesture(minimumDistance: 10)
+                                        .onChanged { value in
+                                            dragOffset = value.translation.width
+                                        }
+                                        .onEnded { value in
+                                            let outcome = SwipeGesture.outcome(for: value.translation)
+                                            dragOffset = 0
+                                            switch outcome {
+                                            case .complete:
+                                                Task { await viewModel.completeCurrentReminder() }
+                                            case .skip:
+                                                viewModel.skipCurrentReminder()
+                                            case .none:
+                                                break
+                                            }
+                                        })
                                 .listRowBackground(viewModel.rowChromeBackground)
                                 .padding(.horizontal, 40)
                                 .padding(.vertical, 12)
@@ -485,22 +506,6 @@ struct ContentView: View {
                                     .tint(.red)
                                 }
                             #endif
-                                .swipeActions(edge: .leading) {
-                                    Button {
-                                        Task { await viewModel.completeCurrentReminder() }
-                                    } label: {
-                                        Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
-                                    }
-                                    .tint(.green)
-                                }
-                                .swipeActions(edge: .trailing) {
-                                    Button {
-                                        viewModel.skipCurrentReminder()
-                                    } label: {
-                                        Label(SharedStrings.skipAction, systemImage: "circle.slash")
-                                    }
-                                    .tint(.orange)
-                                }
                         }
                     }
                     .listStyle(.plain)
