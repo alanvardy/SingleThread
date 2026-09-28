@@ -39,6 +39,6 @@ struct SwipeToActModifierTests {
     /// runtime `Content` sample type, which tests cannot construct directly
     /// from a bare view.
     private func swipeToActOver(_ content: some View) -> some View {
-        content.modifier(SwipeToActModifier(threshold: 72, onOutcome: { _ in }))
+        content.modifier(SwipeToActModifier(threshold: 72) { _ in })
     }
 }

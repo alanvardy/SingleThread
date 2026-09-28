@@ -1,4 +1,3 @@
-@testable import SingleThread
 import SingleThreadCore
 import SwiftUI
 import Testing
