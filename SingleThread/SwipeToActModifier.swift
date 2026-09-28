@@ -92,6 +92,13 @@ struct SwipeToActModifier: ViewModifier {
                                 onOutcome(outcome)
                             }
                         })
+                .accessibilityAction(named: Text(SharedStrings.completeAction)) {
+                    onOutcome(.complete)
+                }
+                .accessibilityAction(named: Text(SharedStrings.skipAction)) {
+                    onOutcome(.skip)
+                }
+                .accessibilityIdentifier("reminderCard")
         }
     }
 

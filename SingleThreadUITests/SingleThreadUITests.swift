@@ -68,6 +68,52 @@ final class SingleThreadUITests: XCTestCase {
         #endif
     }
 
+    /// Proves a ~half-threshold horizontal drag on the card fires Complete end
+    /// to end: the seeded reminder disappears after a ~90pt rightward drag
+    /// (threshold 72pt). Uses the `--seed` write-flow seam (AGENTS.md): plain
+    /// `--ui-testing` renders the reminder but does not let a completion remove
+    /// it, so the write flow is driven through the seeded `InMemoryEventStore`
+    /// instead. The seed JSON must be space-free (argv splits on spaces).
+    /// Direction/threshold logic is unit-tested; this test exists only because
+    /// the trigger distance is a gesture-layer behaviour.
+    @MainActor
+    func testHalfDistanceSwipeCompletesReminder() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "--seed",
+            // nolint:disable:line_length
+            "{\"reminders\":[{\"title\":\"Milk\",\"priority\":5}],\"calendars\":[\"Groceries\"],\"isEntitled\":true}",
+            "--ui-testing-noop-settle"
+        ]
+        app.launch()
+
+        XCTAssertTrue(
+            app.staticTexts["Milk"].waitForExistence(timeout: 5),
+            "Seeded reminder should render")
+
+        let card = app.descendants(matching: .any)["reminderCard"].firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5),
+                      "Reminder card drag target should render")
+
+        let start = card.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        let end = start.withOffset(CGVector(dx: 90, dy: 0))
+        // A deliberate drag (explicit velocity + brief release hold) so the
+        // `List` doesn't fling-scroll and the card's DragGesture reads the full
+        // 90pt translation past the 72pt threshold.
+        start.press(
+            forDuration: 0.1,
+            thenDragTo: end,
+            withVelocity: XCUIGestureVelocity(300),
+            thenHoldForDuration: 0.1
+        )
+
+        let gone = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"),
+            object: app.staticTexts["Milk"])
+        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 5), .completed,
+                       "A ~90pt right drag should complete the reminder")
+    }
+
     /// End-to-end language flow: the settings sheet's Interface screen starts in
     /// the system (English test) locale, then switching the picker to Deutsch
     /// re-localizes the presented screen's own label with no relaunch. This is
