@@ -68,16 +68,17 @@ final class SingleThreadUITests: XCTestCase {
         #endif
     }
 
-    /// Proves a ~half-threshold horizontal drag on the card fires Complete end
-    /// to end: the seeded reminder disappears after a ~90pt rightward drag
-    /// (threshold 72pt). Uses the `--seed` write-flow seam (AGENTS.md): plain
+    /// Proves a horizontal drag past the card's 72pt release threshold fires
+    /// Complete end to end: the seeded reminder disappears after a ~110pt
+    /// rightward drag, comfortably past the threshold yet below a full-card
+    /// swipe. Uses the `--seed` write-flow seam (AGENTS.md): plain
     /// `--ui-testing` renders the reminder but does not let a completion remove
     /// it, so the write flow is driven through the seeded `InMemoryEventStore`
     /// instead. The seed JSON must be space-free (argv splits on spaces).
     /// Direction/threshold logic is unit-tested; this test exists only because
     /// the trigger distance is a gesture-layer behaviour.
     @MainActor
-    func testHalfDistanceSwipeCompletesReminder() throws {
+    func testOverThresholdSwipeCompletesReminder() throws {
         let app = XCUIApplication()
         app.launchArguments = [
             "--seed",
@@ -96,10 +97,10 @@ final class SingleThreadUITests: XCTestCase {
                       "Reminder card drag target should render")
 
         let start = card.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
-        let end = start.withOffset(CGVector(dx: 90, dy: 0))
+        let end = start.withOffset(CGVector(dx: 110, dy: 0))
         // A deliberate drag (explicit velocity + brief release hold) so the
         // `List` doesn't fling-scroll and the card's DragGesture reads the full
-        // 90pt translation past the 72pt threshold.
+        // 110pt translation past the 72pt threshold.
         start.press(
             forDuration: 0.1,
             thenDragTo: end,
@@ -111,7 +112,7 @@ final class SingleThreadUITests: XCTestCase {
             predicate: NSPredicate(format: "exists == false"),
             object: app.staticTexts["Milk"])
         XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 5), .completed,
-                       "A ~90pt right drag should complete the reminder")
+                       "A ~110pt right drag should complete the reminder")
     }
 
     /// End-to-end language flow: the settings sheet's Interface screen starts in

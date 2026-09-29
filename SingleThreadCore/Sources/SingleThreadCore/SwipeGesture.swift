@@ -28,4 +28,16 @@ public nonisolated enum SwipeGesture {
         }
         return .none
     }
+
+    /// Which reveal direction a live drag offset maps to: positive (right) →
+    /// complete, negative (left) → skip, zero → nothing.
+    public static func revealedOutcome(forOffset offset: CGFloat) -> SwipeGestureOutcome {
+        if offset > 0 {
+            return .complete
+        }
+        if offset < 0 {
+            return .skip
+        }
+        return .none
+    }
 }
