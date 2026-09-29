@@ -10,17 +10,18 @@ import Foundation
 public nonisolated enum CodeSpanFormatter {
     // MARK: Public
 
-    /// Returns an `AttributedString` where backtick-delimited spans are
-    /// styled with a subtle background color; backtick fences are stripped
-    /// from visible text.
-    ///
-    /// - Single backtick pairs `` `code` `` render as inline code.
-    /// - Triple-backtick pairs ```` ```block``` ```` render as fenced code.
-    /// - Unmatched single backticks render as literal text.
-    /// - Unclosed fenced blocks (no closing ```) consume the remainder as
-    ///   code content.
-    public static func format(_ text: String) -> AttributedString {
-        var result = AttributedString()
+    /// A single plain or backtick-delimited code span within a formatted
+    /// string. Fences are stripped from `code` content; unmatched and double
+    /// backticks remain literal text inside a `plain` segment.
+    public enum Segment: Equatable, Sendable {
+        case plain(String)
+        case code(String)
+    }
+
+    /// Splits `text` into plain and backtick-delimited code segments.
+    /// Fences are stripped; unmatched/double backticks stay literal plain text.
+    public static func segments(in text: String) -> [Segment] {
+        var segments: [Segment] = []
         var remainder = text[...]
         var pendingPlain = ""
 
@@ -45,20 +46,60 @@ public nonisolated enum CodeSpanFormatter {
                 continue
             }
 
-            result.append(AttributedString(pendingPlain))
-            pendingPlain = ""
-
-            // Append the code span with styling.
-            var codeAttr = AttributedString(codeSpan.content)
-            applyCodeAttributes(to: &codeAttr)
-            result.append(codeAttr)
-
+            if !pendingPlain.isEmpty {
+                segments.append(.plain(pendingPlain))
+                pendingPlain = ""
+            }
+            segments.append(.code(codeSpan.content))
             remainder = codeSpan.remainder
         }
 
-        // Flush any trailing plain text.
-        result.append(AttributedString(pendingPlain))
+        if !pendingPlain.isEmpty {
+            segments.append(.plain(pendingPlain))
+        }
+        return segments
+    }
+
+    /// Returns an `AttributedString` where backtick-delimited spans are
+    /// styled with a subtle background color; backtick fences are stripped
+    /// from visible text.
+    ///
+    /// - Single backtick pairs `` `code` `` render as inline code.
+    /// - Triple-backtick pairs ```` ```block``` ```` render as fenced code.
+    /// - Unmatched single backticks render as literal text.
+    /// - Unclosed fenced blocks (no closing ```) consume the remainder as
+    ///   code content.
+    public static func format(_ text: String) -> AttributedString {
+        var result = AttributedString()
+        for segment in segments(in: text) {
+            switch segment {
+            case let .plain(plain):
+                result.append(AttributedString(plain))
+            case let .code(content):
+                var code = AttributedString(content)
+                applyCodeAttributes(to: &code)
+                result.append(code)
+            }
+        }
         return result
+    }
+
+    // MARK: Internal
+
+    static func applyCodeAttributes(to attributed: inout AttributedString) {
+        #if canImport(SwiftUI)
+            // Subtle background using a platform-adaptive secondary system
+            // background color. Falls back to gray opacity on platforms where
+            // `secondarySystemBackground` is not available.
+            //
+            // Note: background styling requires SwiftUI. On platforms without
+            // SwiftUI, code spans are fence-stripped but unstyled. A font is
+            // intentionally not set here — code-span runs inherit the view-level
+            // `.font()` modifier so sizing stays consistent with surrounding text.
+            if let bgColor = platformSecondaryBackground() {
+                attributed.backgroundColor = bgColor
+            }
+        #endif
     }
 
     // MARK: Private
@@ -116,22 +157,6 @@ public nonisolated enum CodeSpanFormatter {
         let content = String(afterOpen[..<closeIdx])
         let remainder = afterOpen[afterOpen.index(after: closeIdx)...]
         return CodeSpan(content: content, remainder: remainder)
-    }
-
-    private static func applyCodeAttributes(to attributed: inout AttributedString) {
-        #if canImport(SwiftUI)
-            // Subtle background using a platform-adaptive secondary system
-            // background color. Falls back to gray opacity on platforms where
-            // `secondarySystemBackground` is not available.
-            //
-            // Note: background styling requires SwiftUI. On platforms without
-            // SwiftUI, code spans are fence-stripped but unstyled. A font is
-            // intentionally not set here — code-span runs inherit the view-level
-            // `.font()` modifier so sizing stays consistent with surrounding text.
-            if let bgColor = platformSecondaryBackground() {
-                attributed.backgroundColor = bgColor
-            }
-        #endif
     }
 
     #if canImport(SwiftUI)
