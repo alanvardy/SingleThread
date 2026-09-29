@@ -9,6 +9,13 @@ import SwiftUI
 
 @main
 struct SingleThreadApp: App {
+    // MARK: Lifecycle
+
+    init() {
+        SentryBootstrap.startIfEnabled()
+        _viewModel = State(initialValue: AppViewModel())
+    }
+
     // MARK: Internal
 
     var body: some Scene {
@@ -52,7 +59,7 @@ struct SingleThreadApp: App {
     @Environment(\.openURL)
     private var openURL
 
-    @State private var viewModel = AppViewModel()
+    @State private var viewModel: AppViewModel
     #if os(macOS)
         @AppStorage("appearanceMode")
         private var appearanceMode = AppearanceMode.system

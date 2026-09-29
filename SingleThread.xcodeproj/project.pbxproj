@@ -13,6 +13,7 @@
 		518BF498302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		518BF499302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
 		518BF49A302FCC80004C5968 /* SingleThreadCore in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000002 /* SingleThreadCore */; };
+		518BF49B302FCC80004C5968 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 51AA3F110000000000000004 /* Sentry */; };
 		51AA3F29000000000000000A /* SingleThreadWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 51AA3F200000000000000001 /* SingleThreadWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		51AA3F480000000000000000 /* SingleThreadWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 51AA3F410000000000000000 /* SingleThreadWidget.appex */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -98,6 +99,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		51AA3ED90000000000000001 /* Exceptions for "SingleThread" folder in "SingleThread" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 51AA3ED5302D5C4500960DFC /* SingleThread */;
+		};
 		51AA3F4E0000000000000000 /* Exceptions for "SingleThreadWidget" folder in "SingleThreadWidget" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -110,6 +118,9 @@
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		51AA3ED8302D5C4500960DFC /* SingleThread */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				51AA3ED90000000000000001 /* Exceptions for "SingleThread" folder in "SingleThread" target */,
+			);
 			path = SingleThread;
 			sourceTree = "<group>";
 		};
@@ -154,6 +165,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				518BF495302FCC80004C5968 /* SingleThreadCore in Frameworks */,
+				518BF49B302FCC80004C5968 /* Sentry in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -260,6 +272,7 @@
 			name = SingleThread;
 			packageProductDependencies = (
 				51AA3F110000000000000002 /* SingleThreadCore */,
+				51AA3F110000000000000004 /* Sentry */,
 			);
 			productName = SingleThread;
 			productReference = 51AA3ED6302D5C4500960DFC /* SingleThread.app */;
@@ -457,6 +470,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				51AA3F100000000000000001 /* XCLocalSwiftPackageReference "SingleThreadCore" */,
+				51AA3F100000000000000003 /* XCRemoteSwiftPackageReference "sentry-cocoa" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 51AA3ED7302D5C4500960DFC /* Products */;
@@ -749,6 +763,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SingleThread/Info.plist;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SingleThread needs microphone access to capture your voice for reminders.";
 				INFOPLIST_KEY_NSRemindersUsageDescription = "SingleThread needs access to show your reminders.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "SingleThread uses speech recognition to create reminders from your voice.";
@@ -799,6 +814,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SingleThread/Info.plist;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "SingleThread needs microphone access to capture your voice for reminders.";
 				INFOPLIST_KEY_NSRemindersUsageDescription = "SingleThread needs access to show your reminders.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "SingleThread uses speech recognition to create reminders from your voice.";
@@ -1232,10 +1248,26 @@
 		};
 /* End XCLocalSwiftPackageReference section */
 
+/* Begin XCRemoteSwiftPackageReference section */
+		51AA3F100000000000000003 /* XCRemoteSwiftPackageReference "sentry-cocoa" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/getsentry/sentry-cocoa";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 9.26.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
 /* Begin XCSwiftPackageProductDependency section */
 		51AA3F110000000000000002 /* SingleThreadCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SingleThreadCore;
+		};
+		51AA3F110000000000000004 /* Sentry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 51AA3F100000000000000003 /* XCRemoteSwiftPackageReference "sentry-cocoa" */;
+			productName = Sentry;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
