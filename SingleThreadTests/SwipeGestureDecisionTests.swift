@@ -44,4 +44,19 @@ struct SwipeGestureDecisionTests {
         #expect(SwipeGesture.outcome(for: CGSize(width: 30, height: 0), threshold: 20) == .complete)
         #expect(SwipeGesture.outcome(for: CGSize(width: 30, height: 0), threshold: 50) == .none)
     }
+
+    @Test
+    func positiveDragOffsetRevealsComplete() {
+        #expect(SwipeGesture.revealedOutcome(forOffset: 12) == .complete)
+    }
+
+    @Test
+    func negativeDragOffsetRevealsSkip() {
+        #expect(SwipeGesture.revealedOutcome(forOffset: -12) == .skip)
+    }
+
+    @Test
+    func zeroDragOffsetRevealsNothing() {
+        #expect(SwipeGesture.revealedOutcome(forOffset: 0) == .none)
+    }
 }

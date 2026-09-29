@@ -13,9 +13,9 @@ struct SwipeRevealPanel: View {
     let progress: CGFloat
 
     var body: some View {
-        Label(title, systemImage: systemImage)
+        Label(presentation.title, systemImage: presentation.systemImage)
             .font(.headline)
-            .foregroundStyle(tint)
+            .foregroundStyle(presentation.tint)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .cardPlate(fill: CardPlate.plateFill(for: colorScheme))
             .opacity(Double(progress))
@@ -23,31 +23,36 @@ struct SwipeRevealPanel: View {
 
     // MARK: Private
 
+    /// Render data for one revealed direction.
+    private struct Presentation {
+        let title: LocalizedStringResource
+        let systemImage: String
+        let tint: Color
+    }
+
     @Environment(\.colorScheme)
     private var colorScheme
 
-    private var title: LocalizedStringResource {
+    /// Label, icon and colour for the revealed direction, in one place so they
+    /// cannot drift apart. The `.none` arm exists for exhaustiveness but is
+    /// never rendered: the modifier omits the panel for `.none`.
+    private var presentation: Presentation {
         switch outcome {
-        case .complete: SharedStrings.completeAction
-        case .skip: SharedStrings.skipAction
-        // Never rendered: the modifier omits the panel for `.none`.
-        case .none: SharedStrings.completeAction
-        }
-    }
-
-    private var systemImage: String {
-        switch outcome {
-        case .complete: "checkmark.circle.fill"
-        case .skip: "circle.slash"
-        case .none: "circle"
-        }
-    }
-
-    private var tint: Color {
-        switch outcome {
-        case .complete: CardPlate.completeHintColor(for: colorScheme)
-        case .skip: CardPlate.skipHintColor(for: colorScheme)
-        case .none: .clear
+        case .complete:
+            Presentation(
+                title: SharedStrings.completeAction,
+                systemImage: "checkmark.circle.fill",
+                tint: CardPlate.completeHintColor(for: colorScheme))
+        case .skip:
+            Presentation(
+                title: SharedStrings.skipAction,
+                systemImage: "circle.slash",
+                tint: CardPlate.skipHintColor(for: colorScheme))
+        case .none:
+            Presentation(
+                title: SharedStrings.completeAction,
+                systemImage: "circle",
+                tint: .clear)
         }
     }
 }
@@ -106,19 +111,14 @@ struct SwipeToActModifier: ViewModifier {
 
     @State private var dragOffset: CGFloat = 0
 
-    /// `|dx| / threshold`, capped at 1 — the panel's reveal intensity.
+    /// `|dx| / threshold`, capped at 1 — the panel's reveal intensity. The
+    /// denominator is floored at 1 so a zero threshold cannot divide by zero.
     private var progress: CGFloat {
-        min(abs(dragOffset) / threshold, 1)
+        min(abs(dragOffset) / max(threshold, 1), 1)
     }
 
     private var revealedOutcome: SwipeGestureOutcome {
-        if dragOffset > 0 {
-            .complete
-        } else if dragOffset < 0 {
-            .skip
-        } else {
-            .none
-        }
+        SwipeGesture.revealedOutcome(forOffset: dragOffset)
     }
 }
 
