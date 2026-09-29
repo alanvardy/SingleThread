@@ -64,6 +64,56 @@ struct CodeSpanFormatterTests {
         #expect(String(result.characters[...]) == pair.expected, "\(pair.input) renders literally")
     }
 
+    // MARK: Segments
+
+    @Test
+    func segmentsSplitPlainAndInlineCode() {
+        let segments = CodeSpanFormatter.segments(in: "a `b` c")
+        let expected: [CodeSpanFormatter.Segment] = [.plain("a "), .code("b"), .plain(" c")]
+        #expect(segments == expected, "plain/code/plain segments preserved in order")
+    }
+
+    @Test
+    func segmentsPreserveFencedCode() {
+        let fenced = CodeSpanFormatter.segments(in: "```x```")
+        let fencedExpected: [CodeSpanFormatter.Segment] = [.code("x")]
+        #expect(fenced == fencedExpected, "fenced block reduces to a single code segment")
+        let unclosed = CodeSpanFormatter.segments(in: "a ```rest")
+        let unclosedExpected: [CodeSpanFormatter.Segment] = [.plain("a "), .code("rest")]
+        #expect(
+            unclosed == unclosedExpected,
+            "unclosed fence keeps prefix plain and remainder code")
+    }
+
+    @Test
+    func segmentsTreatLiteralBackticksAsPlainText() {
+        let doubleBacktick = CodeSpanFormatter.segments(in: "a `` b")
+        let doubleExpected: [CodeSpanFormatter.Segment] = [.plain("a `` b")]
+        #expect(doubleBacktick == doubleExpected, "double backtick stays literal plain text")
+        let unmatched = CodeSpanFormatter.segments(in: "a ` b")
+        let unmatchedExpected: [CodeSpanFormatter.Segment] = [.plain("a ` b")]
+        #expect(unmatched == unmatchedExpected, "unmatched single backtick stays literal plain text")
+    }
+
+    @Test
+    func segmentsEmptyTextYieldsNoSegments() {
+        let segments = CodeSpanFormatter.segments(in: "")
+        let expected: [CodeSpanFormatter.Segment] = []
+        #expect(segments == expected, "empty input yields no segments")
+    }
+
+    @Test
+    func formatPreservesCodeStylingFromSegments() {
+        let result = CodeSpanFormatter.format("a `b`")
+        var codeRunFound = false
+        for run in result.runs where run.backgroundColor != nil {
+            codeRunFound = true
+            break
+        }
+        #expect(codeRunFound, "format keeps background styling from the code segment")
+        #expect(String(result.characters[...]) == "a b", "fence stripped from formatted output")
+    }
+
     // MARK: Attributes
 
     @Test
