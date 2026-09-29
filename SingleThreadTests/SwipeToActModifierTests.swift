@@ -23,6 +23,20 @@ struct SwipeToActModifierTests {
         #expect(description.contains("Skip"))
     }
 
+    /// The reveal plate hugs the edge the card uncovers: completing (rightward
+    /// drag) exposes the leading edge, skipping (leftward) the trailing one.
+    /// Asserts the extracted placement decision so the plate cannot regress to
+    /// a full-frame fill.
+    @Test
+    func completePanelAnchorsPlateToLeadingEdge() {
+        #expect(SwipeRevealPanel.alignment(for: .complete) == .leading)
+    }
+
+    @Test
+    func skipPanelAnchorsPlateToTrailingEdge() {
+        #expect(SwipeRevealPanel.alignment(for: .skip) == .trailing)
+    }
+
     @Test
     func idleModifierWrapsContentWithoutPanel() {
         let description = String(describing: swipeToActOver(Text("card")))

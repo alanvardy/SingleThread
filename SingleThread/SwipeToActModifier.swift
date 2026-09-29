@@ -5,7 +5,9 @@ import SwiftUI
 /// Tinted hint panel revealed behind the card while a swipe is in progress.
 /// Fill matches the prompt plate; icon+label take the adaptive Complete/Skip
 /// hint colours, and opacity scales with `progress` so it intensifies toward
-/// the threshold.
+/// the threshold. The plate hugs the label rather than filling the row, so the
+/// reveal is a small badge at the edge the card uncovers — not a full-height
+/// slab — and is anchored to that edge by `alignment(for:)`.
 struct SwipeRevealPanel: View {
     // MARK: Internal
 
@@ -16,9 +18,21 @@ struct SwipeRevealPanel: View {
         Label(presentation.title, systemImage: presentation.systemImage)
             .font(.headline)
             .foregroundStyle(presentation.tint)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .cardPlate(fill: CardPlate.plateFill(for: colorScheme))
+            .frame(
+                maxWidth: .infinity,
+                maxHeight: .infinity,
+                alignment: Self.alignment(for: outcome))
             .opacity(Double(progress))
+    }
+
+    /// Edge the label plate hugs. Complete is uncovered from the leading edge
+    /// as the card travels right, Skip from the trailing edge as it travels
+    /// left. `.none` is never rendered, so its arm is an arbitrary placeholder.
+    /// Extracted from the body so the placement decision is unit-testable —
+    /// SwiftUI layout itself cannot be asserted headlessly.
+    static func alignment(for outcome: SwipeGestureOutcome) -> Alignment {
+        outcome == .skip ? .trailing : .leading
     }
 
     // MARK: Private
