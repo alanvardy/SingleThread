@@ -26,8 +26,12 @@ enum SentryBootstrap {
             options.enableAppHangTracking = true
             options.enableWatchdogTerminationTracking = true
             options.enableAutoSessionTracking = false
-            options.attachScreenshot = false
-            options.attachViewHierarchy = false
+            // `attachScreenshot`/`attachViewHierarchy` only exist on UIKit-backed
+            // platforms; sentry-cocoa does not declare them for macOS.
+            #if os(iOS) || os(tvOS) || os(visionOS)
+                options.attachScreenshot = false
+                options.attachViewHierarchy = false
+            #endif
             #if os(macOS)
                 options.enableUncaughtNSExceptionReporting = true
             #endif
