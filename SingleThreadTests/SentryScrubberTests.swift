@@ -32,4 +32,26 @@ struct SentryScrubberTests {
         #expect(scrubbed?.data == nil)
         #expect(scrubbed?.category == "reminder") // benign structural field survives
     }
+
+    @Test
+    func eventWithoutTagsStaysClean() {
+        let event = Event()
+
+        let scrubbed = SentryScrubber.scrub(event)
+
+        #expect(scrubbed != nil)
+        #expect(scrubbed?.extra == nil)
+        #expect(scrubbed?.user == nil)
+    }
+
+    @Test
+    func breadcrumbWithoutDataSurvives() {
+        let breadcrumb = Breadcrumb(level: .info, category: "reminder")
+
+        let scrubbed = SentryScrubber.scrub(breadcrumb)
+
+        #expect(scrubbed != nil)
+        #expect(scrubbed?.category == "reminder")
+        #expect(scrubbed?.data == nil)
+    }
 }

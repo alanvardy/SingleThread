@@ -28,6 +28,9 @@ enum SentryBootstrap {
             options.enableAutoSessionTracking = false
             options.attachScreenshot = false
             options.attachViewHierarchy = false
+            #if os(macOS)
+                options.enableUncaughtNSExceptionReporting = true
+            #endif
             options.beforeSend = { SentryScrubber.scrub($0) }
             options.beforeBreadcrumb = { SentryScrubber.scrub($0) }
         }
