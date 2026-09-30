@@ -23,6 +23,7 @@ struct SingleThreadApp: App {
             ContentView(
                 viewModel: viewModel.makeContentViewModel(openURLAction: openURL),
                 appViewModel: viewModel)
+                .environment(\.openURL, linkOpenURLAction)
                 .environment(\.locale, AppLocaleState.current.effectiveLocale)
             #if os(macOS)
                 .sheet(isPresented: $showAbout) {
@@ -77,4 +78,17 @@ struct SingleThreadApp: App {
         private var macAppDelegate
         @State private var showAbout = false
     #endif
+
+    /// Routes inline `Text` link taps through the same injectable opener the
+    /// deep link uses, so `--url-opener-spy` records them. `openURL` here is the
+    /// action installed *above* this App (read at App level, so unaffected by the
+    /// modifier below); `SystemURLOpener` wraps that captured original, which is
+    /// what would recurse if we forwarded to the newly installed action instead.
+    private var linkOpenURLAction: OpenURLAction {
+        let original = openURL
+        return OpenURLAction { url in
+            viewModel.resolvedURLOpening(openURLAction: original).open(url)
+            return .handled
+        }
+    }
 }

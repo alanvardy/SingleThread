@@ -1,6 +1,7 @@
 import EventKit
 import Foundation
 import SingleThreadCore
+import SwiftUI
 import Testing
 
 @MainActor
@@ -127,6 +128,53 @@ struct ReminderDisplayTests {
         #expect(pipeline != nil, "artifacted notes → non-nil attributed")
         let text = try String(#require(pipeline?.characters[...]))
         #expect(text == "Use map", "t stripped by notes formatter, backticks by code-span formatter")
+    }
+
+    @Test
+    func titleAttributedWithLinksLinksURLs() throws {
+        let display = ReminderDisplay(title: "See https://example.com")
+        var foundLink: URL?
+        for run in display.titleAttributedWithLinks.runs where run.link != nil {
+            foundLink = run.link
+            break
+        }
+        #expect(
+            try foundLink == URL(string: "https://example.com"),
+            "title URL carries the link attribute")
+    }
+
+    @Test
+    func titleAttributedWithLinksPreservesCodeSpans() {
+        let display = ReminderDisplay(title: "`https://x.com`")
+        var linked = false
+        for run in display.titleAttributedWithLinks.runs where run.link != nil {
+            linked = true
+            break
+        }
+        #expect(!linked, "code span is not link-attributed")
+        var codeStyling = false
+        for run in display.titleAttributedWithLinks.runs where run.backgroundColor != nil {
+            codeStyling = true
+            break
+        }
+        #expect(codeStyling, "code span keeps code styling")
+    }
+
+    @Test
+    func notesAttributedWithLinksIsNilWhenNotesMissing() throws {
+        #expect(
+            ReminderDisplay(title: "Test").notesAttributedWithLinks == nil,
+            "nil notes → nil attributed-with-links")
+        let display = ReminderDisplay(title: "Test", notes: "check www.example.com today")
+        var links: [URL] = []
+        for run in try #require(display.notesAttributedWithLinks).runs where run.link != nil {
+            if let url = run.link {
+                links.append(url)
+            }
+        }
+        #expect(
+            try links == [URL(string: "https://www.example.com")],
+            "www. link normalised in notes")
     }
 
     // MARK: Private

@@ -94,7 +94,7 @@ struct ReminderCardView: View {
                         .accessibilityLabel(SharedStrings.priorityAccessibilityLabel(level.displayName))
                         .accessibilityIdentifier("priorityMarker")
                 }
-                Text(display.titleAttributed)
+                Text(display.titleAttributedWithLinks)
                     .font(.title)
             }
             HStack {
@@ -130,7 +130,7 @@ struct ReminderCardView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            if let notesAttr = display.notesAttributed {
+            if let notesAttr = display.notesAttributedWithLinks {
                 Text(notesAttr)
                     .font(.callout)
                     .foregroundStyle(.secondary)
