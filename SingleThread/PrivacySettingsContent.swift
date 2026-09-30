@@ -16,13 +16,14 @@ struct PrivacySection: Identifiable, Equatable {
 /// claims about its data handling.
 ///
 /// IMPORTANT: this copy hardcodes facts about the app's data flow (Apple
-/// Reminders via EventKit, local Watch sync over WCSession, and the
-/// `vardy.cc/unsplash` background-image fetch). If any of those data flows
-/// change, update this copy in the same change or it becomes misleading.
+/// Reminders via EventKit, local Watch sync over WCSession, the
+/// `vardy.cc/unsplash` background-image fetch, and Sentry crash reporting).
+/// If any of those data flows change, update this copy in the same change or
+/// it becomes misleading.
 enum PrivacyGuideContent {
     // MARK: Internal
 
-    /// The four disclosure sections, localized through the app catalog in the
+    /// The five disclosure sections, localized through the app catalog in the
     /// interface language (`in locale:` mirrors `LocalizedStringResource.resolved(in:)`).
     static func sections(in locale: Locale) -> [PrivacySection] {
         let remindersTitle = localized("Reminders", in: locale)
@@ -48,16 +49,24 @@ enum PrivacyGuideContent {
         let backgroundBody = localized(
             "When the background is enabled, the background url and "
                 + "artist information is downloaded from a proxy at vardy.cc. "
-                + "This is the app's only network request, and it never "
-                + "includes any reminder, preference, or list data. "
-                + "This proxy is used to store an API key for Unsplash and "
-                + "keep API usage reasonable.",
+                + "This request never includes any reminder, preference, or "
+                + "list data. This proxy is used to store an API key for "
+                + "Unsplash and keep API usage reasonable.",
+            in: locale)
+        let crashReportsTitle = localized("Crash Reports", in: locale)
+        let crashReportsBody = localized(
+            "When crash reporting is enabled, SingleThread sends crash and "
+                + "diagnostic information to Sentry, our crash-reporting "
+                + "provider. This data is processed in the United States and "
+                + "never includes any reminder, preference, or list content. "
+                + "You can turn crash reporting off at any time in Settings.",
             in: locale)
         return [
             PrivacySection(id: "reminders", title: remindersTitle, body: remindersBody),
             PrivacySection(id: "preferences", title: preferencesTitle, body: preferencesBody),
             PrivacySection(id: "skipped", title: skippedTitle, body: skippedBody),
-            PrivacySection(id: "background", title: backgroundTitle, body: backgroundBody)
+            PrivacySection(id: "background", title: backgroundTitle, body: backgroundBody),
+            PrivacySection(id: "crashReports", title: crashReportsTitle, body: crashReportsBody)
         ]
     }
 

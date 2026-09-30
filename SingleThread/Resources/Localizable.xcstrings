@@ -4574,43 +4574,125 @@
         }
       }
     },
-    "When the background is enabled, the background url and artist information is downloaded from a proxy at vardy.cc. This is the app's only network request, and it never includes any reminder, preference, or list data. This proxy is used to store an API key for Unsplash and keep API usage reasonable.": {
+    "When the background is enabled, the background url and artist information is downloaded from a proxy at vardy.cc. This request never includes any reminder, preference, or list data. This proxy is used to store an API key for Unsplash and keep API usage reasonable.": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "When the background is enabled, the background url and artist information is downloaded from a proxy at vardy.cc. This is the app's only network request, and it never includes any reminder, preference, or list data. This proxy is used to store an API key for Unsplash and keep API usage reasonable."
+            "value": "When the background is enabled, the background url and artist information is downloaded from a proxy at vardy.cc. This request never includes any reminder, preference, or list data. This proxy is used to store an API key for Unsplash and keep API usage reasonable."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "启用背景后，背景图片网址和摄影师信息会从 vardy.cc 的代理服务器下载。这是应用唯一的网络请求，绝不会包含任何提醒、偏好或列表数据。该代理用于存储 Unsplash 的 API 密钥并合理控制 API 使用量。"
+            "value": "启用背景后，背景图片网址和摄影师信息会从 vardy.cc 的代理服务器下载。该请求绝不会包含任何提醒、偏好或列表数据。该代理用于存储 Unsplash 的 API 密钥并合理控制 API 使用量。"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cuando el fondo está activado, la URL del fondo y la información del artista se descargan de un proxy en vardy.cc. Esta es la única solicitud de red de la app y nunca incluye datos de recordatorios, preferencias ni listas. Este proxy se utiliza para almacenar una clave de API de Unsplash y mantener un uso razonable de la API."
+            "value": "Cuando el fondo está activado, la URL del fondo y la información del artista se descargan de un proxy en vardy.cc. La solicitud nunca incluye datos de recordatorios, preferencias ni listas. Este proxy se utiliza para almacenar una clave de API de Unsplash y mantener un uso razonable de la API."
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "背景を有効にすると、背景画像の URL とアーティスト情報が vardy.cc のプロキシからダウンロードされます。これはアプリで唯一のネットワークリクエストであり、リマインダー、設定、リストのデータが含まれることはありません。このプロキシは Unsplash の API キーを保管し、API の利用量を適切に保つために使用されます。"
+            "value": "背景を有効にすると、背景画像の URL とアーティスト情報が vardy.cc のプロキシからダウンロードされます。このリクエストにリマインダー、設定、リストのデータが含まれることはありません。このプロキシは Unsplash の API キーを保管し、API の利用量を適切に保つために使用されます。"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wenn der Hintergrund aktiviert ist, werden die Hintergrund-URL und Künstlerinformationen von einem Proxy auf vardy.cc heruntergeladen. Dies ist die einzige Netzwerkanfrage der App, und sie enthält niemals Erinnerungs-, Einstellungs- oder Listendaten. Der Proxy speichert einen API-Schlüssel für Unsplash und hält die API-Nutzung im Rahmen."
+            "value": "Wenn der Hintergrund aktiviert ist, werden die Hintergrund-URL und Künstlerinformationen von einem Proxy auf vardy.cc heruntergeladen. Die Anfrage enthält niemals Erinnerungs-, Einstellungs- oder Listendaten. Der Proxy speichert einen API-Schlüssel für Unsplash und hält die API-Nutzung im Rahmen."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Lorsque l'arrière-plan est activé, l'URL de l'image et les informations sur l'artiste sont téléchargées depuis un proxy sur vardy.cc. C'est la seule requête réseau de l'app, et elle ne contient jamais de données de rappels, de préférences ou de listes. Ce proxy sert à stocker une clé API pour Unsplash et à maintenir une utilisation raisonnable de l'API."
+            "value": "Lorsque l'arrière-plan est activé, l'URL de l'image et les informations sur l'artiste sont téléchargées depuis un proxy sur vardy.cc. La requête ne contient jamais de données de rappels, de préférences ou de listes. Ce proxy sert à stocker une clé API pour Unsplash et à maintenir une utilisation raisonnable de l'API."
+          }
+        }
+      }
+    },
+    "When crash reporting is enabled, SingleThread sends crash and diagnostic information to Sentry, our crash-reporting provider. This data is processed in the United States and never includes any reminder, preference, or list content. You can turn crash reporting off at any time in Settings.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "When crash reporting is enabled, SingleThread sends crash and diagnostic information to Sentry, our crash-reporting provider. This data is processed in the United States and never includes any reminder, preference, or list content. You can turn crash reporting off at any time in Settings."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "启用崩溃报告后，SingleThread 会将崩溃和诊断信息发送给我们的崩溃报告服务提供商 Sentry。这些数据在美国处理，绝不会包含任何提醒、偏好或列表内容。您可以随时在“设置”中关闭崩溃报告。"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cuando los informes de fallos están activados, SingleThread envía información de fallos y diagnósticos a Sentry, nuestro proveedor de informes de fallos. Estos datos se procesan en Estados Unidos y nunca incluyen contenido de recordatorios, preferencias ni listas. Puedes desactivar los informes de fallos en cualquier momento en Ajustes."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クラッシュレポートが有効な場合、SingleThread はクラッシュおよび診断情報をクラッシュレポート提供元の Sentry に送信します。このデータは米国で処理され、リマインダー、設定、リストの内容が含まれることはありません。クラッシュレポートは設定でいつでもオフにできます。"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wenn Absturzberichte aktiviert sind, sendet SingleThread Absturz- und Diagnoseinformationen an Sentry, unseren Anbieter für Absturzberichte. Diese Daten werden in den Vereinigten Staaten verarbeitet und enthalten niemals Inhalte von Erinnerungen, Einstellungen oder Listen. Du kannst Absturzberichte jederzeit in den Einstellungen deaktivieren."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lorsque les rapports d'erreur sont activés, SingleThread envoie des informations de plantage et de diagnostic à Sentry, notre fournisseur de rapports d'erreur. Ces données sont traitées aux États-Unis et ne contiennent jamais de contenu de rappels, de préférences ou de listes. Vous pouvez désactiver les rapports d'erreur à tout moment dans les Réglages."
+          }
+        }
+      }
+    },
+    "Crash Reports": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crash Reports"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "崩溃报告"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informes de fallos"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "クラッシュレポート"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Absturzberichte"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rapports d'erreur"
           }
         }
       }

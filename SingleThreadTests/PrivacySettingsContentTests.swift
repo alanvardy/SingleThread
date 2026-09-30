@@ -11,7 +11,7 @@ struct PrivacySettingsContentTests {
     func privacyGuideContentCoversAllDisclosures() {
         let sections = PrivacyGuideContent.sections(in: AppLanguage.english.locale)
 
-        #expect(sections.count == 4)
+        #expect(sections.count == 5)
         #expect(!PrivacyGuideContent.closingLine(in: AppLanguage.english.locale).isEmpty)
 
         for section in sections {
@@ -22,6 +22,10 @@ struct PrivacySettingsContentTests {
         // The Unsplash proxy domain is a literal (never translated), so it marks the
         // background-disclosure section regardless of locale.
         #expect(sections.contains { $0.body.contains("vardy.cc") })
+
+        // The crash-reporting disclosure is present and names Sentry.
+        #expect(sections.contains { $0.id == "crashReports" })
+        #expect(sections.first { $0.id == "crashReports" }?.body.contains("Sentry") == true)
     }
 
     @Test
@@ -46,7 +50,7 @@ struct PrivacySettingsContentTests {
             let sections = PrivacyGuideContent.sections(in: language.locale)
             let closingLine = PrivacyGuideContent.closingLine(in: language.locale)
 
-            #expect(sections.count == 4, "\(language.rawValue) must resolve all four sections")
+            #expect(sections.count == 5, "\(language.rawValue) must resolve all five sections")
             #expect(!closingLine.isEmpty, "\(language.rawValue) closing line is empty")
 
             for section in sections {
