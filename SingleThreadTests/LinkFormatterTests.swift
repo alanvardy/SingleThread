@@ -122,4 +122,15 @@ struct LinkFormatterTests {
         #expect(linkRuns == 1, "exactly one run carries the link attribute")
         #expect(plainRuns == 2, "surrounding plain runs carry no link attribute")
     }
+
+    /// Mixed scheme + bare-www links return in document order — the order the
+    /// accessibility custom-action list is derived from.
+    @Test
+    func linksReturnedInDocumentOrderAcrossScopes() {
+        let links = LinkFormatter.links(in: "a https://one.com b www.two.com")
+        #expect(
+            links.map(\.absoluteString)
+                == ["https://one.com", "https://www.two.com"],
+            "link list preserves document order")
+    }
 }

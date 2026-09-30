@@ -94,6 +94,12 @@ public enum SharedStrings {
         LocalizedStringResource("No reminders yet", table: "Localizable", bundle: .module)
     }
 
+    /// Accessibility action label for a detected link, interpolated with the
+    /// link's host. "Open link to %@".
+    public static func openLink(to host: String) -> LocalizedStringResource {
+        LocalizedStringResource("Open link to \(host)", table: "Localizable", bundle: .module)
+    }
+
     public static func priorityAccessibilityLabel(_ levelName: LocalizedStringResource) -> LocalizedStringResource {
         LocalizedStringResource("\(levelName) priority", table: "Localizable", bundle: .module)
     }

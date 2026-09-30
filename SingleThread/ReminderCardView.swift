@@ -56,6 +56,10 @@ struct ReminderCardView: View {
     @Environment(\.colorScheme)
     private var colorScheme
 
+    /// Routes inline link taps through the scene-installed opener.
+    @Environment(\.openURL)
+    private var openURL
+
     /// Bound to the app's persisted `showSwipePrompt` preference; the Dismiss
     /// button writes `false` through this binding.
     @Binding private var showSwipePrompt: Bool
@@ -79,6 +83,15 @@ struct ReminderCardView: View {
     /// Caps the card's width so long titles wrap and the nudge banner/styled
     /// buttons stop expanding under the row's `.center` proposal on iPad.
     private let maxWidth: CGFloat
+
+    /// Every link in the card's title and notes, in reading order.
+    private var linkURLs: [URL] {
+        var urls = LinkFormatter.links(in: display.title)
+        if let notes = display.notes {
+            urls.append(contentsOf: LinkFormatter.links(in: notes))
+        }
+        return urls
+    }
 
     /// The card's reminder content, combined into a single accessible element so
     /// VoiceOver reads the whole card as one unit. The swipe-instruction prompt
@@ -143,6 +156,15 @@ struct ReminderCardView: View {
         // size-checks each small child (marker / notes rows fall below 44pt). This is
         // a genuine app-wide accessibility improvement, not just a test escape.
         .accessibilityElement(children: .combine)
+        .accessibilityActions {
+            ForEach(linkURLs, id: \.absoluteString) { url in
+                Button {
+                    openURL(url)
+                } label: {
+                    Text(SharedStrings.openLink(to: url.host() ?? url.absoluteString))
+                }
+            }
+        }
     }
 
     /// Tappable nudge banner. Unlike the swipe hint, NOT `.accessibilityHidden` —

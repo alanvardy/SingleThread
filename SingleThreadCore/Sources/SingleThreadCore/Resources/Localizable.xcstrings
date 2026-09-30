@@ -1,6 +1,47 @@
 {
   "sourceLanguage": "en",
   "strings": {
+    "Open link to %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open link to %@"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\u6253\u5f00\u94fe\u63a5 %1$@"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Abrir enlace a %1$@"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ \u3078\u306e\u30ea\u30f3\u30af\u3092\u958b\u304f"
+          }
+        },
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link zu %1$@ \u00f6ffnen"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir le lien vers %1$@"
+          }
+        }
+      }
+    },
     "%@ priority": {
       "extractionState": "manual",
       "localizations": {
