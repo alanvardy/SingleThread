@@ -43,6 +43,16 @@ struct LinkFormatterTests {
             "uppercase scheme still detected and normalised to lowercase")
     }
 
+    @Test
+    func requiresWordBoundaryBeforeBareWWW() throws {
+        #expect(
+            detected(in: "visitwww.example.com").isEmpty,
+            "www. embedded in a word is not a link")
+        #expect(
+            try detected(in: "(www.example.com)") == [#require(URL(string: "https://www.example.com"))],
+            "www. after a non-word character is linked")
+    }
+
     // MARK: Non-links
 
     @Test
