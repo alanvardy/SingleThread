@@ -131,7 +131,7 @@ struct ReminderDisplayTests {
     }
 
     @Test
-    func titleAttributedWithLinksLinksURLs() throws {
+    func titleAttributedWithLinksLinksURLs() {
         let display = ReminderDisplay(title: "See https://example.com")
         var foundLink: URL?
         for run in display.titleAttributedWithLinks.runs where run.link != nil {
@@ -139,7 +139,7 @@ struct ReminderDisplayTests {
             break
         }
         #expect(
-            try foundLink == URL(string: "https://example.com"),
+            foundLink == URL(string: "https://example.com"),
             "title URL carries the link attribute")
     }
 
@@ -173,7 +173,7 @@ struct ReminderDisplayTests {
             }
         }
         #expect(
-            try links == [URL(string: "https://www.example.com")],
+            links == [URL(string: "https://www.example.com")],
             "www. link normalised in notes")
     }
 

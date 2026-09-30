@@ -9,6 +9,8 @@ import SwiftUI
 /// it smaller so the editor and the list fit one screen. `captionText(for:)` is
 /// a static so the composition is unit-testable without rendering.
 struct ReminderDisplayRow: View {
+    // MARK: Internal
+
     let display: ReminderDisplay
     let font: Font
 
@@ -24,6 +26,15 @@ struct ReminderDisplayRow: View {
             }
         }
         .accessibilityElement(children: .combine)
+        .accessibilityActions {
+            ForEach(Array(linkURLs.enumerated()), id: \.offset) { _, url in
+                Button {
+                    openURL(url)
+                } label: {
+                    Text(SharedStrings.openLink(to: url.host() ?? url.absoluteString))
+                }
+            }
+        }
         .accessibilityIdentifier("filteredRemindersRow")
     }
 
@@ -42,5 +53,16 @@ struct ReminderDisplayRow: View {
             parts.append(display.priorityMarker)
         }
         return parts.joined(separator: " · ")
+    }
+
+    // MARK: Private
+
+    /// Routes inline link taps through the scene-installed opener.
+    @Environment(\.openURL)
+    private var openURL
+
+    /// Every link in the row's rendered title, in reading order.
+    private var linkURLs: [URL] {
+        LinkFormatter.links(in: display.title)
     }
 }

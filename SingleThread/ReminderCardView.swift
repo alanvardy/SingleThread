@@ -157,7 +157,7 @@ struct ReminderCardView: View {
         // a genuine app-wide accessibility improvement, not just a test escape.
         .accessibilityElement(children: .combine)
         .accessibilityActions {
-            ForEach(linkURLs, id: \.absoluteString) { url in
+            ForEach(Array(linkURLs.enumerated()), id: \.offset) { _, url in
                 Button {
                     openURL(url)
                 } label: {

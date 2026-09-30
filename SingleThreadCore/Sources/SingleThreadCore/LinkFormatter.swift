@@ -59,6 +59,8 @@ public nonisolated enum LinkFormatter {
     private static let alwaysTrimmed: Set<Character> = [".", ",", ";", ":", "!", "?"]
     private static let bracketPairs: [Character: Character] = [")": "(", "]": "[", "}": "{"]
 
+    private static let wordScalars = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "_"))
+
     private static func detect(in plain: String) -> [DetectedLink] {
         var links: [DetectedLink] = []
         var searchStart = plain.startIndex
@@ -87,14 +89,33 @@ public nonisolated enum LinkFormatter {
         from start: String.Index) -> (start: String.Index, isWWW: Bool)? {
         var best: (start: String.Index, isWWW: Bool)?
         for prefix in prefixCandidates {
-            guard let range = plain.range(
-                of: prefix, options: .caseInsensitive, range: start ..< plain.endIndex) else { continue }
-            if let best, range.lowerBound >= best.start {
-                continue
+            let isWWW = prefix == "www."
+            var searchStart = start
+            while let range = plain.range(
+                of: prefix, options: .caseInsensitive, range: searchStart ..< plain.endIndex) {
+                if isWWW, !isTokenBoundary(in: plain, at: range.lowerBound) {
+                    searchStart = range.upperBound
+                    continue
+                }
+                if let best, range.lowerBound >= best.start {
+                    break
+                }
+                best = (range.lowerBound, isWWW)
+                break
             }
-            best = (range.lowerBound, prefix == "www.")
         }
         return best
+    }
+
+    /// True when the character before `index` is absent or not a word scalar, so
+    /// a bare `www.` candidate starts a fresh token (`See www.x.com` links;
+    /// `visitwww.x.com` does not).
+    private static func isTokenBoundary(in plain: String, at index: String.Index) -> Bool {
+        guard index > plain.startIndex else { return true }
+        let previous = plain[plain.index(before: index)]
+        return previous.unicodeScalars.allSatisfy {
+            !wordScalars.contains($0)
+        }
     }
 
     private static func normalise(_ token: String, prefixedWithWWW: Bool) -> URL? {
