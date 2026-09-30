@@ -18,6 +18,17 @@ struct SentryConfigurationTests {
     }
 
     @Test
+    func emptyDsnIsNeverStarted() {
+        // Whitespace-only and missing DSNs must all yield `nil` so `SentryBootstrap`
+        // never calls `SentrySDK.start`. A non-String Info.plist value is already
+        // drained by the `bundleDSN` call site's `as? String` cast (yielding `nil`),
+        // so `make`'s `String?` signature cannot observe it.
+        #expect(SentryConfiguration.make(dsn: "   ", environment: "debug") == nil)
+        #expect(SentryConfiguration.make(dsn: "\n\t", environment: "debug") == nil)
+        #expect(SentryConfiguration.make(dsn: "\r\n \t", environment: "debug") == nil)
+    }
+
+    @Test
     func privacyDefaultsAreSafe() {
         let config = SentryConfiguration.make(dsn: "https://a@b.ingest.sentry.io/1", environment: "production")
         #expect(config?.sendDefaultPii == false)

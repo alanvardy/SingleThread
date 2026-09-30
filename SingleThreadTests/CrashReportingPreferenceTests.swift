@@ -26,4 +26,24 @@ struct CrashReportingPreferenceTests {
         preference.setEnabled(true)
         #expect(preference.isEnabled)
     }
+
+    @Test
+    func offOnOffCycle() throws {
+        let suite = "CrashReportingPreferenceTests.offOnOff"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let preference = CrashReportingPreference(defaults: defaults)
+
+        preference.setEnabled(false)
+        #expect(!preference.isEnabled)
+        #expect(defaults.object(forKey: CrashReportingPreference.defaultsKey) as? Bool == false)
+
+        preference.setEnabled(true)
+        #expect(preference.isEnabled)
+        #expect(defaults.object(forKey: CrashReportingPreference.defaultsKey) as? Bool == true)
+
+        preference.setEnabled(false)
+        #expect(!preference.isEnabled)
+        #expect(defaults.object(forKey: CrashReportingPreference.defaultsKey) as? Bool == false)
+    }
 }
