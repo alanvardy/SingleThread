@@ -65,4 +65,16 @@ public struct ReminderDisplay: Equatable, Sendable {
         guard let notes else { return nil }
         return CodeSpanFormatter.format(notes)
     }
+
+    /// `title` with code spans styled and URLs link-attributed.
+    public var titleAttributedWithLinks: AttributedString {
+        LinkFormatter.attributed(title)
+    }
+
+    /// `notes` with code spans styled and URLs link-attributed, or `nil` when
+    /// raw notes is `nil`.
+    public var notesAttributedWithLinks: AttributedString? {
+        guard let notes else { return nil }
+        return LinkFormatter.attributed(notes)
+    }
 }

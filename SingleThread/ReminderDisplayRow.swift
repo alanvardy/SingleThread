@@ -14,7 +14,7 @@ struct ReminderDisplayRow: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
-            Text(display.title)
+            Text(display.titleAttributedWithLinks)
                 .font(font)
             let caption = Self.captionText(for: display)
             if !caption.isEmpty {

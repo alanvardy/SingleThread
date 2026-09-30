@@ -156,6 +156,25 @@ final class AppViewModel {
         BoolPreferenceStore(key: key.rawValue, fallback: fallback)
     }
 
+    /// Resolves the opener shared by the "View in Reminders" deep link and
+    /// inline link taps. Under `--url-opener-spy` the shared spy is reused
+    /// (stored back so the view can read the last URL); otherwise the scene's
+    /// live `OpenURLAction` is wrapped, with a no-op fallback.
+    func resolvedURLOpening(openURLAction: OpenURLAction? = nil) -> any URLOpening {
+        if isURLSpyUITesting {
+            if let spy = urlOpenerSpy {
+                return spy
+            }
+            let freshSpy = URLOpeningSpy()
+            urlOpenerSpy = freshSpy
+            return freshSpy
+        }
+        if let openURLAction {
+            return SystemURLOpener(action: openURLAction)
+        }
+        return SystemURLOpener.noop
+    }
+
     /// The root view model. Rebuilt on demand so the view always reflects the
     /// latest store/background state.
     ///
@@ -169,20 +188,7 @@ final class AppViewModel {
         // seam reuses a single shared spy (so the view can read the last URL
         // back), otherwise the scene's live `OpenURLAction` is wrapped, with a
         // no-op fallback for previews and unit-test call sites that pass neither.
-        let urlOpener: any URLOpening
-        if isURLSpyUITesting {
-            if let spy = urlOpenerSpy {
-                urlOpener = spy
-            } else {
-                let freshSpy = URLOpeningSpy()
-                urlOpenerSpy = freshSpy
-                urlOpener = freshSpy
-            }
-        } else if let openURLAction {
-            urlOpener = SystemURLOpener(action: openURLAction)
-        } else {
-            urlOpener = SystemURLOpener.noop
-        }
+        let urlOpener = resolvedURLOpening(openURLAction: openURLAction)
         let viewModel = ContentViewModel(
             store: store,
             backgroundImage: backgroundImage,
