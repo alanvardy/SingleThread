@@ -34,6 +34,23 @@ struct SettingsViewTests {
     }
 
     @Test
+    func settingsBindingsCarriesCrashReporting() throws {
+        let suite = "SettingsViewTests.crashReporting"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let bag = SettingsBindings(
+            crashReportingPreference: CrashReportingPreference(defaults: defaults))
+
+        #expect(bag.crashReportingEnabled) // default on
+        bag.crashReportingEnabled = false
+        #expect(!bag.crashReportingEnabled)
+        #expect(defaults.object(forKey: CrashReportingPreference.defaultsKey) as? Bool == false)
+
+        bag.crashReportingEnabled = true
+        #expect(bag.crashReportingEnabled)
+    }
+
+    @Test
     func enableActionButtonsDefaultsToOn() {
         #expect(
             SettingsBindings().enableActionButtons,
@@ -60,7 +77,8 @@ struct SettingsViewTests {
         let bodyDescription = String(describing: view.body)
 
         let expectedLabels = [
-            "Interface", "Reminder", "Filtering & Sorting", "Background", "Unlock", "Privacy", "About"
+            "Interface", "Reminder", "Filtering & Sorting", "Background", "Unlock", "Privacy", "About",
+            "Share crash reports"
         ]
         for label in expectedLabels {
             #expect(bodyDescription.contains(label))
@@ -74,7 +92,8 @@ struct SettingsViewTests {
             "Manage the wallpaper and its appearance.",
             "View and manage your purchase status.",
             "How SingleThread handles your data.",
-            "App version, credits, and contact."
+            "App version, credits, and contact.",
+            "Send crash and diagnostic data to help fix bugs."
         ]
         for caption in expectedCaptions {
             #expect(bodyDescription.contains(caption))

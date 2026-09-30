@@ -143,6 +143,18 @@ struct SettingsView: View {
                 }
 
                 Section {
+                    Toggle(isOn: $bindings.crashReportingEnabled) {
+                        Label {
+                            VStack(alignment: .leading) {
+                                Text("Share crash reports")
+                                SettingsCaption(
+                                    text: "Send crash and diagnostic data to help fix bugs.")
+                            }
+                        } icon: {
+                            Image(systemName: "exclamationmark.triangle")
+                        }
+                    }
+                    .accessibilityIdentifier("crashReportingToggle")
                     NavigationLink {
                         PrivacySettingsView()
                     } label: {

@@ -37,7 +37,8 @@ final class SettingsBindings {
         backgroundEnabled: Bool = true,
         backgroundFadePercent: Int = 50,
         backgroundPinned: Bool = false,
-        showMenuBarExtra: Bool = true) {
+        showMenuBarExtra: Bool = true,
+        crashReportingPreference: CrashReportingPreference = CrashReportingPreference()) {
         self.appearanceMode = appearanceMode
         self.textSize = textSize
         self.allowsLandscape = allowsLandscape
@@ -51,6 +52,7 @@ final class SettingsBindings {
         self.backgroundFadePercent = backgroundFadePercent
         self.backgroundPinned = backgroundPinned
         self.showMenuBarExtra = showMenuBarExtra
+        self.crashReportingPreference = crashReportingPreference
     }
 
     // MARK: Internal
@@ -206,6 +208,22 @@ final class SettingsBindings {
         }
     }
 
+    /// Consent flag for Sentry crash reporting. Device-local (not App-Group) via
+    /// `CrashReportingPreference`, so it is observable here and the setter can
+    /// propagate to the SDK through `SentryBootstrap.setEnabled`.
+    var crashReportingEnabled: Bool {
+        get {
+            access(keyPath: \.crashReportingEnabled)
+            return crashReportingPreference.isEnabled
+        }
+        set {
+            withMutation(keyPath: \.crashReportingEnabled) {
+                crashReportingPreference.setEnabled(newValue)
+                SentryBootstrap.setEnabled(newValue)
+            }
+        }
+    }
+
     // MARK: Private
 
     private let showUndatedPreference = BoolPreferenceStore(
@@ -231,4 +249,5 @@ final class SettingsBindings {
     private let showCompletionMomentumPreference = BoolPreferenceStore(
         key: BoolPreferenceKey.showCompletionMomentum.rawValue,
         fallback: true)
+    private let crashReportingPreference: CrashReportingPreference
 }

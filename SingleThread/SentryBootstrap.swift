@@ -1,5 +1,6 @@
 import Foundation
 import Sentry
+import SingleThreadCore
 
 /// Thin adapter from `SentryConfiguration` to `SentrySDK`. The only file besides
 /// `SentryScrubber` that imports Sentry (Phase 2 adds the scrubber hooks).
@@ -7,9 +8,10 @@ enum SentryBootstrap {
     // MARK: Internal
 
     static func startIfEnabled() {
-        guard let configuration = SentryConfiguration.make(
-            dsn: bundleDSN,
-            environment: SentryConfiguration.currentEnvironment) else {
+        guard CrashReportingPreference().isEnabled,
+              let configuration = SentryConfiguration.make(
+                  dsn: bundleDSN,
+                  environment: SentryConfiguration.currentEnvironment) else {
             return
         }
         SentrySDK.start { options in
