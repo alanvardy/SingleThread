@@ -54,4 +54,29 @@ struct SentryScrubberTests {
         #expect(scrubbed?.category == "reminder")
         #expect(scrubbed?.data == nil)
     }
+
+    @Test
+    func exceptionReasonIsRemovedButTypeSurvives() {
+        let event = Event()
+        event.exceptions = [Exception(
+            value: "Buy milk from the Grocery list",
+            type: "NSInternalInconsistencyException")]
+
+        let scrubbed = SentryScrubber.scrub(event)
+
+        #expect(scrubbed?.exceptions?.first?.value == nil)
+        #expect(scrubbed?.exceptions?.first?.type == "NSInternalInconsistencyException")
+    }
+
+    @Test
+    func eventMessageAndTransactionAreRemoved() {
+        let event = Event()
+        event.message = SentryMessage(formatted: "Buy milk from the Grocery list")
+        event.transaction = "reminder.detail"
+
+        let scrubbed = SentryScrubber.scrub(event)
+
+        #expect(scrubbed?.message == nil)
+        #expect(scrubbed?.transaction == nil)
+    }
 }
