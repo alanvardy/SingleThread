@@ -62,6 +62,27 @@ simulator unit is picked (several `iPhone 17` units exist), pass `SIM_UDID` expl
 
 The gate is the XCTest asserts; the screenshot is supporting evidence only.
 
+## Tappable links (VAR-1112)
+
+1. Launch the app with a reminder whose title contains `https://example.com`
+   and whose notes contain `www.apple.com` (use `--seed`, or type them in).
+2. Tap the URL in the title — the default browser opens `https://example.com`.
+3. Tap `www.apple.com` in the notes — it opens `https://www.apple.com`.
+4. Confirm `daily.com` (bare domain) and `a@b.com` render as plain text.
+5. Confirm a URL inside backticks stays code-styled and is not tappable.
+6. Confirm the widget and watch show URLs as plain text.
+
+> **UI-test fallback (VAR-1112):** the inline-tap UI test path was dropped.
+> Inline links are not addressable in the accessibility tree, and under `make
+> test` the `--url-opener-spy` floating `Text` overlay is only populated by the
+> context-menu path, so a coordinate tap inside the title region cannot be read
+> back deterministically. A best-effort XCUITest was attempted; its coordinate
+> tap missed and the spy overlay never surfaced, so the test method and its
+> `ContentView` `.task` poll seam were removed. Detection and attribute
+> construction are covered by unit tests (`SingleThreadTests/LinkFormatterTests`,
+> `ReminderDisplayTests`); only the SwiftUI `environment` routing step is verified
+> manually above.
+
 ## Manual launch (console watch)
 
 ```fish
