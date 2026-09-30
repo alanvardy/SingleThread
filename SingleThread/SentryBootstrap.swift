@@ -3,7 +3,7 @@ import Sentry
 import SingleThreadCore
 
 /// Thin adapter from `SentryConfiguration` to `SentrySDK`. The only file besides
-/// `SentryScrubber` that imports Sentry (Phase 2 adds the scrubber hooks).
+/// `SentryScrubber` that imports Sentry.
 enum SentryBootstrap {
     // MARK: Internal
 

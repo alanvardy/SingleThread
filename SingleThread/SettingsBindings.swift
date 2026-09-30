@@ -7,11 +7,16 @@ import SwiftUI
 /// exactly. `excludedLists` is NOT here: it is store-backed (not @AppStorage)
 /// and is passed to sub-views as a separate `Binding<Set<String>>`.
 ///
-/// The seven App-Group keys are computed store-backed properties: reading/writing
+/// The App-Group keys are computed store-backed properties: reading/writing
 /// them goes straight through the store types, which post
 /// `UserDefaults.didChangeNotification` on the App Group suite, so `PreferenceHolder`
 /// refreshes the main view automatically. No init arguments (or write-back
 /// `.onChange` handlers) exist for them.
+///
+/// `crashReportingEnabled` is the exception: it is device-local, backed by
+/// `CrashReportingPreference` (`UserDefaults.standard`, deliberately not in the
+/// App Group), and its setter additionally propagates the change to
+/// `SentryBootstrap`.
 ///
 /// `allowsLandscape`, `enableActionButtons`, `showSwipePrompt`, `showUndoButton`,
 /// `notificationsEnabled`, and `notificationIntervalHours` are iOS-only in

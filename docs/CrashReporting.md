@@ -3,8 +3,10 @@
 SingleThread links [sentry-cocoa](https://github.com/getsentry/sentry-cocoa) on the iOS app
 target only. It is steered through `SentryConfiguration` (a pure, Sentry-free value type) and
 `SentryBootstrap` (the only place besides `SentryScrubber` that imports Sentry). All events and
-breadcrumbs pass through `SentryScrubber`, which strips any reminder/preference/list content and
-keeps only a small allow-list of tags. The feature ships inert (empty DSN) until Xcode Cloud
+breadcrumbs pass through `SentryScrubber`, which strips every free-text field that could carry
+reminder content — user, extra, request, message, transaction, exception reasons, and breadcrumb
+message/data — and keeps only structural metadata (exception type, allow-listed tags, breadcrumb
+category/level/timestamp). The feature ships inert (empty DSN) until Xcode Cloud
 supplies the real DSN.
 
 ## Sentry org setup
