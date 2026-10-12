@@ -3,7 +3,7 @@ import SingleThreadCore
 import SwiftUI
 
 /// Tinted hint panel revealed behind the card while a swipe is in progress.
-/// Fill matches the prompt plate; icon+label take the adaptive Complete/Skip
+/// Fill matches the prompt plate; icon+label take the adaptive Complete/More
 /// hint colours, and opacity scales with `progress` so it intensifies toward
 /// the threshold. The plate hugs the label rather than filling the row, so the
 /// reveal is a small badge at the edge the card uncovers — not a full-height
@@ -35,6 +35,17 @@ struct SwipeRevealPanel: View {
         outcome == .more ? .trailing : .leading
     }
 
+    /// SF Symbol for the revealed direction. Extracted alongside `alignment(for:)`
+    /// because a runtime `systemImage` string is not recoverable from SwiftUI's
+    /// reflected view description.
+    static func systemImage(for outcome: SwipeGestureOutcome) -> String {
+        switch outcome {
+        case .complete: "checkmark.circle.fill"
+        case .more: "ellipsis.circle.fill"
+        case .none: "circle"
+        }
+    }
+
     // MARK: Private
 
     /// Render data for one revealed direction.
@@ -59,8 +70,8 @@ struct SwipeRevealPanel: View {
                 tint: CardPlate.completeHintColor(for: colorScheme))
         case .more:
             Presentation(
-                title: SharedStrings.skipAction,
-                systemImage: "circle.slash",
+                title: SharedStrings.moreAction,
+                systemImage: Self.systemImage(for: outcome),
                 tint: CardPlate.skipHintColor(for: colorScheme))
         case .none:
             Presentation(
@@ -114,7 +125,7 @@ struct SwipeToActModifier: ViewModifier {
                 .accessibilityAction(named: Text(SharedStrings.completeAction)) {
                     onOutcome(.complete)
                 }
-                .accessibilityAction(named: Text(SharedStrings.skipAction)) {
+                .accessibilityAction(named: Text(SharedStrings.moreAction)) {
                     onOutcome(.more)
                 }
                 .accessibilityIdentifier("reminderCard")
@@ -137,7 +148,7 @@ struct SwipeToActModifier: ViewModifier {
 }
 
 extension View {
-    /// Adds drag-to-complete (right) / drag-to-skip (left) with a reveal panel
+    /// Adds drag-to-complete (right) / drag-to-more (left) with a reveal panel
     /// behind the view and a fixed release threshold.
     func swipeToAct(
         threshold: CGFloat = SwipeGesture.releaseDistance,

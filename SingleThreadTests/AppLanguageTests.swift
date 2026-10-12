@@ -40,6 +40,9 @@ struct AppLanguageTests {
         let resource = LocalizedStringResource("Skip", table: "Localizable", bundle: Bundle.core)
         #expect(resource.resolved(in: Locale(identifier: "en")) == "Skip")
         #expect(resource.resolved(in: Locale(identifier: "de")) == "Überspringen")
+        let more = LocalizedStringResource("More", table: "Localizable", bundle: Bundle.core)
+        #expect(more.resolved(in: Locale(identifier: "de")) == "Mehr")
+        #expect(more.resolved(in: Locale(identifier: "fr")) == "Plus")
     }
 
     @Test
@@ -74,11 +77,23 @@ struct AppLanguageTests {
             "en": "Skip", "zh-Hans": "跳过", "es": "Omitir",
             "ja": "スキップ", "de": "Überspringen", "fr": "Passer"
         ]
-        // SharedStrings.skipAction is a resource in Phase 2.
         for (identifier, value) in expected {
             #expect(
                 SharedStrings.skipAction.resolved(in: Locale(identifier: identifier)) == value,
                 "Skip in \(identifier)")
+        }
+    }
+
+    @Test
+    func moreActionResolvesToEveryShippedLanguage() {
+        let expected: [String: String] = [
+            "en": "More", "zh-Hans": "更多", "es": "Más",
+            "ja": "その他", "de": "Mehr", "fr": "Plus"
+        ]
+        for (identifier, value) in expected {
+            #expect(
+                SharedStrings.moreAction.resolved(in: Locale(identifier: identifier)) == value,
+                "More in \(identifier)")
         }
     }
 }

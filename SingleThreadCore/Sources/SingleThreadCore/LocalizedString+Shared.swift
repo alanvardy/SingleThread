@@ -31,6 +31,13 @@ public enum SharedStrings {
         LocalizedStringResource("Skip", table: "Localizable", bundle: .module)
     }
 
+    /// "More" — the left-swipe reveal label, the swipe accessibility action, and
+    /// the bottom-bar action button's accessibility label. Opens the shared
+    /// Skip/Reschedule/Delete menu; the menu's Skip item keeps `skipAction`.
+    public static var moreAction: LocalizedStringResource {
+        LocalizedStringResource("More", table: "Localizable", bundle: .module)
+    }
+
     // periphery:ignore
     /// "Skip Reminder" (title case) — used by macOS command menus and menu bar.
     public static var skipReminder: LocalizedStringResource {
