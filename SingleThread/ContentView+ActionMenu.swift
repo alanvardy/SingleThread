@@ -22,6 +22,32 @@ extension ContentView {
                 hasVisibleReminder: viewModel.store.visibleReminders.first != nil)
         }
 
+        /// One entry point for the shared three-action menu: captures the visible
+        /// reminder and flips the dialog flag. Called by the bottom-bar button when
+        /// the gate is open and by the left-swipe `.more` outcome (ungated).
+        func presentActionMenu() {
+            actionMenuReminder = viewModel.store.visibleReminders.first
+            isShowingActionMenu = true
+        }
+
+        /// The dialog contents. Rendered from the dialog hosted on `ContentView.body`
+        /// so it presents even when the bottom-bar cluster (`skipButton`) is not on
+        /// screen (toggle off / entitlement / mutate gate closed).
+        @ViewBuilder var actionMenuDialogButtons: some View {
+            Button(SharedStrings.skipAction) {
+                viewModel.skipCurrentReminder()
+            }
+            Button("Reschedule") {
+                isShowingActionMenu = false
+                isShowingRescheduleSheet = true
+            }
+            .accessibilityIdentifier("rescheduleButton")
+            Button(SharedStrings.deleteAction, role: .destructive) {
+                Task { await viewModel.deleteCurrentReminder() }
+            }
+            .accessibilityIdentifier("deleteButton")
+        }
+
         /// The bottom-bar Skip button. When the action menu is gated open, the
         /// tap captures the visible reminder and presents the dialog instead of
         /// skipping directly. Internal (not `private`) so `actionCluster` in
@@ -30,8 +56,7 @@ extension ContentView {
         var skipButton: some View {
             Button {
                 if showActionMenu {
-                    actionMenuReminder = viewModel.store.visibleReminders.first
-                    isShowingActionMenu = true
+                    presentActionMenu()
                 } else {
                     viewModel.skipCurrentReminder()
                 }
@@ -43,20 +68,6 @@ extension ContentView {
             .accessibilityLabel(SharedStrings.skipReminderAccessibility)
             .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
-            .confirmationDialog(SharedStrings.reminder, isPresented: $isShowingActionMenu) {
-                Button(SharedStrings.skipAction) {
-                    viewModel.skipCurrentReminder()
-                }
-                Button("Reschedule") {
-                    isShowingActionMenu = false
-                    isShowingRescheduleSheet = true
-                }
-                .accessibilityIdentifier("rescheduleButton")
-                Button(SharedStrings.deleteAction, role: .destructive) {
-                    Task { await viewModel.deleteCurrentReminder() }
-                }
-                .accessibilityIdentifier("deleteButton")
-            }
         }
 
         /// The reminder the action menu was opened for; the sheet falls back to

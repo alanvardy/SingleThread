@@ -3,7 +3,7 @@ import CoreGraphics
 /// Which action a released row swipe should fire, if any.
 public enum SwipeGestureOutcome: Equatable {
     case complete
-    case skip
+    case more
     case none
 }
 
@@ -24,19 +24,19 @@ public nonisolated enum SwipeGesture {
             return .complete
         }
         if translation.width <= -threshold {
-            return .skip
+            return .more
         }
         return .none
     }
 
     /// Which reveal direction a live drag offset maps to: positive (right) →
-    /// complete, negative (left) → skip, zero → nothing.
+    /// complete, negative (left) → more, zero → nothing.
     public static func revealedOutcome(forOffset offset: CGFloat) -> SwipeGestureOutcome {
         if offset > 0 {
             return .complete
         }
         if offset < 0 {
-            return .skip
+            return .more
         }
         return .none
     }
