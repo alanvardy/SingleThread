@@ -27,7 +27,7 @@ struct SwipeRevealPanel: View {
     }
 
     /// Edge the label plate hugs. Complete is uncovered from the leading edge
-    /// as the card travels right, Skip from the trailing edge as it travels
+    /// as the card travels right, More from the trailing edge as it travels
     /// left. `.none` is never rendered, so its arm is an arbitrary placeholder.
     /// Extracted from the body so the placement decision is unit-testable —
     /// SwiftUI layout itself cannot be asserted headlessly.
