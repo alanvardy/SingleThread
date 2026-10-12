@@ -63,7 +63,11 @@ Phase 3 made no file changes, so it has no commit (empty commits forbidden).
   presents even when the bottom-bar cluster is off-screen (toggle off /
   entitlement / mutate gate). Still one binding, one presenter.
 - The `.more` dispatch is `#if os(iOS)`-branched; macOS keeps
-  `skipCurrentReminder()` (design decision 9).
+  `skipCurrentReminder()` (design decision 9). **Superseded in review** — macOS
+  renders the same shared card/list so a left swipe revealed the "More" panel
+  but still skipped; review moved the `.more` dispatch to `presentActionMenu()`
+  on both platforms and widened the `.confirmationDialog` host to iOS + macOS
+  (see `done.md`).
 - `SwipeRevealPanel.systemImage(for:)` was extracted so the ellipsis glyph is
   assertable (design deviation 3).
 - No manual verifications were confirmed by the implement step; all are left
