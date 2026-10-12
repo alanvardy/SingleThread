@@ -65,7 +65,7 @@ extension ContentView {
                     .labelStyle(.iconOnly)
                     .controlPlate()
             }
-            .accessibilityLabel(SharedStrings.skipReminderAccessibility)
+            .accessibilityLabel(SharedStrings.moreAction)
             .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
         }

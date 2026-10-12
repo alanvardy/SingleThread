@@ -4,7 +4,7 @@ import SwiftUI
 import Testing
 
 /// Reflection coverage for the swipe reveal panel and modifier: the direction
-/// selects the Complete/Skip label, and the idle modifier wraps its content
+/// selects the Complete/More label, and the idle modifier wraps its content
 /// without revealing a panel behind it.
 @MainActor
 struct SwipeToActModifierTests {
@@ -18,9 +18,17 @@ struct SwipeToActModifierTests {
     }
 
     @Test
-    func skipPanelShowsSkipLabel() {
+    func morePanelShowsMoreLabel() {
         let description = String(describing: SwipeRevealPanel(outcome: .more, progress: 1).body)
-        #expect(description.contains("Skip"))
+        #expect(description.contains("More"))
+        #expect(description.contains("CardPlateModifier"))
+    }
+
+    /// The revealed glyph must be the ellipsis-in-circle SF Symbol, not the
+    /// circle-slash used by the now-renamed skip action.
+    @Test
+    func morePanelUsesEllipsisGlyph() {
+        #expect(SwipeRevealPanel.systemImage(for: .more) == "ellipsis.circle.fill")
     }
 
     /// The reveal plate hugs the edge the card uncovers: completing (rightward
@@ -33,7 +41,7 @@ struct SwipeToActModifierTests {
     }
 
     @Test
-    func skipPanelAnchorsPlateToTrailingEdge() {
+    func morePanelAnchorsPlateToTrailingEdge() {
         #expect(SwipeRevealPanel.alignment(for: .more) == .trailing)
     }
 
@@ -43,7 +51,7 @@ struct SwipeToActModifierTests {
         #expect(description.contains("card"))
         #expect(description.contains("SwipeToActModifier"))
         #expect(!description.contains("Complete"))
-        #expect(!description.contains("Skip"))
+        #expect(!description.contains("More"))
     }
 
     // MARK: Private
