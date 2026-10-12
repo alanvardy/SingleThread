@@ -122,16 +122,15 @@ struct ContentView: View {
     /// Drives the action-menu reschedule sheet (iOS + macOS).
     @State var isShowingRescheduleSheet = false
 
-    #if os(iOS)
-        /// Drives the three-action confirmation dialog (Skip / Reschedule /
-        /// Delete) presented from the bottom-bar Skip button when the
-        /// action-buttons toggle is on.
-        @State var isShowingActionMenu = false
+    /// Drives the three-action confirmation dialog (Skip / Reschedule /
+    /// Delete). Opened by the iOS bottom-bar Skip button when the
+    /// action-buttons toggle is on, and by the left-swipe `.more` outcome on
+    /// iOS and macOS.
+    @State var isShowingActionMenu = false
 
-        /// The reminder the action menu was opened for, so the reschedule
-        /// sheet can tailor its picker (date-only vs date+time).
-        @State var actionMenuReminder: EKReminder?
-    #endif
+    /// The reminder the action menu was opened for, so the reschedule
+    /// sheet can tailor its picker (date-only vs date+time).
+    @State var actionMenuReminder: EKReminder?
 
     // Deep link last opened via the ``--url-opener-spy`` UI-test seam. Rendered
     // back as an accessible element so an XCUITest can read it. Always nil in
@@ -328,10 +327,12 @@ struct ContentView: View {
             actionMenuRescheduleSheet
                 .presentationDetents([.height(320)])
         }
-        #if os(iOS)
+        #if os(iOS) || os(macOS)
         .confirmationDialog(SharedStrings.reminder, isPresented: $isShowingActionMenu) {
             actionMenuDialogButtons
         }
+        #endif
+        #if os(iOS)
         .sheet(isPresented: $isShowingNudgeSheet, onDismiss: { viewModel.dismissNudge() }) {
             nudgeSheetContent
                 .presentationDetents([.height(420)])
@@ -464,11 +465,7 @@ struct ContentView: View {
                                     case .complete:
                                         Task { await viewModel.completeCurrentReminder() }
                                     case .more:
-                                        #if os(iOS)
-                                            presentActionMenu()
-                                        #else
-                                            viewModel.skipCurrentReminder()
-                                        #endif
+                                        presentActionMenu()
                                     case .none:
                                         break
                                     }

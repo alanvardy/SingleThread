@@ -21,32 +21,36 @@ extension ContentView {
                 canMutate: viewModel.store.canMutate,
                 hasVisibleReminder: viewModel.store.visibleReminders.first != nil)
         }
+    #endif
 
-        /// One entry point for the shared three-action menu: captures the visible
-        /// reminder and flips the dialog flag. Called by the bottom-bar button when
-        /// the gate is open and by the left-swipe `.more` outcome (ungated).
-        func presentActionMenu() {
-            actionMenuReminder = viewModel.store.visibleReminders.first
-            isShowingActionMenu = true
-        }
+    /// One entry point for the shared three-action menu: captures the visible
+    /// reminder and flips the dialog flag. Called by the iOS bottom-bar button
+    /// when the gate is open and by the left-swipe `.more` outcome on iOS and
+    /// macOS (ungated on both).
+    func presentActionMenu() {
+        actionMenuReminder = viewModel.store.visibleReminders.first
+        isShowingActionMenu = true
+    }
 
-        /// The dialog contents. Rendered from the dialog hosted on `ContentView.body`
-        /// so it presents even when the bottom-bar cluster (`skipButton`) is not on
-        /// screen (toggle off / entitlement / mutate gate closed).
-        @ViewBuilder var actionMenuDialogButtons: some View {
-            Button(SharedStrings.skipAction) {
-                viewModel.skipCurrentReminder()
-            }
-            Button("Reschedule") {
-                isShowingActionMenu = false
-                isShowingRescheduleSheet = true
-            }
-            .accessibilityIdentifier("rescheduleButton")
-            Button(SharedStrings.deleteAction, role: .destructive) {
-                Task { await viewModel.deleteCurrentReminder() }
-            }
-            .accessibilityIdentifier("deleteButton")
+    /// The dialog contents. Rendered from the dialog hosted on `ContentView.body`
+    /// so it presents even when the bottom-bar cluster is not on screen
+    /// (iOS toggle off / entitlement / mutate gate closed, or a macOS swipe).
+    @ViewBuilder var actionMenuDialogButtons: some View {
+        Button(SharedStrings.skipAction) {
+            viewModel.skipCurrentReminder()
         }
+        Button("Reschedule") {
+            isShowingActionMenu = false
+            isShowingRescheduleSheet = true
+        }
+        .accessibilityIdentifier("rescheduleButton")
+        Button(SharedStrings.deleteAction, role: .destructive) {
+            Task { await viewModel.deleteCurrentReminder() }
+        }
+        .accessibilityIdentifier("deleteButton")
+    }
+
+    #if os(iOS)
 
         /// The bottom-bar Skip button. When the action menu is gated open, the
         /// tap captures the visible reminder and presents the dialog instead of
@@ -65,7 +69,8 @@ extension ContentView {
                     .labelStyle(.iconOnly)
                     .controlPlate()
             }
-            .accessibilityLabel(SharedStrings.moreAction)
+            .accessibilityLabel(
+                showActionMenu ? SharedStrings.moreAction : SharedStrings.skipReminderAccessibility)
             .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
         }
