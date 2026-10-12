@@ -11,8 +11,8 @@ struct SwipeGestureDecisionTests {
     }
 
     @Test
-    func leftPastThresholdSkips() {
-        #expect(SwipeGesture.outcome(for: CGSize(width: -80, height: 0)) == .skip)
+    func leftPastThresholdShowsMore() {
+        #expect(SwipeGesture.outcome(for: CGSize(width: -80, height: 0)) == .more)
     }
 
     @Test
@@ -36,7 +36,7 @@ struct SwipeGestureDecisionTests {
     @Test
     func exactlyAtThresholdFires() {
         #expect(SwipeGesture.outcome(for: CGSize(width: 72, height: 0)) == .complete)
-        #expect(SwipeGesture.outcome(for: CGSize(width: -72, height: 0)) == .skip)
+        #expect(SwipeGesture.outcome(for: CGSize(width: -72, height: 0)) == .more)
     }
 
     @Test
@@ -51,8 +51,8 @@ struct SwipeGestureDecisionTests {
     }
 
     @Test
-    func negativeDragOffsetRevealsSkip() {
-        #expect(SwipeGesture.revealedOutcome(forOffset: -12) == .skip)
+    func negativeDragOffsetRevealsMore() {
+        #expect(SwipeGesture.revealedOutcome(forOffset: -12) == .more)
     }
 
     @Test

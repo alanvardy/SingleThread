@@ -19,7 +19,7 @@ struct SwipeToActModifierTests {
 
     @Test
     func skipPanelShowsSkipLabel() {
-        let description = String(describing: SwipeRevealPanel(outcome: .skip, progress: 1).body)
+        let description = String(describing: SwipeRevealPanel(outcome: .more, progress: 1).body)
         #expect(description.contains("Skip"))
     }
 
@@ -34,7 +34,7 @@ struct SwipeToActModifierTests {
 
     @Test
     func skipPanelAnchorsPlateToTrailingEdge() {
-        #expect(SwipeRevealPanel.alignment(for: .skip) == .trailing)
+        #expect(SwipeRevealPanel.alignment(for: .more) == .trailing)
     }
 
     @Test

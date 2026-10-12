@@ -32,7 +32,7 @@ struct SwipeRevealPanel: View {
     /// Extracted from the body so the placement decision is unit-testable —
     /// SwiftUI layout itself cannot be asserted headlessly.
     static func alignment(for outcome: SwipeGestureOutcome) -> Alignment {
-        outcome == .skip ? .trailing : .leading
+        outcome == .more ? .trailing : .leading
     }
 
     // MARK: Private
@@ -57,7 +57,7 @@ struct SwipeRevealPanel: View {
                 title: SharedStrings.completeAction,
                 systemImage: "checkmark.circle.fill",
                 tint: CardPlate.completeHintColor(for: colorScheme))
-        case .skip:
+        case .more:
             Presentation(
                 title: SharedStrings.skipAction,
                 systemImage: "circle.slash",
@@ -115,7 +115,7 @@ struct SwipeToActModifier: ViewModifier {
                     onOutcome(.complete)
                 }
                 .accessibilityAction(named: Text(SharedStrings.skipAction)) {
-                    onOutcome(.skip)
+                    onOutcome(.more)
                 }
                 .accessibilityIdentifier("reminderCard")
         }

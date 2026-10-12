@@ -329,6 +329,9 @@ struct ContentView: View {
                 .presentationDetents([.height(320)])
         }
         #if os(iOS)
+        .confirmationDialog(SharedStrings.reminder, isPresented: $isShowingActionMenu) {
+            actionMenuDialogButtons
+        }
         .sheet(isPresented: $isShowingNudgeSheet, onDismiss: { viewModel.dismissNudge() }) {
             nudgeSheetContent
                 .presentationDetents([.height(420)])
@@ -460,8 +463,12 @@ struct ContentView: View {
                                     switch outcome {
                                     case .complete:
                                         Task { await viewModel.completeCurrentReminder() }
-                                    case .skip:
-                                        viewModel.skipCurrentReminder()
+                                    case .more:
+                                        #if os(iOS)
+                                            presentActionMenu()
+                                        #else
+                                            viewModel.skipCurrentReminder()
+                                        #endif
                                     case .none:
                                         break
                                     }

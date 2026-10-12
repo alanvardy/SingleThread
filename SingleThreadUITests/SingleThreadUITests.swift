@@ -115,6 +115,44 @@ final class SingleThreadUITests: XCTestCase {
                        "A ~110pt right drag should complete the reminder")
     }
 
+    /// Left drag past the 72pt release threshold opens the shared action menu
+    /// instead of skipping. Direction/threshold logic is unit-tested; this test
+    /// exists because the gesture-layer presentation is not observable.
+    @MainActor
+    func testOverThresholdSwipeOpensActionMenu() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "--seed",
+            // nolint:disable:line_length
+            "{\"reminders\":[{\"title\":\"Milk\",\"priority\":5}],\"calendars\":[\"Groceries\"],\"isEntitled\":true}",
+            "--ui-testing-noop-settle"
+        ]
+        app.launch()
+
+        XCTAssertTrue(
+            app.staticTexts["Milk"].waitForExistence(timeout: 5),
+            "Seeded reminder should render")
+
+        let card = app.descendants(matching: .any)["reminderCard"].firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5),
+                      "Reminder card drag target should render")
+
+        let start = card.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        let end = start.withOffset(CGVector(dx: -110, dy: 0))
+        start.press(
+            forDuration: 0.1,
+            thenDragTo: end,
+            withVelocity: XCUIGestureVelocity(300),
+            thenHoldForDuration: 0.1
+        )
+
+        XCTAssertTrue(
+            app.buttons["rescheduleButton"].waitForExistence(timeout: 5),
+            "A ~110pt left drag should open the action menu")
+        XCTAssertTrue(app.buttons["deleteButton"].exists,
+                      "Action menu should include the destructive Delete item")
+    }
+
     /// End-to-end language flow: the settings sheet's Interface screen starts in
     /// the system (English test) locale, then switching the picker to Deutsch
     /// re-localizes the presented screen's own label with no relaunch. This is
