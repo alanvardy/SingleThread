@@ -25,10 +25,22 @@ struct SwipeToActModifierTests {
     }
 
     /// The revealed glyph must be the ellipsis-in-circle SF Symbol, not the
-    /// circle-slash used by the now-renamed skip action.
+    /// circle-slash used by the skip action.
     @Test
     func morePanelUsesEllipsisGlyph() {
         #expect(SwipeRevealPanel.systemImage(for: .more) == "ellipsis.circle.fill")
+    }
+
+    @Test
+    func skipPanelShowsSkipLabel() {
+        let description = String(describing: SwipeRevealPanel(outcome: .skip, progress: 1).body)
+        #expect(description.contains("Skip"))
+        #expect(description.contains("CardPlateModifier"))
+    }
+
+    @Test
+    func skipPanelUsesLeftArrowGlyph() {
+        #expect(SwipeRevealPanel.systemImage(for: .skip) == "arrow.left.circle.fill")
     }
 
     /// The reveal plate hugs the edge the card uncovers: completing (rightward
@@ -41,8 +53,15 @@ struct SwipeToActModifierTests {
     }
 
     @Test
-    func morePanelAnchorsPlateToTrailingEdge() {
-        #expect(SwipeRevealPanel.alignment(for: .more) == .trailing)
+    func skipPanelAnchorsPlateToTrailingEdge() {
+        #expect(SwipeRevealPanel.alignment(for: .skip) == .trailing)
+    }
+
+    /// The up-swipe reveals the action menu from the bottom edge as the card
+    /// is lifted upward.
+    @Test
+    func morePanelAnchorsPlateToBottomEdge() {
+        #expect(SwipeRevealPanel.alignment(for: .more) == .bottom)
     }
 
     @Test

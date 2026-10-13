@@ -24,11 +24,11 @@ enum CardPlate {
         colorScheme == .dark ? Color.black : Color(red: 0.96, green: 0.95, blue: 0.94)
     }
 
-    /// Adaptive tint for the "Swipe left to skip" hint. Light mode uses a
-    /// slightly darkened orange so the caption stays legible on the off-white
-    /// plate; dark mode keeps the semantic `.orange` that matches the
-    /// swipe action's own tint. Extracted because the rendered paint can't be
-    /// asserted headlessly — tests assert this decision instead.
+    /// Adaptive tint for the "Swipe left to skip" hint (and the revealed skip
+    /// panel). Light mode uses a slightly darkened orange so the caption stays
+    /// legible on the off-white plate; dark mode keeps the semantic `.orange`
+    /// that matches the swipe action's own tint. Extracted because the rendered
+    /// paint can't be asserted headlessly — tests assert this decision instead.
     static func skipHintColor(for colorScheme: ColorScheme) -> Color {
         colorScheme == .dark ? .orange : Color(red: 0.78, green: 0.35, blue: 0.0)
     }

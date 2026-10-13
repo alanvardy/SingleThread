@@ -11,8 +11,8 @@ struct SwipeGestureDecisionTests {
     }
 
     @Test
-    func leftPastThresholdShowsMore() {
-        #expect(SwipeGesture.outcome(for: CGSize(width: -80, height: 0)) == .more)
+    func leftPastThresholdSkips() {
+        #expect(SwipeGesture.outcome(for: CGSize(width: -80, height: 0)) == .skip)
     }
 
     @Test
@@ -29,6 +29,13 @@ struct SwipeGestureDecisionTests {
     }
 
     @Test
+    func downwardDragNeverOpensMore() {
+        // An upward-drag past the up threshold requires negative `dy`; a
+        // downward drag, however large, must yield to `List` scrolling.
+        #expect(SwipeGesture.outcome(for: CGSize(width: 0, height: 130)) == .none)
+    }
+
+    @Test
     func horizontalEqualToVerticalIsNotVerticalDominant() {
         #expect(SwipeGesture.outcome(for: CGSize(width: 100, height: 100)) == .complete)
     }
@@ -36,7 +43,7 @@ struct SwipeGestureDecisionTests {
     @Test
     func exactlyAtThresholdFires() {
         #expect(SwipeGesture.outcome(for: CGSize(width: 72, height: 0)) == .complete)
-        #expect(SwipeGesture.outcome(for: CGSize(width: -72, height: 0)) == .more)
+        #expect(SwipeGesture.outcome(for: CGSize(width: -72, height: 0)) == .skip)
     }
 
     @Test
@@ -46,17 +53,44 @@ struct SwipeGestureDecisionTests {
     }
 
     @Test
-    func positiveDragOffsetRevealsComplete() {
-        #expect(SwipeGesture.revealedOutcome(forOffset: 12) == .complete)
+    func upPastThresholdOpensMore() {
+        #expect(SwipeGesture.outcome(for: CGSize(width: 0, height: -100)) == .more)
     }
 
     @Test
-    func negativeDragOffsetRevealsMore() {
-        #expect(SwipeGesture.revealedOutcome(forOffset: -12) == .more)
+    func upBelowThresholdDoesNothing() {
+        #expect(SwipeGesture.outcome(for: CGSize(width: 0, height: -80)) == .none)
+    }
+
+    @Test
+    func shallowUpIsIgnored() {
+        // Past the up threshold but not steep enough (|dy| <= 2·|dx|) — a scroll,
+        // not a command.
+        #expect(SwipeGesture.outcome(for: CGSize(width: 60, height: -100)) == .none)
+    }
+
+    @Test
+    func upExactlyAtThresholdFires() {
+        #expect(SwipeGesture.outcome(for: CGSize(width: 0, height: -96)) == .more)
+    }
+
+    @Test
+    func positiveDragOffsetRevealsComplete() {
+        #expect(SwipeGesture.revealedOutcome(forOffset: CGSize(width: 12, height: 0)) == .complete)
+    }
+
+    @Test
+    func negativeDragOffsetRevealsSkip() {
+        #expect(SwipeGesture.revealedOutcome(forOffset: CGSize(width: -12, height: 0)) == .skip)
+    }
+
+    @Test
+    func upwardDragOffsetRevealsMore() {
+        #expect(SwipeGesture.revealedOutcome(forOffset: CGSize(width: 0, height: -60)) == .more)
     }
 
     @Test
     func zeroDragOffsetRevealsNothing() {
-        #expect(SwipeGesture.revealedOutcome(forOffset: 0) == .none)
+        #expect(SwipeGesture.revealedOutcome(forOffset: CGSize.zero) == .none)
     }
 }

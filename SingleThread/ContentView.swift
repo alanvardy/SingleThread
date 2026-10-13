@@ -464,6 +464,8 @@ struct ContentView: View {
                                     switch outcome {
                                     case .complete:
                                         Task { await viewModel.completeCurrentReminder() }
+                                    case .skip:
+                                        viewModel.skipCurrentReminder()
                                     case .more:
                                         presentActionMenu()
                                     case .none:

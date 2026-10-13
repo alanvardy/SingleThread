@@ -27,12 +27,18 @@ struct SwipeRevealPanel: View {
     }
 
     /// Edge the label plate hugs. Complete is uncovered from the leading edge
-    /// as the card travels right, More from the trailing edge as it travels
-    /// left. `.none` is never rendered, so its arm is an arbitrary placeholder.
-    /// Extracted from the body so the placement decision is unit-testable —
-    /// SwiftUI layout itself cannot be asserted headlessly.
+    /// as the card travels right, Skip from the trailing edge as it travels
+    /// left, More from the bottom edge as the card is lifted up. `.none` is
+    /// never rendered, so its arm is an arbitrary placeholder. Extracted from
+    /// the body so the placement decision is unit-testable — SwiftUI layout
+    /// itself cannot be asserted headlessly.
     static func alignment(for outcome: SwipeGestureOutcome) -> Alignment {
-        outcome == .more ? .trailing : .leading
+        switch outcome {
+        case .complete: .leading
+        case .skip: .trailing
+        case .more: .bottom
+        case .none: .leading
+        }
     }
 
     /// SF Symbol for the revealed direction. Extracted alongside `alignment(for:)`
@@ -41,6 +47,7 @@ struct SwipeRevealPanel: View {
     static func systemImage(for outcome: SwipeGestureOutcome) -> String {
         switch outcome {
         case .complete: "checkmark.circle.fill"
+        case .skip: "arrow.left.circle.fill"
         case .more: "ellipsis.circle.fill"
         case .none: "circle"
         }
@@ -66,8 +73,13 @@ struct SwipeRevealPanel: View {
         case .complete:
             Presentation(
                 title: SharedStrings.completeAction,
-                systemImage: "checkmark.circle.fill",
+                systemImage: Self.systemImage(for: outcome),
                 tint: CardPlate.completeHintColor(for: colorScheme))
+        case .skip:
+            Presentation(
+                title: SharedStrings.skipAction,
+                systemImage: Self.systemImage(for: outcome),
+                tint: CardPlate.skipHintColor(for: colorScheme))
         case .more:
             Presentation(
                 title: SharedStrings.moreAction,
@@ -82,7 +94,7 @@ struct SwipeRevealPanel: View {
     }
 }
 
-/// Drag-to-act behaviour for the reminder card: tracks horizontal travel,
+/// Drag-to-act behaviour for the reminder card: tracks full drag travel,
 /// reveals `SwipeRevealPanel` behind the card, fires `onOutcome` on release past
 /// `threshold`, and always animates the card back to zero.
 struct SwipeToActModifier: ViewModifier {
@@ -107,23 +119,26 @@ struct SwipeToActModifier: ViewModifier {
             }
             content
                 .contentShape(Rectangle())
-                .offset(x: dragOffset)
+                .offset(x: dragOffset.width, y: min(dragOffset.height, 0))
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 10)
                         .onChanged { value in
-                            dragOffset = value.translation.width
+                            dragOffset = value.translation
                         }
                         .onEnded { value in
                             let outcome = SwipeGesture.outcome(
                                 for: value.translation,
                                 threshold: threshold)
-                            withAnimation(.snappy) { dragOffset = 0 }
+                            withAnimation(.snappy) { dragOffset = .zero }
                             if outcome != .none {
                                 onOutcome(outcome)
                             }
                         })
                 .accessibilityAction(named: Text(SharedStrings.completeAction)) {
                     onOutcome(.complete)
+                }
+                .accessibilityAction(named: Text(SharedStrings.skipAction)) {
+                    onOutcome(.skip)
                 }
                 .accessibilityAction(named: Text(SharedStrings.moreAction)) {
                     onOutcome(.more)
@@ -134,12 +149,12 @@ struct SwipeToActModifier: ViewModifier {
 
     // MARK: Private
 
-    @State private var dragOffset: CGFloat = 0
+    @State private var dragOffset: CGSize = .zero
 
-    /// `|dx| / threshold`, capped at 1 — the panel's reveal intensity. The
-    /// denominator is floored at 1 so a zero threshold cannot divide by zero.
+    /// `max(|dx|, |dy|) / threshold`, capped at 1 — the panel's reveal intensity.
+    /// The denominator is floored at 1 so a zero threshold cannot divide by zero.
     private var progress: CGFloat {
-        min(abs(dragOffset) / max(threshold, 1), 1)
+        min(max(abs(dragOffset.width), abs(dragOffset.height)) / max(threshold, 1), 1)
     }
 
     private var revealedOutcome: SwipeGestureOutcome {
@@ -148,8 +163,8 @@ struct SwipeToActModifier: ViewModifier {
 }
 
 extension View {
-    /// Adds drag-to-complete (right) / drag-to-more (left) with a reveal panel
-    /// behind the view and a fixed release threshold.
+    /// Adds drag-to-complete (right) / drag-to-skip (left) / drag-to-more (up)
+    /// with a reveal panel behind the view and a fixed release threshold.
     func swipeToAct(
         threshold: CGFloat = SwipeGesture.releaseDistance,
         onOutcome: @escaping (SwipeGestureOutcome) -> Void) -> some View {
