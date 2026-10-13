@@ -25,7 +25,7 @@ extension ContentView {
 
     /// One entry point for the shared three-action menu: captures the visible
     /// reminder and flips the dialog flag. Called by the iOS bottom-bar button
-    /// when the gate is open and by the left-swipe `.more` outcome on iOS and
+    /// when the gate is open and by the up-swipe `.more` outcome on iOS and
     /// macOS (ungated on both).
     func presentActionMenu() {
         actionMenuReminder = viewModel.store.visibleReminders.first

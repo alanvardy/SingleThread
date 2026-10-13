@@ -31,7 +31,7 @@ public enum SharedStrings {
         LocalizedStringResource("Skip", table: "Localizable", bundle: .module)
     }
 
-    /// "More" — the left-swipe reveal label, the swipe accessibility action, and
+    /// "More" — the up-swipe reveal label, the swipe accessibility action, and
     /// the bottom-bar action button's accessibility label. Opens the shared
     /// Skip/Reschedule/Delete menu; the menu's Skip item keeps `skipAction`.
     public static var moreAction: LocalizedStringResource {

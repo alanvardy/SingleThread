@@ -115,11 +115,14 @@ final class SingleThreadUITests: XCTestCase {
                        "A ~110pt right drag should complete the reminder")
     }
 
-    /// Left drag past the 72pt release threshold opens the shared action menu
-    /// instead of skipping. Direction/threshold logic is unit-tested; this test
-    /// exists because the gesture-layer presentation is not observable.
+    /// Left drag past the 72pt release threshold skips the reminder instead of
+    /// opening the action menu (the menu now lives behind the up-swipe).
+    /// Direction/threshold logic is unit-tested; this test exists because the
+    /// gesture-layer routing through `List` + `.simultaneousGesture` is not
+    /// observable from unit tests. Uses the `--seed` write-flow seam so the
+    /// skip removes the seeded reminder.
     @MainActor
-    func testOverThresholdSwipeOpensActionMenu() throws {
+    func testOverThresholdSwipeLeftSkips() throws {
         let app = XCUIApplication()
         app.launchArguments = [
             "--seed",
@@ -146,9 +149,50 @@ final class SingleThreadUITests: XCTestCase {
             thenHoldForDuration: 0.1
         )
 
+        XCTAssertFalse(app.buttons["rescheduleButton"].waitForExistence(timeout: 2),
+                       "Left swipe must skip, not open the action menu")
+        let gone = XCTNSPredicateExpectation(
+            predicate: NSPredicate(format: "exists == false"),
+            object: app.staticTexts["Milk"])
+        XCTAssertEqual(XCTWaiter().wait(for: [gone], timeout: 5), .completed,
+                       "A ~110pt left drag should skip the reminder")
+    }
+
+    /// A steep up-drag past the 96pt up threshold opens the shared action menu
+    /// (Skip / Reschedule / Delete). The up-swipe is a gesture-layer routing
+    /// decision that unit tests cannot observe end to end, so it earns a UI
+    /// test here alongside the other two swipe directions.
+    @MainActor
+    func testOverThresholdSwipeUpOpensActionMenu() throws {
+        let app = XCUIApplication()
+        app.launchArguments = [
+            "--seed",
+            // nolint:disable:line_length
+            "{\"reminders\":[{\"title\":\"Milk\",\"priority\":5}],\"calendars\":[\"Groceries\"],\"isEntitled\":true}",
+            "--ui-testing-noop-settle"
+        ]
+        app.launch()
+
+        XCTAssertTrue(
+            app.staticTexts["Milk"].waitForExistence(timeout: 5),
+            "Seeded reminder should render")
+
+        let card = app.descendants(matching: .any)["reminderCard"].firstMatch
+        XCTAssertTrue(card.waitForExistence(timeout: 5),
+                      "Reminder card drag target should render")
+
+        let start = card.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        let end = start.withOffset(CGVector(dx: 0, dy: -130))
+        start.press(
+            forDuration: 0.1,
+            thenDragTo: end,
+            withVelocity: XCUIGestureVelocity(150),
+            thenHoldForDuration: 0.1
+        )
+
         XCTAssertTrue(
             app.buttons["rescheduleButton"].waitForExistence(timeout: 5),
-            "A ~110pt left drag should open the action menu")
+            "A ~130pt up drag should open the action menu")
         XCTAssertTrue(app.buttons["deleteButton"].exists,
                       "Action menu should include the destructive Delete item")
     }
