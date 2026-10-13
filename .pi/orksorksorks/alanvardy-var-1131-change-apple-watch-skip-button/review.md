@@ -1,0 +1,16 @@
+I have verified all required aspects. The committed range itself isn't inspectable via `watchdog_diff` (it only covers unstaged/staged working-tree plus the DELETEME removal), so I relied on reading the current source state of the changed files plus the supply-side diff, which the task explicitly allowed.
+
+## Review
+
+**Correctness — satisfied.**
+- (a) Glyph, accessibility label, and tap action all key off the *same* gate. WatchReminderView.swift:143 (`if canShowActionMenu { viewModel.isShowingActionMenu = true } else { viewModel.store.skipCurrentReminder() }`), line 152 (`systemImage(opensActionMenu: canShowActionMenu)`), and line 156 (`accessibilityLabel(opensActionMenu: canShowActionMenu)`) all pass the single `canShowActionMenu` boolean (defined lines 81–86). The glyph/label can never disagree with the action. ✓
+- (b) iOS mirror verified. ContentView+ActionMenu.swift lines 60–85 use the same three-gate semantics (`ActionMenuGate.showsActionMenu(enableActionButtons:canMutate:hasVisibleReminder:)`, line 18) as the watch gate, choose `SwipeRevealPanel.systemImage(for: .more)` for the menu-open case, and swap the label to `SharedStrings.moreAction`. `SwipeToActModifier.swift:44` confirms `.more → "ellipsis.circle.fill"`, so the watch's literal `"ellipsis.circle.fill"` (WatchSkipButtonAppearance.swift:10) matches exactly, as required by the "iOS-only SwipeRevealPanel" constraint. ✓
+- (c) The three modifiers are unchanged in the committed source: `.tint(.orange)`, `.accessibilityIdentifier("skipButton")`, `.accessibilityAddTraits(.isButton)` all still present on the skip button (WatchReminderView.swift:154–157). ✓
+- (d) Test names conform — `actionMenuOpenShowsEllipsisAndMoreLabel` and `directSkipShowsSlashAndSkipReminderLabel` (no `test`/`testing` prefix) — and both branches (true/false) are covered for symbol and label. `LocalizedStringResource` is Equatable, so the `#expect(==)` comparisons compile. ✓
+- (e) Conventions clean. `nonisolated static` members are correct given the watch target's `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`: the appearance enum type is implicitly `@MainActor`, but the value members are explicitly `nonisolated`, so calls from both the MainActor view closures and the non-MainActor test target typecheck. `SharedStrings.moreAction`/`skipReminderAccessibility`/`skipAction` exist in SingleThreadCore (LocalizedString+Shared.swift:28, 55, 23), which has no MainActor default, so no actor-isolation conflict. New files need no pbxproj edit (synchronized groups). Unit test ships with the change. No force-unwraps.
+
+**Findings.** The `line_length` rule warns at 120; the long accessibility-label line (12 spaces + ~100 chars ≈ 112) is beneath the warning threshold, so `make lint --strict` is clean. No lint/format/concurrency violations found.
+
+Merge verdict: **OK** — no blockers or P1/P2 findings.
+
+Note (report-only): because the commit is already committed, `watchdog_diff` cannot inspect it; verification of the change used the supplied diff plus confirmed the committed source files match it in the working tree.
