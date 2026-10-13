@@ -65,7 +65,14 @@ extension ContentView {
                     viewModel.skipCurrentReminder()
                 }
             } label: {
-                Label(SharedStrings.skipAction, systemImage: "circle.slash")
+                // Mirror the swipe reveal: when the button opens the action
+                // menu, show the same ellipsis-in-circle glyph as the `.more`
+                // swipe panel rather than the circle-slash skip glyph.
+                Label(
+                    SharedStrings.skipAction,
+                    systemImage: showActionMenu
+                        ? SwipeRevealPanel.systemImage(for: .more)
+                        : "circle.slash")
                     .labelStyle(.iconOnly)
                     .controlPlate()
             }
@@ -138,7 +145,9 @@ extension ContentView {
                 }
                 .keyboardShortcut(.delete, modifiers: [])
             } label: {
-                Label(SharedStrings.skipAction, systemImage: "circle.slash")
+                Label(
+                    SharedStrings.skipAction,
+                    systemImage: SwipeRevealPanel.systemImage(for: .more))
                     .labelStyle(.iconOnly)
                     .font(.title)
                     .controlPlate()
