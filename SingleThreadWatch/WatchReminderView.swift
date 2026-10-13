@@ -146,11 +146,14 @@ struct WatchReminderView: View {
                     viewModel.store.skipCurrentReminder()
                 }
             } label: {
-                Label(SharedStrings.skipAction, systemImage: "circle.slash")
+                Label(
+                    SharedStrings.skipAction,
+                    systemImage: WatchSkipButtonAppearance
+                        .systemImage(opensActionMenu: canShowActionMenu))
                     .labelStyle(.iconOnly)
             }
             .tint(.orange)
-            .accessibilityLabel(SharedStrings.skipReminderAccessibility)
+            .accessibilityLabel(WatchSkipButtonAppearance.accessibilityLabel(opensActionMenu: canShowActionMenu))
             .accessibilityIdentifier("skipButton")
             .accessibilityAddTraits(.isButton)
         }
