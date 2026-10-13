@@ -34,7 +34,10 @@ struct ReminderCardView: View {
     // MARK: Internal
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 12) {
+            if showSwipePrompt {
+                upGuide
+            }
             VStack(alignment: .leading, spacing: 4) {
                 content
                 if showNudge {
@@ -45,7 +48,8 @@ struct ReminderCardView: View {
             .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 12, restoresGeometry: true)
 
             if showSwipePrompt {
-                prompt
+                horizontalGuide
+                dismissButton
             }
         }
         .frame(maxWidth: maxWidth)
@@ -195,53 +199,65 @@ struct ReminderCardView: View {
         .accessibilityIdentifier("skipNudgeBanner")
     }
 
-    /// Instructs the user that swiping left skips and swiping right completes.
-    /// Rendered as a separate plate BELOW the card (same fill, centred, small
-    /// gap), so it no longer nests inside the card plate and no longer
-    /// truncates on narrow phones: the two hints stack on their own lines,
-    /// "Swipe right to complete" above "Swipe left to skip". Visual-only: the
-    /// text is hidden from accessibility (VoiceOver users know the
-    /// swipe-gesture vocabulary), but the Dismiss button stays reachable.
-    private var prompt: some View {
-        VStack(spacing: 10) {
-            VStack(spacing: 4) {
-                HStack(spacing: 4) {
-                    Text("Swipe right to complete")
-                    Image(systemName: "arrow.right")
-                }
-                .foregroundStyle(CardPlate.completeHintColor(for: colorScheme))
-
-                HStack(spacing: 4) {
-                    Image(systemName: "arrow.left")
-                    Text("Swipe left to skip")
-                }
-                .foregroundStyle(CardPlate.skipHintColor(for: colorScheme))
-            }
-            .font(.caption)
-            .accessibilityHidden(true)
-
-            Button {
-                showSwipePrompt = false
-            } label: {
-                Text("Dismiss")
-                    .font(.caption.bold())
-                    .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 8)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(colorScheme == .dark ? Color.white : Color.black)
-            // Caption-sized text alone falls below the 44pt accessibility
-            // hit-region minimum; stretch the button's frame vertically so
-            // the hit area passes the audit. Padding on the label content
-            // does not expand the accessibility frame, so it goes on the
-            // button itself.
-            .padding(.vertical, 8)
-            .contentShape(Rectangle())
-            .accessibilityLabel("Dismiss swipe prompt")
-            .accessibilityIdentifier("swipePromptDismissButton")
+    /// `↑ Swipe up for more`, centred above the card. Visual-only: the copy is
+    /// hidden from accessibility (VoiceOver users get the card's swipe actions).
+    private var upGuide: some View {
+        VStack(spacing: 2) {
+            Image(systemName: "arrow.up")
+            Text("Swipe up for more")
         }
-        .cardPlate(fill: CardPlate.plateFill(for: colorScheme))
+        .font(.caption)
+        .foregroundStyle(.secondary)
+        .accessibilityHidden(true)
+    }
+
+    /// `← Swipe left to skip` and `Swipe right to complete →`, one row below the
+    /// card, arrow on the outer edge of each side and tinted like its revealed
+    /// panel. Visual-only.
+    private var horizontalGuide: some View {
+        HStack {
+            HStack(spacing: 4) {
+                Image(systemName: "arrow.left")
+                Text("Swipe left to skip")
+            }
+            .foregroundStyle(CardPlate.skipHintColor(for: colorScheme))
+
+            Spacer(minLength: 8)
+
+            HStack(spacing: 4) {
+                Text("Swipe right to complete")
+                Image(systemName: "arrow.right")
+            }
+            .foregroundStyle(CardPlate.completeHintColor(for: colorScheme))
+        }
+        .font(.caption)
+        .accessibilityHidden(true)
+    }
+
+    /// Hides the swipe guide: writes `false` through the persisted
+    /// `showSwipePrompt` binding. Caption-sized, bordered-prominent, black/white
+    /// adaptive tint so it contrasts on the surrounding backdrop.
+    private var dismissButton: some View {
+        Button {
+            showSwipePrompt = false
+        } label: {
+            Text("Dismiss")
+                .font(.caption.bold())
+                .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 8)
+        }
+        .buttonStyle(.borderedProminent)
+        .tint(colorScheme == .dark ? Color.white : Color.black)
+        // Caption-sized text alone falls below the 44pt accessibility
+        // hit-region minimum; stretch the button's frame vertically so
+        // the hit area passes the audit. Padding on the label content
+        // does not expand the accessibility frame, so it goes on the
+        // button itself.
+        .padding(.vertical, 8)
+        .contentShape(Rectangle())
+        .accessibilityLabel("Dismiss swipe prompt")
+        .accessibilityIdentifier("swipePromptDismissButton")
     }
 
     private func priorityColor(_ level: ReminderPriority.Level) -> Color {

@@ -10,25 +10,26 @@ struct SwipePromptTests {
     @Test
     func promptShownWhenEnabled() {
         let description = String(describing: makeCard(showSwipePrompt: true).body)
+        #expect(description.contains("Swipe up for more"))
         #expect(description.contains("Swipe left to skip"))
         #expect(description.contains("Swipe right to complete"))
-        // The two hints stack, complete above skip, so the caption no longer
-        // truncates on narrow phones. Skim the source order: the reflected body
-        // preserves document order, so the "complete" label must precede the
-        // "skip" label.
-        if let complete = description.range(of: "Swipe right to complete"),
+        // The up label sits ABOVE the card and the side-row hints sit below it;
+        // within the row, the left-swipe hint precedes the right-swipe hint (its
+        // arrow is on the outer/leading edge). The reflected body preserves
+        // document order, so the up label must precede both side hints, and
+        // skip must precede complete.
+        if let upLabel = description.range(of: "Swipe up for more"),
+           let complete = description.range(of: "Swipe right to complete"),
            let skip = description.range(of: "Swipe left to skip") {
-            #expect(complete.lowerBound < skip.lowerBound)
+            #expect(upLabel.lowerBound < skip.lowerBound)
+            #expect(skip.lowerBound < complete.lowerBound)
         } else {
-            Issue.record("Expected both swipe hint labels in the prompt body")
+            Issue.record("Expected all three swipe guide labels in the prompt body")
         }
-        // The prompt sits on a separate plate BELOW the card sharing the card
-        // fill (off-white light / black dark), with adaptive hint colours
-        // (darkened orange/green in light mode, semantic orange/green in dark
-        // mode). The filled shape is drawn by `CardPlateModifier` — SwiftUI
-        // does not inline a ViewModifier's body into the host view's static
-        // type, so the presence of the modifier in the reflected chain pins
-        // the plate composition.
+        // The card itself still sits on a plate drawn by `CardPlateModifier` —
+        // SwiftUI does not inline a ViewModifier's body into the host view's
+        // static type, so the presence of the modifier in the reflected chain
+        // pins the card-plate composition.
         #expect(description.contains("CardPlateModifier"))
         #expect(description.contains("Dismiss"))
     }
@@ -36,7 +37,9 @@ struct SwipePromptTests {
     @Test
     func promptHiddenWhenDisabled() {
         let description = String(describing: makeCard(showSwipePrompt: false).body)
+        #expect(!description.contains("Swipe up for more"))
         #expect(!description.contains("Swipe left to skip"))
+        #expect(!description.contains("Swipe right to complete"))
     }
 
     @Test
