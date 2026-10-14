@@ -1,0 +1,488 @@
+#!/usr/bin/env bash
+#
+# App Store Connect screenshots — iPhone 6.9" and iPad 13" display classes.
+#
+# Per language, per display class, this captures:
+#
+#   main-light.png         main reminder card, light appearance
+#   options-light.png      root Settings sheet, light appearance
+#   main-dark.png          main reminder card, dark appearance
+#   empty-dark.png         "All Done" empty state, dark appearance
+#   no-reminders-dark.png  "No Reminders" empty state, dark appearance
+#
+# The options screen is presented by the `--ui-testing-open-settings` launch
+# seam (`LaunchArgument.openSettings`), which replays the gear button's action
+# at launch — the sheet has no URL scheme or menu command, and `simctl` cannot
+# tap, so no other route reaches it. Capturing options therefore needs an app
+# build that carries the seam; the script rebuilds by default rather than
+# reusing a possibly stale .app (pass --no-build to skip).
+#
+# Output: build/appstore-screenshots/<class>/<lang>/<name>.png
+#
+# The captures are the simulator's native pixels — 1320 x 2868 (6.9") and
+# 2064 x 2752 (13") — which are App Store Connect's accepted pairs for those
+# slots, so no resize or pad is needed. `--mask ignored` drops the rounded
+# device mask that the store does not want.
+#
+# Language: `--ui-testing-app-language <raw>` persists the app-language
+# preference into the App Group, and `AppLocaleState` reads it on the next cold
+# launch. Launching with the flag per language (rather than only once) is what
+# makes every later capture in that language follow — the preference is not
+# cleared by the `--seed` reset (`appLanguage` is absent from
+# `UITestingSeed.persistedKeys`).
+#
+# ── Wallpaper ────────────────────────────────────────────────────────────────
+#
+# The background photo is not bundled. `backgroundEnabled` defaults to true at a
+# 50% fade, and `BackgroundImageStore` shows whatever photo sits at
+#
+#   <app data container>/Library/Application Support/SingleThread/background.jpg
+#
+# with a `background.json` sidecar (`photographer`, `fetchedAt`). A `fetchedAt`
+# inside 24h makes `refreshIfNeeded()` return early, so a staged photo is never
+# overwritten — that is how wallpapers are pinned here.
+#
+# Wallpapers are keyed by "slot" = <device class>-<screen>, NOT by language, so
+# each device/screen pair keeps one fixed photo across all six languages:
+#
+#   iphone-6.9-main-light    ipad-13-main-light      (own photo: the light
+#   iphone-6.9-main-dark     ipad-13-main-dark        appearance composites the
+#                                                     photo over white, not black)
+#   iphone-6.9-options       ipad-13-options
+#   iphone-6.9-empty         ipad-13-empty           ("All Done")
+#   iphone-6.9-no-reminders  ipad-13-no-reminders
+#
+# Fetch one random photo per slot from the API (https://vardy.cc/unsplash/random)
+# and cache it under build/appstore-screenshots/wallpapers/ with a manifest:
+#
+#   scripts/appstore-screenshots.sh --fetch-wallpapers          # random
+#   scripts/appstore-screenshots.sh --wallpaper-url <url>       # one URL, all slots
+#   scripts/appstore-screenshots.sh --wallpaper-url ipad-13-main=<url>
+#
+# Fetched photos are kept: a slot that already has a file is reused verbatim, so
+# re-runs are byte-identical. Rotate deliberately with --refetch-wallpapers.
+# Point WALLPAPER_DIR at a tracked directory to keep them under version control.
+#
+# Without a manifest the script falls back to waiting for the app's own
+# download; that path is not reproducible (the photo varies) and must not be
+# used for a final capture set.
+#
+# Usage: scripts/appstore-screenshots.sh [options] [class ...]
+#        class: iphone-6.9 | ipad-13   (default: both)
+
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+BUNDLE=app.alanvardy.SingleThread
+APP=DerivedData/Build/Products/Debug-iphonesimulator/SingleThread.app
+DESTINATION='generic/platform=iOS Simulator'
+OUT=build/appstore-screenshots
+WALLPAPER_DIR=${WALLPAPER_DIR:-$OUT/wallpapers}
+WALLPAPER_API=${WALLPAPER_API:-https://vardy.cc/unsplash/random}
+SETTLE=${SETTLE:-6}
+
+# Seconds to wait for the app's own wallpaper download (manifest-less fallback).
+# Capturing on a fixed sleep races that download, and terminating the app for
+# the next capture kills it mid-flight — which silently produced backgroundless
+# screenshots for the first four languages of the iPad pass.
+WALLPAPER_TIMEOUT=${WALLPAPER_TIMEOUT:-180}
+
+# Optional path to one local photo to stage into every slot. Overrides the
+# manifest; useful for a marketing photo you hold the rights to.
+BACKGROUND_IMAGE=${BACKGROUND_IMAGE:-}
+
+# "All Done" is `listContent == .allDone` — reminders loaded but every one
+# filtered out, which an excluded list reaches deterministically.
+ALL_DONE_SEED='{"reminders":[{"title":"Buy groceries","notes":"milk","priority":5}],"calendars":["Errands"],"excludedLists":["Errands"]}'
+
+LANGUAGES=(en de es fr ja zh-Hans)
+
+# Wallpaper slots per device class, in capture order. Slot names match the
+# captured file names so a staged photo maps 1:1 onto an output PNG.
+SCREENS=(main-light options main-dark empty no-reminders)
+
+# class:simctl devicetype name regex
+DEVICE_TYPES=(
+  "iphone-6.9:iPhone 18 Pro Max"
+  "ipad-13:iPad Pro 13-inch \\(M5\\)"
+)
+
+# ── CLI ──────────────────────────────────────────────────────────────────────
+
+FETCH_WALLPAPERS=0
+REFETCH_WALLPAPERS=0
+BUILD=1
+WALLPAPER_URLS=()
+CLASSES=()
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --fetch-wallpapers)
+      FETCH_WALLPAPERS=1
+      shift
+      ;;
+    --refetch-wallpapers)
+      FETCH_WALLPAPERS=1
+      REFETCH_WALLPAPERS=1
+      shift
+      ;;
+    --wallpaper-url)
+      FETCH_WALLPAPERS=1
+      WALLPAPER_URLS+=("$2")
+      shift 2
+      ;;
+    --wallpaper-dir)
+      WALLPAPER_DIR=$2
+      shift 2
+      ;;
+    --no-build)
+      BUILD=0
+      shift
+      ;;
+    -h | --help)
+      sed -n '2,70p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    -*)
+      echo "!! unknown option: $1" >&2
+      exit 2
+      ;;
+    *)
+      CLASSES+=("$1")
+      shift
+      ;;
+  esac
+done
+
+MANIFEST=$WALLPAPER_DIR/manifest.json
+
+resolve_udid () { # $1 = device type name regex; newest iOS runtime wins
+  xcrun simctl list devices available --json | python3 -c '
+import json, re, sys
+
+pattern = re.compile(sys.argv[1])
+best = None
+for runtime, devices in json.load(sys.stdin)["devices"].items():
+    if "iOS" not in runtime:
+        continue
+    version = tuple(int(n) for n in re.findall(r"[0-9]+", runtime.rsplit(".", 1)[-1]))
+    for device in devices:
+        if pattern.match(device["name"]) and (best is None or version > best[0]):
+            best = (version, device["udid"])
+print(best[1] if best else "")
+' "$1"
+}
+
+# ── Wallpapers ───────────────────────────────────────────────────────────────
+
+wallpaper_dir () { # app-private cache directory for the background photo
+  local container
+  container=$(xcrun simctl get_app_container "$UDID" "$BUNDLE" data)
+  echo "$container/Library/Application Support/SingleThread"
+}
+
+slot_names () { # every slot for the device classes in play, as <class>-<screen>
+  local entry label screen
+  for entry in "${DEVICE_TYPES[@]}"; do
+    label=${entry%%:*}
+    for screen in "${SCREENS[@]}"; do
+      echo "$label-$screen"
+    done
+  done
+}
+
+fetch_wallpapers () { # one photo per slot, kept once fetched
+  local slots=()
+  local slot
+  while IFS= read -r slot; do slots+=("$slot"); done < <(slot_names)
+  mkdir -p "$WALLPAPER_DIR"
+  [ -f "$MANIFEST" ] || echo '{}' >"$MANIFEST"
+  python3 - "$MANIFEST" "$WALLPAPER_API" "$REFETCH_WALLPAPERS" "${WALLPAPER_URLS[@]+"${WALLPAPER_URLS[@]}"}" "${slots[@]}" <<'PY'
+import datetime, hashlib, json, os, sys, urllib.request
+
+manifest_path, api, refetch, *rest = sys.argv[1:]
+slots = [item for item in rest if "=" not in item]
+overrides = dict(item.split("=", 1) for item in rest if "=" in item)
+directory = os.path.dirname(manifest_path)
+manifest = json.load(open(manifest_path)) if os.path.exists(manifest_path) else {}
+
+# One photo per slot is the whole point, and the random endpoint does repeat
+# itself (it served the same John Lee photo to two slots on the first run), so
+# every draw is checked against the photos already in play.
+REDRAWS = 5
+
+
+def digest(payload):
+    return hashlib.sha256(payload).hexdigest()
+
+
+def download(url):
+    request = urllib.request.Request(url, headers={"User-Agent": "appstore-screenshots"})
+    with urllib.request.urlopen(request, timeout=60) as response:
+        return response.read()
+
+
+def draw(url):
+    """One photo: the default endpoint is JSON describing it, while an
+    explicit --wallpaper-url may already be the image itself."""
+    payload = download(url)
+    photographer, photographer_url = "SingleThread", None
+    try:
+        described = json.loads(payload)
+        photographer = described.get("photographer", "Unknown")
+        photographer_url = described.get("photographer_url")
+        payload = download(described["url"])
+    except (ValueError, KeyError, TypeError):
+        pass
+    return payload, photographer, photographer_url
+
+
+in_play = {}
+for other, entry in manifest.items():
+    path = os.path.join(directory, entry["file"])
+    if os.path.isfile(path):
+        in_play[digest(open(path, "rb").read())] = other
+
+for slot in slots:
+    target = os.path.join(directory, slot + ".jpg")
+    if os.path.exists(target) and slot in manifest and not int(refetch):
+        print("    kept {} ({})".format(slot, manifest[slot]["photographer"]))
+        continue
+    url = overrides.get(slot, overrides.get("*", api))
+    pinned = slot in overrides or "*" in overrides
+    payload, photographer, photographer_url = draw(url)
+    redraws = 0
+    while not pinned and in_play.get(digest(payload), slot) != slot and redraws < REDRAWS:
+        redraws += 1
+        payload, photographer, photographer_url = draw(url)
+    clash = in_play.get(digest(payload))
+    if clash and clash != slot:
+        print("    !! {} still duplicates {} after {} redraws".format(slot, clash, redraws))
+    with open(target, "wb") as handle:
+        handle.write(payload)
+    in_play[digest(payload)] = slot
+    if redraws:
+        print("    redrew {} {}x to avoid a duplicate".format(slot, redraws))
+    manifest[slot] = {
+        "file": os.path.basename(target),
+        "source": url,
+        "photographer": photographer,
+        "photographerURL": photographer_url,
+        "fetchedAt": datetime.datetime.now(datetime.timezone.utc).strftime(
+            "%Y-%m-%dT%H:%M:%SZ"
+        ),
+    }
+    print("    fetched {} -> {} ({} bytes)".format(slot, photographer, len(payload)))
+
+json.dump(manifest, open(manifest_path, "w"), indent=2, sort_keys=True)
+PY
+  echo "    manifest: $MANIFEST"
+}
+
+stage_slot () { # $1 = class, $2 = screen — pin that slot's photo into the app
+  local slot="$1-$2" dir
+  dir=$(wallpaper_dir)
+  mkdir -p "$dir"
+  python3 - "$MANIFEST" "$slot" "$dir" <<'PY'
+import datetime, json, os, shutil, sys
+
+manifest_path, slot, target_dir = sys.argv[1:4]
+entry = json.load(open(manifest_path)).get(slot)
+if not entry:
+    sys.exit(3)
+source = os.path.join(os.path.dirname(manifest_path), entry["file"])
+if not os.path.isfile(source):
+    sys.exit(4)
+shutil.copyfile(source, os.path.join(target_dir, "background.jpg"))
+metadata = {
+    "photographer": entry["photographer"],
+    "fetchedAt": datetime.datetime.now(datetime.timezone.utc).strftime(
+        "%Y-%m-%dT%H:%M:%SZ"
+    ),
+}
+if entry.get("photographerURL"):
+    metadata["photographerURL"] = entry["photographerURL"]
+json.dump(metadata, open(os.path.join(target_dir, "background.json"), "w"))
+PY
+  echo "    wallpaper: $slot"
+}
+
+wallpaper_is_fresh () { # sidecar metadata exists and is inside the 24h window
+  python3 - "$1/background.json" <<'PY'
+import datetime, json, sys
+
+try:
+    meta = json.load(open(sys.argv[1]))
+    fetched = datetime.datetime.strptime(meta["fetchedAt"], "%Y-%m-%dT%H:%M:%SZ")
+except Exception:
+    sys.exit(1)
+fetched = fetched.replace(tzinfo=datetime.timezone.utc)
+now = datetime.datetime.now(datetime.timezone.utc)
+sys.exit(0 if (now - fetched).total_seconds() < 86400 else 1)
+PY
+}
+
+stage_single_wallpaper () { # BACKGROUND_IMAGE into every slot
+  local dir
+  dir=$(wallpaper_dir)
+  mkdir -p "$dir"
+  cp "$BACKGROUND_IMAGE" "$dir/background.jpg"
+  python3 - "$dir/background.json" <<'PY'
+import datetime, json, sys
+
+now = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+json.dump({"photographer": "SingleThread", "fetchedAt": now}, open(sys.argv[1], "w"))
+PY
+  echo "    staged $(basename "$BACKGROUND_IMAGE")"
+}
+
+prepare_wallpaper () { # never capture before a fresh photo is on disk
+  local dir deadline slot missing=0
+  if [ -n "$BACKGROUND_IMAGE" ]; then
+    stage_single_wallpaper
+    return
+  fi
+  if [ -f "$MANIFEST" ]; then
+    for screen in "${SCREENS[@]}"; do
+      slot="$LABEL-$screen"
+      if ! python3 -c '
+import json, os, sys
+
+manifest_path, slot = sys.argv[1:3]
+try:
+    entry = json.load(open(manifest_path))[slot]
+except Exception:
+    sys.exit(1)
+sys.exit(0 if os.path.isfile(os.path.join(os.path.dirname(manifest_path), entry["file"])) else 1)
+' "$MANIFEST" "$slot"; then
+        missing=1
+      fi
+    done
+    if [ "$missing" -eq 1 ]; then
+      echo "!! some $LABEL wallpaper slots are missing — run with --fetch-wallpapers first" >&2
+      return 1
+    fi
+    return 0
+  fi
+
+  # Fallback: let the app download one, and refuse to capture until it lands.
+  echo "    no wallpaper manifest — waiting on the app's own download" >&2
+  dir=$(wallpaper_dir)
+  xcrun simctl launch "$UDID" "$BUNDLE" --ui-testing --ui-testing-noop-settle >/dev/null 2>&1 || true
+  deadline=$((SECONDS + WALLPAPER_TIMEOUT))
+  while [ "$SECONDS" -lt "$deadline" ]; do
+    if [ -f "$dir/background.jpg" ] && wallpaper_is_fresh "$dir"; then
+      echo "    wallpaper ready"
+      return
+    fi
+    sleep 3
+  done
+  echo "!! no fresh wallpaper after ${WALLPAPER_TIMEOUT}s — captures would be backgroundless" >&2
+  return 1
+}
+
+# ── Capture ──────────────────────────────────────────────────────────────────
+
+shoot () { # $1 = output path, rest = launch arguments
+  local out=$1
+  shift
+  xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
+  sleep 1
+  xcrun simctl launch "$UDID" "$BUNDLE" "$@" >/dev/null
+  sleep "$SETTLE"
+  xcrun simctl io "$UDID" screenshot --mask ignored "$out" >/dev/null
+  echo "    $(basename "$(dirname "$out")")/$(basename "$out")"
+}
+
+capture_class () { # $1 = class label, $2 = device type regex
+  local label=$1
+  local pattern=$2
+  local udid dir
+  udid=$(resolve_udid "$pattern")
+  if [ -z "$udid" ]; then
+    echo "!! no available simulator for '$pattern' — skipping $label" >&2
+    return 1
+  fi
+
+  echo "==> $label ($pattern)"
+  UDID=$udid
+  LABEL=$label
+  xcrun simctl boot "$UDID" 2>/dev/null || true
+  xcrun simctl bootstatus "$UDID" -b >/dev/null
+  xcrun simctl install "$UDID" "$APP"
+  prepare_wallpaper
+
+  for language in "${LANGUAGES[@]}"; do
+    dir="$OUT/$label/$language"
+    mkdir -p "$dir"
+    echo "  -> $language"
+    stage_slot "$label" main-light || true
+    xcrun simctl ui "$UDID" appearance light
+    shoot "$dir/main-light.png" \
+      --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language"
+    stage_slot "$label" options || true
+    shoot "$dir/options-light.png" \
+      --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language" \
+      --ui-testing-open-settings
+    stage_slot "$label" main-dark || true
+    xcrun simctl ui "$UDID" appearance dark
+    shoot "$dir/main-dark.png" \
+      --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language"
+    stage_slot "$label" empty || true
+    shoot "$dir/empty-dark.png" --seed "$ALL_DONE_SEED"
+    stage_slot "$label" no-reminders || true
+    shoot "$dir/no-reminders-dark.png" --no-reminders
+  done
+
+  xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
+}
+
+# ── Run ──────────────────────────────────────────────────────────────────────
+
+if [ ${#CLASSES[@]} -eq 0 ]; then
+  CLASSES=(iphone-6.9 ipad-13)
+fi
+
+if [ "$FETCH_WALLPAPERS" -eq 1 ]; then
+  echo "==> wallpapers"
+  fetch_wallpapers
+fi
+
+if [ "$BUILD" -eq 1 ]; then
+  echo "==> building $APP"
+  xcodebuild -scheme SingleThread -configuration Debug \
+    -destination "$DESTINATION" -derivedDataPath DerivedData build >/dev/null
+fi
+
+for entry in "${DEVICE_TYPES[@]}"; do
+  label=${entry%%:*}
+  pattern=${entry#*:}
+  for wanted in "${CLASSES[@]}"; do
+    if [ "$wanted" = "$label" ]; then
+      capture_class "$label" "$pattern"
+    fi
+  done
+done
+
+echo "==> verifying sizes"
+fail=0
+count=0
+for shot in "$OUT"/*/*/*.png; do
+  count=$((count + 1))
+  dims=$(sips -g pixelWidth -g pixelHeight "$shot" | tail -2 | tr -dc '0-9\n' | paste -sd x -)
+  case "$dims" in
+    1320x2868 | 2064x2752) ;;
+    *)
+      echo "!! ${shot} is ${dims}" >&2
+      fail=1
+      ;;
+  esac
+done
+if [ "$fail" -ne 0 ]; then
+  echo "!! some screenshots are not an App Store Connect-accepted size" >&2
+  exit 1
+fi
+echo "    ${count} screenshots, every size accepted"
+
+echo "==> done: $OUT"
