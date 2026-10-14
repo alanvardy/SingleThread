@@ -46,13 +46,16 @@ public nonisolated enum SwipeGesture {
     }
 
     /// Which reveal direction a live drag offset maps to: right → complete,
-    /// left → skip, a steep upward drag → more, zero → nothing.
+    /// left → skip, a steep upward drag → more. Non-steep vertical-dominant
+    /// drags and zero reveal nothing, mirroring `outcome(for:)` so the preview
+    /// cannot advertise an action the release would discard.
     public static func revealedOutcome(forOffset offset: CGSize) -> SwipeGestureOutcome {
         let horizontal = offset.width
         let vertical = offset.height
         if vertical < 0, abs(vertical) > 2 * abs(horizontal) {
             return .more
         }
+        guard abs(vertical) <= abs(horizontal) else { return .none }
         if horizontal > 0 {
             return .complete
         }
