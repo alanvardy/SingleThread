@@ -90,6 +90,15 @@ struct SwipeGestureDecisionTests {
     }
 
     @Test
+    func shallowUpRevealsNothing() {
+        // A vertical-dominant drag that is not steep enough to fire `.more` on
+        // release must not preview a horizontal action either; the reveal and
+        // the release outcome must agree.
+        #expect(SwipeGesture.revealedOutcome(forOffset: CGSize(width: 60, height: -100)) == .none)
+        #expect(SwipeGesture.revealedOutcome(forOffset: CGSize(width: -60, height: -100)) == .none)
+    }
+
+    @Test
     func zeroDragOffsetRevealsNothing() {
         #expect(SwipeGesture.revealedOutcome(forOffset: CGSize.zero) == .none)
     }
