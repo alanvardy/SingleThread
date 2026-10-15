@@ -64,27 +64,6 @@ struct SwipeToActModifierTests {
         #expect(SwipeRevealPanel.alignment(for: .more) == .bottom)
     }
 
-    /// The pull-down reveals the refresh panel from the top edge as the card is
-    /// pulled downward.
-    @Test
-    func refreshPanelAnchorsPlateToTopEdge() {
-        #expect(SwipeRevealPanel.alignment(for: .refresh) == .top)
-    }
-
-    @Test
-    func refreshPanelShowsRefreshLabel() {
-        let description = String(describing: SwipeRevealPanel(outcome: .refresh, progress: 1).body)
-        #expect(description.contains("Refresh"))
-        #expect(description.contains("CardPlateModifier"))
-    }
-
-    /// The revealed glyph must be the clockwise-refresh SF Symbol, not a
-    /// directional arrow or the ellipsis used by the other rails.
-    @Test
-    func refreshPanelUsesClockwiseGlyph() {
-        #expect(SwipeRevealPanel.systemImage(for: .refresh) == "arrow.clockwise.circle.fill")
-    }
-
     /// Regression guard for the stranded "More" plate: the reveal container
     /// must hug the card vertically. Without a vertical fixed-size constraint
     /// the flexible panel absorbs the row's full-height proposal and `.bottom`

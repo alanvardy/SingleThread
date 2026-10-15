@@ -468,8 +468,6 @@ struct ContentView: View {
                                         viewModel.skipCurrentReminder()
                                     case .more:
                                         presentActionMenu()
-                                    case .refresh:
-                                        Task { await viewModel.reload() }
                                     case .none:
                                         break
                                     }
@@ -513,9 +511,13 @@ struct ContentView: View {
                     // Clear the List's own background too — after the scroll-content
                     // hide, so it wins on iPadOS 18 regardless of which layer is opaque.
                     .background(Color.clear)
-                    // No `.refreshable` here: the card's own pull-down rail
-                    // fires the refresh and shows the branded reveal panel, so
-                    // the native control would double-fire and compete with it.
+                    // The reminder list is a single full-height row, so the stock
+                    // `.refreshable` control never arms on it. Pull-down lives on
+                    // the whole surface instead — on the card or above it — and
+                    // paints its own panel + spinner.
+                    .pullToRefresh {
+                        await viewModel.refreshManual()
+                    }
                     bottomBar
                 }
             case .noAccess:
