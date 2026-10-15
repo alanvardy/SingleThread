@@ -33,6 +33,24 @@ struct CardPlateTests {
     }
 
     @Test
+    func refreshHintColorBlueInDarkMode() {
+        #expect(CardPlate.refreshHintColor(for: .dark) == .blue)
+    }
+
+    @Test
+    func refreshHintColorDarkenedBlueInLightMode() {
+        #expect(CardPlate.refreshHintColor(for: .light) == Color(red: 0.05, green: 0.35, blue: 0.72))
+    }
+
+    /// The refresh rail must read as its own action, so its tint cannot collide
+    /// with the complete/skip rails.
+    @Test
+    func refreshHintColorDiffersFromCompleteAndSkip() {
+        #expect(CardPlate.refreshHintColor(for: .dark) != CardPlate.completeHintColor(for: .dark))
+        #expect(CardPlate.refreshHintColor(for: .dark) != CardPlate.skipHintColor(for: .dark))
+    }
+
+    @Test
     func plateFillOffWhiteInLightMode() {
         let fill = CardPlate.plateFill(for: .light)
         #expect(fill == Color(red: 0.96, green: 0.95, blue: 0.94))
