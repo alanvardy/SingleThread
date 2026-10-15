@@ -1,4 +1,5 @@
 import CoreGraphics
+import SingleThreadCore
 import SwiftUI
 
 /// Pure pull-down-to-refresh rule. Extracted from the modifier so the arming
@@ -7,6 +8,11 @@ enum PullToRefresh {
     /// Downward travel (pt) past which releasing fires the refresh. Matches the
     /// up-swipe release distance so every vertical pull feels consistent.
     static let releaseDistance: CGFloat = 96
+
+    /// Shortest time the panel stays up once a refresh starts. A local fetch
+    /// can finish in well under a frame, which would read as a flicker rather
+    /// than as feedback.
+    static let minimumVisible: TimeInterval = 0.6
 
     /// True when `pull` has travelled far enough to refresh on release.
     static func isArmed(pull: CGFloat, threshold: CGFloat = releaseDistance) -> Bool {
@@ -58,17 +64,7 @@ struct PullToRefreshModifier: ViewModifier {
                             withAnimation(.snappy) { pull = 0 }
                             return
                         }
-                        withAnimation(.snappy) {
-                            pull = threshold
-                            isRefreshing = true
-                        }
-                        Task {
-                            await onRefresh()
-                            withAnimation(.snappy) {
-                                isRefreshing = false
-                                pull = 0
-                            }
-                        }
+                        runRefresh()
                     })
             .overlay(alignment: .top) { panel }
             .accessibilityAction(named: Text("Refresh")) {
@@ -116,7 +112,14 @@ struct PullToRefreshModifier: ViewModifier {
             isRefreshing = true
         }
         Task {
+            let startedAt = Date()
             await onRefresh()
+            let remaining = MinimumDisplayDuration.remainingSleep(
+                elapsed: Date().timeIntervalSince(startedAt),
+                minimum: PullToRefresh.minimumVisible)
+            if remaining > 0 {
+                try? await Task.sleep(for: .seconds(remaining))
+            }
             withAnimation(.snappy) {
                 isRefreshing = false
                 pull = 0
