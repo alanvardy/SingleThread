@@ -15,8 +15,13 @@
 # watch's own seams in `WatchDemoReminder`:
 #
 #   main.png          reminder card
+#   more.png          three-action menu — Skip / Reschedule / Delete
 #   all-done.png      "All Done" (`--ui-testing-excluded-list`)
 #   no-reminders.png  "No Reminders" (`--ui-testing-empty`)
+#
+# The menu and the empty states exist only behind seams: the menu needs a tap on
+# the Skip button (`--ui-testing-open-action-menu` presents it at launch), and
+# `--ui-testing` always seeds a card, so nothing else reaches the empty store.
 #
 # watchOS follows the *device* language rather than an in-app preference, so
 # each language pass writes AppleLanguages/AppleLocale into the watch simulator
@@ -576,6 +581,9 @@ capture_watch () { # $1 = device type regex
     watch_set_language "$language"
     watch_shot "$dir/main.png" --ui-testing \
       --ui-testing-title "$(demo_reminder_title "$language")" --ui-testing-notes ""
+    watch_shot "$dir/more.png" --ui-testing \
+      --ui-testing-title "$(demo_reminder_title "$language")" --ui-testing-notes "" \
+      --ui-testing-open-action-menu
     watch_shot "$dir/all-done.png" --ui-testing --ui-testing-excluded-list Errands
     watch_shot "$dir/no-reminders.png" --ui-testing --ui-testing-empty
   done

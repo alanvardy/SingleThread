@@ -58,6 +58,13 @@ final class WatchAppViewModel {
             // `waitForExistence` assertion (production duration is 0.5 s).
             reminderViewModel.completionGlow.duration = 2.0
         }
+        // `--ui-testing-open-action-menu` presents the three-action menu (Skip /
+        // Reschedule / Delete) at launch. Opening it otherwise needs a tap on the
+        // Skip button, which `simctl` cannot perform, so the App Store screenshot
+        // harness has no other route to that screen.
+        if arguments.contains("--ui-testing-open-action-menu") {
+            reminderViewModel.isShowingActionMenu = true
+        }
         // --ui-testing-action-menu: force the action-menu toggle ON so the watch
         // action-menu flow is testable without a paired phone. Every other
         // --ui-testing launch explicitly applies OFF: the value persists in the
