@@ -18,6 +18,20 @@ struct WatchAppViewModelTests {
     }
 
     @Test
+    func actionMenuSeamOpensTheDialogAtLaunch() {
+        let appViewModel = WatchAppViewModel(arguments: ["--ui-testing-open-action-menu"])
+        #expect(
+            appViewModel.reminderViewModel.isShowingActionMenu,
+            "The seam must present Skip / Reschedule / Delete at launch")
+    }
+
+    @Test
+    func actionMenuStaysClosedWithoutTheSeam() {
+        let appViewModel = WatchAppViewModel(arguments: ["--ui-testing"])
+        #expect(!appViewModel.reminderViewModel.isShowingActionMenu)
+    }
+
+    @Test
     func glowUITestSeamExtendsDuration() {
         let appViewModel = WatchAppViewModel(arguments: ["--ui-testing-glow"])
         #expect(appViewModel.isGlowUITesting)
