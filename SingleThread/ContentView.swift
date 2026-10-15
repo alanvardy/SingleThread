@@ -420,7 +420,7 @@ struct ContentView: View {
                         .frame(maxWidth: .infinity, minHeight: viewHeight, alignment: .center)
                 }
                 .scrollBounceBehavior(.always)
-                .refreshable {
+                .pullToRefresh {
                     await viewModel.reload(clearSkipped: true)
                 }
             case let .empty(hasHidden):
@@ -433,7 +433,7 @@ struct ContentView: View {
                             .frame(maxWidth: .infinity, minHeight: viewHeight, alignment: .center)
                     }
                     .scrollBounceBehavior(.always)
-                    .refreshable {
+                    .pullToRefresh {
                         await viewModel.reload()
                     }
                     bottomBar
@@ -511,10 +511,10 @@ struct ContentView: View {
                     // Clear the List's own background too — after the scroll-content
                     // hide, so it wins on iPadOS 18 regardless of which layer is opaque.
                     .background(Color.clear)
-                    // The reminder list is a single full-height row, so the stock
-                    // `.refreshable` control never arms on it. Pull-down lives on
-                    // the whole surface instead — on the card or above it — and
-                    // paints its own panel + spinner.
+                    // The stock `.refreshable` control never arms on a list whose
+                    // single row is full height, so every screen hangs pull-down
+                    // off the whole scroll surface and paints its own panel +
+                    // spinner instead.
                     .pullToRefresh {
                         await viewModel.refreshManual()
                     }
