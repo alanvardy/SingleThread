@@ -2,13 +2,11 @@
 
 ## Shell Environment
 
-- The command tool runs **fish** — see `~/.pi/agent/AGENTS.md` "Shell
-  environment" and the `fish-shell` skill. Accepted forms here: multi-file
-  `grep` without a loop; `bash -c '…'` (or `/tmp/x.sh`) for loops, heredocs
-  and `$( )`; `set VAR val` instead of `VAR=val`; `$status` instead of `$?`.
-  Any `fish:`-prefixed line is a rejection — switch immediately, never re-send
-  a variant. Quote globs even in an accepted multi-file grep (`rg -g '*.swift'`).
-  Applies to the parent **and** to every fan-out child.
+- The command tool runs **fish**, not bash — see the `fish-shell` skill. Anything
+  compound (loop, heredoc, `VAR=`, `$( )`) goes in `/tmp/x.sh` or `bashrun
+  '<line>'`; `set VAR val` / `$status`, not bash forms. A `fish:` rejection
+  aborts the line — stop, never re-send a variant. Quote globs (`rg -g '*.swift'`).
+  Applies to the parent **and** every fan-out child.
 
 ## Build & Test
 
@@ -35,11 +33,12 @@
   Testing) / `-only-testing:SingleThreadUITests` (XCTest, a11y audit), pinned.
 - **Debug builds only**: `DEBUG_INFORMATION_FORMAT = dwarf` keeps incremental
   builds fast. Release builds switch to `dwarf-with-dsym`.
-- **Single test**: pin the destination from `.simulator_id`, and run it via
-  `scripts/test-one.sh <Target/Suite/case>` — it exits non-zero when the run
-  matched **zero** cases, because a zero-match `-only-testing:` prints
-  `** TEST SUCCEEDED **` and exits 0, silently passing a red-first check. It
-  also bounds the run; an unbounded foreground suite has hung for 600 s twice.
+- **Single test**: pin the destination from `.simulator_id`, run
+  `scripts/test-one.sh <Target/Suite>` — exits non-zero on a zero-match (a
+  zero-match `-only-testing:` prints `** TEST SUCCEEDED **`, exits 0) and bounds
+  the run (unbounded suites have hung for 600 s). **Swift Testing**: a bare
+  `<Target/Suite/case>` matches **zero** — use suite-level, or append `()` to the
+  case name (`…/shallowUpRevealsNothing()`). XCTest (UI) keeps the bare form.
 
 ## Concurrency Model
 
