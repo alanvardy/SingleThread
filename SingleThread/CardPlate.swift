@@ -39,4 +39,12 @@ enum CardPlate {
     static func completeHintColor(for colorScheme: ColorScheme) -> Color {
         colorScheme == .dark ? .green : Color(red: 0.10, green: 0.58, blue: 0.24)
     }
+
+    /// Adaptive tint for the pull-down refresh reveal panel (darkened blue in
+    /// light mode, semantic `.blue` in dark mode — same rationale as
+    /// `skipHintColor(for:)`). Blue keeps the refresh direction distinct from
+    /// complete/skip/more on the off-white plate.
+    static func refreshHintColor(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? .blue : Color(red: 0.05, green: 0.35, blue: 0.72)
+    }
 }

@@ -28,15 +28,17 @@ struct SwipeRevealPanel: View {
 
     /// Edge the label plate hugs. Complete is uncovered from the leading edge
     /// as the card travels right, Skip from the trailing edge as it travels
-    /// left, More from the bottom edge as the card is lifted up. `.none` is
-    /// never rendered, so its arm is an arbitrary placeholder. Extracted from
-    /// the body so the placement decision is unit-testable — SwiftUI layout
-    /// itself cannot be asserted headlessly.
+    /// left, More from the bottom edge as the card is lifted up, Refresh from
+    /// the top edge as the card is pulled down. `.none` is never rendered, so
+    /// its arm is an arbitrary placeholder. Extracted from the body so the
+    /// placement decision is unit-testable — SwiftUI layout itself cannot be
+    /// asserted headlessly.
     static func alignment(for outcome: SwipeGestureOutcome) -> Alignment {
         switch outcome {
         case .complete: .leading
         case .skip: .trailing
         case .more: .bottom
+        case .refresh: .top
         case .none: .leading
         }
     }
@@ -49,6 +51,7 @@ struct SwipeRevealPanel: View {
         case .complete: "checkmark.circle.fill"
         case .skip: "arrow.left.circle.fill"
         case .more: "ellipsis.circle.fill"
+        case .refresh: "arrow.clockwise.circle.fill"
         case .none: "circle"
         }
     }
@@ -85,6 +88,11 @@ struct SwipeRevealPanel: View {
                 title: SharedStrings.moreAction,
                 systemImage: Self.systemImage(for: outcome),
                 tint: CardPlate.skipHintColor(for: colorScheme))
+        case .refresh:
+            Presentation(
+                title: LocalizedStringResource("Refresh", table: "Localizable", bundle: .main),
+                systemImage: Self.systemImage(for: outcome),
+                tint: CardPlate.refreshHintColor(for: colorScheme))
         case .none:
             Presentation(
                 title: SharedStrings.completeAction,
@@ -120,9 +128,9 @@ struct SwipeRevealContainer<Content: View>: View {
 }
 
 /// Drag-to-act behaviour for the reminder card: locks the drag to a single
-/// axis (right → complete, left → skip, up → more), reveals `SwipeRevealPanel`
-/// behind the card, fires `onOutcome` on release past `threshold`, and always
-/// animates the card back to zero.
+/// axis (right → complete, left → skip, up → more, down → refresh), reveals
+/// `SwipeRevealPanel` behind the card, fires `onOutcome` on release past
+/// `threshold`, and always animates the card back to zero.
 struct SwipeToActModifier: ViewModifier {
     // MARK: Lifecycle
 
@@ -142,7 +150,7 @@ struct SwipeToActModifier: ViewModifier {
         SwipeRevealContainer(revealedOutcome: revealedOutcome, progress: progress) {
             content
                 .contentShape(Rectangle())
-                .offset(x: dragOffset.width, y: min(dragOffset.height, 0))
+                .offset(x: dragOffset.width, y: dragOffset.height)
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 10)
                         .onChanged { value in
@@ -170,6 +178,9 @@ struct SwipeToActModifier: ViewModifier {
                 .accessibilityAction(named: Text(SharedStrings.moreAction)) {
                     onOutcome(.more)
                 }
+                .accessibilityAction(named: Text("Refresh")) {
+                    onOutcome(.refresh)
+                }
                 .accessibilityIdentifier("reminderCard")
         }
     }
@@ -196,7 +207,8 @@ struct SwipeToActModifier: ViewModifier {
 
 extension View {
     /// Adds drag-to-complete (right) / drag-to-skip (left) / drag-to-more (up)
-    /// with a reveal panel behind the view and a fixed release threshold.
+    /// / drag-to-refresh (down) with a reveal panel behind the view and a fixed
+    /// release threshold.
     func swipeToAct(
         threshold: CGFloat = SwipeGesture.releaseDistance,
         onOutcome: @escaping (SwipeGestureOutcome) -> Void) -> some View {
