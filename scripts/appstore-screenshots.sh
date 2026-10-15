@@ -17,6 +17,19 @@
 # build that carries the seam; the script rebuilds by default rather than
 # reusing a possibly stale .app (pass --no-build to skip).
 #
+# The main card shows one localized demo reminder — "Teach the cat how to do my
+# taxes" and its five translations, in `demo_reminder_seed` below. It travels in
+# a --seed payload rather than the app's string catalog: reminder text is user
+# content, and cataloging marketing copy would ship it inside the binary and
+# put it in front of translators. Two consequences:
+#
+#   * `-showSwipePrompt NO` is required. A seeded launch resets the first-launch
+#     swipe guide back on (UITestingSeed.persistedKeys) and it draws over the
+#     card; the argument domain sits above the persistent one, so the flag wins.
+#   * The app language is primed by a throwaway --ui-testing launch per language
+#     before the seeded captures, because --ui-testing-app-language is read only
+#     on the --ui-testing path.
+#
 # Output: build/appstore-screenshots/<class>/<lang>/<name>.png
 #
 # The captures are the simulator's native pixels — 1320 x 2868 (6.9") and
@@ -72,7 +85,7 @@
 
 set -euo pipefail
 
-cd "$(dirname "$0")/.."
+cd "${REPO_ROOT:-$(dirname "$0")/..}"
 
 BUNDLE=app.alanvardy.SingleThread
 APP=DerivedData/Build/Products/Debug-iphonesimulator/SingleThread.app
@@ -96,6 +109,26 @@ BACKGROUND_IMAGE=${BACKGROUND_IMAGE:-}
 # filtered out, which an excluded list reaches deterministically.
 ALL_DONE_SEED='{"reminders":[{"title":"Buy groceries","notes":"milk","priority":5}],"calendars":["Errands"],"excludedLists":["Errands"]}'
 
+demo_reminder_seed () { # $1 = language → seed JSON holding the localized demo reminder
+  local title
+  case "$1" in
+    en) title="Teach the cat how to do my taxes" ;;
+    de) title="Der Katze beibringen, meine Steuererklärung zu machen" ;;
+    es) title="Enseñarle al gato a hacer mi declaración de la renta" ;;
+    fr) title="Apprendre au chat à faire ma déclaration d'impôts" ;;
+    ja) title="猫に確定申告のやり方を教える" ;;
+    zh-Hans) title="教猫帮我报税" ;;
+    *)
+      echo "!! no demo reminder for language '$1'" >&2
+      return 1
+      ;;
+  esac
+  # python rather than printf: the French copy carries an apostrophe and every
+  # language carries non-ASCII, so the JSON needs real escaping.
+  python3 -c 'import json, sys
+print(json.dumps({"reminders": [{"title": sys.argv[1], "priority": 5}], "calendars": ["Errands"]}, ensure_ascii=False))' "$title"
+}
+
 LANGUAGES=(en de es fr ja zh-Hans)
 
 # Wallpaper slots per device class, in capture order. Slot names match the
@@ -113,6 +146,7 @@ DEVICE_TYPES=(
 FETCH_WALLPAPERS=0
 REFETCH_WALLPAPERS=0
 BUILD=1
+INSTALL=1
 WALLPAPER_URLS=()
 CLASSES=()
 
@@ -138,6 +172,10 @@ while [ $# -gt 0 ]; do
       ;;
     --no-build)
       BUILD=0
+      shift
+      ;;
+    --no-install)
+      INSTALL=0
       shift
       ;;
     -h | --help)
@@ -384,6 +422,13 @@ sys.exit(0 if os.path.isfile(os.path.join(os.path.dirname(manifest_path), entry[
 
 # ── Capture ──────────────────────────────────────────────────────────────────
 
+prime_language () { # $1 = language — --ui-testing-app-language lands only on the --ui-testing path
+  xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
+  xcrun simctl launch "$UDID" "$BUNDLE" --ui-testing --ui-testing-noop-settle \
+    --ui-testing-app-language "$1" >/dev/null
+  sleep 2
+}
+
 shoot () { # $1 = output path, rest = launch arguments
   local out=$1
   shift
@@ -410,17 +455,21 @@ capture_class () { # $1 = class label, $2 = device type regex
   LABEL=$label
   xcrun simctl boot "$UDID" 2>/dev/null || true
   xcrun simctl bootstatus "$UDID" -b >/dev/null
-  xcrun simctl install "$UDID" "$APP"
+  if [ "$INSTALL" -eq 1 ]; then
+    xcrun simctl install "$UDID" "$APP"
+  fi
   prepare_wallpaper
 
   for language in "${LANGUAGES[@]}"; do
     dir="$OUT/$label/$language"
     mkdir -p "$dir"
     echo "  -> $language"
+    demo_seed=$(demo_reminder_seed "$language")
+    prime_language "$language"
     stage_slot "$label" main-light || true
     xcrun simctl ui "$UDID" appearance light
     shoot "$dir/main-light.png" \
-      --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language"
+      --seed "$demo_seed" --ui-testing-noop-settle -showSwipePrompt NO
     stage_slot "$label" options || true
     shoot "$dir/options-light.png" \
       --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language" \
@@ -428,7 +477,7 @@ capture_class () { # $1 = class label, $2 = device type regex
     stage_slot "$label" main-dark || true
     xcrun simctl ui "$UDID" appearance dark
     shoot "$dir/main-dark.png" \
-      --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language"
+      --seed "$demo_seed" --ui-testing-noop-settle -showSwipePrompt NO
     stage_slot "$label" empty || true
     shoot "$dir/empty-dark.png" --seed "$ALL_DONE_SEED"
     stage_slot "$label" no-reminders || true
@@ -449,7 +498,7 @@ if [ "$FETCH_WALLPAPERS" -eq 1 ]; then
   fetch_wallpapers
 fi
 
-if [ "$BUILD" -eq 1 ]; then
+if [ "$BUILD" -eq 1 ] && [ "$INSTALL" -eq 1 ]; then
   echo "==> building $APP"
   xcodebuild -scheme SingleThread -configuration Debug \
     -destination "$DESTINATION" -derivedDataPath DerivedData build >/dev/null
