@@ -30,32 +30,10 @@ struct SwipeGestureDecisionTests {
 
     @Test
     func downwardDragNeverOpensMore() {
-        // The down rail can only refresh; it must never be misread as the
-        // up-rail's `.more`.
-        #expect(SwipeGesture.outcome(for: CGSize(width: 0, height: 130)) != .more)
-    }
-
-    @Test
-    func downPastThresholdRefreshes() {
-        #expect(SwipeGesture.outcome(for: CGSize(width: 0, height: 100)) == .refresh)
-    }
-
-    @Test
-    func downBelowThresholdDoesNothing() {
-        #expect(SwipeGesture.outcome(for: CGSize(width: 0, height: 80)) == .none)
-    }
-
-    @Test
-    func shallowDownIsIgnored() {
-        // Past the down threshold but not steep enough (|dy| <= 2·|dx|) — a
-        // diagonal `List` bounce, not a command.
+        // Downward travel belongs to the pull-to-refresh surface; the card's
+        // swipe must never misread it as the up-rail's `.more`.
+        #expect(SwipeGesture.outcome(for: CGSize(width: 0, height: 130)) == .none)
         #expect(SwipeGesture.outcome(for: CGSize(width: 60, height: 100)) == .none)
-        #expect(SwipeGesture.outcome(for: CGSize(width: -60, height: 100)) == .none)
-    }
-
-    @Test
-    func downExactlyAtThresholdFires() {
-        #expect(SwipeGesture.outcome(for: CGSize(width: 0, height: 96)) == .refresh)
     }
 
     @Test
@@ -112,17 +90,12 @@ struct SwipeGestureDecisionTests {
         #expect(SwipeGesture.revealedOutcome(forOffset: CGSize(width: 0, height: -60)) == .more)
     }
 
+    /// A downward offset reveals nothing on the card — the pull-to-refresh
+    /// surface owns it, so the card must not advertise a competing action.
     @Test
-    func downwardDragOffsetRevealsRefresh() {
-        #expect(SwipeGesture.revealedOutcome(forOffset: CGSize(width: 0, height: 60)) == .refresh)
-    }
-
-    @Test
-    func shallowDownRevealsNothing() {
-        // Symmetric with `shallowUpRevealsNothing`: a diagonal downward bounce
-        // must not advertise a refresh the release would discard.
+    func downwardDragOffsetRevealsNothing() {
+        #expect(SwipeGesture.revealedOutcome(forOffset: CGSize(width: 0, height: 60)) == .none)
         #expect(SwipeGesture.revealedOutcome(forOffset: CGSize(width: 60, height: 100)) == .none)
-        #expect(SwipeGesture.revealedOutcome(forOffset: CGSize(width: -60, height: 100)) == .none)
     }
 
     @Test

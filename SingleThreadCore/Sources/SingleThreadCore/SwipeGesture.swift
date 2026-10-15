@@ -12,7 +12,6 @@ public enum SwipeGestureOutcome: Equatable {
     case complete
     case skip
     case more
-    case refresh
     case none
 }
 
@@ -29,29 +28,19 @@ public nonisolated enum SwipeGesture {
     /// scroll must not trip it.
     public static let upReleaseDistance: CGFloat = 96
 
-    /// Downward travel (pt) past which a steep pull-down release refreshes.
-    /// Matches `upReleaseDistance` for the same reason: the drag is attached
-    /// simultaneously with `List` rubber-banding, so an incidental bounce must
-    /// not trip it.
-    public static let downReleaseDistance: CGFloat = 96
-
     /// Classifies a released drag translation. Horizontal-dominant drags map
     /// right → complete, left → skip. A steep upward drag (`dy` past
-    /// `upThreshold` and more than twice the horizontal travel) → more; a steep
-    /// downward drag past `downThreshold` → refresh. Shallow vertical drags are
-    /// ignored so a diagonal `List` bounce neither swipes nor refreshes.
+    /// `upThreshold` and more than twice the horizontal travel) → more.
+    /// Downward and shallow vertical drags are ignored: the pull-down is owned
+    /// by the list's own `pullToRefresh` surface, which also shows the spinner.
     public static func outcome(
         for translation: CGSize,
         threshold: CGFloat = releaseDistance,
-        upThreshold: CGFloat = upReleaseDistance,
-        downThreshold: CGFloat = downReleaseDistance) -> SwipeGestureOutcome {
+        upThreshold: CGFloat = upReleaseDistance) -> SwipeGestureOutcome {
         let horizontal = translation.width
         let vertical = translation.height
         if vertical <= -upThreshold, abs(vertical) > 2 * abs(horizontal) {
             return .more
-        }
-        if vertical >= downThreshold, abs(vertical) > 2 * abs(horizontal) {
-            return .refresh
         }
         guard abs(vertical) <= abs(horizontal) else { return .none }
         if horizontal >= threshold {
@@ -64,18 +53,14 @@ public nonisolated enum SwipeGesture {
     }
 
     /// Which reveal direction a live drag offset maps to: right → complete,
-    /// left → skip, a steep upward drag → more, a steep downward drag →
-    /// refresh. Non-steep vertical-dominant drags and zero reveal nothing,
-    /// mirroring `outcome(for:)` so the preview cannot advertise an action the
-    /// release would discard.
+    /// left → skip, a steep upward drag → more. Non-steep vertical-dominant
+    /// drags and zero reveal nothing, mirroring `outcome(for:)` so the preview
+    /// cannot advertise an action the release would discard.
     public static func revealedOutcome(forOffset offset: CGSize) -> SwipeGestureOutcome {
         let horizontal = offset.width
         let vertical = offset.height
         if vertical < 0, abs(vertical) > 2 * abs(horizontal) {
             return .more
-        }
-        if vertical > 0, abs(vertical) > 2 * abs(horizontal) {
-            return .refresh
         }
         guard abs(vertical) <= abs(horizontal) else { return .none }
         if horizontal > 0 {
