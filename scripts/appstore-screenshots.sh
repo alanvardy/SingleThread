@@ -10,6 +10,19 @@
 #   empty-dark.png         "All Done" empty state, dark appearance
 #   no-reminders-dark.png  "No Reminders" empty state, dark appearance
 #
+# The watch class captures a third, separate set — the watch app has no
+# wallpaper, no settings screen, and no `--seed`, so its demo copy comes from the
+# watch's own seams in `WatchDemoReminder`:
+#
+#   main.png          reminder card
+#   all-done.png      "All Done" (`--ui-testing-excluded-list`)
+#   no-reminders.png  "No Reminders" (`--ui-testing-empty`)
+#
+# watchOS follows the *device* language rather than an in-app preference, so
+# each language pass writes AppleLanguages/AppleLocale into the watch simulator
+# and reboots it — a relaunch alone does not pick the change up. The watch boots
+# unpaired; pairing only routes the app through a phone clone.
+#
 # The options screen is presented by the `--ui-testing-open-settings` launch
 # seam (`LaunchArgument.openSettings`), which replays the gear button's action
 # at launch — the sheet has no URL scheme or menu command, and `simctl` cannot
@@ -80,8 +93,13 @@
 # download; that path is not reproducible (the photo varies) and must not be
 # used for a final capture set.
 #
+# Options: --fetch-wallpapers, --refetch-wallpapers, --wallpaper-url, and
+# --no-build / --no-install to reuse an already-built .app and an app already
+# installed on the simulator. REPO_ROOT overrides the root captures land under.
+#
 # Usage: scripts/appstore-screenshots.sh [options] [class ...]
-#        class: iphone-6.9 | ipad-13   (default: both)
+#        class: iphone-6.9 | ipad-13 | watch-series11-46mm
+#        (default: the two iOS classes)
 
 set -euo pipefail
 
@@ -90,6 +108,14 @@ cd "${REPO_ROOT:-$(dirname "$0")/..}"
 BUNDLE=app.alanvardy.SingleThread
 APP=DerivedData/Build/Products/Debug-iphonesimulator/SingleThread.app
 DESTINATION='generic/platform=iOS Simulator'
+WATCH_BUNDLE=app.alanvardy.SingleThread.watchkitapp
+WATCH_APP=DerivedData/Build/Products/Debug-watchsimulator/SingleThreadWatch.app
+WATCH_DESTINATION='generic/platform=watchOS Simulator'
+# App Store Connect's only Apple Watch class this app can fill: 416 x 496 is
+# Series 11 on watchOS 11+, and the deployment target is watchOS 11.0. One size
+# serves every localization — the Watch section has no size fallback.
+WATCH_CLASS=watch-series11-46mm
+WATCH_DEVICE_TYPE='Apple Watch Series 11 \(46mm\)'
 OUT=build/appstore-screenshots
 WALLPAPER_DIR=${WALLPAPER_DIR:-$OUT/wallpapers}
 WALLPAPER_API=${WALLPAPER_API:-https://vardy.cc/unsplash/random}
@@ -109,24 +135,38 @@ BACKGROUND_IMAGE=${BACKGROUND_IMAGE:-}
 # filtered out, which an excluded list reaches deterministically.
 ALL_DONE_SEED='{"reminders":[{"title":"Buy groceries","notes":"milk","priority":5}],"calendars":["Errands"],"excludedLists":["Errands"]}'
 
-demo_reminder_seed () { # $1 = language → seed JSON holding the localized demo reminder
-  local title
+demo_reminder_title () { # $1 = language → localized demo reminder title
   case "$1" in
-    en) title="Teach the cat how to do my taxes" ;;
-    de) title="Der Katze beibringen, meine Steuererklärung zu machen" ;;
-    es) title="Enseñarle al gato a hacer mi declaración de la renta" ;;
-    fr) title="Apprendre au chat à faire ma déclaration d'impôts" ;;
-    ja) title="猫に確定申告のやり方を教える" ;;
-    zh-Hans) title="教猫帮我报税" ;;
+    en) echo "Teach the cat how to do my taxes" ;;
+    de) echo "Der Katze beibringen, meine Steuererklärung zu machen" ;;
+    es) echo "Enseñarle al gato a hacer mi declaración de la renta" ;;
+    fr) echo "Apprendre au chat à faire ma déclaration d'impôts" ;;
+    ja) echo "猫に確定申告のやり方を教える" ;;
+    zh-Hans) echo "教猫帮我报税" ;;
     *)
       echo "!! no demo reminder for language '$1'" >&2
       return 1
       ;;
   esac
+}
+
+demo_reminder_seed () { # $1 = language → seed JSON holding the localized demo reminder
   # python rather than printf: the French copy carries an apostrophe and every
   # language carries non-ASCII, so the JSON needs real escaping.
   python3 -c 'import json, sys
-print(json.dumps({"reminders": [{"title": sys.argv[1], "priority": 5}], "calendars": ["Errands"]}, ensure_ascii=False))' "$title"
+print(json.dumps({"reminders": [{"title": sys.argv[1], "priority": 5}], "calendars": ["Errands"]}, ensure_ascii=False))' "$(demo_reminder_title "$1")"
+}
+
+watch_locale () { # $1 = language → "<AppleLanguages value> <AppleLocale>"
+  case "$1" in
+    en) echo "en en_US" ;;
+    de) echo "de de_DE" ;;
+    es) echo "es es_ES" ;;
+    fr) echo "fr fr_FR" ;;
+    ja) echo "ja ja_JP" ;;
+    zh-Hans) echo "zh-Hans zh_CN" ;;
+    *) return 1 ;;
+  esac
 }
 
 LANGUAGES=(en de es fr ja zh-Hans)
@@ -195,21 +235,22 @@ done
 
 MANIFEST=$WALLPAPER_DIR/manifest.json
 
-resolve_udid () { # $1 = device type name regex; newest iOS runtime wins
+resolve_udid () { # $1 = device type name regex, $2 = runtime family; newest runtime wins
   xcrun simctl list devices available --json | python3 -c '
 import json, re, sys
 
 pattern = re.compile(sys.argv[1])
+family = sys.argv[2]
 best = None
 for runtime, devices in json.load(sys.stdin)["devices"].items():
-    if "iOS" not in runtime:
+    if family not in runtime:
         continue
     version = tuple(int(n) for n in re.findall(r"[0-9]+", runtime.rsplit(".", 1)[-1]))
     for device in devices:
         if pattern.match(device["name"]) and (best is None or version > best[0]):
             best = (version, device["udid"])
 print(best[1] if best else "")
-' "$1"
+' "$1" "$2"
 }
 
 # ── Wallpapers ───────────────────────────────────────────────────────────────
@@ -444,7 +485,7 @@ capture_class () { # $1 = class label, $2 = device type regex
   local label=$1
   local pattern=$2
   local udid dir
-  udid=$(resolve_udid "$pattern")
+  udid=$(resolve_udid "$pattern" iOS)
   if [ -z "$udid" ]; then
     echo "!! no available simulator for '$pattern' — skipping $label" >&2
     return 1
@@ -487,6 +528,61 @@ capture_class () { # $1 = class label, $2 = device type regex
   xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
 }
 
+# ── Watch ────────────────────────────────────────────────────────────────────
+
+watch_set_language () { # watchOS reads the device language, so a reboot applies it
+  local pair languages locale
+  pair=$(watch_locale "$1")
+  languages=${pair%% *}
+  locale=${pair##* }
+  xcrun simctl spawn "$UDID" defaults write -g AppleLanguages -array "$languages"
+  xcrun simctl spawn "$UDID" defaults write -g AppleLocale -string "$locale"
+  xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
+  sleep 2
+  xcrun simctl boot "$UDID" 2>/dev/null || true
+  xcrun simctl bootstatus "$UDID" -b >/dev/null
+}
+
+watch_shot () { # $1 = output path, rest = watch launch arguments
+  local out=$1
+  shift
+  xcrun simctl terminate "$UDID" "$WATCH_BUNDLE" >/dev/null 2>&1 || true
+  sleep 1
+  xcrun simctl launch "$UDID" "$WATCH_BUNDLE" "$@" >/dev/null
+  sleep "$SETTLE"
+  xcrun simctl io "$UDID" screenshot --mask ignored "$out" >/dev/null
+  echo "    $(basename "$(dirname "$out")")/$(basename "$out")"
+}
+
+capture_watch () { # $1 = device type regex
+  local pattern=$1
+  local udid dir language
+  udid=$(resolve_udid "$pattern" watchOS)
+  if [ -z "$udid" ]; then
+    echo "!! no available simulator for '$pattern' — skipping $WATCH_CLASS" >&2
+    return 1
+  fi
+
+  echo "==> $WATCH_CLASS ($pattern)"
+  UDID=$udid
+  xcrun simctl boot "$UDID" 2>/dev/null || true
+  xcrun simctl bootstatus "$UDID" -b >/dev/null
+  xcrun simctl install "$UDID" "$WATCH_APP"
+
+  for language in "${LANGUAGES[@]}"; do
+    dir="$OUT/$WATCH_CLASS/$language"
+    mkdir -p "$dir"
+    echo "  -> $language"
+    watch_set_language "$language"
+    watch_shot "$dir/main.png" --ui-testing \
+      --ui-testing-title "$(demo_reminder_title "$language")" --ui-testing-notes ""
+    watch_shot "$dir/all-done.png" --ui-testing --ui-testing-excluded-list Errands
+    watch_shot "$dir/no-reminders.png" --ui-testing --ui-testing-empty
+  done
+
+  xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
+}
+
 # ── Run ──────────────────────────────────────────────────────────────────────
 
 if [ ${#CLASSES[@]} -eq 0 ]; then
@@ -498,10 +594,26 @@ if [ "$FETCH_WALLPAPERS" -eq 1 ]; then
   fetch_wallpapers
 fi
 
+watch_requested () {
+  local wanted
+  for wanted in "${CLASSES[@]}"; do
+    if [ "$wanted" = "$WATCH_CLASS" ]; then
+      return 0
+    fi
+  done
+  return 1
+}
+
 if [ "$BUILD" -eq 1 ] && [ "$INSTALL" -eq 1 ]; then
   echo "==> building $APP"
   xcodebuild -scheme SingleThread -configuration Debug \
     -destination "$DESTINATION" -derivedDataPath DerivedData build >/dev/null
+fi
+
+if [ "$BUILD" -eq 1 ] && watch_requested; then
+  echo "==> building $WATCH_APP"
+  xcodebuild -scheme SingleThreadWatch -configuration Debug \
+    -destination "$WATCH_DESTINATION" -derivedDataPath DerivedData build >/dev/null
 fi
 
 for entry in "${DEVICE_TYPES[@]}"; do
@@ -514,6 +626,12 @@ for entry in "${DEVICE_TYPES[@]}"; do
   done
 done
 
+for wanted in "${CLASSES[@]}"; do
+  if [ "$wanted" = "$WATCH_CLASS" ]; then
+    capture_watch "$WATCH_DEVICE_TYPE"
+  fi
+done
+
 echo "==> verifying sizes"
 fail=0
 count=0
@@ -521,7 +639,7 @@ for shot in "$OUT"/*/*/*.png; do
   count=$((count + 1))
   dims=$(sips -g pixelWidth -g pixelHeight "$shot" | tail -2 | tr -dc '0-9\n' | paste -sd x -)
   case "$dims" in
-    1320x2868 | 2064x2752) ;;
+    1320x2868 | 2064x2752 | 416x496) ;;
     *)
       echo "!! ${shot} is ${dims}" >&2
       fail=1

@@ -106,11 +106,22 @@ final class WatchAppViewModel {
     /// Builds a deterministic store for `--ui-testing` launches so a real reminder
     /// card presents without requesting EventKit access.
     private static func uiTestingStore(arguments: [String]) -> ReminderStore {
+        let demo = WatchDemoReminder.fromLaunchArguments(arguments)
+        // `--ui-testing-empty` renders the empty state instead of a card; every
+        // other seam seeds one.
+        if demo.isEmpty {
+            return ReminderStore(
+                eventStore: InMemoryEventStore(reminders: [], calendars: []),
+                loadsReminders: false,
+                reminders: [],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess)
+        }
         let scratchStore = EKEventStore()
         let reminder = EKReminder(eventStore: scratchStore)
-        reminder.title = "Buy groceries"
+        reminder.title = demo.title
         reminder.priority = 5
-        reminder.notes = "Don't forget the milk"
+        reminder.notes = demo.notes
         // `--ui-testing-priority <n>` overrides the sample reminder's priority so a
         // watch UI test can assert the rendered priority marker. Parsed before the
         // excluded-list loop below (which returns early) so the override is not
