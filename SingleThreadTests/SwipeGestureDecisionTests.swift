@@ -102,4 +102,51 @@ struct SwipeGestureDecisionTests {
     func zeroDragOffsetRevealsNothing() {
         #expect(SwipeGesture.revealedOutcome(forOffset: CGSize.zero) == .none)
     }
+
+    // MARK: On-rails axis lock
+
+    @Test
+    func horizontalDominantDragLocksHorizontal() {
+        #expect(SwipeGesture.axis(for: CGSize(width: 40, height: 3)) == .horizontal)
+        #expect(SwipeGesture.axis(for: CGSize(width: -40, height: 3)) == .horizontal)
+    }
+
+    @Test
+    func verticalDominantDragLocksVertical() {
+        #expect(SwipeGesture.axis(for: CGSize(width: 3, height: -40)) == .vertical)
+        #expect(SwipeGesture.axis(for: CGSize(width: 3, height: 40)) == .vertical)
+    }
+
+    @Test
+    func diagonalTieLocksHorizontal() {
+        #expect(SwipeGesture.axis(for: CGSize(width: 40, height: -40)) == .horizontal)
+    }
+
+    @Test
+    func zeroTranslationLocksHorizontal() {
+        #expect(SwipeGesture.axis(for: .zero) == .horizontal)
+    }
+
+    @Test
+    func horizontalRailZeroesVerticalTravel() {
+        #expect(SwipeGesture.railed(CGSize(width: 60, height: -90), on: .horizontal)
+            == CGSize(width: 60, height: 0))
+    }
+
+    @Test
+    func verticalRailZeroesHorizontalTravel() {
+        #expect(SwipeGesture.railed(CGSize(width: 60, height: -90), on: .vertical)
+            == CGSize(width: 0, height: -90))
+    }
+
+    /// A diagonal drag that would be `none` raw must resolve cleanly once railed
+    /// onto its dominant axis — the release rule sees a single-axis translation.
+    @Test
+    func railedDiagonalResolvesOnItsDominantAxis() {
+        let rightward = CGSize(width: 100, height: -30)
+        #expect(SwipeGesture.outcome(for: SwipeGesture.railed(rightward, on: .horizontal)) == .complete)
+
+        let upward = CGSize(width: 30, height: -100)
+        #expect(SwipeGesture.outcome(for: SwipeGesture.railed(upward, on: .vertical)) == .more)
+    }
 }

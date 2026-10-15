@@ -1,5 +1,12 @@
 import CoreGraphics
 
+/// The single rail a live drag locks to once it starts moving. "On rails":
+/// the card travels along one axis only, never diagonally.
+public enum SwipeAxis: Equatable {
+    case horizontal
+    case vertical
+}
+
 /// Which action a released row swipe should fire, if any.
 public enum SwipeGestureOutcome: Equatable {
     case complete
@@ -63,5 +70,23 @@ public nonisolated enum SwipeGesture {
             return .skip
         }
         return .none
+    }
+
+    /// Locks a started drag to one rail. Whichever component leads decides the
+    /// axis; a tie goes horizontal, mirroring `outcome(for:)`'s "vertical
+    /// dominant" guard so a symmetric drag still resolves to a swipe rather
+    /// than a scroll. Called once per gesture — the caller persists the result
+    /// so the rail cannot flip mid-drag.
+    public static func axis(for translation: CGSize) -> SwipeAxis {
+        abs(translation.width) >= abs(translation.height) ? .horizontal : .vertical
+    }
+
+    /// Projects `translation` onto `axis`, zeroing the other component so the
+    /// card can never travel diagonally.
+    public static func railed(_ translation: CGSize, on axis: SwipeAxis) -> CGSize {
+        switch axis {
+        case .horizontal: CGSize(width: translation.width, height: 0)
+        case .vertical: CGSize(width: 0, height: translation.height)
+        }
     }
 }

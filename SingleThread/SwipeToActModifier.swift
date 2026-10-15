@@ -94,9 +94,35 @@ struct SwipeRevealPanel: View {
     }
 }
 
-/// Drag-to-act behaviour for the reminder card: tracks full drag travel,
-/// reveals `SwipeRevealPanel` behind the card, fires `onOutcome` on release past
-/// `threshold`, and always animates the card back to zero.
+/// Reveal container for the swiped card: the tinted `SwipeRevealPanel` sits
+/// behind, the offset card in front. Hugs the card vertically so the panel is
+/// pinned to the card's own edges — without the vertical fixed size the
+/// flexible panel absorbs the full-height proposal from the row's centering
+/// frame, which strands the `.bottom` "More" plate at the bottom of the screen
+/// instead of under the card. Extracted from `SwipeToActModifier` so the
+/// constraint is assertable by reflection; SwiftUI layout cannot be asserted
+/// headlessly.
+struct SwipeRevealContainer<Content: View>: View {
+    let revealedOutcome: SwipeGestureOutcome
+    let progress: CGFloat
+
+    @ViewBuilder let content: Content
+
+    var body: some View {
+        ZStack {
+            if revealedOutcome != .none {
+                SwipeRevealPanel(outcome: revealedOutcome, progress: progress)
+            }
+            content
+        }
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+/// Drag-to-act behaviour for the reminder card: locks the drag to a single
+/// axis (right → complete, left → skip, up → more), reveals `SwipeRevealPanel`
+/// behind the card, fires `onOutcome` on release past `threshold`, and always
+/// animates the card back to zero.
 struct SwipeToActModifier: ViewModifier {
     // MARK: Lifecycle
 
@@ -113,22 +139,23 @@ struct SwipeToActModifier: ViewModifier {
     let onOutcome: (SwipeGestureOutcome) -> Void
 
     func body(content: Content) -> some View {
-        ZStack {
-            if revealedOutcome != .none {
-                SwipeRevealPanel(outcome: revealedOutcome, progress: progress)
-            }
+        SwipeRevealContainer(revealedOutcome: revealedOutcome, progress: progress) {
             content
                 .contentShape(Rectangle())
                 .offset(x: dragOffset.width, y: min(dragOffset.height, 0))
                 .simultaneousGesture(
                     DragGesture(minimumDistance: 10)
                         .onChanged { value in
-                            dragOffset = value.translation
+                            let axis = lockedAxis ?? SwipeGesture.axis(for: value.translation)
+                            lockedAxis = axis
+                            dragOffset = SwipeGesture.railed(value.translation, on: axis)
                         }
                         .onEnded { value in
-                            let outcome = SwipeGesture.outcome(
-                                for: value.translation,
-                                threshold: threshold)
+                            let railed = lockedAxis.map {
+                                SwipeGesture.railed(value.translation, on: $0)
+                            } ?? value.translation
+                            lockedAxis = nil
+                            let outcome = SwipeGesture.outcome(for: railed, threshold: threshold)
                             withAnimation(.snappy) { dragOffset = .zero }
                             if outcome != .none {
                                 onOutcome(outcome)
@@ -150,6 +177,11 @@ struct SwipeToActModifier: ViewModifier {
     // MARK: Private
 
     @State private var dragOffset: CGSize = .zero
+
+    /// Rail the in-flight drag locked to. `nil` until the first `onChanged`
+    /// fires, then held for the rest of the gesture so the card cannot leave
+    /// its axis. Cleared on release.
+    @State private var lockedAxis: SwipeAxis?
 
     /// `max(|dx|, |dy|) / threshold`, capped at 1 — the panel's reveal intensity.
     /// The denominator is floored at 1 so a zero threshold cannot divide by zero.

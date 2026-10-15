@@ -64,6 +64,19 @@ struct SwipeToActModifierTests {
         #expect(SwipeRevealPanel.alignment(for: .more) == .bottom)
     }
 
+    /// Regression guard for the stranded "More" plate: the reveal container
+    /// must hug the card vertically. Without a vertical fixed-size constraint
+    /// the flexible panel absorbs the row's full-height proposal and `.bottom`
+    /// drops the plate at the bottom of the screen instead of under the card.
+    @Test
+    func revealContainerHugsCardVertically() {
+        let container = SwipeRevealContainer(revealedOutcome: .more, progress: 1) { Text("card") }
+        let description = String(describing: container.body)
+        #expect(
+            description.contains("FixedSize"),
+            "reveal container must apply a vertical fixed-size constraint; desc: \(description)")
+    }
+
     @Test
     func idleModifierWrapsContentWithoutPanel() {
         let description = String(describing: swipeToActOver(Text("card")))
