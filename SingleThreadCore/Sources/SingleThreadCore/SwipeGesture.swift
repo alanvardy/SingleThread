@@ -12,6 +12,7 @@ public enum SwipeGestureOutcome: Equatable {
     case complete
     case skip
     case more
+    case refresh
     case none
 }
 
@@ -31,8 +32,8 @@ public nonisolated enum SwipeGesture {
     /// Classifies a released drag translation. Horizontal-dominant drags map
     /// right → complete, left → skip. A steep upward drag (`dy` past
     /// `upThreshold` and more than twice the horizontal travel) → more.
-    /// Downward and shallow vertical drags are ignored: the pull-down is owned
-    /// by the list's own `pullToRefresh` surface, which also shows the spinner.
+    /// Downward and shallow vertical drags are ignored here: `.refresh` is
+    /// driven by the pull-to-refresh surface, not by the card's own drag.
     public static func outcome(
         for translation: CGSize,
         threshold: CGFloat = releaseDistance,

@@ -19,7 +19,10 @@ struct ReminderCardView: View {
         showSwipePrompt: Binding<Bool> = .constant(false),
         showNudge: Bool = false,
         onNudgeTap: @escaping () -> Void = {},
-        maxWidth: CGFloat = 340) {
+        maxWidth: CGFloat = 340,
+        pullOffset: CGFloat = 0,
+        isRefreshing: Bool = false,
+        onSwipe: @escaping (SwipeGestureOutcome) -> Void = { _ in }) {
         self.display = display
         self.showDate = showDate
         self.showList = showList
@@ -29,6 +32,9 @@ struct ReminderCardView: View {
         self.showNudge = showNudge
         self.onNudgeTap = onNudgeTap
         self.maxWidth = maxWidth
+        self.pullOffset = pullOffset
+        self.isRefreshing = isRefreshing
+        self.onSwipe = onSwipe
     }
 
     // MARK: Internal
@@ -37,19 +43,14 @@ struct ReminderCardView: View {
         VStack(spacing: 12) {
             if showSwipePrompt {
                 upGuide
+                    .offset(cardOffset)
             }
-            VStack(alignment: .leading, spacing: 4) {
-                content
-                if showNudge {
-                    nudgeBanner
-                }
-            }
-            .frame(maxWidth: maxWidth, alignment: .leading)
-            .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 12, restoresGeometry: true)
-
+            cardPlate
             if showSwipePrompt {
                 horizontalGuide
+                    .offset(cardOffset)
                 dismissButton
+                    .offset(cardOffset)
             }
         }
         .frame(maxWidth: maxWidth)
@@ -67,6 +68,11 @@ struct ReminderCardView: View {
     /// Bound to the app's persisted `showSwipePrompt` preference; the Dismiss
     /// button writes `false` through this binding.
     @Binding private var showSwipePrompt: Bool
+
+    /// The plate's live travel, mirrored onto the prompt chrome so the guides
+    /// travel with the card without being pulled into the reveal container —
+    /// which would anchor the revealed plate to the chrome instead of the card.
+    @State private var swipeOffset: CGSize = .zero
 
     private let display: ReminderDisplay
     private let showDate: Bool
@@ -88,6 +94,21 @@ struct ReminderCardView: View {
     /// buttons stop expanding under the row's `.center` proposal on iPad.
     private let maxWidth: CGFloat
 
+    /// Downward pull from the list's pull-to-refresh surface, in points.
+    private let pullOffset: CGFloat
+
+    /// True while the pull-down refresh is running.
+    private let isRefreshing: Bool
+
+    /// Fired when the plate's own swipe passes its release threshold.
+    private let onSwipe: (SwipeGestureOutcome) -> Void
+
+    /// Downward drags belong to the pull-to-refresh surface, so the plate only
+    /// travels up from its own gesture; the pull adds downward travel on top.
+    private var cardOffset: CGSize {
+        CGSize(width: swipeOffset.width, height: min(swipeOffset.height, 0) + max(pullOffset, 0))
+    }
+
     /// Every link in the card's title and notes, in reading order.
     private var linkURLs: [URL] {
         var urls = LinkFormatter.links(in: display.title)
@@ -95,6 +116,25 @@ struct ReminderCardView: View {
             urls.append(contentsOf: LinkFormatter.links(in: notes))
         }
         return urls
+    }
+
+    /// The reminder content on its plate — and the swipe surface. Only this part
+    /// is wrapped by the reveal container, so complete / skip / more / refresh
+    /// all emerge from under the card itself.
+    private var cardPlate: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            content
+            if showNudge {
+                nudgeBanner
+            }
+        }
+        .frame(maxWidth: maxWidth, alignment: .leading)
+        .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 12, restoresGeometry: true)
+        .swipeToAct(
+            offset: $swipeOffset,
+            pull: pullOffset,
+            isRefreshing: isRefreshing,
+            onOutcome: onSwipe)
     }
 
     /// The card's reminder content, combined into a single accessible element so
