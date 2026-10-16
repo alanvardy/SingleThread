@@ -64,6 +64,38 @@ struct SwipeToActModifierTests {
         #expect(SwipeRevealPanel.alignment(for: .more) == .bottom)
     }
 
+    /// The pull-down reveals the refresh plate from the top edge as the card is
+    /// pulled down — the fourth under-the-card reveal.
+    @Test
+    func refreshPanelAnchorsPlateToTopEdge() {
+        #expect(SwipeRevealPanel.alignment(for: .refresh) == .top)
+    }
+
+    @Test
+    func refreshPanelShowsRefreshLabel() {
+        let description = String(describing: SwipeRevealPanel(outcome: .refresh, progress: 1).body)
+        #expect(description.contains("Refresh"))
+        #expect(description.contains("CardPlateModifier"))
+    }
+
+    /// The revealed glyph must be the clockwise-refresh SF Symbol, not a
+    /// directional arrow or one of the other actions' glyphs.
+    @Test
+    func refreshPanelUsesClockwiseGlyph() {
+        #expect(SwipeRevealPanel.systemImage(for: .refresh) == "arrow.clockwise.circle.fill")
+    }
+
+    /// While the refresh runs the panel stays put and swaps its glyph for a
+    /// spinner.
+    @Test
+    func refreshingPanelShowsSpinnerAndRefreshingLabel() {
+        let panel = SwipeRevealPanel(outcome: .refresh, progress: 1, isRefreshing: true)
+        let description = String(describing: panel.body)
+        #expect(description.contains("Refreshing"))
+        #expect(description.contains("ProgressView"))
+        #expect(description.contains("CardPlateModifier"))
+    }
+
     /// Regression guard for the stranded "More" plate: the reveal container
     /// must hug the card vertically. Without a vertical fixed-size constraint
     /// the flexible panel absorbs the row's full-height proposal and `.bottom`
@@ -93,6 +125,6 @@ struct SwipeToActModifierTests {
     /// runtime `Content` sample type, which tests cannot construct directly
     /// from a bare view.
     private func swipeToActOver(_ content: some View) -> some View {
-        content.modifier(SwipeToActModifier(threshold: 72) { _ in })
+        content.modifier(SwipeToActModifier(offset: .constant(.zero), threshold: 72) { _ in })
     }
 }

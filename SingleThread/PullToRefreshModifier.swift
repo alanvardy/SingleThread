@@ -25,22 +25,32 @@ enum PullToRefresh {
     }
 }
 
-/// Pull-down-to-refresh for a scrollable surface. Reveals a branded panel at the
-/// top edge as the pull grows, runs `onRefresh` on release past `threshold`, and
-/// holds the panel plus a spinner until the refresh finishes.
+/// Pull-down-to-refresh for a scrollable surface. Tracks a downward drag, runs
+/// `onRefresh` on release past `threshold`, and holds the feedback up for its
+/// duration.
 ///
-/// Hand-rolled rather than `.refreshable`: the reminder list is a single
-/// full-height row, so the stock control never arms on it — pulls on the card
-/// and pulls on the empty space above it both did nothing, and there was no
-/// spinner. This hangs the pull off the whole scroll surface instead, so both
-/// places refresh and the panel is the visible feedback.
+/// The stock `.refreshable` never arms on these screens — the reminder list is a
+/// single full-height row, so there is nothing for the control to pull — so this
+/// hangs the pull off the whole scroll surface instead.
+///
+/// Two presentations:
+/// - **Bindings supplied** (the reminder screen): the pull is handed to the
+///   caller, which drives its own reveal — the card plate sliding down so the
+///   `Refresh` plate emerges from under its top edge, exactly like the other
+///   swipe actions.
+/// - **No bindings** (the empty / all-done screens, which have no card to emerge
+///   from under): this modifier paints its own panel at the top edge.
 struct PullToRefreshModifier: ViewModifier {
     // MARK: Lifecycle
 
     init(
         threshold: CGFloat = PullToRefresh.releaseDistance,
+        pull: Binding<CGFloat>? = nil,
+        isRefreshing: Binding<Bool>? = nil,
         onRefresh: @escaping () async -> Void) {
         self.threshold = threshold
+        externalPull = pull
+        externalRefreshing = isRefreshing
         self.onRefresh = onRefresh
     }
 
@@ -55,18 +65,18 @@ struct PullToRefreshModifier: ViewModifier {
                 DragGesture(minimumDistance: 10)
                     .onChanged { value in
                         guard !isRefreshing else { return }
-                        pull = max(value.translation.height, 0)
+                        pull.wrappedValue = max(value.translation.height, 0)
                     }
                     .onEnded { _ in
                         guard !isRefreshing,
-                              PullToRefresh.isArmed(pull: pull, threshold: threshold)
+                              PullToRefresh.isArmed(pull: pull.wrappedValue, threshold: threshold)
                         else {
-                            withAnimation(.snappy) { pull = 0 }
+                            withAnimation(.snappy) { pull.wrappedValue = 0 }
                             return
                         }
                         runRefresh()
                     })
-            .overlay(alignment: .top) { panel }
+            .overlay(alignment: .top) { ownPanel }
             .accessibilityAction(named: Text("Refresh")) {
                 runRefresh()
             }
@@ -77,13 +87,29 @@ struct PullToRefreshModifier: ViewModifier {
     @Environment(\.colorScheme)
     private var colorScheme
 
-    @State private var pull: CGFloat = 0
-    @State private var isRefreshing = false
+    @State private var localPull: CGFloat = 0
+    @State private var localRefreshing = false
 
-    /// Branded plate pinned to the top edge: the glyph becomes a spinner while
-    /// the refresh runs. Hidden until the pull starts.
-    @ViewBuilder private var panel: some View {
-        if pull > 0 {
+    private let externalPull: Binding<CGFloat>?
+    private let externalRefreshing: Binding<Bool>?
+
+    /// The caller's state when it owns the reveal (the reminder card), else this
+    /// modifier's own — the card-less screens have nothing else to show the pull.
+    private var pull: Binding<CGFloat> {
+        externalPull ?? $localPull
+    }
+
+    private var refreshing: Binding<Bool> {
+        externalRefreshing ?? $localRefreshing
+    }
+
+    private var isRefreshing: Bool {
+        refreshing.wrappedValue
+    }
+
+    /// Only the card-less screens need this modifier to draw its own panel.
+    @ViewBuilder private var ownPanel: some View {
+        if externalPull == nil, pull.wrappedValue > 0 {
             HStack(spacing: 8) {
                 if isRefreshing {
                     ProgressView()
@@ -98,18 +124,18 @@ struct PullToRefreshModifier: ViewModifier {
             .cardPlate(fill: CardPlate.plateFill(for: colorScheme))
             .opacity(isRefreshing
                 ? 1
-                : Double(PullToRefresh.progress(pull: pull, threshold: threshold)))
+                : Double(PullToRefresh.progress(pull: pull.wrappedValue, threshold: threshold)))
             .padding(.top, 8)
             .allowsHitTesting(false)
         }
     }
 
-    /// Fires the refresh once, holding the panel visible for its duration.
+    /// Fires the refresh once, holding the feedback visible for its duration.
     private func runRefresh() {
         guard !isRefreshing else { return }
         withAnimation(.snappy) {
-            pull = threshold
-            isRefreshing = true
+            pull.wrappedValue = threshold
+            refreshing.wrappedValue = true
         }
         Task {
             let startedAt = Date()
@@ -121,18 +147,26 @@ struct PullToRefreshModifier: ViewModifier {
                 try? await Task.sleep(for: .seconds(remaining))
             }
             withAnimation(.snappy) {
-                isRefreshing = false
-                pull = 0
+                refreshing.wrappedValue = false
+                pull.wrappedValue = 0
             }
         }
     }
 }
 
 extension View {
-    /// Adds pull-down-to-refresh with a branded reveal panel and spinner.
+    /// Adds pull-down-to-refresh. With bindings supplied the caller renders the
+    /// feedback (see `PullToRefreshModifier`); without them this paints a panel
+    /// at the top edge.
     func pullToRefresh(
         threshold: CGFloat = PullToRefresh.releaseDistance,
+        pull: Binding<CGFloat>? = nil,
+        isRefreshing: Binding<Bool>? = nil,
         onRefresh: @escaping () async -> Void) -> some View {
-        modifier(PullToRefreshModifier(threshold: threshold, onRefresh: onRefresh))
+        modifier(PullToRefreshModifier(
+            threshold: threshold,
+            pull: pull,
+            isRefreshing: isRefreshing,
+            onRefresh: onRefresh))
     }
 }

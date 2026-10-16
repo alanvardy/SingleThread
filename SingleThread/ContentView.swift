@@ -352,6 +352,14 @@ struct ContentView: View {
 
     // MARK: Private
 
+    /// Downward pull reported by the list's pull-to-refresh surface and handed
+    /// to the card, so the `Refresh` plate emerges from under the card plate the
+    /// same way complete / skip / more do.
+    @State private var pullOffset: CGFloat = 0
+
+    /// True while that pull-driven refresh is running.
+    @State private var isRefreshingPull = false
+
     @State private var isShowingSettings = false
 
     /// Drives the freemium upgrade-prompt sheet (shown only when the free tier
@@ -459,8 +467,9 @@ struct ContentView: View {
                                 // false there.
                                 showNudge: viewModel.isNudged(reminder.calendarItemIdentifier),
                                 onNudgeTap: openNudgeSheet,
-                                maxWidth: CardWidth.maxContentWidth(viewportWidth: geometry.size.width))
-                                .swipeToAct { outcome in
+                                maxWidth: CardWidth.maxContentWidth(viewportWidth: geometry.size.width),
+                                pullOffset: pullOffset,
+                                isRefreshing: isRefreshingPull) { outcome in
                                     switch outcome {
                                     case .complete:
                                         Task { await viewModel.completeCurrentReminder() }
@@ -468,6 +477,10 @@ struct ContentView: View {
                                         viewModel.skipCurrentReminder()
                                     case .more:
                                         presentActionMenu()
+                                    case .refresh:
+                                        // Never emitted by the plate's own drag;
+                                        // the pull-to-refresh surface owns it.
+                                        break
                                     case .none:
                                         break
                                     }
@@ -515,7 +528,7 @@ struct ContentView: View {
                     // single row is full height, so every screen hangs pull-down
                     // off the whole scroll surface and paints its own panel +
                     // spinner instead.
-                    .pullToRefresh {
+                    .pullToRefresh(pull: $pullOffset, isRefreshing: $isRefreshingPull) {
                         await viewModel.refreshManual()
                     }
                     bottomBar
