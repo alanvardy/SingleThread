@@ -23,6 +23,13 @@ enum PullToRefresh {
     static func progress(pull: CGFloat, threshold: CGFloat = releaseDistance) -> CGFloat {
         min(max(pull, 0) / max(threshold, 1), 1)
     }
+
+    /// Downward travel to report for a live drag. A drag that has locked to the
+    /// horizontal rail reports none at all, so a left/right card swipe cannot
+    /// nudge the card up or down on its way past.
+    static func pull(for translation: CGSize, on axis: SwipeAxis) -> CGFloat {
+        axis == .vertical ? max(translation.height, 0) : 0
+    }
 }
 
 /// Pull-down-to-refresh for a scrollable surface. Tracks a downward drag, runs
@@ -65,9 +72,12 @@ struct PullToRefreshModifier: ViewModifier {
                 DragGesture(minimumDistance: 10)
                     .onChanged { value in
                         guard !isRefreshing else { return }
-                        pull.wrappedValue = max(value.translation.height, 0)
+                        let axis = lockedAxis ?? SwipeGesture.axis(for: value.translation)
+                        lockedAxis = axis
+                        pull.wrappedValue = PullToRefresh.pull(for: value.translation, on: axis)
                     }
                     .onEnded { _ in
+                        lockedAxis = nil
                         guard !isRefreshing,
                               PullToRefresh.isArmed(pull: pull.wrappedValue, threshold: threshold)
                         else {
@@ -89,6 +99,11 @@ struct PullToRefreshModifier: ViewModifier {
 
     @State private var localPull: CGFloat = 0
     @State private var localRefreshing = false
+
+    /// Rail the in-flight drag locked to, mirroring `SwipeToActModifier`: held
+    /// for the whole gesture so a horizontal swipe cannot start reporting a pull
+    /// halfway through.
+    @State private var lockedAxis: SwipeAxis?
 
     private let externalPull: Binding<CGFloat>?
     private let externalRefreshing: Binding<Bool>?
