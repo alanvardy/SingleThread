@@ -1,5 +1,6 @@
 import CoreGraphics
 @testable import SingleThread
+import SingleThreadCore
 import Testing
 
 /// Pure arming and intensity rule for the hand-rolled pull-to-refresh that
@@ -48,5 +49,25 @@ struct PullToRefreshTests {
     @Test
     func zeroThresholdDoesNotDivideByZero() {
         #expect(PullToRefresh.progress(pull: 10, threshold: 0) == 1)
+    }
+
+    @Test
+    func verticalRailReportsDownwardTravel() {
+        #expect(PullToRefresh.pull(for: CGSize(width: 0, height: 140), on: .vertical) == 140)
+    }
+
+    /// An upward drag under the vertical rail must never report a pull.
+    @Test
+    func verticalRailIgnoresUpwardTravel() {
+        #expect(PullToRefresh.pull(for: CGSize(width: 0, height: -140), on: .vertical) == 0)
+    }
+
+    /// The reported symptom: a left/right swipe with some downward drift must
+    /// contribute no vertical travel, or the card drifts up/down mid-swipe.
+    @Test
+    func horizontalRailReportsNoPull() {
+        #expect(PullToRefresh.pull(for: CGSize(width: 160, height: 80), on: .horizontal) == 0)
+        #expect(PullToRefresh.pull(for: CGSize(width: -160, height: 80), on: .horizontal) == 0)
+        #expect(PullToRefresh.pull(for: CGSize(width: 160, height: 300), on: .horizontal) == 0)
     }
 }
