@@ -46,7 +46,7 @@ struct EntitlementStoreTests {
 
         // The purchase path is exercised through the test seam
         // (`testingWithEntitled:`) because `SKTestSession.buyProduct` cannot
-        // complete via `xcodebuild test` on Xcode 26.6 (config never reaches
+        // complete via `xcodebuild test` on Xcode 26.6/27.0 (config never reaches
         // the simulator's storekitd container; FB22237318). A fresh real store
         // on an empty account stays not entitled.
         let first = EntitlementStore(testingWithEntitled: true)
