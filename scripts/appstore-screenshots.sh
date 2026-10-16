@@ -83,21 +83,27 @@
 #   iphone-6.9-empty         ipad-13-empty           ("All Done")
 #   iphone-6.9-no-reminders  ipad-13-no-reminders
 #
-# Fetch one random photo per slot from the API (https://vardy.cc/unsplash/random)
-# and cache it under build/appstore-screenshots/wallpapers/ with a manifest:
+# The set is COMMITTED — scripts/fixtures/appstore-wallpapers/ holds the ten
+# photos and manifest.json — so a clone captures the same wallpapers with no
+# network and nothing to draw. Override the directory with WALLPAPER_DIR to use
+# your own art (the slot file names and manifest shape are all that matter).
+#
+# To change the set, draw new photos from the API
+# (https://vardy.cc/unsplash/random), which keeps any slot already on disk:
 #
 #   scripts/appstore-screenshots.sh --fetch-wallpapers          # random
 #   scripts/appstore-screenshots.sh --wallpaper-url <url>       # one URL, all slots
 #   scripts/appstore-screenshots.sh --wallpaper-url ipad-13-main=<url>
 #
-# Fetched photos are kept: a slot that already has a file is reused verbatim, so
-# re-runs are byte-identical. Rotate deliberately with --refetch-wallpapers.
-# Point WALLPAPER_DIR at a tracked directory to keep them under version control.
+# Rotate deliberately with --refetch-wallpapers; re-runs are byte-identical
+# otherwise. A missing manifest is a hard error, not a cue to fetch: silently
+# drawing fresh photos would change the capture set, and the old fallback —
+# letting the app download its own single photo — gave every screen the same
+# wallpaper while each `stage_slot` threw a FileNotFoundError at the reader.
 #
-# A missing manifest is not an error: the first run with a photo class fetches
-# one photo per slot automatically. What it must never do is fall back to the
-# app's own single download, which gave every screen the same wallpaper and made
-# each `stage_slot` throw a FileNotFoundError traceback at the reader.
+# These are Unsplash photos (the licence permits redistribution; the manifest
+# carries each photographer's attribution). Replace them with your own art for a
+# permanent store listing.
 #
 # Options: --fetch-wallpapers, --refetch-wallpapers, --wallpaper-url, and
 # --no-build / --no-install to reuse an already-built .app and an app already
@@ -123,7 +129,9 @@ WATCH_DESTINATION='generic/platform=watchOS Simulator'
 WATCH_CLASS=watch-series11-46mm
 WATCH_DEVICE_TYPE='Apple Watch Series 11 \(46mm\)'
 OUT=build/appstore-screenshots
-WALLPAPER_DIR=${WALLPAPER_DIR:-$OUT/wallpapers}
+# Committed, not under build/: a clone gets the same ten photos and re-runs are
+# reproducible with no network.
+WALLPAPER_DIR=${WALLPAPER_DIR:-scripts/fixtures/appstore-wallpapers}
 WALLPAPER_API=${WALLPAPER_API:-https://vardy.cc/unsplash/random}
 SETTLE=${SETTLE:-6}
 
@@ -414,16 +422,12 @@ prepare_wallpaper () { # never capture before a fresh photo is on disk
     stage_single_wallpaper
     return
   fi
-  # A missing manifest used to fall through to "let the app download its own",
-  # which fetched exactly one photo and reused it for every screen — while every
-  # stage_slot below threw a traceback. Fetch one photo per slot instead; the
-  # fetch keeps any slot already on disk, so this is a no-op after the first run.
+  # The manifest is committed, so its absence means a broken checkout or a
+  # WALLPAPER_DIR pointed somewhere else — never a cue to draw fresh photos,
+  # which would silently change the capture set.
   if [ ! -f "$MANIFEST" ]; then
-    echo "    no wallpaper manifest — fetching one photo per slot"
-    fetch_wallpapers
-  fi
-  if [ ! -f "$MANIFEST" ]; then
-    echo "!! could not write $MANIFEST — check the network, then rerun --fetch-wallpapers" >&2
+    echo "!! no wallpaper manifest at $MANIFEST" >&2
+    echo "   restore it (git checkout -- $(dirname "$MANIFEST")) or draw a new set with --fetch-wallpapers" >&2
     return 1
   fi
 
