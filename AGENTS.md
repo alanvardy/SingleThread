@@ -26,9 +26,10 @@
 - **Build & tests via `make`**: `make build` / `make test` / `make
   ui-test` / `make periphery` / `make lint` / `make format`; pin a
   destination with `SIM=`. `make periphery` reads a stale build index after
-  branch switches — clean `DerivedData/` and rerun first. Local Xcode 27.0 vs
-  CI 26.6: 27 misses `$`-projection-only `@State` (CI-green) — see the
-  `periphery` skill; split `verify_deployment_target()` before any floor change.
+  branch switches — clean `DerivedData/` and rerun first. Xcode 27.0 local and
+  CI (GitHub's `xcode-27` preview image): 27 misses `$`-projection-only
+  `@State`, so local and CI agree — see the `periphery` skill; split
+  `verify_deployment_target()` before any floor change.
   For targeted suites: `xcodebuild -only-testing:SingleThreadTests` (Swift
   Testing) / `-only-testing:SingleThreadUITests` (XCTest, a11y audit), pinned.
 - **Debug builds only**: `DEBUG_INFORMATION_FORMAT = dwarf` keeps incremental

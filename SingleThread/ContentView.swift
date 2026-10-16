@@ -373,8 +373,8 @@ struct ContentView: View {
     /// Drives the freemium upgrade-prompt sheet (shown only when the free tier
     /// cap is exhausted and the user has not purchased the unlock IAP). Also
     /// read and written directly (see `upgradePrompt`) so Periphery under Xcode
-    /// 27 sees a use — it misses lone `$`projection references (CI's Xcode 26.6
-    /// counts them).
+    /// 27 sees a use — it misses lone `$`projection references (CI runs 27.0
+    /// too).
     @State private var isShowingPurchase = false
 
     /// Stable bag of settings bindings for the currently presented sheet.
@@ -699,7 +699,7 @@ extension ContentView {
         /// Shown when the free tier is gated (cap exhausted, no purchase).
         /// Reads `isShowingPurchase` directly (not only via the sheet's
         /// `$`projection) so Periphery under Xcode 27 sees a use — it misses
-        /// lone `$`projection references (CI's Xcode 26.6 counts them); the
+        /// lone `$`projection references (CI runs 27.0 too); the
         /// read also disables re-taps while the sheet is already open.
         var upgradePrompt: some View {
             Button {
