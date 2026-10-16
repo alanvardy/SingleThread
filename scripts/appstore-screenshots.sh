@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# App Store Connect screenshots — iPhone 6.9" and iPad 13" display classes.
+# App Store Connect screenshots — iPhone 6.3" and iPad 13" display classes.
 #
 # Per language, per display class, this captures:
 #
@@ -48,9 +48,15 @@
 #     before the seeded captures, because --ui-testing-app-language is read only
 #     on the --ui-testing path.
 #
-# Output: build/appstore-screenshots/<class>/<lang>/<name>.png
+# Output: build/appstore-screenshots/<lang>/<class>/<name>.png
 #
-# The captures are the simulator's native pixels — 1320 x 2868 (6.9") and
+# Folders are language-major, so every localization of one device sits in a
+# single directory, and each language directory carries the App Store's own
+# ordering as a numeric prefix (`language_folder` below): 1-en, 2-zh-Hans,
+# 3-fr, 4-de, 5-ja, 6-es. The output tree is cleared at the start of every
+# run, so a stale layout can never linger beside the new one.
+#
+# The captures are the simulator's native pixels — 1206 x 2622 (6.3") and
 # 2064 x 2752 (13") — which are App Store Connect's accepted pairs for those
 # slots, so no resize or pad is needed. `--mask ignored` drops the rounded
 # device mask that the store does not want.
@@ -76,12 +82,12 @@
 # Wallpapers are keyed by "slot" = <device class>-<screen>, NOT by language, so
 # each device/screen pair keeps one fixed photo across all six languages:
 #
-#   iphone-6.9-main-light    ipad-13-main-light      (own photo: the light
-#   iphone-6.9-main-dark     ipad-13-main-dark        appearance composites the
+#   iphone-6.3-main-light    ipad-13-main-light      (own photo: the light
+#   iphone-6.3-main-dark     ipad-13-main-dark        appearance composites the
 #                                                     photo over white, not black)
-#   iphone-6.9-options       ipad-13-options
-#   iphone-6.9-empty         ipad-13-empty           ("All Done")
-#   iphone-6.9-no-reminders  ipad-13-no-reminders
+#   iphone-6.3-options       ipad-13-options
+#   iphone-6.3-empty         ipad-13-empty           ("All Done")
+#   iphone-6.3-no-reminders  ipad-13-no-reminders
 #
 # The set is COMMITTED — scripts/fixtures/appstore-wallpapers/ holds the ten
 # photos and manifest.json — so a clone captures the same wallpapers with no
@@ -110,7 +116,7 @@
 # installed on the simulator. REPO_ROOT overrides the root captures land under.
 #
 # Usage: scripts/appstore-screenshots.sh [options] [class ...]
-#        class: iphone-6.9 | ipad-13 | watch-series11-46mm
+#        class: iphone-6.3 | ipad-13 | watch-series11-46mm
 #        (default: the two iOS classes)
 
 set -euo pipefail
@@ -178,7 +184,22 @@ watch_locale () { # $1 = language → "<AppleLanguages value> <AppleLocale>"
   esac
 }
 
-LANGUAGES=(en de es fr ja zh-Hans)
+# App Store Connect's localization order, with the folder label each language
+# writes into: language-major output, ordered exactly as the store lists them.
+# `es` ships as "6-es", matching the raw-code style of the other five.
+language_folder () { # $1 = language → numbered output directory name
+  case "$1" in
+    en) echo "1-en" ;;
+    zh-Hans) echo "2-zh-Hans" ;;
+    fr) echo "3-fr" ;;
+    de) echo "4-de" ;;
+    ja) echo "5-ja" ;;
+    es) echo "6-es" ;;
+    *) return 1 ;;
+  esac
+}
+
+LANGUAGES=(en zh-Hans fr de ja es)
 
 # Wallpaper slots per device class, in capture order. Slot names match the
 # captured file names so a staged photo maps 1:1 onto an output PNG.
@@ -186,7 +207,9 @@ SCREENS=(main-light options main-dark empty no-reminders)
 
 # class:simctl devicetype name regex
 DEVICE_TYPES=(
-  "iphone-6.9:iPhone 18 Pro Max"
+  # `iPhone 17` is 6.3" (1206 x 2622) — an accepted App Store iPhone slot. The
+  # `$` keeps the pattern off `iPhone 17 Pro` / `iPhone 17 Pro Max` / `iPhone 17e`.
+  "iphone-6.3:iPhone 17$"
   "ipad-13:iPad Pro 13-inch \\(M5\\)"
 )
 
@@ -228,7 +251,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -h | --help)
-      sed -n '2,70p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,120p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     -*)
@@ -495,7 +518,7 @@ capture_class () { # $1 = class label, $2 = device type regex
   prepare_wallpaper
 
   for language in "${LANGUAGES[@]}"; do
-    dir="$OUT/$label/$language"
+    dir="$OUT/$(language_folder "$language")/$label"
     mkdir -p "$dir"
     echo "  -> $language"
     demo_seed=$(demo_reminder_seed "$language")
@@ -563,7 +586,7 @@ capture_watch () { # $1 = device type regex
   xcrun simctl install "$UDID" "$WATCH_APP"
 
   for language in "${LANGUAGES[@]}"; do
-    dir="$OUT/$WATCH_CLASS/$language"
+    dir="$OUT/$(language_folder "$language")/$WATCH_CLASS"
     mkdir -p "$dir"
     echo "  -> $language"
     watch_set_language "$language"
@@ -582,8 +605,14 @@ capture_watch () { # $1 = device type regex
 # ── Run ──────────────────────────────────────────────────────────────────────
 
 if [ ${#CLASSES[@]} -eq 0 ]; then
-  CLASSES=(iphone-6.9 ipad-13)
+  CLASSES=(iphone-6.3 ipad-13)
 fi
+
+# Clear the output tree: the language-major layout replaced an older
+# device-major one, and stale PNGs would otherwise sit beside (or be swept into
+# the size check with) the fresh captures.
+rm -rf "$OUT"
+mkdir -p "$OUT"
 
 if [ "$FETCH_WALLPAPERS" -eq 1 ]; then
   echo "==> wallpapers"
@@ -635,7 +664,7 @@ for shot in "$OUT"/*/*/*.png; do
   count=$((count + 1))
   dims=$(sips -g pixelWidth -g pixelHeight "$shot" | tail -2 | tr -dc '0-9\n' | paste -sd x -)
   case "$dims" in
-    1320x2868 | 2064x2752 | 416x496) ;;
+    1206x2622 | 1179x2556 | 1320x2868 | 2064x2752 | 416x496) ;;
     *)
       echo "!! ${shot} is ${dims}" >&2
       fail=1
