@@ -118,13 +118,17 @@ struct PullToRefreshModifier: ViewModifier {
         externalRefreshing ?? $localRefreshing
     }
 
+    /// Reads `localRefreshing` directly — as `ownPanel` reads `localPull` — so
+    /// Periphery under Xcode 27 sees both states used. It misses lone
+    /// `$`projection references, which is the same reason `ContentView`'s
+    /// `upgradePrompt` reads `isShowingPurchase` directly.
     private var isRefreshing: Bool {
-        refreshing.wrappedValue
+        externalRefreshing?.wrappedValue ?? localRefreshing
     }
 
     /// Only the card-less screens need this modifier to draw its own panel.
     @ViewBuilder private var ownPanel: some View {
-        if externalPull == nil, pull.wrappedValue > 0 {
+        if externalPull == nil, localPull > 0 {
             HStack(spacing: 8) {
                 if isRefreshing {
                     ProgressView()
@@ -139,7 +143,7 @@ struct PullToRefreshModifier: ViewModifier {
             .cardPlate(fill: CardPlate.plateFill(for: colorScheme))
             .opacity(isRefreshing
                 ? 1
-                : Double(PullToRefresh.progress(pull: pull.wrappedValue, threshold: threshold)))
+                : Double(PullToRefresh.progress(pull: localPull, threshold: threshold)))
             .padding(.top, 8)
             .allowsHitTesting(false)
         }
