@@ -94,9 +94,10 @@
 # re-runs are byte-identical. Rotate deliberately with --refetch-wallpapers.
 # Point WALLPAPER_DIR at a tracked directory to keep them under version control.
 #
-# Without a manifest the script falls back to waiting for the app's own
-# download; that path is not reproducible (the photo varies) and must not be
-# used for a final capture set.
+# A missing manifest is not an error: the first run with a photo class fetches
+# one photo per slot automatically. What it must never do is fall back to the
+# app's own single download, which gave every screen the same wallpaper and made
+# each `stage_slot` throw a FileNotFoundError traceback at the reader.
 #
 # Options: --fetch-wallpapers, --refetch-wallpapers, --wallpaper-url, and
 # --no-build / --no-install to reuse an already-built .app and an app already
@@ -126,11 +127,6 @@ WALLPAPER_DIR=${WALLPAPER_DIR:-$OUT/wallpapers}
 WALLPAPER_API=${WALLPAPER_API:-https://vardy.cc/unsplash/random}
 SETTLE=${SETTLE:-6}
 
-# Seconds to wait for the app's own wallpaper download (manifest-less fallback).
-# Capturing on a fixed sleep races that download, and terminating the app for
-# the next capture kills it mid-flight — which silently produced backgroundless
-# screenshots for the first four languages of the iPad pass.
-WALLPAPER_TIMEOUT=${WALLPAPER_TIMEOUT:-180}
 
 # Optional path to one local photo to stage into every slot. Overrides the
 # manifest; useful for a marketing photo you hold the rights to.
@@ -366,6 +362,12 @@ PY
 
 stage_slot () { # $1 = class, $2 = screen — pin that slot's photo into the app
   local slot="$1-$2" dir
+  # Guarded in bash: the python below opens the manifest directly, so a missing
+  # one surfaces as a FileNotFoundError traceback instead of a useful message.
+  if [ ! -f "$MANIFEST" ]; then
+    echo "!! no wallpaper manifest at $MANIFEST — every screen would keep one photo" >&2
+    return 1
+  fi
   dir=$(wallpaper_dir)
   mkdir -p "$dir"
   python3 - "$MANIFEST" "$slot" "$dir" <<'PY'
@@ -392,21 +394,6 @@ PY
   echo "    wallpaper: $slot"
 }
 
-wallpaper_is_fresh () { # sidecar metadata exists and is inside the 24h window
-  python3 - "$1/background.json" <<'PY'
-import datetime, json, sys
-
-try:
-    meta = json.load(open(sys.argv[1]))
-    fetched = datetime.datetime.strptime(meta["fetchedAt"], "%Y-%m-%dT%H:%M:%SZ")
-except Exception:
-    sys.exit(1)
-fetched = fetched.replace(tzinfo=datetime.timezone.utc)
-now = datetime.datetime.now(datetime.timezone.utc)
-sys.exit(0 if (now - fetched).total_seconds() < 86400 else 1)
-PY
-}
-
 stage_single_wallpaper () { # BACKGROUND_IMAGE into every slot
   local dir
   dir=$(wallpaper_dir)
@@ -422,12 +409,25 @@ PY
 }
 
 prepare_wallpaper () { # never capture before a fresh photo is on disk
-  local dir deadline slot missing=0
+  local slot missing=0
   if [ -n "$BACKGROUND_IMAGE" ]; then
     stage_single_wallpaper
     return
   fi
-  if [ -f "$MANIFEST" ]; then
+  # A missing manifest used to fall through to "let the app download its own",
+  # which fetched exactly one photo and reused it for every screen — while every
+  # stage_slot below threw a traceback. Fetch one photo per slot instead; the
+  # fetch keeps any slot already on disk, so this is a no-op after the first run.
+  if [ ! -f "$MANIFEST" ]; then
+    echo "    no wallpaper manifest — fetching one photo per slot"
+    fetch_wallpapers
+  fi
+  if [ ! -f "$MANIFEST" ]; then
+    echo "!! could not write $MANIFEST — check the network, then rerun --fetch-wallpapers" >&2
+    return 1
+  fi
+
+  {
     for screen in "${SCREENS[@]}"; do
       slot="$LABEL-$screen"
       if ! python3 -c '
@@ -443,27 +443,11 @@ sys.exit(0 if os.path.isfile(os.path.join(os.path.dirname(manifest_path), entry[
         missing=1
       fi
     done
-    if [ "$missing" -eq 1 ]; then
-      echo "!! some $LABEL wallpaper slots are missing — run with --fetch-wallpapers first" >&2
-      return 1
-    fi
-    return 0
+  }
+  if [ "$missing" -eq 1 ]; then
+    echo "!! some $LABEL wallpaper slots are missing — rerun --fetch-wallpapers" >&2
+    return 1
   fi
-
-  # Fallback: let the app download one, and refuse to capture until it lands.
-  echo "    no wallpaper manifest — waiting on the app's own download" >&2
-  dir=$(wallpaper_dir)
-  xcrun simctl launch "$UDID" "$BUNDLE" --ui-testing --ui-testing-noop-settle >/dev/null 2>&1 || true
-  deadline=$((SECONDS + WALLPAPER_TIMEOUT))
-  while [ "$SECONDS" -lt "$deadline" ]; do
-    if [ -f "$dir/background.jpg" ] && wallpaper_is_fresh "$dir"; then
-      echo "    wallpaper ready"
-      return
-    fi
-    sleep 3
-  done
-  echo "!! no fresh wallpaper after ${WALLPAPER_TIMEOUT}s — captures would be backgroundless" >&2
-  return 1
 }
 
 # ── Capture ──────────────────────────────────────────────────────────────────
@@ -512,21 +496,21 @@ capture_class () { # $1 = class label, $2 = device type regex
     echo "  -> $language"
     demo_seed=$(demo_reminder_seed "$language")
     prime_language "$language"
-    stage_slot "$label" main-light || true
+    stage_slot "$label" main-light
     xcrun simctl ui "$UDID" appearance light
     shoot "$dir/main-light.png" \
       --seed "$demo_seed" --ui-testing-noop-settle -showSwipePrompt NO
-    stage_slot "$label" options || true
+    stage_slot "$label" options
     shoot "$dir/options-light.png" \
       --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language" \
       --ui-testing-open-settings
-    stage_slot "$label" main-dark || true
+    stage_slot "$label" main-dark
     xcrun simctl ui "$UDID" appearance dark
     shoot "$dir/main-dark.png" \
       --seed "$demo_seed" --ui-testing-noop-settle -showSwipePrompt NO
-    stage_slot "$label" empty || true
+    stage_slot "$label" empty
     shoot "$dir/empty-dark.png" --seed "$ALL_DONE_SEED"
-    stage_slot "$label" no-reminders || true
+    stage_slot "$label" no-reminders
     shoot "$dir/no-reminders-dark.png" --no-reminders
   done
 
