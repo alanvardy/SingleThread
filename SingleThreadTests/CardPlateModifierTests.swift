@@ -36,16 +36,11 @@ struct CardPlateModifierTests {
         #expect(CardPlate.moreHintColor(for: .dark) != CardPlate.skipHintColor(for: .dark))
     }
 
-    /// The yellow hint is deterministic per scheme: light mode is the darkened
-    /// gold that stays legible on the off-white plate, dark mode is semantic
-    /// `.yellow`.
+    /// The yellow hint adapts per scheme: light mode is the darkened gold that
+    /// stays legible on the off-white plate, dark mode is semantic `.yellow`.
     @Test
-    func moreHintColorIsDeterministicPerScheme() {
-        let light = CardPlate.moreHintColor(for: .light)
-        let dark = CardPlate.moreHintColor(for: .dark)
-        #expect(CardPlate.moreHintColor(for: .light) == light)
-        #expect(CardPlate.moreHintColor(for: .dark) == dark)
-        #expect(light != dark)
-        #expect(dark == .yellow)
+    func moreHintColorIsDistinctPerScheme() {
+        #expect(CardPlate.moreHintColor(for: .light) != CardPlate.moreHintColor(for: .dark))
+        #expect(CardPlate.moreHintColor(for: .dark) == .yellow)
     }
 }
