@@ -101,7 +101,7 @@ struct SettingsView: View {
                     NavigationLink(value: SettingsRoute.reminder) {
                         SettingsLinkLabel(
                             title: SharedStrings.reminder,
-                            systemImage: "bell.badge",
+                            systemImage: "checklist",
                             caption: "Choose what information is shown with each reminder.")
                     }
                     .accessibilityIdentifier("settingsReminderRow")
