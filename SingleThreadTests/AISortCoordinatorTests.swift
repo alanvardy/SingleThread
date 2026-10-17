@@ -569,7 +569,9 @@ struct AISortCoordinatorTests {
     /// Polls until `condition` holds (or `timeout` elapses). Under parallel Swift
     /// Testing on macOS the coordinator's debounced MainActor task can be delayed
     /// past any fixed sleep, so the tests must await the *condition*, not a duration.
-    private func waitUntil(timeout: Duration = .seconds(20), _ condition: () -> Bool) async {
+    /// 25 s leaves headroom over the observed ~20.7 s worst case on a loaded host;
+    /// at the previous 20 s bound the poll expired and the caller's `#expect` failed.
+    private func waitUntil(timeout: Duration = .seconds(25), _ condition: () -> Bool) async {
         let clock = ContinuousClock()
         let deadline = clock.now + timeout
         while !condition(), clock.now < deadline {
