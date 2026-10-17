@@ -26,4 +26,21 @@ struct CardPlateModifierTests {
         let withoutRestore = Text("test").cardPlate(fill: .blue, restoresGeometry: false)
         #expect(String(describing: withRestore) != String(describing: withoutRestore))
     }
+
+    /// The More hint must be its own yellow decision — distinct from the skip
+    /// hint in both colour schemes so the upcoming reveal reads as "more", not
+    /// as a second skip action.
+    @Test
+    func moreHintColorDiffersFromSkipInBothSchemes() {
+        #expect(CardPlate.moreHintColor(for: .light) != CardPlate.skipHintColor(for: .light))
+        #expect(CardPlate.moreHintColor(for: .dark) != CardPlate.skipHintColor(for: .dark))
+    }
+
+    /// The yellow hint adapts per scheme: light mode is the darkened gold that
+    /// stays legible on the off-white plate, dark mode is semantic `.yellow`.
+    @Test
+    func moreHintColorIsDistinctPerScheme() {
+        #expect(CardPlate.moreHintColor(for: .light) != CardPlate.moreHintColor(for: .dark))
+        #expect(CardPlate.moreHintColor(for: .dark) == .yellow)
+    }
 }
