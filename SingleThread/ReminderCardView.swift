@@ -39,17 +39,25 @@ struct ReminderCardView: View {
 
     // MARK: Internal
 
+    /// Vertical gap (in points) between the swipe-prompt chrome and the card —
+    /// applied both above and below the card plate so the two black hint panels
+    /// are separated by the card itself and never touch. Extracted so the gap
+    /// can be asserted headlessly.
+    static let promptPanelSpacing: CGFloat = 12
+
+    /// Fill behind both swipe-hint panels: solid black so the tinted hints stay
+    /// legible over any wallpaper in light and dark schemes.
+    static let promptPanelFill = Color.black
+
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: Self.promptPanelSpacing) {
             if showSwipePrompt {
-                upGuide
+                upGuidePanel
                     .offset(cardOffset)
             }
             cardPlate
             if showSwipePrompt {
-                horizontalGuide
-                    .offset(cardOffset)
-                dismissButton
+                sideGuidePanel
                     .offset(cardOffset)
             }
         }
@@ -239,6 +247,24 @@ struct ReminderCardView: View {
         .accessibilityIdentifier("skipNudgeBanner")
     }
 
+    /// The up-guide badge on its black panel: `↑ Swipe up for more` centred,
+    /// visual-only, above the card.
+    private var upGuidePanel: some View {
+        upGuide
+            .cardPlate(fill: Self.promptPanelFill)
+    }
+
+    /// The bottom black panel carrying the horizontal guide row and the Dismiss
+    /// button, below the card. Both side hints share one plate so the two
+    /// labels read as a single dismissible group.
+    private var sideGuidePanel: some View {
+        VStack(spacing: Self.promptPanelSpacing) {
+            horizontalGuide
+            dismissButton
+        }
+        .cardPlate(fill: Self.promptPanelFill)
+    }
+
     /// `↑ Swipe up for more`, centred above the card. Visual-only: the copy is
     /// hidden from accessibility (VoiceOver users get the card's swipe actions).
     private var upGuide: some View {
@@ -247,7 +273,7 @@ struct ReminderCardView: View {
             Text("Swipe up for more")
         }
         .font(.caption)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(CardPlate.moreHintColor(for: colorScheme))
         .accessibilityHidden(true)
     }
 
@@ -275,20 +301,21 @@ struct ReminderCardView: View {
     }
 
     /// Hides the swipe guide: writes `false` through the persisted
-    /// `showSwipePrompt` binding. Caption-sized, bordered-prominent, black/white
-    /// adaptive tint so it contrasts on the surrounding backdrop.
+    /// `showSwipePrompt` binding. Caption-sized, bordered-prominent, white pill
+    /// so it always contrasts against the black hint panel behind it — a black
+    /// pill would vanish into that panel in light mode.
     private var dismissButton: some View {
         Button {
             showSwipePrompt = false
         } label: {
-            Text("Dismiss")
+            Text("Dismiss hints")
                 .font(.caption.bold())
-                .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
+                .foregroundStyle(Color.black)
                 .padding(.horizontal, 24)
                 .padding(.vertical, 8)
         }
         .buttonStyle(.borderedProminent)
-        .tint(colorScheme == .dark ? Color.white : Color.black)
+        .tint(Color.white)
         // Caption-sized text alone falls below the 44pt accessibility
         // hit-region minimum; stretch the button's frame vertically so
         // the hit area passes the audit. Padding on the label content
@@ -296,7 +323,7 @@ struct ReminderCardView: View {
         // button itself.
         .padding(.vertical, 8)
         .contentShape(Rectangle())
-        .accessibilityLabel("Dismiss swipe prompt")
+        .accessibilityLabel("Dismiss swipe hints")
         .accessibilityIdentifier("swipePromptDismissButton")
     }
 

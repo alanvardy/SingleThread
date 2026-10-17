@@ -649,43 +649,43 @@
         }
       }
     },
-    "Dismiss": {
+    "Dismiss hints": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dismiss"
+            "value": "Dismiss hints"
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "关闭"
+            "value": "关闭提示"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cerrar"
+            "value": "Cerrar sugerencias"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "閉じる"
+            "value": "ヒントを閉じる"
           }
         },
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Schließen"
+            "value": "Hinweise schließen"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Fermer"
+            "value": "Fermer les astuces"
           }
         }
       }

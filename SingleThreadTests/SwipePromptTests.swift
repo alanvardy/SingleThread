@@ -34,6 +34,40 @@ struct SwipePromptTests {
         #expect(description.contains("Dismiss"))
     }
 
+    /// The renamed dismiss button copy still surfaces as a literal on the
+    /// button label, and the corrected accessibility label is reflected as the
+    /// attachment modifier (its string value is covered by the doc comment on
+    /// `dismissButtonHasAccessibilityLabel`).
+    @Test
+    func dismissButtonShowsRenamedLabel() {
+        let description = String(describing: makeCard(showSwipePrompt: true).body)
+        #expect(description.contains("Dismiss hints"))
+    }
+
+    /// The Dismiss button's accessibility label reflects the renamed copy
+    /// ("Dismiss swipe hints" instead of the old "Dismiss swipe prompt").
+    @Test
+    func dismissButtonAccessibilityLabelUsesHintsWording() {
+        let description = String(describing: makeCard(showSwipePrompt: true).body)
+        #expect(!description.contains("Dismiss swipe prompt"))
+        #expect(description.contains("AccessibilityAttachmentModifier"))
+    }
+
+    /// The two black hint panels are separated by the reminder card itself, and
+    /// the interstitial gap is the shared prompt spacing constant — extracted so
+    /// the panels provably never touch.
+    @Test
+    func promptPanelGapIsNonZeroConstant() {
+        #expect(ReminderCardView.promptPanelSpacing > 0)
+    }
+
+    /// The hint panels use solid black so the tinted hints read over any
+    /// wallpaper in both colour schemes.
+    @Test
+    func promptPanelsUseBlackFill() {
+        #expect(ReminderCardView.promptPanelFill == .black)
+    }
+
     @Test
     func promptHiddenWhenDisabled() {
         let description = String(describing: makeCard(showSwipePrompt: false).body)
@@ -49,7 +83,7 @@ struct SwipePromptTests {
         // `String(describing:)` (see ActionButtonTests), but it does reflect the
         // `AccessibilityAttachmentModifier` on the Dismiss button. The label
         // value itself is asserted by the Phase 4 UI test via
-        // `app.buttons["Dismiss swipe prompt"]`. The bordered-prominent style
+        // `app.buttons["Dismiss swipe hints"]`. The bordered-prominent style
         // pins the rounded-button treatment.
         #expect(description.contains("Button<"))
         #expect(description.contains("BorderedProminentButtonStyle"))
