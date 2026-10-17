@@ -2,22 +2,24 @@
 #
 # App Store Connect screenshots — iPhone 6.3" and iPad 13" display classes.
 #
-# Per language, per display class, this captures:
+# Per language, per display class, this captures (the numeric prefixes put the
+# files in the drag-over order the App Store listing wants):
 #
-#   main-light.png         main reminder card, light appearance
-#   options-light.png      root Settings sheet, light appearance
-#   main-dark.png          main reminder card, dark appearance
-#   empty-dark.png         "All Done" empty state, dark appearance
-#   no-reminders-dark.png  "No Reminders" empty state, dark appearance
+#   1-main-dark.png              main reminder card, dark appearance
+#   2-empty-dark.png             "All Done" empty state, dark appearance
+#   3-options-light.png          root Settings sheet, light appearance
+#   4-options-reminder-dark.png  Settings' Reminder subscreen, dark appearance
+#   5-main-light.png             main reminder card, light appearance
+#   6-no-reminders-dark.png      "No Reminders" empty state, dark appearance
 #
 # The watch class captures a third, separate set — the watch app has no
 # wallpaper, no settings screen, and no `--seed`, so its demo copy comes from the
 # watch's own seams in `WatchDemoReminder`:
 #
-#   main.png          reminder card
-#   more.png          three-action menu — Skip / Reschedule / Delete
-#   all-done.png      "All Done" (`--ui-testing-excluded-list`)
-#   no-reminders.png  "No Reminders" (`--ui-testing-empty`)
+#   1-main.png          reminder card
+#   2-more.png          three-action menu — Skip / Reschedule / Delete
+#   3-all-done.png      "All Done" (`--ui-testing-excluded-list`)
+#   4-no-reminders.png  "No Reminders" (`--ui-testing-empty`)
 #
 # The menu and the empty states exist only behind seams: the menu needs a tap on
 # the Skip button (`--ui-testing-open-action-menu` presents it at launch), and
@@ -31,9 +33,12 @@
 # The options screen is presented by the `--ui-testing-open-settings` launch
 # seam (`LaunchArgument.openSettings`), which replays the gear button's action
 # at launch — the sheet has no URL scheme or menu command, and `simctl` cannot
-# tap, so no other route reaches it. Capturing options therefore needs an app
-# build that carries the seam; the script rebuilds by default rather than
-# reusing a possibly stale .app (pass --no-build to skip).
+# tap, so no other route reaches it. Its Reminder subscreen is reached the same
+# way through `--ui-testing-open-settings-reminder`
+# (`LaunchArgument.openSettingsReminder`), which seeds the Settings navigation
+# path with the Reminder row's destination. Capturing either needs an app build
+# that carries the seam; the script rebuilds by default rather than reusing a
+# possibly stale .app (pass --no-build to skip).
 #
 # The main card shows one localized demo reminder — "Teach the cat how to do my
 # taxes" and its five translations, in `demo_reminder_seed` below. It travels in
@@ -48,12 +53,14 @@
 #     before the seeded captures, because --ui-testing-app-language is read only
 #     on the --ui-testing path.
 #
-# Output: build/appstore-screenshots/<lang>/<class>/<name>.png
+# Output: build/appstore-screenshots/<lang>/<device>/<name>.png
 #
 # Folders are language-major, so every localization of one device sits in a
 # single directory, and each language directory carries the App Store's own
 # ordering as a numeric prefix (`language_folder` below): 1-en, 2-zh-Hans,
-# 3-fr, 4-de, 5-ja, 6-es. The output tree is cleared at the start of every
+# 3-fr, 4-de, 5-ja, 6-es. The device directory inside it is numbered the same
+# way (`class_folder` below) so the three display classes sort as
+# 1-iphone, 2-ipad, 3-watch. The output tree is cleared at the start of every
 # run, so a stale layout can never linger beside the new one.
 #
 # The captures are the simulator's native pixels — 1206 x 2622 (6.3") and
@@ -89,6 +96,9 @@
 #   iphone-6.3-empty         ipad-13-empty           ("All Done")
 #   iphone-6.3-no-reminders  ipad-13-no-reminders
 #
+# `4-options-reminder-dark` is the same Settings sheet pushed one level in, so
+# it stages the `options` photo rather than adding a slot of its own.
+#
 # The set is COMMITTED — scripts/fixtures/appstore-wallpapers/ holds the ten
 # photos and manifest.json — so a clone captures the same wallpapers with no
 # network and nothing to draw. Override the directory with WALLPAPER_DIR to use
@@ -117,7 +127,7 @@
 #
 # Usage: scripts/appstore-screenshots.sh [options] [class ...]
 #        class: iphone-6.3 | ipad-13 | watch-series11-46mm
-#        (default: the two iOS classes)
+#        (default: every class — both iOS classes and the watch)
 
 set -euo pipefail
 
@@ -201,9 +211,34 @@ language_folder () { # $1 = language → numbered output directory name
 
 LANGUAGES=(en zh-Hans fr de ja es)
 
-# Wallpaper slots per device class, in capture order. Slot names match the
-# captured file names so a staged photo maps 1:1 onto an output PNG.
-SCREENS=(main-light options main-dark empty no-reminders)
+# App Store Connect's device order, mirrored onto the output directory inside
+# each language folder. The class labels stay the internal keys (they key the
+# committed wallpaper slots, e.g. `iphone-6.3-main-light`), so only the
+# directory name is remapped here.
+class_folder () { # $1 = class label → numbered output directory name
+  case "$1" in
+    iphone-6.3) echo "1-iphone" ;;
+    ipad-13) echo "2-ipad" ;;
+    watch-series11-46mm) echo "3-watch" ;;
+    *) return 1 ;;
+  esac
+}
+
+# Capture order per device class, as `<wallpaper slot>:<output file stem>`. The
+# stems carry a numeric prefix so the listing's drag-over order is the file
+# name's sort order; slots stay unprefixed because they key the committed
+# wallpaper set (see the wallpaper section above), not the output names.
+#
+# `options` is staged twice on purpose: `4-options-reminder-dark` is the Reminder
+# subscreen of the same sheet, so it shares the sheet's photo.
+SCREENS=(
+  "main-dark:1-main-dark"
+  "empty:2-empty-dark"
+  "options:3-options-light"
+  "options:4-options-reminder-dark"
+  "main-light:5-main-light"
+  "no-reminders:6-no-reminders-dark"
+)
 
 # class:simctl devicetype name regex
 DEVICE_TYPES=(
@@ -251,7 +286,7 @@ while [ $# -gt 0 ]; do
       shift
       ;;
     -h | --help)
-      sed -n '2,120p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,128p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     -*)
@@ -298,7 +333,7 @@ slot_names () { # every slot for the device classes in play, as <class>-<screen>
   for entry in "${DEVICE_TYPES[@]}"; do
     label=${entry%%:*}
     for screen in "${SCREENS[@]}"; do
-      echo "$label-$screen"
+      echo "$label-${screen%%:*}"
     done
   done
 }
@@ -456,7 +491,7 @@ prepare_wallpaper () { # never capture before a fresh photo is on disk
 
   {
     for screen in "${SCREENS[@]}"; do
-      slot="$LABEL-$screen"
+      slot="$LABEL-${screen%%:*}"
       if ! python3 -c '
 import json, os, sys
 
@@ -518,27 +553,42 @@ capture_class () { # $1 = class label, $2 = device type regex
   prepare_wallpaper
 
   for language in "${LANGUAGES[@]}"; do
-    dir="$OUT/$(language_folder "$language")/$label"
+    dir="$OUT/$(language_folder "$language")/$(class_folder "$label")"
     mkdir -p "$dir"
     echo "  -> $language"
     demo_seed=$(demo_reminder_seed "$language")
     prime_language "$language"
-    stage_slot "$label" main-light
-    xcrun simctl ui "$UDID" appearance light
-    shoot "$dir/main-light.png" \
+
+    # Capture order follows the file-name prefixes in SCREENS, so appearance is
+    # set explicitly before each shot rather than once per language.
+    xcrun simctl ui "$UDID" appearance dark
+    stage_slot "$label" main-dark
+    shoot "$dir/1-main-dark.png" \
       --seed "$demo_seed" --ui-testing-noop-settle -showSwipePrompt NO
+
+    stage_slot "$label" empty
+    shoot "$dir/2-empty-dark.png" --seed "$ALL_DONE_SEED"
+
+    xcrun simctl ui "$UDID" appearance light
     stage_slot "$label" options
-    shoot "$dir/options-light.png" \
+    shoot "$dir/3-options-light.png" \
       --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language" \
       --ui-testing-open-settings
-    stage_slot "$label" main-dark
+
     xcrun simctl ui "$UDID" appearance dark
-    shoot "$dir/main-dark.png" \
+    stage_slot "$label" options
+    shoot "$dir/4-options-reminder-dark.png" \
+      --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language" \
+      --ui-testing-open-settings-reminder
+
+    xcrun simctl ui "$UDID" appearance light
+    stage_slot "$label" main-light
+    shoot "$dir/5-main-light.png" \
       --seed "$demo_seed" --ui-testing-noop-settle -showSwipePrompt NO
-    stage_slot "$label" empty
-    shoot "$dir/empty-dark.png" --seed "$ALL_DONE_SEED"
+
+    xcrun simctl ui "$UDID" appearance dark
     stage_slot "$label" no-reminders
-    shoot "$dir/no-reminders-dark.png" --no-reminders
+    shoot "$dir/6-no-reminders-dark.png" --no-reminders
   done
 
   xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
@@ -586,17 +636,17 @@ capture_watch () { # $1 = device type regex
   xcrun simctl install "$UDID" "$WATCH_APP"
 
   for language in "${LANGUAGES[@]}"; do
-    dir="$OUT/$(language_folder "$language")/$WATCH_CLASS"
+    dir="$OUT/$(language_folder "$language")/$(class_folder "$WATCH_CLASS")"
     mkdir -p "$dir"
     echo "  -> $language"
     watch_set_language "$language"
-    watch_shot "$dir/main.png" --ui-testing \
+    watch_shot "$dir/1-main.png" --ui-testing \
       --ui-testing-title "$(demo_reminder_title "$language")" --ui-testing-notes ""
-    watch_shot "$dir/more.png" --ui-testing \
+    watch_shot "$dir/2-more.png" --ui-testing \
       --ui-testing-title "$(demo_reminder_title "$language")" --ui-testing-notes "" \
       --ui-testing-open-action-menu
-    watch_shot "$dir/all-done.png" --ui-testing --ui-testing-excluded-list Errands
-    watch_shot "$dir/no-reminders.png" --ui-testing --ui-testing-empty
+    watch_shot "$dir/3-all-done.png" --ui-testing --ui-testing-excluded-list Errands
+    watch_shot "$dir/4-no-reminders.png" --ui-testing --ui-testing-empty
   done
 
   xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
@@ -605,7 +655,7 @@ capture_watch () { # $1 = device type regex
 # ── Run ──────────────────────────────────────────────────────────────────────
 
 if [ ${#CLASSES[@]} -eq 0 ]; then
-  CLASSES=(iphone-6.3 ipad-13)
+  CLASSES=(iphone-6.3 ipad-13 watch-series11-46mm)
 fi
 
 # Clear the output tree: the language-major layout replaced an older

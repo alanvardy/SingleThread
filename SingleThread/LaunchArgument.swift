@@ -17,7 +17,23 @@ enum LaunchArgument: String {
     /// until the bag exists.
     case openSettings = "--ui-testing-open-settings"
 
+    /// Presents the root Settings sheet and pushes the "Reminder" subscreen.
+    ///
+    /// The subscreen is otherwise reachable only by tapping the Reminder row,
+    /// which `simctl` cannot do, so the App Store screenshot harness has no other
+    /// route to it. It opens the sheet exactly as ``openSettings`` does — same
+    /// bag-then-flag order — and then seeds the navigation path with the row's
+    /// destination.
+    case openSettingsReminder = "--ui-testing-open-settings-reminder"
+
     // MARK: Internal
+
+    /// Whether either Settings seam is present — the sheet opener or the
+    /// Reminder-subscreen opener (which opens the sheet too).
+    static func opensSettings(
+        in arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
+        isPresent(.openSettings, in: arguments) || isPresent(.openSettingsReminder, in: arguments)
+    }
 
     /// Whether `argument` was passed to this process.
     static func isPresent(

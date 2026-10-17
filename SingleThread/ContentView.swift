@@ -278,11 +278,12 @@ struct ContentView: View {
             handleScenePhaseChange(phase)
         }
         .task {
-            // `--ui-testing-open-settings` replays the gear button's action at
-            // launch. `simctl` cannot tap, so this is the only way screenshot
-            // automation can reach the options screen; bag first, then the flag,
-            // because `settingsSheetContent` renders nothing until the bag exists.
-            if LaunchArgument.isPresent(.openSettings), settingsBag == nil {
+            // The settings seams replay the gear button's action at launch.
+            // `simctl` cannot tap, so this is the only way screenshot automation
+            // reaches the options screen (and, for `openSettingsReminder`, its
+            // Reminder subscreen); bag first, then the flag, because
+            // `settingsSheetContent` renders nothing until the bag exists.
+            if LaunchArgument.opensSettings(), settingsBag == nil {
                 settingsBag = makeSettingsBag()
                 isShowingSettings = true
             }

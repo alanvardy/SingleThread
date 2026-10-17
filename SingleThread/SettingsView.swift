@@ -1,6 +1,16 @@
 import SingleThreadCore
 import SwiftUI
 
+// MARK: - SettingsRoute
+
+/// One pushed destination inside the Settings stack. Only the Reminder row is
+/// value-driven: the screenshot harness seeds it through
+/// ``LaunchArgument/openSettingsReminder``, and the value form is what lets a
+/// `NavigationPath` pre-select it before the stack renders.
+enum SettingsRoute: Hashable {
+    case reminder
+}
+
 // MARK: - SettingsView
 
 /// Modal settings screen presented from the gear button. Owns no state —
@@ -22,7 +32,8 @@ struct SettingsView: View {
         availableLists: [String],
         excludedLists: Binding<Set<String>>,
         entitlementStore: EntitlementStore = EntitlementStore(),
-        viewModel: SettingsViewModel = SettingsViewModel()) {
+        viewModel: SettingsViewModel = SettingsViewModel(),
+        initialRoute: SettingsRoute? = nil) {
         self.bindings = bindings
         self.viewModel = viewModel
         self.store = store
@@ -30,12 +41,19 @@ struct SettingsView: View {
         self.availableLists = availableLists
         self.entitlementStore = entitlementStore
         _excludedLists = excludedLists
+        // Seed the path before the stack renders so a seam-driven launch lands
+        // on the subscreen in the first frame instead of pushing afterwards.
+        var path = NavigationPath()
+        if let initialRoute {
+            path.append(initialRoute)
+        }
+        _path = State(initialValue: path)
     }
 
     // MARK: Internal
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             List {
                 Section {
                     NavigationLink {
@@ -80,16 +98,7 @@ struct SettingsView: View {
                         }
                         .accessibilityIdentifier("settingsNotificationsRow")
                     #endif
-                    NavigationLink {
-                        ReminderSettingsView(
-                            showDate: $bindings.showDate,
-                            showList: $bindings.showList,
-                            showRecurrence: $bindings.showRecurrence,
-                            showAlarms: $bindings.showAlarms,
-                            showCompletionGlow: $bindings.showCompletionGlow,
-                            showCompletionMomentum: $bindings.showCompletionMomentum,
-                            viewModel: viewModel)
-                    } label: {
+                    NavigationLink(value: SettingsRoute.reminder) {
                         SettingsLinkLabel(
                             title: SharedStrings.reminder,
                             systemImage: "bell.badge",
@@ -177,6 +186,19 @@ struct SettingsView: View {
                     .accessibilityAddTraits(.isButton)
                 }
             }
+            .navigationDestination(for: SettingsRoute.self) { route in
+                switch route {
+                case .reminder:
+                    ReminderSettingsView(
+                        showDate: $bindings.showDate,
+                        showList: $bindings.showList,
+                        showRecurrence: $bindings.showRecurrence,
+                        showAlarms: $bindings.showAlarms,
+                        showCompletionGlow: $bindings.showCompletionGlow,
+                        showCompletionMomentum: $bindings.showCompletionMomentum,
+                        viewModel: viewModel)
+                }
+            }
             .localizedNavigationTitle("Settings")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -194,6 +216,8 @@ struct SettingsView: View {
 
     @Environment(\.dismiss)
     private var dismiss
+
+    @State private var path: NavigationPath
 
     @Binding private var excludedLists: Set<String>
 
