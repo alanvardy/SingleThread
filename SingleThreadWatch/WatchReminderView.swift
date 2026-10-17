@@ -229,10 +229,12 @@ struct WatchReminderView: View {
             Text(SharedStrings.noReminders)
                 .foregroundStyle(.secondary)
                 .accessibilityIdentifier("emptyStateTitle")
-            Text(hasHidden ? SharedStrings.nothingDueRightNow : SharedStrings.noRemindersYet)
-                .font(.caption2)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+            if hasHidden {
+                Text(SharedStrings.nothingDueRightNow)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+            }
             refreshButton
         }
     }
