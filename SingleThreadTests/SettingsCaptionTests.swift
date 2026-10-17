@@ -39,7 +39,7 @@ struct SettingsCaptionTests {
     func linkLabelContainsTitleAndCaption() {
         let view = SettingsLinkLabel(
             title: "Reminder",
-            systemImage: "bell.badge",
+            systemImage: "checklist",
             caption: "Choose what information is shown with each reminder.")
         let bodyDescription = String(describing: view.body)
         #expect(bodyDescription.contains("Reminder"))
