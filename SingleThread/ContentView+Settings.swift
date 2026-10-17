@@ -13,7 +13,8 @@ extension ContentView {
             availableLists: viewModel.store.availableLists,
             excludedLists: excludedListsBinding,
             entitlementStore: viewModel.store.entitlementStore,
-            viewModel: SettingsViewModel())
+            viewModel: SettingsViewModel(),
+            initialRoute: LaunchArgument.isPresent(.openSettingsReminder) ? .reminder : nil)
             // Standard-suite keys are plain in-memory values; write each change
             // back to the @AppStorage-backed property so settings survive relaunch.
             // App-Group keys write straight through their store types instead
