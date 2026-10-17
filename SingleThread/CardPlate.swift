@@ -40,6 +40,15 @@ enum CardPlate {
         colorScheme == .dark ? .green : Color(red: 0.10, green: 0.58, blue: 0.24)
     }
 
+    /// Adaptive tint for the "Swipe up for more" hint (and the revealed more
+    /// panel). A darkened gold in light mode keeps the caption legible on the
+    /// off-white plate; dark mode uses semantic `.yellow` — same rationale as
+    /// `skipHintColor(for:)`. Yellow sets the More action apart from the
+    /// complete/skip/refresh reveals.
+    static func moreHintColor(for colorScheme: ColorScheme) -> Color {
+        colorScheme == .dark ? .yellow : Color(red: 0.72, green: 0.56, blue: 0.05)
+    }
+
     /// Adaptive tint for the pull-to-refresh panel (darkened blue in light
     /// mode, semantic `.blue` in dark mode — same rationale as
     /// `skipHintColor(for:)`). Blue keeps refresh distinct from the

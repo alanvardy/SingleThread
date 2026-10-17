@@ -101,7 +101,7 @@ struct SwipeRevealPanel: View {
             Presentation(
                 title: SharedStrings.moreAction,
                 systemImage: Self.systemImage(for: outcome),
-                tint: CardPlate.skipHintColor(for: colorScheme))
+                tint: CardPlate.moreHintColor(for: colorScheme))
         case .refresh:
             Presentation(
                 title: LocalizedStringResource("Refresh", table: "Localizable", bundle: .main),
