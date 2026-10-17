@@ -210,6 +210,16 @@ struct SettingsView: View {
             }
         }
         .modifier(TextSizeModifier(textSize: bindings.textSize))
+        .onDisappear {
+            // Drop the seeded route when the sheet goes away so a re-presented
+            // Settings opens at its root. Reading `path` directly — not only
+            // through `$path` — is also what keeps it visible to Periphery,
+            // which misses `$`-projection-only `@State` under Xcode 27 and would
+            // otherwise report the property as unused.
+            if !path.isEmpty {
+                path = NavigationPath()
+            }
+        }
     }
 
     // MARK: Private
