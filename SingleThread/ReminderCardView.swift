@@ -39,10 +39,11 @@ struct ReminderCardView: View {
 
     // MARK: Internal
 
-    /// Vertical gap (in points) between the swipe-prompt chrome and the card —
-    /// applied both above and below the card plate so the two black hint panels
-    /// are separated by the card itself and never touch. Extracted so the gap
-    /// can be asserted headlessly.
+    /// Vertical gap (in points) used inside the swipe-prompt chrome — between
+    /// the side-hint row and the Dismiss button, and as the card's own row
+    /// spacing. Both hint panels sit inside the card plate and are separated by
+    /// the reminder content between them, so they never touch. Extracted so the
+    /// gap can be asserted headlessly.
     static let promptPanelSpacing: CGFloat = 12
 
     /// Fill behind both swipe-hint panels: solid black so the tinted hints stay
@@ -50,18 +51,8 @@ struct ReminderCardView: View {
     static let promptPanelFill = Color.black
 
     var body: some View {
-        VStack(spacing: Self.promptPanelSpacing) {
-            if showSwipePrompt {
-                upGuidePanel
-                    .offset(cardOffset)
-            }
-            cardPlate
-            if showSwipePrompt {
-                sideGuidePanel
-                    .offset(cardOffset)
-            }
-        }
-        .frame(maxWidth: maxWidth)
+        cardPlate
+            .frame(maxWidth: maxWidth)
     }
 
     // MARK: Private
@@ -77,9 +68,9 @@ struct ReminderCardView: View {
     /// button writes `false` through this binding.
     @Binding private var showSwipePrompt: Bool
 
-    /// The plate's live travel, mirrored onto the prompt chrome so the guides
-    /// travel with the card without being pulled into the reveal container —
-    /// which would anchor the revealed plate to the chrome instead of the card.
+    /// The plate's live travel, owned here so `cardPlate`'s swipe gesture can
+    /// drive it while the plate (now including the hint panels) stays inside the
+    /// reveal container and moves as one unit.
     @State private var swipeOffset: CGSize = .zero
 
     private let display: ReminderDisplay
@@ -111,12 +102,6 @@ struct ReminderCardView: View {
     /// Fired when the plate's own swipe passes its release threshold.
     private let onSwipe: (SwipeGestureOutcome) -> Void
 
-    /// Downward drags belong to the pull-to-refresh surface, so the plate only
-    /// travels up from its own gesture; the pull adds downward travel on top.
-    private var cardOffset: CGSize {
-        CGSize(width: swipeOffset.width, height: min(swipeOffset.height, 0) + max(pullOffset, 0))
-    }
-
     /// Every link in the card's title and notes, in reading order.
     private var linkURLs: [URL] {
         var urls = LinkFormatter.links(in: display.title)
@@ -128,12 +113,21 @@ struct ReminderCardView: View {
 
     /// The reminder content on its plate — and the swipe surface. Only this part
     /// is wrapped by the reveal container, so complete / skip / more / refresh
-    /// all emerge from under the card itself.
+    /// all emerge from under the card itself. When the prompt is shown the two
+    /// black hint panels live inside this same plate — the More panel above the
+    /// content, the side hints + Dismiss panel below it — so the hints sit
+    /// within the card rather than floating above and below it.
     private var cardPlate: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: Self.promptPanelSpacing) {
+            if showSwipePrompt {
+                upGuidePanel
+            }
             content
             if showNudge {
                 nudgeBanner
+            }
+            if showSwipePrompt {
+                sideGuidePanel
             }
         }
         .frame(maxWidth: maxWidth, alignment: .leading)
@@ -248,24 +242,26 @@ struct ReminderCardView: View {
     }
 
     /// The up-guide badge on its black panel: `↑ Swipe up for more` centred,
-    /// visual-only, above the card.
+    /// visual-only, at the top of the card.
     private var upGuidePanel: some View {
         upGuide
+            .frame(maxWidth: .infinity)
             .cardPlate(fill: Self.promptPanelFill)
     }
 
     /// The bottom black panel carrying the horizontal guide row and the Dismiss
-    /// button, below the card. Both side hints share one plate so the two
-    /// labels read as a single dismissible group.
+    /// button, at the foot of the card. Both side hints share one plate so the
+    /// two labels read as a single dismissible group.
     private var sideGuidePanel: some View {
         VStack(spacing: Self.promptPanelSpacing) {
             horizontalGuide
             dismissButton
         }
+        .frame(maxWidth: .infinity)
         .cardPlate(fill: Self.promptPanelFill)
     }
 
-    /// `↑ Swipe up for more`, centred above the card. Visual-only: the copy is
+    /// `↑ Swipe up for more`, centred. Visual-only: the copy is
     /// hidden from accessibility (VoiceOver users get the card's swipe actions).
     private var upGuide: some View {
         VStack(spacing: 2) {
@@ -277,9 +273,9 @@ struct ReminderCardView: View {
         .accessibilityHidden(true)
     }
 
-    /// `← Swipe left to skip` and `Swipe right to complete →`, one row below the
-    /// card, arrow on the outer edge of each side and tinted like its revealed
-    /// panel. Visual-only.
+    /// `← Swipe left to skip` and `Swipe right to complete →`, one row within
+    /// the card, arrow on the outer edge of each side and tinted like its
+    /// revealed panel. Visual-only.
     private var horizontalGuide: some View {
         HStack {
             HStack(spacing: 4) {
