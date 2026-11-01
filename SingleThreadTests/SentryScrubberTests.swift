@@ -106,6 +106,48 @@ struct SentryScrubberTests {
         #expect(scrubbed?.extra == nil) // PII scrubbing still runs
     }
 
+    // MARK: Fail-open guarantee
+
+    @Test
+    func keepsEventWhenMechanismRenamed() {
+        #expect(SentryScrubber.scrub(hangEvent(
+            frames: Self.capturedFrames, mechanismType: "AppHangRenamed")) != nil)
+    }
+
+    @Test
+    func keepsEventWhenStacktraceMissing() {
+        let event = Event()
+        let exception = Exception(value: "App hanging.", type: "App Hang Fully Blocked")
+        exception.mechanism = Mechanism(type: "AppHang")
+        event.exceptions = [exception]
+        #expect(SentryScrubber.scrub(event) != nil)
+    }
+
+    @Test
+    func keepsEventWhenFrameListEmpty() {
+        #expect(SentryScrubber.scrub(hangEvent(frames: [])) != nil)
+    }
+
+    @Test
+    func keepsEventWhenDenylistPartiallyMatches() {
+        // BackBoardServices present, libxpc absent ⇒ not the backlight XPC stall.
+        let frames = Self.capturedFrames.filter { $0.image != Self.libXPC }
+        #expect(SentryScrubber.scrub(hangEvent(frames: frames)) != nil)
+    }
+
+    @Test
+    func keepsEventWhenAppFrameIsInBlockedChain() {
+        var frames = Self.capturedFrames
+        frames.insert((Self.appImage, true), at: frames.count) // app frame at the leaf
+        #expect(SentryScrubber.scrub(hangEvent(frames: frames)) != nil)
+    }
+
+    @Test
+    func keepsEventWhenFramePackageIsMissing() {
+        let frames = Self.capturedFrames.map { (image: "", inApp: $0.inApp) }
+        #expect(SentryScrubber.scrub(hangEvent(frames: frames)) != nil)
+    }
+
     // MARK: Private
 
     // MARK: Fixtures
