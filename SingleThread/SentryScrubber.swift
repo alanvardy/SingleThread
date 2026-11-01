@@ -36,7 +36,7 @@ enum SentryScrubber {
     ///
     /// All three conditions must hold:
     ///  1. the mechanism is the public, stable `"AppHang"` marker,
-    ///  2. the blocked chain contains every image in `systemStallSignatureImages`,
+    ///  2. the stack contains every image in `systemStallSignatureImages`,
     ///  3. no in-app frame sits at or deeper than the first stall frame.
     nonisolated static func isSystemStall(
         mechanismType: String?,
