@@ -263,7 +263,7 @@ struct BackgroundImageStoreTests {
     /// A stored image still loads and a fresh sidecar still short-circuits the
     /// network after the disk work moved off-main.
     @Test
-    func storedImageStillLoadsAndBlocksStaleRefetch() async {
+    func storedImageStillLoadsAndBlocksRefetchWhenFresh() async {
         let fake = FakeBackgroundFetcher()
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
         fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
