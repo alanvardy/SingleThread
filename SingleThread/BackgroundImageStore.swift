@@ -29,7 +29,7 @@ extension URLSession: BackgroundImageFetching {
 
 /// Sidecar metadata persisted next to the photo bytes. One write covers both
 /// the displayed photo and the attribution credit, so they can never disagree.
-private struct BackgroundMetadata: Codable {
+private nonisolated struct BackgroundMetadata: Codable {
     let photographer: String
     let photographerURL: String?
     let fetchedAt: Date
@@ -88,6 +88,16 @@ final class BackgroundImageStore {
         directory.appendingPathComponent("background.json")
     }
 
+    /// Runs synchronous disk work on the concurrent executor, off the MainActor.
+    /// `@concurrent` is required because `SWIFT_APPROACHABLE_CONCURRENCY` leaves a
+    /// plain `nonisolated async` function on the caller's actor (here MainActor).
+    /// Internal so tests can prove the executor leaves the MainActor.
+    @concurrent
+    nonisolated static func offMain<T: Sendable>(
+        _ work: @Sendable () throws -> T) async rethrows -> T {
+        try work()
+    }
+
     /// Loads stored bytes into observable state, then refetches over the
     /// network when the sidecar is missing/corrupt/stale. Called from
     /// ContentView's `.task`; rendering is never gated on the network result.
@@ -96,9 +106,9 @@ final class BackgroundImageStore {
     /// Failure convention: persist to disk FIRST, then flip observable state;
     /// on any error, log and keep prior state.
     func refreshIfNeeded(maxAge: TimeInterval = BackgroundImageStore.defaultMaxAge) async {
-        loadStoredImage()
+        await loadStoredImage()
         guard !isPinned || imageData == nil else { return }
-        guard !isFresh(maxAge: maxAge) else { return }
+        guard await !isFresh(maxAge: maxAge) else { return }
         guard !isFetching else { return }
         isFetching = true
         defer { isFetching = false }
@@ -107,7 +117,7 @@ final class BackgroundImageStore {
             // Re-check after the network suspension: a re-pin while the fetch was
             // in flight must not commit a new photo over the pinned one.
             guard !isPinned || imageData == nil else { return }
-            try commit(wallpaper)
+            try await commit(wallpaper)
         } catch {
             Self.logger.error("Background refresh failed: \(error.localizedDescription)")
         }
@@ -129,7 +139,7 @@ final class BackgroundImageStore {
         }
         do {
             let wallpaper = try await fetchWallpaper(from: Self.randomEndpoint)
-            try commit(wallpaper)
+            try await commit(wallpaper)
         } catch {
             Self.logger.error("Background force refresh failed: \(error.localizedDescription)")
         }
@@ -146,23 +156,41 @@ final class BackgroundImageStore {
     }
 
     /// Missing/corrupt sidecar ⇒ treated as "no valid stored image".
-    func loadStoredImage() {
-        guard let metadataData = try? Data(contentsOf: metadataURL),
-              let metadata = try? decodeMetadata(from: metadataData),
-              let data = try? Data(contentsOf: imageURL),
-              isDecodableImage(data)
-        else {
+    func loadStoredImage() async {
+        let metadataURL = metadataURL
+        let imageURL = imageURL
+        let loaded = await Self.offMain { () -> LoadedImage? in
+            guard
+                let metadataData = try? Data(contentsOf: metadataURL),
+                let metadata = try? Self.decodeMetadata(from: metadataData),
+                let data = try? Data(contentsOf: imageURL),
+                Self.isDecodableImage(data)
+            else { return nil }
+            return LoadedImage(
+                data: data,
+                photographer: metadata.photographer,
+                photographerURL: metadata.photographerURL)
+        }
+        guard let loaded else {
             imageData = nil
             photographer = nil
             photographerURL = nil
             return
         }
-        imageData = data
-        photographer = metadata.photographer
-        photographerURL = metadata.photographerURL.flatMap(URL.init)
+        imageData = loaded.data
+        photographer = loaded.photographer
+        photographerURL = loaded.photographerURL.flatMap(URL.init)
     }
 
     // MARK: Private
+
+    /// A decoded, validated stored wallpaper (plain `Sendable` value, no
+    /// observable state).
+    private nonisolated struct LoadedImage: Sendable {
+        let data: Data
+        let photographer: String
+        let photographerURL: String?
+    }
 
     /// A decoded, validated wallpaper ready to persist. Purely a value — no
     /// observable state — so callers can re-check pin state after the fetch.
@@ -197,6 +225,20 @@ final class BackgroundImageStore {
     /// automatic refresh never interleaves with a manual one at their awaits.
     private var isFetching = false
 
+    private nonisolated static func decodeMetadata(from data: Data) throws -> BackgroundMetadata {
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        return try decoder.decode(BackgroundMetadata.self, from: data)
+    }
+
+    private nonisolated static func isDecodableImage(_ data: Data) -> Bool {
+        #if os(iOS)
+            UIImage(data: data) != nil
+        #elseif os(macOS)
+            NSImage(data: data) != nil
+        #endif
+    }
+
     /// Fetches the Unsplash payload and photo from the given endpoint and
     /// validates it as a decodable image. Mutates nothing: the actual network
     /// I/O suspends off the main thread and returns a plain value.
@@ -205,7 +247,7 @@ final class BackgroundImageStore {
         let decoder = JSONDecoder()
         let payload = try decoder.decode(UnsplashPayload.self, from: payloadData)
         let data = try await client.fetchData(from: payload.url)
-        guard isDecodableImage(data) else { throw URLError(.cannotDecodeContentData) }
+        guard Self.isDecodableImage(data) else { throw URLError(.cannotDecodeContentData) }
         return FetchedWallpaper(
             data: data,
             photographer: payload.photographer,
@@ -214,46 +256,44 @@ final class BackgroundImageStore {
 
     /// Persists both files atomically, then flips the observable state.
     /// Disk before state keeps the displayed photo and attribution consistent.
-    private func commit(_ wallpaper: FetchedWallpaper) throws {
+    private func commit(_ wallpaper: FetchedWallpaper) async throws {
         let metadata = BackgroundMetadata(
             photographer: wallpaper.photographer,
             photographerURL: wallpaper.photographerURL?.absoluteString,
             fetchedAt: Date())
-        try persist(imageData: wallpaper.data, metadata: metadata) // disk before state
+        try await persist(imageData: wallpaper.data, metadata: metadata) // disk before state
         imageData = wallpaper.data
         photographer = wallpaper.photographer
         photographerURL = wallpaper.photographerURL
     }
 
-    private func isFresh(maxAge: TimeInterval) -> Bool {
-        guard let metadataData = try? Data(contentsOf: metadataURL),
-              let metadata = try? decodeMetadata(from: metadataData)
-        else { return false }
-        return Date().timeIntervalSince(metadata.fetchedAt) < maxAge
-    }
-
-    private func decodeMetadata(from data: Data) throws -> BackgroundMetadata {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return try decoder.decode(BackgroundMetadata.self, from: data)
-    }
-
-    private nonisolated func isDecodableImage(_ data: Data) -> Bool {
-        #if os(iOS)
-            UIImage(data: data) != nil
-        #elseif os(macOS)
-            NSImage(data: data) != nil
-        #endif
+    private func isFresh(maxAge: TimeInterval) async -> Bool {
+        let metadataURL = metadataURL
+        let fetchedAt = await Self.offMain { () -> Date? in
+            guard
+                let data = try? Data(contentsOf: metadataURL),
+                let metadata = try? Self.decodeMetadata(from: data)
+            else { return nil }
+            return metadata.fetchedAt
+        }
+        guard let fetchedAt else { return false }
+        return Date().timeIntervalSince(fetchedAt) < maxAge
     }
 
     /// Creates the directory if needed and writes both files atomically.
-    private func persist(imageData: Data, metadata: BackgroundMetadata) throws {
-        try FileManager.default.createDirectory(
-            at: directory, withIntermediateDirectories: true)
-        try imageData.write(to: imageURL, options: .atomic)
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        try encoder.encode(metadata).write(to: metadataURL, options: .atomic)
+    private func persist(imageData: Data, metadata: BackgroundMetadata) async throws {
+        let directory = directory
+        let imageURL = imageURL
+        let metadataURL = metadataURL
+        try await Self.offMain {
+            let encoder = JSONEncoder()
+            encoder.dateEncodingStrategy = .iso8601
+            let metadataData = try encoder.encode(metadata)
+            try FileManager.default.createDirectory(
+                at: directory, withIntermediateDirectories: true)
+            try imageData.write(to: imageURL, options: .atomic)
+            try metadataData.write(to: metadataURL, options: .atomic)
+        }
     }
 }
 

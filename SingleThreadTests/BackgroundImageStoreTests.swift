@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 @testable import SingleThread
 import Testing
@@ -249,6 +250,37 @@ struct BackgroundImageStoreTests {
         #expect(!store.isRefreshing)
     }
 
+    // MARK: - Off-main disk I/O
+
+    /// Regression guard for the removed synchronous `Data(contentsOf:)` on the
+    /// MainActor: the executor used for all disk work must leave the MainActor.
+    @Test
+    func diskWorkRunsOffMainActor() async {
+        let ranOnMain = await BackgroundImageStore.offMain { pthread_main_np() != 0 }
+        #expect(ranOnMain == false)
+    }
+
+    /// A stored image still loads and a fresh sidecar still short-circuits the
+    /// network after the disk work moved off-main.
+    @Test
+    func storedImageStillLoadsAndBlocksStaleRefetch() async {
+        let fake = FakeBackgroundFetcher()
+        fake.stubbedData[Self.endpoint] = .success(payloadJSON())
+        fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
+        let (store, _) = makeStore(client: fake)
+        await store.refreshIfNeeded(maxAge: 3600)
+        #expect(store.imageData == BackgroundTestFixtures.jpegData)
+
+        await store.loadStoredImage()
+        #expect(store.photographer == "NEOM")
+
+        let countAfterLoad = fake.requestedURLs.count
+        await store.refreshIfNeeded()
+        #expect(
+            fake.requestedURLs.count == countAfterLoad,
+            "fresh sidecar must skip the network after the off-main move")
+    }
+
     // MARK: - Pin gating
 
     @Test
@@ -264,7 +296,7 @@ struct BackgroundImageStoreTests {
             .write(to: store.metadataURL, options: .atomic)
         try BackgroundTestFixtures.jpegData
             .write(to: store.imageURL, options: .atomic)
-        store.loadStoredImage()
+        await store.loadStoredImage()
 
         // Stub the endpoint to confirm it is NOT called.
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
@@ -315,7 +347,7 @@ struct BackgroundImageStoreTests {
             .write(to: store.metadataURL, options: .atomic)
         try BackgroundTestFixtures.jpegData
             .write(to: store.imageURL, options: .atomic)
-        store.loadStoredImage()
+        await store.loadStoredImage()
         #expect(store.photographer == "Old")
 
         // Pin, then unpin; the unpin fetch is parked at the gate.
@@ -364,7 +396,7 @@ struct BackgroundImageStoreTests {
             .write(to: store.metadataURL, options: .atomic)
         try BackgroundTestFixtures.jpegData
             .write(to: store.imageURL, options: .atomic)
-        store.loadStoredImage()
+        await store.loadStoredImage()
 
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
         fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
@@ -393,7 +425,7 @@ struct BackgroundImageStoreTests {
             .write(to: store.metadataURL, options: .atomic)
         try BackgroundTestFixtures.jpegData
             .write(to: store.imageURL, options: .atomic)
-        store.loadStoredImage()
+        await store.loadStoredImage()
 
         // Stub to confirm endpoint is NOT called.
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
@@ -420,7 +452,7 @@ struct BackgroundImageStoreTests {
             .write(to: store.metadataURL, options: .atomic)
         try BackgroundTestFixtures.jpegData
             .write(to: store.imageURL, options: .atomic)
-        store.loadStoredImage()
+        await store.loadStoredImage()
 
         fake.stubbedData[Self.endpoint] = .success(payloadJSON())
         fake.stubbedData[Self.imageURL] = .success(BackgroundTestFixtures.jpegData)
