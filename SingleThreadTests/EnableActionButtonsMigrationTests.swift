@@ -19,7 +19,7 @@ struct EnableActionButtonsMigrationTests {
         AppGroup.defaults.removeObject(forKey: Self.key)
         UserDefaults.standard.set(true, forKey: Self.key)
 
-        _ = AppViewModel(arguments: [])
+        _ = makeViewModel()
 
         #expect(
             AppGroup.defaults.bool(forKey: Self.key),
@@ -32,7 +32,7 @@ struct EnableActionButtonsMigrationTests {
         UserDefaults.standard.removeObject(forKey: Self.key)
         AppGroup.defaults.removeObject(forKey: Self.key)
 
-        _ = AppViewModel(arguments: [])
+        _ = makeViewModel()
 
         #expect(
             AppGroup.defaults.object(forKey: Self.key) == nil,
@@ -47,7 +47,7 @@ struct EnableActionButtonsMigrationTests {
         UserDefaults.standard.set(true, forKey: Self.key)
         AppGroup.defaults.set(false, forKey: Self.key)
 
-        _ = AppViewModel(arguments: [])
+        _ = makeViewModel()
 
         #expect(
             AppGroup.defaults.object(forKey: Self.key) != nil,
@@ -60,6 +60,14 @@ struct EnableActionButtonsMigrationTests {
     // MARK: Private
 
     private static let key = "enableActionButtons"
+
+    /// Builds a production-argument view model with the real iCloud key-value
+    /// store replaced by an in-memory fake, so a unit test never touches it.
+    private func makeViewModel() -> AppViewModel {
+        AppViewModel(
+            arguments: [],
+            cloudStore: ExcludedListCloudStore(store: InMemoryUbiquitousStore()))
+    }
 
     private func clearKey() {
         AppGroup.defaults.removeObject(forKey: Self.key)

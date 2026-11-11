@@ -39,6 +39,17 @@ struct ExcludedListCloudStoreTests {
     }
 
     @Test
+    func emptySeedIsNeverWritten() {
+        let backing = InMemoryUbiquitousStore()
+        let store = makeStore(backing)
+
+        #expect(!store.seedIfAbsent(from: []))
+
+        #expect(store.load() == nil)
+        #expect(backing.values.isEmpty)
+    }
+
+    @Test
     func lastWriterWinsReplaceNotUnion() {
         let store = makeStore()
         store.save(["Work"])
@@ -67,9 +78,9 @@ struct ExcludedListCloudStoreTests {
         backing.isAvailable = false
 
         #expect(store.load() == nil)
-        // An unavailable store reports the key as absent, so the seed is still
-        // attempted and returns true — but the write is dropped.
-        #expect(store.seedIfAbsent(from: ["Personal"]))
+        // An unavailable store reports the key as absent, so the seed is
+        // attempted — but the write is dropped and seedIfAbsent reports false.
+        #expect(!store.seedIfAbsent(from: ["Personal"]))
         #expect(backing.values[Self.key] as? [String] == ["Work"])
     }
 

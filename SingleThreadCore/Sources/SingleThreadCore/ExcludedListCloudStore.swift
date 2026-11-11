@@ -9,9 +9,10 @@ import os
 /// intentional clear and must be adopted, never reseeded.
 ///
 /// Best effort and silent: when iCloud is unavailable (signed out, restricted,
-/// quota) `save` only touches local KVS memory and `load` reports the key as
-/// absent, so the app behaves exactly as before — App Group and
-/// WatchConnectivity are never affected.
+/// quota) a write does not propagate and `load` reports the key as absent, so
+/// the app behaves exactly as before — App Group and WatchConnectivity are
+/// never affected. The test seam models an unavailable store as a dropped
+/// write.
 public struct ExcludedListCloudStore {
     // MARK: Lifecycle
 
@@ -48,25 +49,30 @@ public struct ExcludedListCloudStore {
 
     /// Whole-set replace — last writer wins. An empty array is written verbatim
     /// (never `removeObject`, which would resurrect the "never written" seed
-    /// path); clearing is a real value that propagates. Best effort: a
-    /// signed-out/restricted device keeps the value locally in KVS memory and
-    /// never propagates it — the App Group and WatchConnectivity paths are
-    /// unaffected.
-    public func save(_ titles: [String]) {
+    /// path); clearing is a real value that propagates. Best effort and silent:
+    /// returns `false` when the store reports the write as unsynchronized (an
+    /// unavailable device), in which case it does not propagate — the App Group
+    /// and WatchConnectivity paths are unaffected.
+    @discardableResult
+    public func save(_ titles: [String]) -> Bool {
         store.set(titles, forKey: key)
-        if !store.synchronize() {
+        let synced = store.synchronize()
+        if !synced {
             Self.logger.debug("iCloud key-value store unavailable; excluded lists stay local")
         }
+        return synced
     }
 
     /// Writes `titles` only when the key was never written (`nil`). A stored
-    /// empty array (`[]`, an intentional clear) is NOT reseeded. Returns whether
-    /// a write happened (`false` for both "already present" and "clear present").
+    /// empty array (`[]`, an intentional clear) is NOT reseeded, and an empty
+    /// `titles` is never written — seeding `[]` would fabricate a clear that
+    /// erases another device's exclusions. Returns whether a write was accepted
+    /// (`false` for "already present", "clear present", an empty seed, or an
+    /// unavailable store).
     @discardableResult
     public func seedIfAbsent(from titles: [String]) -> Bool {
-        guard load() == nil else { return false }
-        save(titles)
-        return true
+        guard !titles.isEmpty, load() == nil else { return false }
+        return save(titles)
     }
 
     // MARK: Private
