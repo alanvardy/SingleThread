@@ -119,6 +119,7 @@ check "watch filter emits no traceback on a missing-shape inventory" \
 stub_dir="$work/stubs"
 mkdir -p "$stub_dir" \
     "$work/derived/Build/Products/Debug-watchos/SingleThreadWatch.app" \
+    "$work/derived/Build/Products/Debug-iphoneos/SingleThread.app" \
     "$work/derived/Build/Products/Debug/SingleThread.app"
 cat > "$stub_dir/xcodebuild" <<'STUB'
 #!/usr/bin/env bash
@@ -192,17 +193,20 @@ run_flow() {
 }
 
 run_flow "unreachable-watch-only still builds" 1 \
-    "==> Building SingleThreadWatch" "No iPhone/iPad with Developer Mode enabled found." \
+    "==> Building SingleThreadWatch" "No reachable iPhone/iPad found." \
     DEVICES_JSON_IN="$work/flow-unreachable-watch.json" RUN_WATCH=1 RUN_MAC=0
 run_flow "reachable-watch-only succeeds" 0 \
-    "and 1 Apple Watch(es)" "No iPhone/iPad with Developer Mode enabled found." \
+    "and 1 Apple Watch(es)" "No reachable iPhone/iPad found." \
     DEVICES_JSON_IN="$work/flow-reachable-watch.json" RUN_WATCH=1 RUN_MAC=0
 run_flow "no iOS and no watch keeps the iOS fail-fast" 1 \
-    "No iPhone/iPad with Developer Mode enabled found." "==> Building SingleThreadWatch" \
+    "No reachable iPhone/iPad found." "==> Building SingleThreadWatch" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=1 RUN_MAC=0
 run_flow "RUN_WATCH=0 emits no watch output" 1 \
-    "No iPhone/iPad with Developer Mode enabled found." "Apple Watch" \
+    "No reachable iPhone/iPad found." "Apple Watch" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0
+run_flow "every paired physical iPhone installs (Duo included)" 0 \
+    "3/3 launched" "No reachable iPhone/iPad found." \
+    DEVICES_JSON_IN="$FIXTURE" RUN_WATCH=0 RUN_MAC=0
 run_flow "macOS success is reported in the summary" 0 \
     "macOS: built and launched" "macOS: build failed" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=1

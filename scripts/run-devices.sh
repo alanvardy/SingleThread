@@ -213,15 +213,15 @@ if [[ ${#DEVICES[@]} -eq 0 ]]; then
     fi
     if [[ "$RUN_MAC" -eq 1 ]]; then
         if [[ "$WATCH_BUILD_NEEDED" -eq 1 ]]; then
-            echo "  (no iPhone/iPad with Developer Mode enabled found — macOS + Apple Watch run only)"
+            echo "  (no reachable iPhone/iPad found — macOS + Apple Watch run only)"
         else
-            echo "  (no iPhone/iPad with Developer Mode enabled found — macOS run only)"
+            echo "  (no reachable iPhone/iPad found — macOS run only)"
         fi
     elif [[ "$WATCH_BUILD_NEEDED" -eq 1 ]]; then
-        echo "  (no iPhone/iPad with Developer Mode enabled found — Apple Watch run only)"
+        echo "  (no reachable iPhone/iPad found — Apple Watch run only)"
     else
-        echo "❌ No iPhone/iPad with Developer Mode enabled found." >&2
-        echo "   Plug in the device and enable Settings → Privacy & Security → Developer Mode, then retry." >&2
+        echo "❌ No reachable iPhone/iPad found." >&2
+        echo "   Pair an iPhone/iPad, unlock it, and connect it to this Mac's Wi-Fi, then retry." >&2
         exit 1
     fi
 fi
