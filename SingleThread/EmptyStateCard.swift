@@ -34,15 +34,6 @@ struct EmptyStateCard: View {
         .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 20)
     }
 
-    /// Caps the description's width so long copy wraps on a couple of centered
-    /// lines instead of stretching the plate edge-to-edge; short copy keeps its
-    /// natural size (Text hugs when the proposal exceeds its ideal width) so the
-    /// plate always hugs its text. Relative so the card stays proportionate on
-    /// iPads, with an absolute ceiling so it never balloons on very wide screens.
-    static func maxContentWidth(viewportWidth: CGFloat) -> CGFloat {
-        CardWidth.maxContentWidth(viewportWidth: viewportWidth)
-    }
-
     // MARK: Private
 
     @Environment(\.colorScheme)

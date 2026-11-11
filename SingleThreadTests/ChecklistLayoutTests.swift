@@ -62,4 +62,15 @@ struct ChecklistLayoutTests {
         #expect(ChecklistLayout.maxContentWidth(
             viewportWidth: 0, context: .init(isDuoOuterPortrait: true)) == 0)
     }
+
+    /// The three converted call sites must be bit-identical to the legacy layout on
+    /// every non-Duo viewport, including the iPad.
+    @Test
+    func standardContextMatchesLegacyLayoutAtRealViewports() {
+        #expect(ChecklistLayout.maxContentWidth(viewportWidth: 402, context: .standard) == 241.2)
+        #expect(ChecklistLayout.maxContentWidth(viewportWidth: 382, context: .standard) == 229.2)
+        #expect(ChecklistLayout.maxContentWidth(viewportWidth: 874, context: .standard) == 340)
+        #expect(ChecklistLayout.maxContentWidth(viewportWidth: 1024, context: .standard) == 340)
+        #expect(ChecklistLayout.horizontalInset(.standard) == 40)
+    }
 }

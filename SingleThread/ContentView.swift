@@ -446,7 +446,9 @@ struct ContentView: View {
                 ScrollView {
                     EmptyStateCard(
                         copy: allDoneCopy,
-                        maxWidth: EmptyStateCard.maxContentWidth(viewportWidth: geometry.size.width))
+                        maxWidth: ChecklistLayout.maxContentWidth(
+                            viewportWidth: geometry.size.width,
+                            context: layoutContext))
                         // Park the card dead-center: the ScrollView would otherwise
                         // leading-align its full content width past the plate.
                         .frame(maxWidth: .infinity, minHeight: viewHeight, alignment: .center)
@@ -461,7 +463,9 @@ struct ContentView: View {
                     ScrollView {
                         EmptyStateCard(
                             copy: emptyCopy,
-                            maxWidth: EmptyStateCard.maxContentWidth(viewportWidth: geometry.size.width))
+                            maxWidth: ChecklistLayout.maxContentWidth(
+                                viewportWidth: geometry.size.width,
+                                context: layoutContext))
                             .frame(maxWidth: .infinity, minHeight: viewHeight, alignment: .center)
                     }
                     .scrollBounceBehavior(.always)
