@@ -1,3 +1,8 @@
+// The composition root concentrates launch-arg store construction, the
+// WatchConnectivity wiring, and the iCloud excluded-list reconcile. The iCloud
+// sync (VAR-1168) pushes the file over the `file_length` (650) threshold, and
+// the value — one place that owns every app-wide dependency — stays here.
+// swiftlint:disable file_length
 import Foundation
 import SingleThreadCore
 import SwiftUI
@@ -20,11 +25,14 @@ final class AppViewModel {
     init(
         arguments: [String] = ProcessInfo.processInfo.arguments,
         session: (any SkipSyncSession)? = nil,
+        cloudStore: ExcludedListCloudStore? = nil,
         ranker: any AIReminderRanking = FoundationModelsReminderRanker(),
         aiRankingDebounce: Duration = .milliseconds(500)) {
         let (store, usesInMemory) = Self.makeStore(arguments: arguments)
         self.store = store
         usesInMemoryStore = usesInMemory
+        self.cloudStore = cloudStore
+            ?? Self.makeCloudStore(arguments: arguments, usesInMemory: usesInMemory)
         store.sortOption = SortOptionStore().load()
         aiCoordinator = AISortCoordinator(ranker: ranker, debounce: aiRankingDebounce)
         Self.registerDefaults()
@@ -50,6 +58,7 @@ final class AppViewModel {
                 self?.refreshAIRanking(force: true)
             }
             setupAIRankingObservation()
+            setupExcludedListCloudSync()
         #endif
 
         // Observe showDate/showRecurrence/showAlarms changes in AppGroup.defaults
@@ -220,6 +229,7 @@ final class AppViewModel {
     // MARK: Private
 
     private let aiCoordinator: AISortCoordinator
+    private let cloudStore: ExcludedListCloudStore?
     private var aiRulesObserver: NSObjectProtocol?
 
     /// The `--url-opener-spy` UI-test seam's shared spy. Reused across
@@ -232,6 +242,17 @@ final class AppViewModel {
     /// real deep links through the scene's `OpenURLAction` instead.
     private var isURLSpyUITesting: Bool {
         ProcessInfo.processInfo.arguments.contains("--url-opener-spy")
+    }
+
+    /// Production iCloud wiring is skipped for every UI-test seam so a test run
+    /// can never write to the developer's real iCloud key-value store.
+    private static func makeCloudStore(
+        arguments: [String],
+        usesInMemory: Bool) -> ExcludedListCloudStore? {
+        guard !usesInMemory,
+              !arguments.contains("--ui-testing"),
+              !arguments.contains("--seed") else { return nil }
+        return ExcludedListCloudStore()
     }
 
     /// Builds the app's ``ReminderStore`` from launch arguments.
@@ -320,7 +341,7 @@ final class AppViewModel {
         #endif
         let loads = !arguments.contains("--ui-testing")
             && !arguments.contains("--no-reminders")
-        return (ReminderStore(loadsReminders: loads), false)
+        return (ReminderStore(cloudStore: ExcludedListCloudStore(), loadsReminders: loads), false)
     }
 
     /// Builds the store for a `--seed '<json>'` launch: an in-memory EventKit
@@ -472,6 +493,29 @@ final class AppViewModel {
             await notificationScheduler.scheduleIfNeeded(
                 reminderCount: store.visibleReminders.count,
                 hasHidden: store.hasHidden)
+        }
+    #endif
+
+    #if os(iOS) || os(macOS)
+        /// Seeds the iCloud key-value store once from the App Group store and
+        /// adopts any value that arrived from another device before launch.
+        private func setupExcludedListCloudSync() {
+            guard let cloudStore else { return }
+            // The mirror is empty until `reload()` runs, so the App Group store — not
+            // `store.excludedListTitles` — is the seed/adopt source.
+            let localTitles = ExcludedListStore().load()
+            cloudStore.seedIfAbsent(from: localTitles)
+            adoptCloudExcludedListTitlesIfNeeded(localTitles: localTitles)
+        }
+
+        /// Applies the iCloud value into the local truth when it is present and
+        /// differs from what is already local.
+        private func adoptCloudExcludedListTitlesIfNeeded(localTitles: [String]? = nil) {
+            guard let cloudStore else { return }
+            let local = Set(localTitles ?? ExcludedListStore().load())
+            guard let adopted = ExcludedListCloudStore.titlesToAdopt(
+                cloud: cloudStore.load(), local: local) else { return }
+            store.applyCloudExcludedListTitles(adopted)
         }
     #endif
 
