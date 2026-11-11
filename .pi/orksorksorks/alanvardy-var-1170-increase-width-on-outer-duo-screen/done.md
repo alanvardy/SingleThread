@@ -1,0 +1,23 @@
+# Done
+
+- **Branch / head SHA**: `alanvardy-var-1170-increase-width-on-outer-duo-screen`, source commit `f0875121` (this `done.md` is a docs-only commit on top). Rebased onto `origin/main`, pushed with `--force-with-lease`.
+- **Mechanical checks**:
+  - `make format` → no diff; `make lint` (`swiftformat --lint` + `swiftlint lint --strict`) → 0 violations, 0 serious.
+  - Full CI-identical gate (`./scripts/test.sh`, pinned SIM `F97C6680…` / watch `3F69EA19…`) launched once via the `run-gate` skill against `f0875121`. It passed deployment-target check, xcodebuild-wrapper check, SwiftFormat, SwiftLint, warning-check fixtures, iOS build, and watch build — then **aborted at the stage-fatal Periphery step** on the single known pre-existing Xcode 27 false positive `SingleThread/ReminderCardView.swift:74 Unused property 'swipeOffset'`. Evidence it is main-origin: `git diff --stat origin/main...HEAD -- SingleThread/ReminderCardView.swift` is empty and the identical declaration exists on `origin/main`. The plan forbids touching `ReminderCardView` ("No change to `ReminderCardView`"), so it was left alone.
+  - Because that abort skipped the test stages (and this repo's CI runs only on `main` pushes and dependabot PRs, so a human PR gets no CI), the test stages were run directly and independently on `f0875121`:
+    - `./scripts/test.sh --unit-only` → **PASS** (whole `SingleThreadTests` suite on macOS, incl. all new suites: `ChecklistLayoutTests` 10, `DuoDisplayTests` 11 params, `DuoOuterPortraitTests` 5).
+    - `./scripts/test.sh --ui-only` → **PASS** (iOS `SingleThreadUITests`, including the `performAccessibilityAudit` inside `testLaunchAndRenderSmoke`).
+  - Watch stages were not re-run: no watch target is touched by this diff, and the detector returns `.standard` there.
+- **Review outcome**:
+  - One bounded `reviewer` pass over the full `main...HEAD` diff. Verdict: OK with notes, **no blocker** and no code fix warranted. Confirmed: standard path delegates to `CardWidth` (bit-identical), Duo detection requires machine `iPhone19,4` AND compact-width AND regular-height, `uname` parsing has no force unwrap, no dangling `EmptyStateCard.maxContentWidth` reference, all numeric test expectations correct.
+  - Reviewer findings dispositioned:
+    - `type_body_length` comment "understates size" — **disproven**: SwiftLint measures 512 lines (warning threshold 500, error 600), so the comment is accurate and the suppression is warning-level only.
+    - On-device Duo activation unverified — accepted/documented (no Duo simulator; `uname` returns empty in the simulator), listed under remaining manual items.
+    - AI-sort banner gutter now follows the policy — intentional (plan resolved decision 3), not scope creep.
+  - No fixes applied (nothing warranted). No optional improvements taken.
+- **Remaining manual items** (from `plan.md`; none are blockers):
+  - Boot this worktree's simulator and confirm the non-Duo reminder card is visually unchanged (`min(340, 0.6W)`, 40 pt gutters), landscape unchanged, and the `ContentView` preview still renders.
+  - Confirm the empty-state cards (`.allDone` / `.empty`) and the AI-sort failure banner are unchanged on a non-Duo simulator.
+  - On a physical iPhone Duo (no simulator exists): outer portrait shows `min(340, 0.8W)` with 20 pt gutters and a card-aligned banner; inner screen and outer landscape stay at 40 pt / 0.6. Treat the unit tests as authority if hardware is unavailable.
+  - Local Periphery remains red for the pre-existing Xcode 27 `$`-projection false positive; this is expected and independent of this ticket (no CI runs on human PRs).
+- **PR**: #247 (`Increase width on outer duo screen`) is open and **draft**; not marked ready and not merged.
