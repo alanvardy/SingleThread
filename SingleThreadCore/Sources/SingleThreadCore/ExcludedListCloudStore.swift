@@ -41,9 +41,12 @@ public struct ExcludedListCloudStore {
         return titles
     }
 
-    /// Whole-set replace. Best effort: a signed-out/restricted device keeps the
-    /// value locally in KVS memory and never propagates it — the App Group and
-    /// WatchConnectivity paths are unaffected.
+    /// Whole-set replace — last writer wins. An empty array is written verbatim
+    /// (never `removeObject`, which would resurrect the "never written" seed
+    /// path); clearing is a real value that propagates. Best effort: a
+    /// signed-out/restricted device keeps the value locally in KVS memory and
+    /// never propagates it — the App Group and WatchConnectivity paths are
+    /// unaffected.
     public func save(_ titles: [String]) {
         store.set(titles, forKey: key)
         if !store.synchronize() {
@@ -51,8 +54,9 @@ public struct ExcludedListCloudStore {
         }
     }
 
-    /// Writes `titles` only when the key was never written. Returns whether a
-    /// write happened (`false` for both "already present" and "clear present").
+    /// Writes `titles` only when the key was never written (`nil`). A stored
+    /// empty array (`[]`, an intentional clear) is NOT reseeded. Returns whether
+    /// a write happened (`false` for both "already present" and "clear present").
     @discardableResult
     public func seedIfAbsent(from titles: [String]) -> Bool {
         guard load() == nil else { return false }
