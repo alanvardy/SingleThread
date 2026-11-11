@@ -577,7 +577,8 @@ public final class ReminderStore {
     }
 
     /// Replaces the excluded-list title set, persisting immediately and firing
-    /// both `onExcludedListsChanged` and `onRemindersChanged`.
+    /// both `onExcludedListsChanged` and `onRemindersChanged`. An empty set is an
+    /// intentional clear: it is written as `[]` to the App Group and iCloud.
     public func setExcludedListTitles(_ titles: Set<String>) {
         excludedListTitles = titles
         let array = Array(titles)

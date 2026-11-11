@@ -57,6 +57,50 @@ struct ExcludedListCloudSyncTests {
         #expect(ExcludedListCloudStore.titlesToAdopt(cloud: ["Work", "Home"], local: ["Work"]) == ["Work", "Home"])
         #expect(ExcludedListCloudStore.titlesToAdopt(cloud: [], local: ["Work"])?.isEmpty == true)
     }
+
+    @Test
+    func absentKeyDoesNotClearLocalSet() {
+        let excludeStore = ExcludedListStore(defaults: .standard, key: "test-excluded-\(UUID().uuidString)")
+        excludeStore.save(["Work"])
+        let cloudStore = ExcludedListCloudStore(
+            store: InMemoryUbiquitousStore(),
+            key: "test-cloud-\(UUID().uuidString)")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            excludeStore: excludeStore,
+            cloudStore: cloudStore,
+            loadsReminders: false,
+            excludedListTitles: ["Work"])
+
+        let adopted = ExcludedListCloudStore.titlesToAdopt(
+            cloud: cloudStore.load(), local: Set(excludeStore.load()))
+
+        #expect(adopted == nil)
+        #expect(store.excludedListTitles == ["Work"])
+        #expect(Set(excludeStore.load()) == ["Work"])
+        #expect(cloudStore.seedIfAbsent(from: ["Work"]) == true)
+        #expect(cloudStore.load() == ["Work"])
+    }
+
+    @Test
+    func clearPropagatesToCloudAndWC() {
+        let backing = InMemoryUbiquitousStore()
+        let cloudStore = ExcludedListCloudStore(store: backing, key: "test-cloud-\(UUID().uuidString)")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            excludeStore: ExcludedListStore(defaults: .standard, key: "test-excluded-\(UUID().uuidString)"),
+            cloudStore: cloudStore,
+            loadsReminders: false)
+        var pushed: [String]?
+        store.onExcludedListsChanged = { pushed = $0 }
+
+        store.setExcludedListTitles(["Work"])
+        store.setExcludedListTitles([])
+
+        #expect(store.excludedListTitles.isEmpty)
+        #expect(cloudStore.load()?.isEmpty == true)
+        #expect(pushed?.isEmpty == true)
+    }
 }
 
 #if os(iOS) || os(macOS)

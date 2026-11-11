@@ -29,6 +29,23 @@ struct ExcludedListCloudStoreTests {
         #expect(backing.values.count == 1)
     }
 
+    @Test
+    func emptyClearIsAdoptedNotReseeded() {
+        let store = makeStore()
+        store.save([])
+        #expect(store.load()?.isEmpty == true)
+        #expect(!store.seedIfAbsent(from: ["Work"]))
+        #expect(store.load()?.isEmpty == true)
+    }
+
+    @Test
+    func lastWriterWinsReplaceNotUnion() {
+        let store = makeStore()
+        store.save(["Work"])
+        store.save(["Personal"])
+        #expect(store.load() == ["Personal"])
+    }
+
     // MARK: Private
 
     private static let key = "test-excluded-cloud"
