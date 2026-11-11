@@ -84,7 +84,9 @@ struct MicrophoneToggleTests {
         let defaultsKey = "showMicrophoneButton"
         UserDefaults.standard.removeObject(forKey: defaultsKey)
 
-        _ = AppViewModel(arguments: [])
+        _ = AppViewModel(
+            arguments: [],
+            cloudStore: ExcludedListCloudStore(store: InMemoryUbiquitousStore()))
 
         #expect(UserDefaults.standard.bool(forKey: defaultsKey))
         UserDefaults.standard.removeObject(forKey: defaultsKey)

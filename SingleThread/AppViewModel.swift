@@ -28,11 +28,13 @@ final class AppViewModel {
         cloudStore: ExcludedListCloudStore? = nil,
         ranker: any AIReminderRanking = FoundationModelsReminderRanker(),
         aiRankingDebounce: Duration = .milliseconds(500)) {
-        let (store, usesInMemory) = Self.makeStore(arguments: arguments)
-        self.store = store
-        usesInMemoryStore = usesInMemory
-        self.cloudStore = cloudStore
+        let seed = UITestingSeed.fromLaunchArguments(arguments)
+        let usesInMemory = seed != nil
+        let resolvedCloudStore = cloudStore
             ?? Self.makeCloudStore(arguments: arguments, usesInMemory: usesInMemory)
+        usesInMemoryStore = usesInMemory
+        self.cloudStore = resolvedCloudStore
+        store = Self.makeStore(arguments: arguments, seed: seed, cloudStore: resolvedCloudStore)
         store.sortOption = SortOptionStore().load()
         aiCoordinator = AISortCoordinator(ranker: ranker, debounce: aiRankingDebounce)
         Self.registerDefaults()
@@ -252,6 +254,7 @@ final class AppViewModel {
         usesInMemory: Bool) -> ExcludedListCloudStore? {
         guard !usesInMemory,
               !arguments.contains("--ui-testing"),
+              !arguments.contains("--no-reminders"),
               !arguments.contains("--seed") else { return nil }
         return ExcludedListCloudStore()
     }
@@ -264,10 +267,13 @@ final class AppViewModel {
     /// resets persisted UserDefaults so no state leaks between test launches.
     /// Otherwise falls back to the production EventKit-backed store (suppressing
     /// load for `--ui-testing`/`--no-reminders`).
-    private static func makeStore(arguments: [String]) -> (store: ReminderStore, usesInMemory: Bool) {
+    private static func makeStore(
+        arguments: [String],
+        seed: UITestingSeed?,
+        cloudStore: ExcludedListCloudStore?) -> ReminderStore {
         let useNoopSettle = arguments.contains("--ui-testing-noop-settle")
-        if let seed = UITestingSeed.fromLaunchArguments(arguments) {
-            return (seededStore(seed, useNoopSettle: useNoopSettle), true)
+        if let seed {
+            return seededStore(seed, useNoopSettle: useNoopSettle)
         }
         #if os(iOS)
             // Mirrors the watch `--ui-testing` seam: a deterministic single-reminder
@@ -323,26 +329,26 @@ final class AppViewModel {
                 // is left in place, so the relaunch-persistence trio that
                 // launches via `--ui-testing` still exercises the real settle.
                 if useNoopSettle {
-                    return (ReminderStore(
+                    return ReminderStore(
                         eventStore: inMemoryStore,
                         loadsReminders: false,
                         reminders: [reminder],
                         skippedIDs: [],
                         authorizationStatus: .fullAccess,
-                        entitlementStore: EntitlementStore(testingWithEntitled: false)) {}, false)
+                        entitlementStore: EntitlementStore(testingWithEntitled: false)) {}
                 }
-                return (ReminderStore(
+                return ReminderStore(
                     eventStore: inMemoryStore,
                     loadsReminders: false,
                     reminders: [reminder],
                     skippedIDs: [],
                     authorizationStatus: .fullAccess,
-                    entitlementStore: EntitlementStore(testingWithEntitled: false)), false)
+                    entitlementStore: EntitlementStore(testingWithEntitled: false))
             }
         #endif
         let loads = !arguments.contains("--ui-testing")
             && !arguments.contains("--no-reminders")
-        return (ReminderStore(cloudStore: ExcludedListCloudStore(), loadsReminders: loads), false)
+        return ReminderStore(cloudStore: cloudStore, loadsReminders: loads)
     }
 
     /// Builds the store for a `--seed '<json>'` launch: an in-memory EventKit

@@ -72,8 +72,11 @@ struct ExcludedListCloudSyncTests {
             loadsReminders: false,
             excludedListTitles: ["Work"])
 
-        let adopted = ExcludedListCloudStore.titlesToAdopt(
-            cloud: cloudStore.load(), local: Set(excludeStore.load()))
+        let local = Set(excludeStore.load())
+        let adopted = ExcludedListCloudStore.titlesToAdopt(cloud: cloudStore.load(), local: local)
+        if let adopted {
+            store.applyCloudExcludedListTitles(adopted)
+        }
 
         #expect(adopted == nil)
         #expect(store.excludedListTitles == ["Work"])
@@ -100,6 +103,22 @@ struct ExcludedListCloudSyncTests {
         #expect(store.excludedListTitles.isEmpty)
         #expect(cloudStore.load()?.isEmpty == true)
         #expect(pushed?.isEmpty == true)
+    }
+
+    @Test
+    func refreshExcludedListTitlesLeavesCloudUntouched() {
+        let backing = InMemoryUbiquitousStore()
+        let cloudStore = ExcludedListCloudStore(store: backing, key: "test-cloud-\(UUID().uuidString)")
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            excludeStore: ExcludedListStore(defaults: .standard, key: "test-excluded-\(UUID().uuidString)"),
+            cloudStore: cloudStore,
+            loadsReminders: false)
+
+        store.refreshExcludedListTitles(["Personal"])
+
+        #expect(store.excludedListTitles == ["Personal"])
+        #expect(backing.values.isEmpty)
     }
 }
 
@@ -141,6 +160,22 @@ struct ExcludedListCloudSyncTests {
 
             #expect(store.excludedListTitles == ["Work"])
             #expect(Set(ExcludedListStore().load()) == ["Work"])
+        }
+
+        @Test
+        func emptyLocalSetDoesNotSeedTheCloud() {
+            let appGroupKey = ExcludedListStore.defaultsKey
+            AppGroup.defaults.removeObject(forKey: appGroupKey)
+            defer { AppGroup.defaults.removeObject(forKey: appGroupKey) }
+            let backing = InMemoryUbiquitousStore()
+            let cloudStore = ExcludedListCloudStore(
+                store: backing,
+                key: ExcludedListCloudStore.defaultsKey)
+
+            _ = AppViewModel(arguments: ["--ui-testing"], cloudStore: cloudStore)
+
+            #expect(backing.values.isEmpty)
+            #expect(cloudStore.load() == nil)
         }
     }
 #endif
