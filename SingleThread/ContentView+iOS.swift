@@ -173,7 +173,7 @@ import SwiftUI
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
             .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 14))
-            .padding(.horizontal, 40)
+            .padding(.horizontal, ChecklistLayout.horizontalInset(layoutContext))
             .padding(.top, 72) // clear the corner buttons (56pt plates + 8pt inset)
             .accessibilityElement(children: .contain)
             .accessibilityIdentifier("aiSortFailureBanner")
