@@ -14,6 +14,10 @@ import SingleThreadCore
 import Speech
 import SwiftUI
 
+// The Duo-outer layout plumbing (environment size classes + `layoutContext`)
+// takes the struct body just over the 500-line `type_body_length` threshold;
+// the single-screen modifiers stay together, so it is disabled for this struct.
+// swiftlint:disable:next type_body_length
 struct ContentView: View {
     // MARK: Lifecycle
 
@@ -150,6 +154,12 @@ struct ContentView: View {
     #endif
 
     let viewModel: ContentViewModel
+
+    /// Duo-outer-portrait layout policy. Non-Duo / macOS / simulator resolves to
+    /// `.standard`, which reproduces the pre-existing CardWidth + 40pt layout.
+    var layoutContext: ChecklistLayout.Context {
+        DuoOuterPortrait.context(horizontal: horizontalSizeClass, vertical: verticalSizeClass)
+    }
 
     var excludedListsBinding: Binding<Set<String>> {
         Binding(
@@ -361,6 +371,11 @@ struct ContentView: View {
 
     // MARK: Private
 
+    @Environment(\.horizontalSizeClass)
+    private var horizontalSizeClass
+    @Environment(\.verticalSizeClass)
+    private var verticalSizeClass
+
     /// Downward pull reported by the list's pull-to-refresh surface and handed
     /// to the card, so the `Refresh` plate emerges from under the card plate the
     /// same way complete / skip / more do.
@@ -476,7 +491,9 @@ struct ContentView: View {
                                 // false there.
                                 showNudge: viewModel.isNudged(reminder.calendarItemIdentifier),
                                 onNudgeTap: openNudgeSheet,
-                                maxWidth: CardWidth.maxContentWidth(viewportWidth: geometry.size.width),
+                                maxWidth: ChecklistLayout.maxContentWidth(
+                                    viewportWidth: geometry.size.width,
+                                    context: layoutContext),
                                 pullOffset: pullOffset,
                                 isRefreshing: isRefreshingPull) { outcome in
                                     switch outcome {
@@ -495,7 +512,7 @@ struct ContentView: View {
                                     }
                                 }
                                 .listRowBackground(viewModel.rowChromeBackground)
-                                .padding(.horizontal, 40)
+                                .padding(.horizontal, ChecklistLayout.horizontalInset(layoutContext))
                                 .padding(.vertical, 12)
                                 // Center the card's plate in the row; text inside
                                 // stays leading-aligned via the card's VStack.
