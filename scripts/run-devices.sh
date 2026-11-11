@@ -17,7 +17,9 @@ set -euo pipefail
 #                          # inventory instead of querying CoreDevice (offline filter checks)
 #
 # Devices are discovered dynamically each run, so a new iPhone/iPad/Apple Watch
-# is picked up without editing this script. A device that is unreachable (locked, asleep,
+# is picked up without editing this script. A newly paired device is registered
+# in the developer account during its own build (-allowProvisioningDeviceRegistration),
+# so no manual Xcode step is needed before it can install. A device that is unreachable (locked, asleep,
 # off this Wi-Fi, unplugged mid-run) is detected during discovery and reported
 # — the remaining devices still get built and run; an unreachable device counts
 # as a failed step so the run exits non-zero. If no iOS devices are found and
@@ -257,27 +259,40 @@ record_watch_launch_form() {
     fi
 }
 
-# ── Build once for all devices ────────────────────────────────────────────────
+# ── Build + install + launch per iOS device ───────────────────────────────────
+# Building against each device's own destination — rather than one
+# generic/platform=iOS build — is what auto-registers a newly paired phone:
+# -allowProvisioningDeviceRegistration only registers the *destination* device,
+# so a generic destination leaves a new device out of the embedded provisioning
+# profile and its install fails with 0xe8008012 ("This provisioning profile
+# cannot be installed on this device"). The first device compiles; the rest only
+# re-sign against the shared team profile, which now includes every registered
+# device.
 if [[ ${#DEVICES[@]} -gt 0 ]]; then
-    echo ""
-    echo "==> Building $SCHEME ($CONFIGURATION) for iOS devices…"
-    xcodebuild -scheme "$SCHEME" \
-      -destination 'generic/platform=iOS' \
-      -configuration "$CONFIGURATION" \
-      -derivedDataPath "$DERIVED_DATA" \
-      build
-
-    if [[ ! -d "$APP_PATH" ]]; then
-        echo "❌ Built app not found at $APP_PATH" >&2
-        exit 1
-    fi
-
-    # ── Install + launch per device ────────────────────────────────────────
     for entry in "${DEVICES[@]}"; do
         device_id="${entry%%|*}"
         device_name="${entry#*|}"
 
         echo ""
+        echo "==> Building $SCHEME ($CONFIGURATION) for ${device_name}…"
+        if ! xcodebuild -scheme "$SCHEME" \
+          -destination "id=$device_id" \
+          -configuration "$CONFIGURATION" \
+          -derivedDataPath "$DERIVED_DATA" \
+          -allowProvisioningUpdates \
+          -allowProvisioningDeviceRegistration \
+          build; then
+            echo "❌ Build failed for $device_name." >&2
+            failures=$((failures + 1))
+            continue
+        fi
+
+        if [[ ! -d "$APP_PATH" ]]; then
+            echo "❌ Built app not found at $APP_PATH" >&2
+            failures=$((failures + 1))
+            continue
+        fi
+
         echo "==> Installing on ${device_name}…"
         if ! xcrun devicectl device install app --device "$device_id" "$APP_PATH"; then
             echo "❌ Install failed on $device_name (is it unlocked?)." >&2
@@ -296,32 +311,63 @@ if [[ ${#DEVICES[@]} -gt 0 ]]; then
 fi
 
 # ── Apple Watch step ─────────────────────────────────────────────────────────
+# As with iOS, each reachable watch is built against its own destination so a
+# newly paired watch is auto-registered (see the iOS note above). When only an
+# unreachable watch was found there is no install target, so fall back to one
+# generic build that still surfaces a build/signing failure.
 if [[ "$WATCH_BUILD_NEEDED" -eq 1 ]]; then
-    echo ""
-    echo "==> Building SingleThreadWatch ($CONFIGURATION) for a real Apple Watch…"
-    if ! xcodebuild -scheme SingleThreadWatch \
-      -destination 'generic/platform=watchOS' \
-      -configuration "$CONFIGURATION" \
-      -derivedDataPath "$DERIVED_DATA" \
-      -allowProvisioningUpdates \
-      build; then
-        echo "❌ Watch build failed." >&2
-        echo "   If this is a signing error (No profiles for '$WATCH_BUNDLE_ID'), open Xcode →" >&2
-        echo "   Settings → Accounts, sign in with team 6NWX2DHB9Q, then retry." >&2
-        failures=$((failures + 1))
-        WATCH_FAILED=$((WATCH_FAILED + 1))
-    elif [[ ! -d "$WATCH_APP_PATH" ]]; then
-        echo "❌ Built watch app not found at $WATCH_APP_PATH" >&2
-        echo "   The watch product path may have changed — check the SingleThreadWatch" >&2
-        echo "   scheme's destination (generic/platform=watchOS) and the Products dir." >&2
-        failures=$((failures + 1))
-        WATCH_FAILED=$((WATCH_FAILED + 1))
+    if [[ ${#WATCH_DEVICES[@]} -eq 0 ]]; then
+        echo ""
+        echo "==> Building SingleThreadWatch ($CONFIGURATION)…"
+        if ! xcodebuild -scheme SingleThreadWatch \
+          -destination 'generic/platform=watchOS' \
+          -configuration "$CONFIGURATION" \
+          -derivedDataPath "$DERIVED_DATA" \
+          -allowProvisioningUpdates \
+          build; then
+            echo "❌ Watch build failed." >&2
+            echo "   If this is a signing error (No profiles for '$WATCH_BUNDLE_ID'), open Xcode →" >&2
+            echo "   Settings → Accounts, sign in with team 6NWX2DHB9Q, then retry." >&2
+            failures=$((failures + 1))
+            WATCH_FAILED=$((WATCH_FAILED + 1))
+        elif [[ ! -d "$WATCH_APP_PATH" ]]; then
+            echo "❌ Built watch app not found at $WATCH_APP_PATH" >&2
+            echo "   The watch product path may have changed — check the SingleThreadWatch" >&2
+            echo "   scheme's destination and the Products dir." >&2
+            failures=$((failures + 1))
+            WATCH_FAILED=$((WATCH_FAILED + 1))
+        fi
     else
         for entry in "${WATCH_DEVICES[@]}"; do
             watch_id="${entry%%|*}"
             watch_name="${entry#*|}"
 
             echo ""
+            echo "==> Building SingleThreadWatch ($CONFIGURATION) for ${watch_name}…"
+            if ! xcodebuild -scheme SingleThreadWatch \
+              -destination "id=$watch_id" \
+              -configuration "$CONFIGURATION" \
+              -derivedDataPath "$DERIVED_DATA" \
+              -allowProvisioningUpdates \
+              -allowProvisioningDeviceRegistration \
+              build; then
+                echo "❌ Watch build failed on $watch_name." >&2
+                echo "   If this is a signing error (No profiles for '$WATCH_BUNDLE_ID'), open Xcode →" >&2
+                echo "   Settings → Accounts, sign in with team 6NWX2DHB9Q, then retry." >&2
+                failures=$((failures + 1))
+                WATCH_FAILED=$((WATCH_FAILED + 1))
+                continue
+            fi
+
+            if [[ ! -d "$WATCH_APP_PATH" ]]; then
+                echo "❌ Built watch app not found at $WATCH_APP_PATH" >&2
+                echo "   The watch product path may have changed — check the SingleThreadWatch" >&2
+                echo "   scheme's destination and the Products dir." >&2
+                failures=$((failures + 1))
+                WATCH_FAILED=$((WATCH_FAILED + 1))
+                continue
+            fi
+
             echo "==> Installing on ${watch_name}…"
             if ! watch_install_output=$(xcrun devicectl device install app --device "$watch_id" "$WATCH_APP_PATH" 2>&1); then
                 echo "$watch_install_output" >&2
