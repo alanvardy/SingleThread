@@ -160,6 +160,22 @@ struct ReminderStoreTests {
         #expect(remindersChanged)
     }
 
+    @Test
+    func setExcludedListTitlesWritesCloudStore() {
+        let excludeStore = ExcludedListStore(defaults: .standard, key: "test-excluded-\(UUID().uuidString)")
+        let backing = InMemoryUbiquitousStore()
+        let cloudKey = "test-cloud-\(UUID().uuidString)"
+        let store = ReminderStore(
+            eventStore: InMemoryEventStore(),
+            excludeStore: excludeStore,
+            cloudStore: ExcludedListCloudStore(store: backing, key: cloudKey),
+            loadsReminders: false)
+
+        store.setExcludedListTitles(["Work"])
+
+        #expect(backing.values[cloudKey] as? [String] == ["Work"])
+    }
+
     // MARK: - refreshExcludedListTitles
 
     @Test

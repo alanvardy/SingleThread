@@ -250,3 +250,28 @@ final class SeededFetcher: BackgroundImageFetching, @unchecked Sendable {
     private static let endpoint = URL(string: "https://vardy.cc/unsplash")!
     private static let imageURL = URL(string: "https://images.unsplash.com/photo-1.jpg")!
 }
+
+// MARK: - Fake ubiquitous key-value store
+
+/// In-memory `UbiquitousKeyValueStoring` so no test touches the real iCloud
+/// key-value store. `isAvailable == false` models a signed-out / restricted
+/// device: writes are ignored and reads report the key as absent.
+final class InMemoryUbiquitousStore: UbiquitousKeyValueStoring {
+    private(set) var values: [String: Any] = [:]
+    private(set) var synchronizeCount = 0
+    var isAvailable = true
+
+    func object(forKey key: String) -> Any? {
+        isAvailable ? values[key] : nil
+    }
+
+    func set(_ value: Any?, forKey key: String) {
+        guard isAvailable else { return }
+        values[key] = value
+    }
+
+    func synchronize() -> Bool {
+        synchronizeCount += 1
+        return isAvailable
+    }
+}

@@ -26,6 +26,7 @@ public final class ReminderStore {
         skipCountStore: SkipCountStore = SkipCountStore(),
         pendingCompletionStore: PendingCompletionStore = PendingCompletionStore(),
         excludeStore: ExcludedListStore = ExcludedListStore(),
+        cloudStore: ExcludedListCloudStore? = nil,
         loadsReminders: Bool = true,
         reminders: [EKReminder] = [],
         skippedIDs: Set<String> = [],
@@ -44,6 +45,7 @@ public final class ReminderStore {
         self.skipCountStore = skipCountStore
         self.pendingCompletionStore = pendingCompletionStore
         self.excludeStore = excludeStore
+        self.cloudStore = cloudStore
         self.loadsReminders = loadsReminders
         self.reminders = reminders
         self.skippedIDs = skippedIDs
@@ -580,6 +582,21 @@ public final class ReminderStore {
         excludedListTitles = titles
         let array = Array(titles)
         excludeStore.save(array)
+        cloudStore?.save(array)
+        onExcludedListsChanged?(array)
+        onRemindersChanged?()
+    }
+
+    /// Applies excluded-list titles that arrived from iCloud. Persists to the
+    /// App Group (so the widget and a paired watch see it) and fires
+    /// `onExcludedListsChanged` so the WatchConnectivity push re-sends — but
+    /// NEVER writes back to the key-value store, which would loop the value
+    /// around the iCloud channel. Distinct from `refreshExcludedListTitles`,
+    /// the WatchConnectivity receive path, which must not re-push.
+    public func applyCloudExcludedListTitles(_ titles: Set<String>) {
+        excludedListTitles = titles
+        let array = Array(titles)
+        excludeStore.save(array)
         onExcludedListsChanged?(array)
         onRemindersChanged?()
     }
@@ -631,6 +648,7 @@ public final class ReminderStore {
     private let skipCountStore: SkipCountStore
     private let pendingCompletionStore: PendingCompletionStore
     private let excludeStore: ExcludedListStore
+    private let cloudStore: ExcludedListCloudStore?
 
     /// Watch-completed identifiers awaiting the phone's relay. Loaded/pruned
     /// inside `reload()`; mutated by the watchOS `completeReminder` branch.
