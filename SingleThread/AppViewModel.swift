@@ -231,6 +231,7 @@ final class AppViewModel {
     private let aiCoordinator: AISortCoordinator
     private let cloudStore: ExcludedListCloudStore?
     private var aiRulesObserver: NSObjectProtocol?
+    private var cloudExcludedListObserver: NSObjectProtocol?
 
     /// The `--url-opener-spy` UI-test seam's shared spy. Reused across
     /// `makeContentViewModel` calls so the view and view model share one
@@ -506,6 +507,15 @@ final class AppViewModel {
             let localTitles = ExcludedListStore().load()
             cloudStore.seedIfAbsent(from: localTitles)
             adoptCloudExcludedListTitlesIfNeeded(localTitles: localTitles)
+            // `object: nil`: the fake seam has no notification of its own, and
+            // `didChangeExternallyNotification` is only ever posted by the KVS.
+            // Loop protection is the value comparison in `titlesToAdopt`.
+            cloudExcludedListObserver = NotificationCenter.default.addObserver(
+                forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
+                object: nil,
+                queue: .main) { [weak self] _ in
+                    Task { @MainActor in self?.adoptCloudExcludedListTitlesIfNeeded() }
+                }
         }
 
         /// Applies the iCloud value into the local truth when it is present and
