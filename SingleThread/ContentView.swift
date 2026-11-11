@@ -176,6 +176,19 @@ struct ContentView: View {
     }
 
     var body: some View {
+        #if os(iOS)
+            NavigationStack {
+                rootContent
+                    .toolbar { mainToolbar }
+            }
+            .toolbarBackground(.hidden, for: .navigationBar)
+            .navigationBarTitleDisplayMode(.inline)
+        #else
+            rootContent
+        #endif
+    }
+
+    private var rootContent: some View {
         ZStack {
             Color.systemBackground.ignoresSafeArea()
             BackgroundPhotoLayer(
@@ -576,22 +589,8 @@ struct ContentView: View {
 
         // MARK: - Complete / Skip / Action menu
 
-        private var completeButton: some View {
-            Button {
-                Task { await viewModel.completeCurrentReminder() }
-            } label: {
-                Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
-                    .labelStyle(.iconOnly)
-                    .controlPlate()
-            }
-            .accessibilityLabel(SharedStrings.completeReminderAccessibility)
-            .accessibilityIdentifier("completeButton")
-            .accessibilityAddTraits(.isButton)
-        }
-
         private var actionCluster: some View {
             HStack(alignment: .center, spacing: 16) {
-                completeButton
                 micButton
                 skipButton
             }
