@@ -188,6 +188,58 @@ struct ContentView: View {
         #endif
     }
 
+    // MARK: Private
+
+    @Environment(\.horizontalSizeClass)
+    private var horizontalSizeClass
+    @Environment(\.verticalSizeClass)
+    private var verticalSizeClass
+
+    /// Downward pull reported by the list's pull-to-refresh surface and handed
+    /// to the card, so the `Refresh` plate emerges from under the card plate the
+    /// same way complete / skip / more do.
+    @State private var pullOffset: CGFloat = 0
+
+    /// True while that pull-driven refresh is running.
+    @State private var isRefreshingPull = false
+
+    @State private var isShowingSettings = false
+
+    /// Drives the freemium upgrade-prompt sheet (shown only when the free tier
+    /// cap is exhausted and the user has not purchased the unlock IAP). Also
+    /// read and written directly (see `upgradePrompt`) so Periphery under Xcode
+    /// 27 sees a use — it misses lone `$`projection references (CI runs 27.0
+    /// too).
+    @State private var isShowingPurchase = false
+
+    /// Stable bag of settings bindings for the currently presented sheet.
+    /// Recreated when the sheet opens so it reflects the latest persisted
+    /// values, then kept alive for the sheet's lifetime so edits done inside
+    /// don't snap back when `ContentView` re-evaluates its body.
+    @State private var settingsBag: SettingsBindings?
+
+    @Environment(\.accessibilityReduceMotion)
+    private var reduceMotion
+
+    @Environment(\.scenePhase)
+    private var scenePhase
+
+    /// True only for the completion-glow UI test; production always hides the
+    /// overlay from accessibility (unchanged behavior for real users).
+    private var isGlowUITesting: Bool {
+        ProcessInfo.processInfo.arguments.contains("--ui-testing-glow")
+    }
+
+    /// iOS-only `showSwipePrompt` preference: other platforms never show the
+    /// swipe prompt, so they get a constant false binding.
+    private var swipePromptBinding: Binding<Bool> {
+        #if os(iOS)
+            $showSwipePrompt
+        #else
+            .constant(false)
+        #endif
+    }
+
     private var rootContent: some View {
         ZStack {
             Color.systemBackground.ignoresSafeArea()
@@ -382,58 +434,6 @@ struct ContentView: View {
         #endif
     }
 
-    // MARK: Private
-
-    @Environment(\.horizontalSizeClass)
-    private var horizontalSizeClass
-    @Environment(\.verticalSizeClass)
-    private var verticalSizeClass
-
-    /// Downward pull reported by the list's pull-to-refresh surface and handed
-    /// to the card, so the `Refresh` plate emerges from under the card plate the
-    /// same way complete / skip / more do.
-    @State private var pullOffset: CGFloat = 0
-
-    /// True while that pull-driven refresh is running.
-    @State private var isRefreshingPull = false
-
-    @State private var isShowingSettings = false
-
-    /// Drives the freemium upgrade-prompt sheet (shown only when the free tier
-    /// cap is exhausted and the user has not purchased the unlock IAP). Also
-    /// read and written directly (see `upgradePrompt`) so Periphery under Xcode
-    /// 27 sees a use — it misses lone `$`projection references (CI runs 27.0
-    /// too).
-    @State private var isShowingPurchase = false
-
-    /// Stable bag of settings bindings for the currently presented sheet.
-    /// Recreated when the sheet opens so it reflects the latest persisted
-    /// values, then kept alive for the sheet's lifetime so edits done inside
-    /// don't snap back when `ContentView` re-evaluates its body.
-    @State private var settingsBag: SettingsBindings?
-
-    @Environment(\.accessibilityReduceMotion)
-    private var reduceMotion
-
-    @Environment(\.scenePhase)
-    private var scenePhase
-
-    /// True only for the completion-glow UI test; production always hides the
-    /// overlay from accessibility (unchanged behavior for real users).
-    private var isGlowUITesting: Bool {
-        ProcessInfo.processInfo.arguments.contains("--ui-testing-glow")
-    }
-
-    /// iOS-only `showSwipePrompt` preference: other platforms never show the
-    /// swipe prompt, so they get a constant false binding.
-    private var swipePromptBinding: Binding<Bool> {
-        #if os(iOS)
-            $showSwipePrompt
-        #else
-            .constant(false)
-        #endif
-    }
-
     @ViewBuilder private var authGatedContent: some View {
         switch viewModel.store.authorizationStatus {
         case .notDetermined:
@@ -584,18 +584,6 @@ struct ContentView: View {
             }
         }
     }
-
-    #if os(iOS)
-
-        // MARK: - Complete / Skip / Action menu
-
-        private var actionCluster: some View {
-            HStack(alignment: .center, spacing: 16) {
-                micButton
-                skipButton
-            }
-        }
-    #endif
 
     // MARK: - Mic Dictation
 
@@ -788,14 +776,8 @@ extension ContentView {
                 }
             } else if viewModel.dictation.canDictate, showMicrophoneButton {
                 #if os(iOS)
-                    if !viewModel.store.hasResolvedEntitlement {
-                        EmptyView()
-                    } else if !viewModel.store.canMutate {
+                    if toolbarActionSet.showsUpgradePrompt {
                         upgradePrompt
-                    } else if viewModel.showsActionButtons {
-                        actionCluster
-                    } else {
-                        micButton
                     }
                 #else
                     micButton

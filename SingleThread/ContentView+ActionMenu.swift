@@ -73,8 +73,6 @@ extension ContentView {
                     systemImage: showActionMenu
                         ? SwipeRevealPanel.systemImage(for: .more)
                         : "circle.slash")
-                    .labelStyle(.iconOnly)
-                    .controlPlate()
             }
             .accessibilityLabel(
                 showActionMenu ? SharedStrings.moreAction : SharedStrings.skipReminderAccessibility)
