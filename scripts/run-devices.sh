@@ -72,8 +72,11 @@ elif ! xcrun devicectl list devices -j "$DEVICES_JSON" >/dev/null 2>&1; then
 fi
 
 # Emits "identifier|name" per qualifying device (platform iOS, iPhone or iPad,
-# Developer Mode enabled). Skipped devices go to stderr so stdout stays parseable;
-# unreachable qualifying devices are logged to "$UNREACHABLE_LOG" for the failure
+# physical). Simulated devices are excluded — they are not devicectl install
+# targets; a paired physical phone whose Developer Mode is off still qualifies
+# and is named on stderr, so a newly paired device (e.g. a second iPhone) is
+# never silently omitted. Unreachable qualifying devices are logged to
+# "$UNREACHABLE_LOG" for the failure
 # tally, so a phone that is locked / off-network / has Remote Device Services down
 # is reported with the real reason instead of a raw devicectl 4016 install error.
 DEVICES=()
@@ -96,10 +99,12 @@ with open(sys.argv[2], "a", encoding="utf-8") as unreachable_log:
             continue
         if hardware.get("deviceType") not in ("iPhone", "iPad"):
             continue
-        name = props.get("name", "unknown device")
-        if props.get("developerModeStatus") != "enabled":
-            print(f"  (skipping {name} — Developer Mode disabled)", file=sys.stderr)
+        # A paired iOS simulator shares platform/deviceType with a physical
+        # device but is not a devicectl install target, so exclude it here the
+        # same way the watch filter does.
+        if hardware.get("reality") != "physical":
             continue
+        name = props.get("name", "unknown device")
         # Physical devices install over a connection (localNetwork, wired, or
         # sameMachine for local simulators). When CoreDevice cannot reach the
         # device — locked, asleep, on another network, or Remote Device
@@ -112,6 +117,12 @@ with open(sys.argv[2], "a", encoding="utf-8") as unreachable_log:
             print(f"  (skipping {name} — unreachable (locked, asleep, or on another network?)\n    unlock it, confirm it is on the same Wi-Fi as this Mac, then retry)", file=sys.stderr)
             print(name, file=unreachable_log)
             continue
+        # Developer Mode is required to run a development-signed build. Do not
+        # pre-skip on it: every paired physical phone (e.g. a second iPhone)
+        # must receive the build, and devicectl reports the real failure if
+        # Developer Mode is off. Name the likely cause up front instead.
+        if props.get("developerModeStatus") != "enabled":
+            print(f"  (note: {name} has Developer Mode off — if the install below fails, enable Settings → Privacy & Security → Developer Mode on it)", file=sys.stderr)
         print(f"{device['identifier']}|{name}")
 PY
 )

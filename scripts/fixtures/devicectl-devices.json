@@ -247,6 +247,68 @@
             "state": "connected"
           }
         }
+      },
+      {
+        "connectionProperties": {
+          "authenticationType": "manualPairing",
+          "pairingState": "paired",
+          "transportType": "localNetwork",
+          "tunnelState": "connected"
+        },
+        "deviceProperties": {
+          "bootState": "booted",
+          "developerModeStatus": "disabled",
+          "name": "Fixture iPhone Duo"
+        },
+        "hardwareProperties": {
+          "deviceType": "iPhone",
+          "ecid": 1,
+          "marketingName": "Fixture iPhone Duo",
+          "platform": "iOS",
+          "productType": "iPhone19,4",
+          "reality": "physical",
+          "serialNumber": "SYNTH000000",
+          "udid": "00000000-0009"
+        },
+        "identifier": "CCCCCCCC-0000-0000-0000-000000000009",
+        "properties": {
+          "connection": {
+            "authenticationType": "manualPairing",
+            "pairingState": "paired",
+            "state": "connected"
+          }
+        }
+      },
+      {
+        "connectionProperties": {
+          "authenticationType": "implicit",
+          "pairingState": "paired",
+          "transportType": "sameMachine",
+          "tunnelState": "connected"
+        },
+        "deviceProperties": {
+          "bootState": "booted",
+          "developerModeStatus": "enabled",
+          "name": "Fixture iPhone Sim"
+        },
+        "hardwareProperties": {
+          "deviceType": "iPhone",
+          "ecid": 1,
+          "marketingName": "Fixture iPhone Sim",
+          "platform": "iOS",
+          "productType": "iPhone18,3",
+          "reality": "simulated",
+          "serialNumber": "SYNTH000000",
+          "udid": "00000000-0010"
+        },
+        "identifier": "DDDDDDDD-0000-0000-0000-000000000010",
+        "properties": {
+          "connection": {
+            "authenticationType": "implicit",
+            "pairingState": "paired",
+            "state": "connected"
+          }
+        }
       }
     ]
   }

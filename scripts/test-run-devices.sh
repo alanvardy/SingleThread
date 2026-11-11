@@ -74,11 +74,17 @@ for produced in ios-out ios-stderr watch-out watch-stderr; do
 done
 
 check "iOS filter emits the reachable physical iPhone" \
-    "CCCCCCCC-0000-0000-0000-000000000007|Fixture iPhone" "$(cat "$work/ios-out")"
+    "1" "$(grep -c '|Fixture iPhone$' "$work/ios-out" || true)"
+check "iOS filter emits the paired iPhone Duo even with Developer Mode off" \
+    "1" "$(grep -c '|Fixture iPhone Duo$' "$work/ios-out" || true)"
+check "iOS filter emits the physical iPad with Developer Mode off" \
+    "1" "$(grep -c '|Fixture iPad DevMode Off$' "$work/ios-out" || true)"
+check "iOS filter excludes a simulated iOS device" \
+    "0" "$(grep -c '|Fixture iPhone Sim$' "$work/ios-out" || true)"
+check "iOS filter warns about Developer Mode off" \
+    "2" "$(grep -c 'Developer Mode off' "$work/ios-stderr" || true)"
 check "iOS filter logs no unreachable devices" \
     "0" "$(wc -l < "$work/ios-unreachable.log" | tr -d ' ')"
-check "iOS filter reports the Developer-Mode-disabled iPad" \
-    "1" "$(grep -c 'Developer Mode disabled' "$work/ios-stderr" || true)"
 
 check "watch filter emits only the reachable physical watch" \
     "AAAAAAAA-0000-0000-0000-000000000002|Fixture Watch Reachable" "$(cat "$work/watch-out")"
