@@ -188,6 +188,14 @@ struct ContentView: View {
         #endif
     }
 
+    /// Opens the Settings sheet, creating a fresh bindings bag first. Called by the
+    /// iOS settings toolbar item; the bag-before-flag ordering is required by
+    /// `settingsSheetContent`.
+    func presentSettings() {
+        settingsBag = makeSettingsBag()
+        isShowingSettings = true
+    }
+
     // MARK: Private
 
     @Environment(\.horizontalSizeClass)
@@ -253,6 +261,7 @@ struct ContentView: View {
                 reminderList
             }
         }
+        #if os(macOS)
         .overlay(alignment: .topTrailing) {
             Button {
                 settingsBag = makeSettingsBag()
@@ -270,6 +279,7 @@ struct ContentView: View {
             .padding(.top, 8)
             .padding(.trailing, 12)
         }
+        #endif
         #if os(macOS)
         .overlay(alignment: .topLeading) {
             Button {
@@ -297,25 +307,6 @@ struct ContentView: View {
             .accessibilityAddTraits(.isButton)
             .padding(.top, 8)
             .padding(.leading, 12)
-        }
-        #endif
-        #if os(iOS)
-        .overlay(alignment: .topLeading) {
-            if viewModel.store.undoStore.hasUndoableReminder, showUndoButton, viewModel.store.canMutate {
-                Button {
-                    Task { await viewModel.undoLastCompletion() }
-                } label: {
-                    Image(systemName: "arrow.uturn.backward")
-                        .font(.title3)
-                        .controlPlate()
-                        .contentShape(Rectangle())
-                }
-                .accessibilityLabel("Undo completion")
-                .accessibilityIdentifier("undoButton")
-                .accessibilityAddTraits(.isButton)
-                .padding(.top, 8)
-                .padding(.leading, 12)
-            }
         }
         #endif
         .overlay {

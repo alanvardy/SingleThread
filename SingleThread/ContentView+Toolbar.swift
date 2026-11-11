@@ -41,6 +41,16 @@
         /// Single attach point for every iOS toolbar item. Later phases add the
         /// top-leading/top-trailing items here rather than attaching more toolbars.
         @ToolbarContentBuilder var mainToolbar: some ToolbarContent {
+            ToolbarItem(placement: .topBarTrailing) {
+                settingsToolbarItem
+            }
+            if viewModel.store.undoStore.hasUndoableReminder,
+               showUndoButton,
+               viewModel.store.canMutate {
+                ToolbarItem(placement: .topBarLeading) {
+                    undoToolbarItem
+                }
+            }
             if viewModel.dictation.canDictate, showMicrophoneButton {
                 ToolbarItemGroup(placement: .bottomBar) {
                     let actions = toolbarActionSet.actions
@@ -85,6 +95,32 @@
             }
             .accessibilityLabel("Dictate reminder")
             .accessibilityIdentifier("dictateButton")
+            .accessibilityAddTraits(.isButton)
+        }
+
+        var settingsToolbarItem: some View {
+            Button {
+                presentSettings()
+            } label: {
+                Label(
+                    LocalizedStringResource("Settings", table: "Localizable", bundle: .main),
+                    systemImage: "gearshape")
+            }
+            .accessibilityLabel("Settings")
+            .accessibilityIdentifier("settingsButton")
+            .accessibilityAddTraits(.isButton)
+        }
+
+        var undoToolbarItem: some View {
+            Button {
+                Task { await viewModel.undoLastCompletion() }
+            } label: {
+                Label(
+                    LocalizedStringResource("Undo completion", table: "Localizable", bundle: .main),
+                    systemImage: "arrow.uturn.backward")
+            }
+            .accessibilityLabel("Undo completion")
+            .accessibilityIdentifier("undoButton")
             .accessibilityAddTraits(.isButton)
         }
     }
