@@ -7,6 +7,11 @@ import os
 /// App Group store remains the local truth. `nil` from ``load()`` means the key
 /// was never written (seed it once from the App Group); `[]` means an
 /// intentional clear and must be adopted, never reseeded.
+///
+/// Best effort and silent: when iCloud is unavailable (signed out, restricted,
+/// quota) `save` only touches local KVS memory and `load` reports the key as
+/// absent, so the app behaves exactly as before — App Group and
+/// WatchConnectivity are never affected.
 public struct ExcludedListCloudStore {
     // MARK: Lifecycle
 
