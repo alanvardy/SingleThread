@@ -578,19 +578,24 @@ struct ContentView: View {
 
     // MARK: - Mic Dictation
 
-    private var micButton: some View {
-        Button {
-            Task { await viewModel.dictation.startDictation() }
-        } label: {
-            Image(systemName: "mic.fill")
-                .font(.title2)
-                .controlPlate()
+    // macOS-only: the iOS toolbar owns the mic item (`dictateToolbarItem`), so
+    // this private view has no iOS reference and must not be compiled there
+    // (Periphery flags it unused on the iOS destination otherwise).
+    #if os(macOS)
+        private var micButton: some View {
+            Button {
+                Task { await viewModel.dictation.startDictation() }
+            } label: {
+                Image(systemName: "mic.fill")
+                    .font(.title2)
+                    .controlPlate()
+            }
+            .singleThreadButton()
+            .accessibilityLabel("Dictate reminder")
+            .accessibilityIdentifier("dictateButton")
+            .accessibilityAddTraits(.isButton)
         }
-        .singleThreadButton()
-        .accessibilityLabel("Dictate reminder")
-        .accessibilityIdentifier("dictateButton")
-        .accessibilityAddTraits(.isButton)
-    }
+    #endif
 
     private var recordingIndicator: some View {
         Image(systemName: "mic.fill")
