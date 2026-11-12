@@ -14,10 +14,6 @@ import SingleThreadCore
 import Speech
 import SwiftUI
 
-// The Duo-outer layout plumbing (environment size classes + `layoutContext`)
-// takes the struct body just over the 500-line `type_body_length` threshold;
-// the single-screen modifiers stay together, so it is disabled for this struct.
-// swiftlint:disable:next type_body_length
 struct ContentView: View {
     // MARK: Lifecycle
 

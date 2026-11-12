@@ -51,7 +51,9 @@
                     undoToolbarItem
                 }
             }
-            if viewModel.dictation.canDictate, showMicrophoneButton {
+            if viewModel.dictation.canDictate,
+               showMicrophoneButton,
+               !toolbarActionSet.actions.isEmpty {
                 ToolbarItemGroup(placement: .bottomBar) {
                     let actions = toolbarActionSet.actions
                     if actions.contains(.complete) {

@@ -54,9 +54,9 @@ extension ContentView {
 
         /// The bottom-bar Skip button. When the action menu is gated open, the
         /// tap captures the visible reminder and presents the dialog instead of
-        /// skipping directly. Internal (not `private`) so `actionCluster` in
-        /// `ContentView.swift` can reference it across files, mirroring the
-        /// `ContentView+iOS.swift` extension pattern.
+        /// skipping directly. Internal (not `private`) so `mainToolbar` in
+        /// `ContentView+Toolbar.swift` can reference it across files, mirroring
+        /// the `ContentView+iOS.swift` extension pattern.
         var skipButton: some View {
             Button {
                 if showActionMenu {
