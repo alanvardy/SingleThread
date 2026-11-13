@@ -321,10 +321,10 @@ Update the final success sentence to count sims honestly, e.g.
 
 ### Verification
 #### Automated
-- [ ] `bash -n scripts/run-devices.sh` passes
-- [ ] `shellcheck -S warning --exclude=SC1111 scripts/run-devices.sh` passes
-- [ ] `bash scripts/test-run-devices.sh` passes (all filter + flow checks)
-- [ ] `make lint` passes (no source changes, sanity only)
+- [x] `bash -n scripts/run-devices.sh` passes
+- [x] `shellcheck -S warning --exclude=SC1111 scripts/run-devices.sh` passes
+- [x] `bash scripts/test-run-devices.sh` passes (all filter + flow checks)
+- [x] `make lint` passes (no source changes, sanity only)
 
 #### Manual
 - [ ] `IOS_TARGET=device DEVICES_JSON_IN=scripts/fixtures/devicectl-devices.json RUN_WATCH=0 RUN_MAC=0 ./scripts/run-devices.sh` emits the old all-physical discovery/filter messages and the `(device)` summary line (stub or real hardware not required for the discovery lines; use the test harness log).
@@ -375,8 +375,8 @@ running, since the point of the script is a live app to poke at.
 
 ### Verification
 #### Automated
-- [ ] `bash -n scripts/run-devices.sh` and `shellcheck -S warning --exclude=SC1111 scripts/run-devices.sh` pass
-- [ ] `bash scripts/test-run-devices.sh` passes, including the three new sad-path flows
+- [x] `bash -n scripts/run-devices.sh` and `shellcheck -S warning --exclude=SC1111 scripts/run-devices.sh` pass
+- [x] `bash scripts/test-run-devices.sh` passes, including the three new sad-path flows
 
 #### Manual
 - [ ] `./scripts/run-devices.sh` (or `r`) boots the worktree iPhone sim **and**
@@ -527,11 +527,14 @@ on an unpaired watch sim (`scripts/appstore-screenshots.sh:29-31`).
 
 ### Verification
 #### Automated
-- [ ] `bash -n scripts/run-devices.sh` and
+- [x] `bash -n scripts/run-devices.sh` and
   `shellcheck -S warning --exclude=SC1111 scripts/run-devices.sh` pass
-- [ ] `bash scripts/test-run-devices.sh` passes with the rewritten watch flows
-- [ ] No `devicectl` watch references remain:
+- [x] `bash scripts/test-run-devices.sh` passes with the rewritten watch flows
+- [x] No `devicectl` watch references remain:
   `rg -n 'WATCH_DEVICES|WATCH_UNREACHABLE|watchkitapp.*devicectl|4016' scripts/run-devices.sh` returns nothing
+  (all watch-path references are gone; the `4016` alternative still matches two
+  pre-existing *iOS*-only comments about the physical-phone unreachable check —
+  altering those would change iOS behavior and is out of Phase 3 scope)
 
 #### Manual
 - [ ] `./scripts/run-devices.sh` (or `r`) boots an Apple Watch simulator,
@@ -548,8 +551,10 @@ on an unpaired watch sim (`scripts/appstore-screenshots.sh:29-31`).
 - [ ] `./scripts/test.sh` via the `run-gate` skill (build + lint + Periphery +
   unit + UI) — the full CI-identical gate runs **once** after the phases commit.
 - [ ] `make format` + `make lint` before the final commit.
-- [ ] Confirm no `IOS_TARGET`/fixture seam needs wiring into `scripts/test.sh` or
+- [x] Confirm no `IOS_TARGET`/fixture seam needs wiring into `scripts/test.sh` or
   the `Makefile`: `scripts/test-run-devices.sh` is currently standalone and not
   referenced by the gate, so no wiring is expected — verify with
   `rg -n 'test-run-devices' Makefile scripts/test.sh` and add a gate step only
   if the repo convention requires it.
+  (verified: `rg -n 'test-run-devices' Makefile scripts/test.sh` returns nothing —
+  the harness stays standalone, no gate wiring needed)
