@@ -78,8 +78,8 @@ done
 # iPhone/iPad qualifies.
 check "device mode emits the reachable physical iPhone" \
     "1" "$(grep -c '|Fixture iPhone$' "$work/ios-out" || true)"
-check "device mode emits the paired iPhone Duo even with Developer Mode off" \
-    "1" "$(grep -c '|Fixture iPhone Duo$' "$work/ios-out" || true)"
+check "device mode emits a renamed iPhone Duo (hardware model match) with Developer Mode off" \
+    "1" "$(grep -c '|Fixture Duo Renamed$' "$work/ios-out" || true)"
 check "device mode emits the physical iPad with Developer Mode off" \
     "1" "$(grep -c '|Fixture iPad DevMode Off$' "$work/ios-out" || true)"
 check "device mode excludes a simulated iOS device" \
@@ -91,8 +91,8 @@ check "device mode logs no unreachable devices" \
 
 # IOS_TARGET=sim (the default): only the physical iPhone Duo is a devicectl
 # target; the regular iPhone/iPad run on simulators.
-check "sim mode emits the paired iPhone Duo" \
-    "1" "$(grep -c '|Fixture iPhone Duo$' "$work/ios-sim-out" || true)"
+check "sim mode emits a renamed iPhone Duo by hardware model" \
+    "1" "$(grep -c '|Fixture Duo Renamed$' "$work/ios-sim-out" || true)"
 check "sim mode excludes the regular physical iPhone" \
     "0" "$(grep -c '|Fixture iPhone$' "$work/ios-sim-out" || true)"
 check "sim mode excludes the physical iPad" \
@@ -109,7 +109,7 @@ check "sim mode logs no unreachable devices" \
 python3 "$work/ios.py" "$FIXTURE" "$work/ios-duo-unreachable.log" sim \
     "CCCCCCCC-0000-0000-0000-000000000009" > "$work/ios-duo-out" 2>/dev/null
 check "sim mode selects only the DUO_DEVICE_ID device" \
-    "CCCCCCCC-0000-0000-0000-000000000009|Fixture iPhone Duo" "$(cat "$work/ios-duo-out")"
+    "CCCCCCCC-0000-0000-0000-000000000009|Fixture Duo Renamed" "$(cat "$work/ios-duo-out")"
 python3 "$work/ios.py" "$FIXTURE" "$work/ios-bogus-unreachable.log" sim \
     "BBBBBBBB-0000-0000-0000-000000000000" > "$work/ios-bogus-out" 2>/dev/null
 check "sim mode ignores a non-matching DUO_DEVICE_ID" \
@@ -165,6 +165,12 @@ if [[ "$1" == "simctl" ]]; then
             ;;
         bootstatus)
             [[ "${STUB_SIM_BOOT_FAIL:-0}" == "1" ]] && exit 1
+            exit 0
+            ;;
+        launch)
+            if [[ -n "${STUB_LAUNCH_LOG:-}" ]]; then
+                printf '%s\n' "$@" >> "$STUB_LAUNCH_LOG"
+            fi
             exit 0
             ;;
     esac
@@ -242,6 +248,30 @@ run_flow "no watch simulator available is not a failure" 0 \
 run_flow "watch simulator boot failure is a failed step" 1 \
     "Apple Watch simulator failed to boot" "" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=device RUN_MAC=1 STUB_SIM_BOOT_FAIL=1
+
+# ── Seeding ─────────────────────────────────────────────────────────────
+# SEED_FILE feeds `--seed <json>` to each simulator launch so a manual run boots
+# with deterministic reminders; a bad path fails before any build work, and an
+# unset SEED_FILE leaves the launch plain.
+echo '{"reminders":[{"title":"Seeded one"}]}' > "$work/seed.json"
+run_flow "SEED_FILE seeds the simulator launches" 0 \
+    "iPhone/iPad (sim): 2/2 launched" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 \
+    SEED_FILE="$work/seed.json" STUB_LAUNCH_LOG="$work/seed-launch.log"
+check "seed rides along on both simulator launches via --seed" "2" \
+    "$(grep -c -- '--seed' "$work/seed-launch.log" || true)"
+check "the seed payload itself reaches simctl" "2" \
+    "$(grep -c 'Seeded one' "$work/seed-launch.log" || true)"
+run_flow "a no-SEED_FILE launch passes no --seed" 0 \
+    "iPhone/iPad (sim): 2/2 launched" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 \
+    STUB_LAUNCH_LOG="$work/plain-launch.log"
+check "no --seed when SEED_FILE is unset" "0" \
+    "$(grep -c -- '--seed' "$work/plain-launch.log" || true)"
+run_flow "a missing SEED_FILE is a hard error" 1 \
+    "SEED_FILE=" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 \
+    SEED_FILE="$work/does-not-exist.json"
 
 echo ""
 if [[ "$fail" -eq 0 ]]; then

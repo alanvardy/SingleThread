@@ -24,6 +24,10 @@ set -euo pipefail
 #   WATCH_BUNDLE_ID=…      # defaults to ${BUNDLE_ID}.watchkitapp
 #   DEVICES_JSON_IN=…      # dev seam: read a saved `xcrun devicectl list devices -j`
 #                          # inventory instead of querying CoreDevice (offline filter checks)
+#   SEED_FILE=…            # path to a `--seed` JSON; when set, the iPhone/iPad
+#                          # simulator launches pass it so the app boots with
+#                          # deterministic reminders for manual testing. Empty =
+#                          # a plain launch (production behaviour).
 #
 # Devices are discovered dynamically each run, so a new iPhone/iPad is picked
 # up without editing this script. A newly paired device is registered
@@ -58,6 +62,7 @@ SIM_WATCH="${SIM_WATCH:-}"     # explicit UDID or device name; empty = Apple Wat
 DUO_DEVICE_ID="${DUO_DEVICE_ID:-}"
 WATCH_BUNDLE_ID="${WATCH_BUNDLE_ID:-${BUNDLE_ID}.watchkitapp}"
 DEVICES_JSON_IN="${DEVICES_JSON_IN:-}"
+SEED_FILE="${SEED_FILE:-}"
 DEVICES_JSON="${TMPDIR:-/tmp}/run-devices-$$.json"
 UNREACHABLE_LOG="${TMPDIR:-/tmp}/run-devices-unreachable-$$.log"
 trap 'rm -f "$DEVICES_JSON" "$UNREACHABLE_LOG"' EXIT
@@ -72,6 +77,17 @@ DEFAULT_IPAD_SIM="iPad (A16)"
 DEFAULT_WATCH_SIM="Apple Watch Series 11 (46mm)"
 
 cd "$(dirname "$0")/.."
+
+# Read the optional seed once, up front, so a bad path fails before any build
+# work. Empty SEED_ARGS keeps the production launch (no `--seed`).
+SEED_ARGS=()
+if [[ -n "$SEED_FILE" ]]; then
+    if [[ ! -f "$SEED_FILE" ]]; then
+        echo "❌ SEED_FILE=$SEED_FILE could not be read." >&2
+        exit 1
+    fi
+    SEED_ARGS=(--seed "$(cat "$SEED_FILE")")
+fi
 
 # Pin a name-only simulator to a concrete UDID. An anchored name match stops
 # `iPhone 17` selecting the leftover "Gate iPhone 17" sim (scripts/test.sh:27-36).
@@ -128,9 +144,12 @@ fi
 # Emits "identifier|name" per qualifying devicectl target (platform iOS, iPhone
 # or iPad, physical). Simulated devices are excluded — they are not devicectl
 # install targets. In sim mode (the default) only the physical iPhone Duo is a
-# devicectl target: DUO_DEVICE_ID wins when set, otherwise the name is matched
-# case-insensitively on "iPhone Duo"; the regular iPhone/iPad legs run on
-# simulators instead. In device mode every paired physical iPhone/iPad qualifies
+# devicectl target: DUO_DEVICE_ID wins when set; otherwise the device is matched
+# by its name (case-insensitive "iPhone Duo") OR its hardware model, productType
+# "iPhone19,4" — a device can be renamed in the field (e.g. "Alan's Duo") while
+# its model stays the Duo, so name alone would silently drop it. The regular
+# iPhone/iPad legs run on simulators instead. In device mode every paired
+# physical iPhone/iPad qualifies
 # (the old all-physical sweep). A paired physical phone whose Developer Mode is
 # off still qualifies and is named on stderr, so a newly paired device (e.g. a
 # second iPhone) is never silently omitted. Unreachable qualifying devices are
@@ -171,7 +190,7 @@ with open(sys.argv[2], "a", encoding="utf-8") as unreachable_log:
             if duo_id:
                 if device.get("identifier") != duo_id:
                     continue
-            elif "iphone duo" not in name.lower():
+            elif "iphone duo" not in name.lower() and hardware.get("productType") != "iPhone19,4":
                 continue
         # Physical devices install over a connection (localNetwork, wired, or
         # sameMachine for local simulators). When CoreDevice cannot reach the
@@ -212,6 +231,12 @@ if [[ ${#DEVICES[@]} -eq 0 && "$IOS_TARGET" != "sim" ]]; then
         echo "   Pair an iPhone/iPad, unlock it, and connect it to this Mac's Wi-Fi, then retry." >&2
         exit 1
     fi
+fi
+
+# A renamed Duo that still fails the model match is worth naming loudly: the
+# simulator legs run either way, but the physical leg is silently absent.
+if [[ "$IOS_TARGET" == "sim" && ${#DEVICES[@]} -eq 0 && "$UNREACHABLE_COUNT" -eq 0 ]]; then
+    echo "  (no physical iPhone Duo found — the simulator legs still run; set DUO_DEVICE_ID= to pin one)"
 fi
 
 failures=0
@@ -282,7 +307,13 @@ if [[ "$IOS_TARGET" == "sim" ]]; then
             continue
         fi
         echo "==> Launching on the $sim_label simulator…"
-        if xcrun simctl launch "$sim_udid" "$BUNDLE_ID"; then
+        # SEED_FILE (if any) rides along as `--seed <json>` so a manual run can
+        # boot against deterministic reminders instead of an empty EventKit store.
+        sim_launch=("$BUNDLE_ID")
+        if [[ ${#SEED_ARGS[@]} -gt 0 ]]; then
+            sim_launch+=("${SEED_ARGS[@]}")
+        fi
+        if xcrun simctl launch "$sim_udid" "${sim_launch[@]}"; then
             SIM_LAUNCHED=$((SIM_LAUNCHED + 1))
         else
             echo "❌ Launch failed on the $sim_label simulator." >&2
