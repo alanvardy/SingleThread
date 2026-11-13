@@ -237,6 +237,7 @@ class_folder () { # $1 = class label → numbered output directory name
 duo_display_for_pose () { # $DUO_POSE → simctl --display id
   case "$DUO_POSE" in
     folded) echo 1 ;;
+    book | open) echo 3 ;;
     *)
       echo "!! --duo-pose must be folded|book|open (got '$DUO_POSE')" >&2
       return 1
@@ -247,6 +248,8 @@ duo_display_for_pose () { # $DUO_POSE → simctl --display id
 duo_folder_for_pose () { # $DUO_POSE → numbered output directory
   case "$DUO_POSE" in
     folded) echo "4-duo-outer-portrait" ;;
+    book) echo "6-duo-inner-portrait" ;;
+    open) echo "7-duo-inner-landscape" ;;
     *)
       echo "!! --duo-pose must be folded|book|open (got '$DUO_POSE')" >&2
       return 1
@@ -854,7 +857,7 @@ for shot in "$OUT"/*/*/*.png; do
   count=$((count + 1))
   dims=$(sips -g pixelWidth -g pixelHeight "$shot" | tail -2 | tr -dc '0-9\n' | paste -sd x -)
   case "$dims" in
-    1206x2622 | 1179x2556 | 1320x2868 | 2064x2752 | 416x496 | 1398x2034 | 2034x1398) ;;
+    1206x2622 | 1179x2556 | 1320x2868 | 2064x2752 | 416x496 | 1398x2034 | 2034x1398 | 2007x2853 | 2853x2007) ;;
     *)
       echo "!! ${shot} is ${dims}" >&2
       fail=1
