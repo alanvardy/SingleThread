@@ -206,9 +206,11 @@ final class AppViewModel {
             speechTranscriber: ReminderDictation(),
             urlOpener: urlOpener)
         if ProcessInfo.processInfo.arguments.contains("--ui-testing-glow") {
-            // UI-test seam: keep the glow visible long enough for a
-            // deterministic `exists` assertion (production duration is 0.50 s).
+            // UI-test seam: keep the glow — and the matching toolbar-icon tint —
+            // visible long enough for deterministic assertions and a pixel probe
+            // (production duration is 0.50 s).
             viewModel.completionGlow.duration = 2.0
+            viewModel.completionFlash.duration = 2.0
         }
         if ProcessInfo.processInfo.arguments.contains("--ui-testing-reduced-glow") {
             // UI-test seam: shorten the glow (production duration is 0.50 s)

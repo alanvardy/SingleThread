@@ -144,7 +144,11 @@
         /// default toolbar tint (kept untouched rather than re-specified).
         @ViewBuilder private var completeToolbarLabel: some View {
             if viewModel.completionFlash.isActive {
-                Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
+                // A bare `Image`, not a `Label`: a toolbar `Button` supplies the
+                // tint, so a nested `Label`'s `.foregroundStyle(.green)` is
+                // dropped and the icon never turns green. Mirrors
+                // ``dictateToolbarLabel``'s coloured states.
+                Image(systemName: "checkmark.circle.fill")
                     .foregroundStyle(.green)
             } else {
                 Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
