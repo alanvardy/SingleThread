@@ -282,7 +282,17 @@ if [[ ${#DEVICES[@]} -eq 0 && "$IOS_TARGET" != "sim" ]]; then
         echo "❌ $UNREACHABLE_COUNT device(s) found but unreachable — see messages above (unlock the device and connect it to this Mac's Wi-Fi, then retry)." >&2
         exit 1
     fi
-    if [[ "$RUN_MAC" -eq 1 ]]; then
+    if [[ "$IOS_TARGET" == "duo" ]]; then
+        # Duo mode filters out every non-Duo device, so a paired regular
+        # iPhone/iPad would still land here — name the Duo, not the phone.
+        if [[ "$RUN_MAC" -eq 1 ]]; then
+            echo "  (no reachable iPhone Duo found — macOS run only)"
+        else
+            echo "❌ No reachable iPhone Duo found." >&2
+            echo "   Connect the iPhone Duo to this Mac's Wi-Fi and unlock it, then retry (set DUO_DEVICE_ID= to pin one)." >&2
+            exit 1
+        fi
+    elif [[ "$RUN_MAC" -eq 1 ]]; then
         echo "  (no reachable iPhone/iPad found — macOS run only)"
     else
         echo "❌ No reachable iPhone/iPad found." >&2
