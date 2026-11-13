@@ -67,6 +67,7 @@ MAC_APP_PATH="$DERIVED_DATA/Build/Products/$CONFIGURATION/SingleThread.app"
 SIM_APP_PATH="$DERIVED_DATA/Build/Products/${CONFIGURATION}-iphonesimulator/SingleThread.app"
 
 DEFAULT_IPHONE_SIM="iPhone 17"
+DEFAULT_IPAD_SIM="iPad (A16)"
 
 cd "$(dirname "$0")/.."
 
@@ -333,7 +334,10 @@ record_watch_launch_form() {
 # still deployed physically by the device loop below. Targets are resolved to a
 # concrete UDID up front so a bare `name=` destination never reaches xcodebuild.
 if [[ "$IOS_TARGET" == "sim" ]]; then
-    sim_targets=("iPhone|$(resolve_ios_udid "$SIM_IPHONE" "$DEFAULT_IPHONE_SIM" 1)")
+    sim_targets=(
+        "iPhone|$(resolve_ios_udid "$SIM_IPHONE" "$DEFAULT_IPHONE_SIM" 1)"
+        "iPad|$(resolve_ios_udid "$SIM_IPAD" "$DEFAULT_IPAD_SIM" 0)"
+    )
     for spec in "${sim_targets[@]}"; do
         sim_label="${spec%%|*}"
         sim_udid="${spec#*|}"
