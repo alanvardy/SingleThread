@@ -64,27 +64,58 @@ if [[ ! -s "$work/ios.py" || ! -s "$work/watch.py" ]]; then
     exit 1
 fi
 
-python3 "$work/ios.py" "$FIXTURE" "$work/ios-unreachable.log" > "$work/ios-out" 2> "$work/ios-stderr"
+python3 "$work/ios.py" "$FIXTURE" "$work/ios-unreachable.log" device \
+    > "$work/ios-out" 2> "$work/ios-stderr"
+python3 "$work/ios.py" "$FIXTURE" "$work/ios-sim-unreachable.log" sim \
+    > "$work/ios-sim-out" 2> "$work/ios-sim-stderr"
 python3 "$work/watch.py" "$FIXTURE" "$work/watch-unreachable.log" > "$work/watch-out" 2> "$work/watch-stderr"
-for produced in ios-out ios-stderr watch-out watch-stderr; do
+for produced in ios-out ios-stderr ios-sim-out ios-sim-stderr watch-out watch-stderr; do
     if [[ ! -e "$work/$produced" ]]; then
         echo "❌ a discovery filter did not produce $work/$produced" >&2
         exit 1
     fi
 done
 
-check "iOS filter emits the reachable physical iPhone" \
+# IOS_TARGET=device (the legacy all-physical sweep): every paired physical
+# iPhone/iPad qualifies.
+check "device mode emits the reachable physical iPhone" \
     "1" "$(grep -c '|Fixture iPhone$' "$work/ios-out" || true)"
-check "iOS filter emits the paired iPhone Duo even with Developer Mode off" \
+check "device mode emits the paired iPhone Duo even with Developer Mode off" \
     "1" "$(grep -c '|Fixture iPhone Duo$' "$work/ios-out" || true)"
-check "iOS filter emits the physical iPad with Developer Mode off" \
+check "device mode emits the physical iPad with Developer Mode off" \
     "1" "$(grep -c '|Fixture iPad DevMode Off$' "$work/ios-out" || true)"
-check "iOS filter excludes a simulated iOS device" \
+check "device mode excludes a simulated iOS device" \
     "0" "$(grep -c '|Fixture iPhone Sim$' "$work/ios-out" || true)"
-check "iOS filter warns about Developer Mode off" \
+check "device mode warns about Developer Mode off" \
     "2" "$(grep -c 'Developer Mode off' "$work/ios-stderr" || true)"
-check "iOS filter logs no unreachable devices" \
+check "device mode logs no unreachable devices" \
     "0" "$(wc -l < "$work/ios-unreachable.log" | tr -d ' ')"
+
+# IOS_TARGET=sim (the default): only the physical iPhone Duo is a devicectl
+# target; the regular iPhone/iPad run on simulators.
+check "sim mode emits the paired iPhone Duo" \
+    "1" "$(grep -c '|Fixture iPhone Duo$' "$work/ios-sim-out" || true)"
+check "sim mode excludes the regular physical iPhone" \
+    "0" "$(grep -c '|Fixture iPhone$' "$work/ios-sim-out" || true)"
+check "sim mode excludes the physical iPad" \
+    "0" "$(grep -c '|Fixture iPad DevMode Off$' "$work/ios-sim-out" || true)"
+check "sim mode excludes a simulated iOS device" \
+    "0" "$(grep -c '|Fixture iPhone Sim$' "$work/ios-sim-out" || true)"
+check "sim mode warns about the Duo's Developer Mode off" \
+    "1" "$(grep -c 'Developer Mode off' "$work/ios-sim-stderr" || true)"
+check "sim mode logs no unreachable devices" \
+    "0" "$(wc -l < "$work/ios-sim-unreachable.log" | tr -d ' ')"
+
+# DUO_DEVICE_ID wins over the name match: an explicit identifier selects exactly
+# the Duo, and a non-matching identifier selects nothing.
+python3 "$work/ios.py" "$FIXTURE" "$work/ios-duo-unreachable.log" sim \
+    "CCCCCCCC-0000-0000-0000-000000000009" > "$work/ios-duo-out" 2>/dev/null
+check "sim mode selects only the DUO_DEVICE_ID device" \
+    "CCCCCCCC-0000-0000-0000-000000000009|Fixture iPhone Duo" "$(cat "$work/ios-duo-out")"
+python3 "$work/ios.py" "$FIXTURE" "$work/ios-bogus-unreachable.log" sim \
+    "BBBBBBBB-0000-0000-0000-000000000000" > "$work/ios-bogus-out" 2>/dev/null
+check "sim mode ignores a non-matching DUO_DEVICE_ID" \
+    "0" "$(wc -c < "$work/ios-bogus-out" | tr -d ' ')"
 
 check "watch filter emits only the reachable physical watch" \
     "AAAAAAAA-0000-0000-0000-000000000002|Fixture Watch Reachable" "$(cat "$work/watch-out")"
@@ -99,7 +130,7 @@ check "watch filter reports the developer-mode-disabled watch" \
 # filters emit nothing without a traceback (run-devices.sh rejects invalid JSON
 # up front; this covers the valid-JSON/wrong-shape case).
 echo '{}' > "$work/empty-inventory.json"
-python3 "$work/ios.py" "$work/empty-inventory.json" "$work/ios-empty-unreachable.log" \
+python3 "$work/ios.py" "$work/empty-inventory.json" "$work/ios-empty-unreachable.log" sim \
     > "$work/ios-empty-out" 2> "$work/ios-empty-stderr"
 python3 "$work/watch.py" "$work/empty-inventory.json" "$work/watch-empty-unreachable.log" \
     > "$work/watch-empty-out" 2> "$work/watch-empty-stderr"
@@ -120,6 +151,7 @@ stub_dir="$work/stubs"
 mkdir -p "$stub_dir" \
     "$work/derived/Build/Products/Debug-watchos/SingleThreadWatch.app" \
     "$work/derived/Build/Products/Debug-iphoneos/SingleThread.app" \
+    "$work/derived/Build/Products/Debug-iphonesimulator/SingleThread.app" \
     "$work/derived/Build/Products/Debug/SingleThread.app"
 cat > "$stub_dir/xcodebuild" <<'STUB'
 #!/usr/bin/env bash
@@ -133,7 +165,26 @@ if [[ "${STUB_MAC_BUILD_FAIL:-0}" == "1" ]]; then
 fi
 exit 0
 STUB
-printf '#!/usr/bin/env bash\nexit 0\n' > "$stub_dir/xcrun"
+# simctl listings are answered from a fixed inventory so the sim legs resolve a
+# concrete UDID; every devicectl/other call is a no-op success.
+cat > "$stub_dir/xcrun" <<'STUB'
+#!/usr/bin/env bash
+if [[ "$1" == "simctl" ]]; then
+    case "$2" in
+        list)
+            printf '    iPhone 17 (11111111-1111-1111-1111-111111111111) (Shutdown)\n'
+            printf '    iPad (A16) (22222222-2222-2222-2222-222222222222) (Shutdown)\n'
+            printf '    Apple Watch Series 11 (46mm) (33333333-3333-3333-3333-333333333333) (Shutdown)\n'
+            exit 0
+            ;;
+        bootstatus)
+            [[ "${STUB_SIM_BOOT_FAIL:-0}" == "1" ]] && exit 1
+            exit 0
+            ;;
+    esac
+fi
+exit 0
+STUB
 printf '#!/usr/bin/env bash\nexit 0\n' > "$stub_dir/open"
 chmod +x "$stub_dir/xcodebuild" "$stub_dir/xcrun" "$stub_dir/open"
 
@@ -200,13 +251,19 @@ run_flow "reachable-watch-only succeeds" 0 \
     DEVICES_JSON_IN="$work/flow-reachable-watch.json" RUN_WATCH=1 RUN_MAC=0
 run_flow "no iOS and no watch keeps the iOS fail-fast" 1 \
     "No reachable iPhone/iPad found." "==> Building SingleThreadWatch" \
-    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=1 RUN_MAC=0
+    DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=device RUN_WATCH=1 RUN_MAC=0
 run_flow "RUN_WATCH=0 emits no watch output" 1 \
     "No reachable iPhone/iPad found." "Apple Watch" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=device RUN_WATCH=0 RUN_MAC=0
+run_flow "default sim mode launches the iPhone simulator" 0 \
+    "iPhone/iPad (sim): 1/1 launched" "No reachable iPhone/iPad found." \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0
-run_flow "every paired physical iPhone installs (Duo included)" 0 \
-    "3/3 launched" "No reachable iPhone/iPad found." \
+run_flow "sim mode deploys only the iPhone Duo physically" 0 \
+    "iPhone Duo (device): 1/1 launched" "No reachable iPhone/iPad found." \
     DEVICES_JSON_IN="$FIXTURE" RUN_WATCH=0 RUN_MAC=0
+run_flow "IOS_TARGET=device restores the all-physical sweep" 0 \
+    "iPhone/iPad (device): 3/3 launched" "iPhone/iPad (sim)" \
+    DEVICES_JSON_IN="$FIXTURE" IOS_TARGET=device RUN_WATCH=0 RUN_MAC=0
 run_flow "macOS success is reported in the summary" 0 \
     "macOS: built and launched" "macOS: build failed" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=1
