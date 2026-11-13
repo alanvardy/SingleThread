@@ -26,6 +26,11 @@ enum LaunchArgument: String {
     /// destination.
     case openSettingsReminder = "--ui-testing-open-settings-reminder"
 
+    /// Forces the Duo outer-portrait checklist layout under the screenshot/UI
+    /// harness. Production launches never pass it, so the `uname`-based
+    /// detection and its fail-safe to `.standard` are untouched.
+    case forceDuoOuter = "--ui-testing-force-duo-outer"
+
     // MARK: Internal
 
     /// Whether either Settings seam is present — the sheet opener or the

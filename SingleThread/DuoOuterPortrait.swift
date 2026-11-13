@@ -20,21 +20,28 @@ enum DuoOuterPortrait {
         #endif
     }()
 
-    /// Test seam: inject the machine identifier instead of reading `uname`.
+    /// Test/launch seam: inject the machine identifier and optionally force the
+    /// Duo outer context, overriding the machine + size-class predicate.
     nonisolated static func context(
         horizontal: UserInterfaceSizeClass?,
         vertical: UserInterfaceSizeClass?,
-        machine: String) -> ChecklistLayout.Context {
+        machine: String,
+        forceDuoOuter: Bool = false) -> ChecklistLayout.Context {
         ChecklistLayout.Context(
-            isDuoOuterPortrait: DuoDisplay.isOuterPortrait(
-                machine: machine,
-                isCompactWidth: horizontal == .compact,
-                isRegularHeight: vertical == .regular))
+            isDuoOuterPortrait: forceDuoOuter
+                || DuoDisplay.isOuterPortrait(
+                    machine: machine,
+                    isCompactWidth: horizontal == .compact,
+                    isRegularHeight: vertical == .regular))
     }
 
     static func context(
         horizontal: UserInterfaceSizeClass?,
         vertical: UserInterfaceSizeClass?) -> ChecklistLayout.Context {
-        context(horizontal: horizontal, vertical: vertical, machine: machineIdentifier)
+        context(
+            horizontal: horizontal,
+            vertical: vertical,
+            machine: machineIdentifier,
+            forceDuoOuter: LaunchArgument.isPresent(.forceDuoOuter))
     }
 }
