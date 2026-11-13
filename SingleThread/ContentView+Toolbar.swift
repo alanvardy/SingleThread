@@ -59,6 +59,29 @@
         }
     }
 
+    // MARK: - DictateToolbarState
+
+    /// The dictate toolbar item's visual state, extracted so the in-place morph
+    /// (mic → red recording plate → green/red feedback plate) is unit-testable.
+    /// Feedback wins over recording: `DictationViewModel` sets it after the
+    /// transcriber stops, then clears both flags.
+    enum DictateToolbarState: Equatable {
+        case idle
+        case recording
+        case feedback(CreationFeedback)
+
+        // MARK: Internal
+
+        nonisolated static func make(
+            isDictating: Bool,
+            creationFeedback: CreationFeedback?) -> Self {
+            if let creationFeedback {
+                return .feedback(creationFeedback)
+            }
+            return isDictating ? .recording : .idle
+        }
+    }
+
     // MARK: - Main Toolbar
 
     extension ContentView {
@@ -121,13 +144,41 @@
             Button {
                 Task { await viewModel.dictation.startDictation() }
             } label: {
+                dictateToolbarLabel
+            }
+            .accessibilityLabel(dictateAccessibilityLabel)
+            .accessibilityIdentifier("dictateButton")
+            .accessibilityAddTraits(.isButton)
+        }
+
+        /// Mirrors ``DictateToolbarState``: the single mic button becomes the
+        /// red pulsing recording plate, then the green/red feedback plate, so
+        /// nothing extra is drawn in the bottom bar on iOS.
+        @ViewBuilder private var dictateToolbarLabel: some View {
+            switch dictateToolbarState {
+            case .idle:
                 Label(
                     LocalizedStringResource("Dictate reminder", table: "Localizable", bundle: .main),
                     systemImage: "mic.fill")
+            case .recording:
+                recordingIndicator
+            case let .feedback(feedback):
+                creationFeedbackView(for: feedback)
             }
-            .accessibilityLabel("Dictate reminder")
-            .accessibilityIdentifier("dictateButton")
-            .accessibilityAddTraits(.isButton)
+        }
+
+        private var dictateAccessibilityLabel: String {
+            switch dictateToolbarState {
+            case .idle: "Dictate reminder"
+            case .recording: "Recording"
+            case let .feedback(feedback): feedback.accessibilityLabel
+            }
+        }
+
+        private var dictateToolbarState: DictateToolbarState {
+            DictateToolbarState.make(
+                isDictating: viewModel.dictation.isDictating,
+                creationFeedback: viewModel.dictation.creationFeedback)
         }
 
         var settingsToolbarItem: some View {
