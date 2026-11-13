@@ -59,3 +59,27 @@ Header docs and the `--help` `sed` range (`2,166p` → `2,169p`) were realigned 
 the shifted block boundary. Re-verified: `bash -n` clean, `shellcheck -S warning`
 clean, `--help` prints the full block. Head SHA below this line is superseded by
 the follow-up commit.
+
+## Manual Duo run — two latent bugs found and fixed
+
+First real folded capture surfaced two defects that the earlier "deferred to the
+user" checks had never exercised:
+
+1. **Reminders TCC prompt in every shot.** The harness never pre-granted EventKit
+   access, so the first `--seed` launch raised the system alert — which then stays
+   on SpringBoard and bleeds into every later screenshot (no tap command can
+   dismiss it). Fix: `grant_reminder_access` calls `simctl privacy … grant
+   reminders` for each iOS class after install.
+2. **"Landscape" shots were portrait.** `5-duo-outer-landscape/*.png` came out
+   1398 × 2034, byte-identical to the portrait set. `applyForcedOrientationIfNeeded`
+   requested landscape geometry but `supportedInterfaceOrientationsFor` still
+   advertised portrait, so the Duo cover display kept portrait. Fix: extract
+   `AppDelegate.supportedOrientations(forcedOrientation:allowsLandscape:)`,
+   which returns `.landscape` when the harness forces it; the delegate feeds it
+   `LaunchArgument.orientationValue()`. Regression tests added in
+   `AppDelegateTests` (6 cases, all green).
+
+Re-verified end to end: `appstore-screenshots.sh --no-build --duo-pose folded
+iphone-duo` → **72 screenshots, every size accepted**, unique dimensions
+`1398 × 2034` / `2034 × 1398`, no TCC alert in the seed shots, `make format` +
+`make lint` clean.

@@ -668,6 +668,14 @@ duo_six_shots () { # $1 = output dir, $2 = display id, rest = extra launch args
     --no-reminders
 }
 
+# EventKit's reminder prompt is a one-shot system alert: left unanswered it stays
+# on SpringBoard and bleeds into every later shot, and the harness has no tap
+# command to dismiss it. Grant access up front so the prompt is never raised.
+# Idempotent; harmless for the `--seed` shots that run on an in-memory store.
+grant_reminder_access () { # $1 = simulator UDID
+  xcrun simctl privacy "$1" grant reminders "$BUNDLE" >/dev/null 2>&1 || true
+}
+
 capture_class () { # $1 = class label, $2 = device type regex
   local label=$1
   local pattern=$2
@@ -690,6 +698,7 @@ capture_class () { # $1 = class label, $2 = device type regex
   if [ "$INSTALL" -eq 1 ]; then
     xcrun simctl install "$UDID" "$APP"
   fi
+  grant_reminder_access "$UDID"
   prepare_wallpaper
 
   for language in "${LANGUAGES[@]}"; do
@@ -759,6 +768,7 @@ capture_duo () { # $1 = device type regex; pose taken from $DUO_POSE
   if [ "$INSTALL" -eq 1 ]; then
     xcrun simctl install "$UDID" "$APP"
   fi
+  grant_reminder_access "$UDID"
   prepare_wallpaper
 
   # The force seam is for the outer panel only; the inner panel is

@@ -59,6 +59,21 @@
             }
         }
 
+        /// The interface orientations the app advertises for its windows.
+        ///
+        /// The screenshot harness's forced `landscape` pins landscape-only so the
+        /// system actually rotates the scene: requesting a landscape geometry
+        /// update while portrait stays a supported orientation lets the Duo cover
+        /// display keep its portrait geometry and the shot never rotates.
+        static func supportedOrientations(
+            forcedOrientation: String?,
+            allowsLandscape: Bool) -> UIInterfaceOrientationMask {
+            if forcedOrientation == "landscape" {
+                return .landscape
+            }
+            return allowsLandscape ? .allButUpsideDown : .portrait
+        }
+
         func applicationDidBecomeActive(_: UIApplication) {
             print("SimVerify: app active")
             Self.applyAppearance(AppearanceMode.load())
@@ -68,8 +83,9 @@
         func application(
             _: UIApplication,
             supportedInterfaceOrientationsFor _: UIWindow?) -> UIInterfaceOrientationMask {
-            let allowsLandscape = OrientationPreference().isLandscapeEnabled
-            return allowsLandscape ? .allButUpsideDown : .portrait
+            Self.supportedOrientations(
+                forcedOrientation: LaunchArgument.orientationValue(),
+                allowsLandscape: OrientationPreference().isLandscapeEnabled)
         }
     }
 #endif
