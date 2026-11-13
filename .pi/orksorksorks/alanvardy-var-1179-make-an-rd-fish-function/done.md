@@ -24,13 +24,19 @@
   sim/watch/macOS legs are skipped; summary and toast never mislabel the leg or
   print `0 simulator(s)`; the new negative assertions are non-vacuous (their
   grepped strings exist in `run-devices.sh`).
-  - Optional (declined/deferred): (1) duo-mode "no device" error still reads
-    "No reachable iPhone/iPad found." — honest but not Duo-specific; (2) the
-    duo flow test's `want_absent` guards the summary line but not the toast, so
-    a regression re-adding `and 0 simulator(s)` would slip through; (3) the
-    "no physical iPhone Duo found" notice is `== "sim"` only, so
-    `IOS_TARGET=duo RUN_MAC=1` with no Duo runs macOS with no Duo hint
-    (intentional per plan).
+  - Optional improvements applied at the user's request:
+    (1) duo-mode no-device errors now read "No reachable iPhone Duo found."
+    and the `RUN_MAC=1` hint says "no reachable iPhone Duo found" — the shared
+    `iPhone/iPad` wording was actively misleading in duo mode, which filters
+    out a paired regular iPhone (`run-devices.sh:286-298`); the sad-path flow
+    test asserts the new string. (2) added `duo toast omits the simulator
+    count`, closing the regression gap where `and 0 simulator(s)` could return
+    unnoticed. Both validated with `bash -n`, `shellcheck -S warning
+    --exclude=SC1111`, and `bash scripts/test-run-devices.sh` (EXIT=0, 0
+    failures).
+  - Optional items left as-is (intentional per plan): the "no physical iPhone
+    Duo found" notice remains `== "sim"` only; `IOS_TARGET=duo RUN_MAC=1` with
+    no Duo still runs macOS (now with the Duo-specific hint from #1).
 
 - **Remaining manual items**: the plan's on-device checks were not exercised
   (no physical Duo in this session) — with the Duo paired/reachable,

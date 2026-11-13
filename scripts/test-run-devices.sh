@@ -270,8 +270,10 @@ check "duo mode reports the skipped watch leg" "1" \
     "$(grep -c 'Apple Watch (sim): skipped' "$work/flow-IOS_TARGET=duo installs only the iPhone Duo.log" || true)"
 check "duo mode reports the skipped macOS leg" "1" \
     "$(grep -c 'macOS: skipped' "$work/flow-IOS_TARGET=duo installs only the iPhone Duo.log" || true)"
+check "duo toast omits the simulator count" "0" \
+    "$(grep -c 'simulator(s)' "$work/flow-IOS_TARGET=duo installs only the iPhone Duo.log" || true)"
 run_flow "IOS_TARGET=duo with no Duo fails fast" 1 \
-    "No reachable iPhone/iPad found." "==> Booting the" \
+    "No reachable iPhone Duo found." "==> Booting the" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=duo
 run_flow "macOS success is reported in the summary" 0 \
     "macOS: built and launched" "macOS: build failed" \
