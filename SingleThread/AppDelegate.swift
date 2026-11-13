@@ -43,9 +43,26 @@
             }
         }
 
+        /// Forces landscape when the screenshot harness passes
+        /// `--ui-testing-orientation landscape`. A no-op for every production
+        /// launch. Uses an explicit `.landscape` mask: ``applyLock`` uses
+        /// `.allButUpsideDown`, which does not force a rotation.
+        static func applyForcedOrientationIfNeeded() {
+            guard LaunchArgument.orientationValue() == "landscape" else { return }
+            guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let controller = scene.keyWindow?.rootViewController
+            else { return }
+
+            controller.setNeedsUpdateOfSupportedInterfaceOrientations()
+            scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape)) { error in
+                print("Forced orientation request failed: \(error.localizedDescription)")
+            }
+        }
+
         func applicationDidBecomeActive(_: UIApplication) {
             print("SimVerify: app active")
             Self.applyAppearance(AppearanceMode.load())
+            Self.applyForcedOrientationIfNeeded()
         }
 
         func application(

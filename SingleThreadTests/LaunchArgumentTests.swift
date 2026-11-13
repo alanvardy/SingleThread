@@ -59,4 +59,19 @@ struct LaunchArgumentTests {
         #expect(!LaunchArgument.opensSettings(in: ["--ui-testing"]))
         #expect(!LaunchArgument.opensSettings(in: []))
     }
+
+    @Test
+    func orientationValueParsesLandscape() {
+        #expect(
+            LaunchArgument.orientationValue(
+                in: ["--ui-testing", "--ui-testing-orientation", "landscape"])
+                == "landscape")
+    }
+
+    @Test
+    func orientationValueAbsentIsNil() {
+        #expect(LaunchArgument.orientationValue(in: []) == nil)
+        #expect(LaunchArgument.orientationValue(in: ["--ui-testing-orientation"]) == nil)
+        #expect(LaunchArgument.orientationValue(in: ["--ui-testing"]) == nil)
+    }
 }
