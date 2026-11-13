@@ -71,7 +71,7 @@ the phase bounded; the full `make test` / CI-identical gate runs in the
 - [ ] Simulating a missing runtime (e.g. temporarily point the pattern at a bogus
       name or rename the check) exits non-zero with the runtime hint rather than a
       silent skip. **Restore before committing.**
-- [ ] Full three-invocation sweep across all seven languages:
+- [ ] Full three-invocation sweep across all six languages:
       `… --duo-pose folded iphone-duo`, `… --duo-pose book iphone-duo`,
       `… --duo-pose open iphone-duo`; all four class folders are present with every
       size accepted.
@@ -80,15 +80,12 @@ the phase bounded; the full `make test` / CI-identical gate runs in the
 
 ## Observations for review
 
-- **Nothing was pushed.** `origin/alanvardy-var-1172-add-screenshots-for-the-iphone-duo`
-  is diverged from local (`ahead 20, behind 1`): the remote head `2e5f54cb` is only the
-  bootstrap `DELETEME` commit, and the local branch stacks the 1168/1170 work. PR #250's
-  remote head is therefore stale. Ascertaining the correct push (a force-with-lease would
-  rewrite PR #250's head) is deferred to the user rather than done unilaterally.
-- **Shellcheck (not gate-wired):** 7 pre-existing findings in `duo_six_shots` — SC2178 on
-  `local display=$2` and 6× SC2128 on `--display "$display"`, confused with `shoot`'s
-  `local display=()` array. Introduced by Phase 1's plan-specified variable name; left
-  as-is per the plan's "clean or pre-existing" allowance. A trivial rename would clear them.
+- **Push:** the branch was rebased onto `main` (`50718721` an ancestor of HEAD) and
+  force-pushed with `--force-with-lease` (`c538cb05`), so PR #250's head is no longer stale.
+- **Shellcheck (not gate-wired):** Phase 1 introduced 7 findings in `duo_six_shots` —
+  SC2178 on `local display=$2` and 6× SC2128 on `--display "$display"`, confused with
+  `shoot`'s `local display=()` array. Cleared in review by renaming the local to
+  `screen_id`; `shellcheck -S warning` is now clean (as it already was on `main`).
 - **Process note:** the first two Phase 1 subagent launches received an empty task
   (the parent omitted the required `task` field) and each implemented all four phases
   without committing; both were discarded via `git checkout`, and Phase 1 was re-run with
