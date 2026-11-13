@@ -3,10 +3,10 @@ set -euo pipefail
 
 # scripts/run-devices.sh — build SingleThread for iOS, install + launch it in a
 # simulator (the regular iPhone; the iPad follows), deploy it physically to the
-# iPhone Duo (via devicectl), install + launch the watch app on every paired
-# Apple Watch that is reachable, and (by default) also build + launch it on the
-# host Mac. Set IOS_TARGET=device to build + launch on every paired physical
-# iPhone/iPad instead (the Duo is always deployed physically).
+# iPhone Duo (via devicectl), install + launch the watch app on an Apple Watch
+# simulator, and (by default) also build + launch it on the host Mac. Set
+# IOS_TARGET=device to build + launch on every paired physical iPhone/iPad
+# instead (the Duo is always deployed physically).
 #
 #   ./scripts/run-devices.sh
 #
@@ -25,8 +25,8 @@ set -euo pipefail
 #   DEVICES_JSON_IN=…      # dev seam: read a saved `xcrun devicectl list devices -j`
 #                          # inventory instead of querying CoreDevice (offline filter checks)
 #
-# Devices are discovered dynamically each run, so a new iPhone/iPad/Apple Watch
-# is picked up without editing this script. A newly paired device is registered
+# Devices are discovered dynamically each run, so a new iPhone/iPad is picked
+# up without editing this script. A newly paired device is registered
 # in the developer account during its own build (-allowProvisioningDeviceRegistration),
 # so no manual Xcode step is needed before it can install. A device that is unreachable (locked, asleep,
 # off this Wi-Fi, unplugged mid-run) is detected during discovery and reported
@@ -38,10 +38,12 @@ set -euo pipefail
 # to carry the In-App Purchase entitlement — see make mac-run / the TestFlight
 # runbook for the signed flow.
 #
-# Apple Watch prerequisite: the watch must be on your wrist with its paired
-# iPhone nearby and unlocked, so CoreDevice's network tunnel to the watch is up.
-# A paired watch with the tunnel down is reported as unreachable with that hint
-# rather than surfacing a raw devicectl 4016 assertion later.
+# Apple Watch prerequisite: the watch runs on a simulator, not on hardware, so
+# no wrist / paired-iPhone / CoreDevice tunnel is involved. The named watch
+# simulator must exist (xcrun simctl list devices); the app installs and launches
+# on an unpaired watch sim (see scripts/appstore-screenshots.sh:29-31), so no
+# simctl pair step is needed. An unavailable watch sim is a notice, not a
+# failure; set SIM_WATCH= to pin one.
 
 SCHEME="${SCHEME:-SingleThread}"
 BUNDLE_ID="${BUNDLE_ID:-app.alanvardy.SingleThread}"
@@ -58,16 +60,16 @@ WATCH_BUNDLE_ID="${WATCH_BUNDLE_ID:-${BUNDLE_ID}.watchkitapp}"
 DEVICES_JSON_IN="${DEVICES_JSON_IN:-}"
 DEVICES_JSON="${TMPDIR:-/tmp}/run-devices-$$.json"
 UNREACHABLE_LOG="${TMPDIR:-/tmp}/run-devices-unreachable-$$.log"
-WATCH_UNREACHABLE_LOG="${TMPDIR:-/tmp}/run-devices-watch-unreachable-$$.log"
-trap 'rm -f "$DEVICES_JSON" "$UNREACHABLE_LOG" "$WATCH_UNREACHABLE_LOG"' EXIT
+trap 'rm -f "$DEVICES_JSON" "$UNREACHABLE_LOG"' EXIT
 
 APP_PATH="$DERIVED_DATA/Build/Products/${CONFIGURATION}-iphoneos/SingleThread.app"
-WATCH_APP_PATH="$DERIVED_DATA/Build/Products/${CONFIGURATION}-watchos/SingleThreadWatch.app"
 MAC_APP_PATH="$DERIVED_DATA/Build/Products/$CONFIGURATION/SingleThread.app"
 SIM_APP_PATH="$DERIVED_DATA/Build/Products/${CONFIGURATION}-iphonesimulator/SingleThread.app"
+WATCH_SIM_APP_PATH="$DERIVED_DATA/Build/Products/${CONFIGURATION}-watchsimulator/SingleThreadWatch.app"
 
 DEFAULT_IPHONE_SIM="iPhone 17"
 DEFAULT_IPAD_SIM="iPad (A16)"
+DEFAULT_WATCH_SIM="Apple Watch Series 11 (46mm)"
 
 cd "$(dirname "$0")/.."
 
@@ -159,8 +161,7 @@ with open(sys.argv[2], "a", encoding="utf-8") as unreachable_log:
         if hardware.get("deviceType") not in ("iPhone", "iPad"):
             continue
         # A paired iOS simulator shares platform/deviceType with a physical
-        # device but is not a devicectl install target, so exclude it here the
-        # same way the watch filter does.
+        # device but is not a devicectl install target, so exclude it here.
         if hardware.get("reality") != "physical":
             continue
         name = props.get("name", "unknown device")
@@ -199,93 +200,13 @@ if [[ -s "$UNREACHABLE_LOG" ]]; then
     UNREACHABLE_COUNT=$(wc -l < "$UNREACHABLE_LOG" | tr -d ' ')
 fi
 
-# Emits "identifier|name" per *reachable* physical Apple Watch. The four paired
-# watch simulators appear in the same inventory, so `reality == "physical"` is
-# part of the filter; watch sims are excluded silently. A watch that is paired
-# but has its CoreDevice tunnel down cannot be installed to, and devicectl would
-# fail every later call with a raw 4016 — it goes to "$WATCH_UNREACHABLE_LOG"
-# and is named here with the wrist/paired-iPhone cause instead. A watch that is
-# not paired with this Mac is skipped quietly: there is nothing to install to
-# and it is not a failure (zero watches found is a notice, not an error).
-#
-# RUN_WATCH=0 skips all of this — no watch output, no watch failures — so the
-# run is byte-for-byte the pre-watch-script behavior.
-WATCH_DEVICES=()
-WATCH_UNREACHABLE_COUNT=0
-if [[ "$RUN_WATCH" -eq 1 ]]; then
-    echo "==> Discovering paired Apple Watches…"
-    while IFS= read -r entry; do
-        WATCH_DEVICES+=("$entry")
-    done < <(python3 - "$DEVICES_JSON" "$WATCH_UNREACHABLE_LOG" <<'PY'
-import json
-import sys
-
-with open(sys.argv[1], encoding="utf-8") as fh:
-    payload = json.load(fh)
-
-with open(sys.argv[2], "a", encoding="utf-8") as unreachable_log:
-    result = payload.get("result") if isinstance(payload, dict) else None
-    devices = result.get("devices", []) if isinstance(result, dict) else []
-    for device in devices:
-        hardware = device.get("hardwareProperties", {})
-        props = device.get("deviceProperties", {})
-        if hardware.get("platform") != "watchOS":
-            continue
-        if hardware.get("deviceType") != "appleWatch":
-            continue
-        # reality is "physical" for a wrist-worn watch and "simulated" for the
-        # paired watch simulators listed alongside it in the same inventory.
-        if hardware.get("reality") != "physical":
-            continue
-        name = props.get("name", "unknown watch")
-        if props.get("developerModeStatus") != "enabled":
-            print(f"  (skipping {name} — Developer Mode disabled)", file=sys.stderr)
-            continue
-        conn = device.get("connectionProperties", {}) or {}
-        conn_props = (device.get("properties") or {}).get("connection") or {}
-        if conn.get("pairingState") != "paired":
-            print(f"  (skipping {name} — not paired with this Mac; pair it in Xcode → Window → Devices and Simulators)", file=sys.stderr)
-            continue
-        # Only "connected" means CoreDevice has a live tunnel to the watch
-        # (the state a real watch reports when it is off the wrist / its paired
-        # iPhone is asleep is "disconnected", which the iOS predicate above does
-        # not treat as unreachable — the watch needs its own check).
-        if conn_props.get("state") != "connected":
-            print(f"  (skipping {name} — unreachable (watch off the wrist, or its paired iPhone is asleep / on another network?)\n    put the watch on your wrist, unlock its paired iPhone, keep it near this Mac, then retry)", file=sys.stderr)
-            print(name, file=unreachable_log)
-            continue
-        print(f"{device['identifier']}|{name}")
-PY
-    )
-
-    if [[ -s "$WATCH_UNREACHABLE_LOG" ]]; then
-        WATCH_UNREACHABLE_COUNT=$(wc -l < "$WATCH_UNREACHABLE_LOG" | tr -d ' ')
-    fi
-fi
-
-# A discovered physical watch is a reason to continue even with no reachable
-# iOS device: the watch app is built below, and an unreachable watch is reported
-# as a failed step instead of being masked by an iOS-only early exit. With
-# RUN_WATCH=0 both watch arrays stay empty, so this is false and the run keeps
-# the pre-watch iOS-only behavior.
-WATCH_BUILD_NEEDED=0
-if [[ "$RUN_WATCH" -eq 1 ]] && [[ ${#WATCH_DEVICES[@]} -gt 0 || "$WATCH_UNREACHABLE_COUNT" -gt 0 ]]; then
-    WATCH_BUILD_NEEDED=1
-fi
-
 if [[ ${#DEVICES[@]} -eq 0 && "$IOS_TARGET" != "sim" ]]; then
-    if [[ "$UNREACHABLE_COUNT" -gt 0 && "$WATCH_BUILD_NEEDED" -eq 0 ]]; then
+    if [[ "$UNREACHABLE_COUNT" -gt 0 ]]; then
         echo "❌ $UNREACHABLE_COUNT device(s) found but unreachable — see messages above (unlock the device and connect it to this Mac's Wi-Fi, then retry)." >&2
         exit 1
     fi
     if [[ "$RUN_MAC" -eq 1 ]]; then
-        if [[ "$WATCH_BUILD_NEEDED" -eq 1 ]]; then
-            echo "  (no reachable iPhone/iPad found — macOS + Apple Watch run only)"
-        else
-            echo "  (no reachable iPhone/iPad found — macOS run only)"
-        fi
-    elif [[ "$WATCH_BUILD_NEEDED" -eq 1 ]]; then
-        echo "  (no reachable iPhone/iPad found — Apple Watch run only)"
+        echo "  (no reachable iPhone/iPad found — macOS run only)"
     else
         echo "❌ No reachable iPhone/iPad found." >&2
         echo "   Pair an iPhone/iPad, unlock it, and connect it to this Mac's Wi-Fi, then retry." >&2
@@ -297,7 +218,6 @@ failures=0
 # Devices that are paired but unreachable count as failed steps, matching the
 # old behavior where the guaranteed-failing install attempt was tried and failed.
 failures=$((failures + UNREACHABLE_COUNT))
-failures=$((failures + WATCH_UNREACHABLE_COUNT))
 
 # iOS leg counters (reported by the summary). A device is counted as launched
 # only once devicectl launch exits 0, so a failed install is not reported as
@@ -309,25 +229,14 @@ IOS_LAUNCHED=0
 SIM_TOTAL=0
 SIM_LAUNCHED=0
 
-# Watch leg counters (reported by the Phase 3 summary).
+# Watch simulator leg counters (reported by the summary).
+WATCH_TOTAL=0
 WATCH_LAUNCHED=0
 WATCH_FAILED=0
-WATCH_LAUNCH_FORM="none"
-WATCH_LAUNCH_FORM_MIXED=0
 
 # macOS leg status (reported by the summary). Set to the outcome inside the
 # macOS block below so a failed build is not reported as "built and launched".
 MAC_STATUS="not run"
-
-# The first successful watch launch records the flag form that worked; if a
-# later watch needs the other form, say so instead of silently overwriting it.
-record_watch_launch_form() {
-    if [[ "$WATCH_LAUNCH_FORM" == "none" ]]; then
-        WATCH_LAUNCH_FORM="$1"
-    elif [[ "$WATCH_LAUNCH_FORM" != "$1" ]]; then
-        WATCH_LAUNCH_FORM_MIXED=1
-    fi
-}
 
 # ── iPhone/iPad simulator leg ─────────────────────────────────
 # In sim mode the regular iPhone/iPad legs run on simulators; the iPhone Duo is
@@ -433,93 +342,52 @@ if [[ ${#DEVICES[@]} -gt 0 ]]; then
     done
 fi
 
-# ── Apple Watch step ─────────────────────────────────────────────────────────
-# As with iOS, each reachable watch is built against its own destination so a
-# newly paired watch is auto-registered (see the iOS note above). When only an
-# unreachable watch was found there is no install target, so fall back to one
-# generic build that still surfaces a build/signing failure.
-if [[ "$WATCH_BUILD_NEEDED" -eq 1 ]]; then
-    if [[ ${#WATCH_DEVICES[@]} -eq 0 ]]; then
-        echo ""
-        echo "==> Building SingleThreadWatch ($CONFIGURATION)…"
-        if ! xcodebuild -scheme SingleThreadWatch \
-          -destination 'generic/platform=watchOS' \
-          -configuration "$CONFIGURATION" \
-          -derivedDataPath "$DERIVED_DATA" \
-          -allowProvisioningUpdates \
-          build; then
-            echo "❌ Watch build failed." >&2
-            echo "   If this is a signing error (No profiles for '$WATCH_BUNDLE_ID'), open Xcode →" >&2
-            echo "   Settings → Accounts, sign in with team 6NWX2DHB9Q, then retry." >&2
-            failures=$((failures + 1))
-            WATCH_FAILED=$((WATCH_FAILED + 1))
-        elif [[ ! -d "$WATCH_APP_PATH" ]]; then
-            echo "❌ Built watch app not found at $WATCH_APP_PATH" >&2
-            echo "   The watch product path may have changed — check the SingleThreadWatch" >&2
-            echo "   scheme's destination and the Products dir." >&2
-            failures=$((failures + 1))
-            WATCH_FAILED=$((WATCH_FAILED + 1))
-        fi
+# ── Apple Watch simulator leg ────────────────────────────────────────────────
+# The watch runs on a simulator, not on hardware. The watch app installs and
+# launches on an unpaired watch sim (scripts/appstore-screenshots.sh:29-31), so
+# no simctl pair step is needed. An unavailable watch simulator is a notice, not
+# a failure; RUN_WATCH=0 skips the leg entirely.
+if [[ "$RUN_WATCH" -eq 1 ]]; then
+    watch_udid="$(resolve_ios_udid "$SIM_WATCH" "$DEFAULT_WATCH_SIM" 0)"
+    if [[ -z "$watch_udid" ]]; then
+        echo "  (no '$SIM_WATCH' simulator available — skipping the Apple Watch leg; set SIM_WATCH= to pin one)"
     else
-        for entry in "${WATCH_DEVICES[@]}"; do
-            watch_id="${entry%%|*}"
-            watch_name="${entry#*|}"
-
-            echo ""
-            echo "==> Building SingleThreadWatch ($CONFIGURATION) for ${watch_name}…"
-            if ! xcodebuild -scheme SingleThreadWatch \
-              -destination "id=$watch_id" \
-              -configuration "$CONFIGURATION" \
-              -derivedDataPath "$DERIVED_DATA" \
-              -allowProvisioningUpdates \
-              -allowProvisioningDeviceRegistration \
-              build; then
-                echo "❌ Watch build failed on $watch_name." >&2
-                echo "   If this is a signing error (No profiles for '$WATCH_BUNDLE_ID'), open Xcode →" >&2
-                echo "   Settings → Accounts, sign in with team 6NWX2DHB9Q, then retry." >&2
+        WATCH_TOTAL=1
+        echo ""
+        echo "==> Booting Apple Watch simulator ($SIM_WATCH, $watch_udid)…"
+        if ! xcrun simctl bootstatus "$watch_udid" -b; then
+            echo "❌ Apple Watch simulator failed to boot." >&2
+            failures=$((failures + 1))
+            WATCH_FAILED=1
+        else
+            echo "==> Building SingleThreadWatch ($CONFIGURATION) for the simulator…"
+            if ! xcodebuild -scheme SingleThreadWatch -destination "id=$watch_udid" \
+              -configuration "$CONFIGURATION" -derivedDataPath "$DERIVED_DATA" build; then
+                echo "❌ Watch build failed." >&2
                 failures=$((failures + 1))
-                WATCH_FAILED=$((WATCH_FAILED + 1))
-                continue
-            fi
-
-            if [[ ! -d "$WATCH_APP_PATH" ]]; then
-                echo "❌ Built watch app not found at $WATCH_APP_PATH" >&2
-                echo "   The watch product path may have changed — check the SingleThreadWatch" >&2
-                echo "   scheme's destination and the Products dir." >&2
+                WATCH_FAILED=1
+            elif [[ ! -d "$WATCH_SIM_APP_PATH" ]]; then
+                echo "❌ Built watch app not found at $WATCH_SIM_APP_PATH" >&2
                 failures=$((failures + 1))
-                WATCH_FAILED=$((WATCH_FAILED + 1))
-                continue
-            fi
-
-            echo "==> Installing on ${watch_name}…"
-            if ! watch_install_output=$(xcrun devicectl device install app --device "$watch_id" "$WATCH_APP_PATH" 2>&1); then
-                echo "$watch_install_output" >&2
-                echo "❌ Watch install failed on $watch_name." >&2
-                if [[ "$watch_install_output" == *4016* ]]; then
-                    echo "   devicectl lost the connection to the watch mid-run (error 4016) — put it on" >&2
-                    echo "   your wrist, unlock its paired iPhone, keep it near this Mac, then retry." >&2
-                fi
-                failures=$((failures + 1))
-                WATCH_FAILED=$((WATCH_FAILED + 1))
-                continue
-            fi
-
-            echo "==> Launching $WATCH_BUNDLE_ID on ${watch_name}…"
-            if xcrun devicectl device process launch --terminate-existing --activate --device "$watch_id" "$WATCH_BUNDLE_ID"; then
-                WATCH_LAUNCHED=$((WATCH_LAUNCHED + 1))
-                record_watch_launch_form "--terminate-existing --activate"
+                WATCH_FAILED=1
             else
-                echo "⚠️  --activate was rejected (it is not supported on every watchOS version) — retrying without it…" >&2
-                if xcrun devicectl device process launch --terminate-existing --device "$watch_id" "$WATCH_BUNDLE_ID"; then
-                    WATCH_LAUNCHED=$((WATCH_LAUNCHED + 1))
-                    record_watch_launch_form "--terminate-existing"
-                else
-                    echo "❌ Watch launch failed on $watch_name (both the --activate and the minimal form failed)." >&2
+                echo "==> Installing on the Apple Watch simulator…"
+                if ! xcrun simctl install "$watch_udid" "$WATCH_SIM_APP_PATH"; then
+                    echo "❌ Watch install failed." >&2
                     failures=$((failures + 1))
-                    WATCH_FAILED=$((WATCH_FAILED + 1))
+                    WATCH_FAILED=1
+                else
+                    echo "==> Launching $WATCH_BUNDLE_ID on the Apple Watch simulator…"
+                    if xcrun simctl launch "$watch_udid" "$WATCH_BUNDLE_ID"; then
+                        WATCH_LAUNCHED=1
+                    else
+                        echo "❌ Watch launch failed." >&2
+                        failures=$((failures + 1))
+                        WATCH_FAILED=1
+                    fi
                 fi
             fi
-        done
+        fi
     fi
 fi
 
@@ -562,22 +430,11 @@ else
     echo "  iPhone/iPad (device): $IOS_LAUNCHED/${#DEVICES[@]} launched, $UNREACHABLE_COUNT unreachable"
 fi
 if [[ "$RUN_WATCH" -eq 0 ]]; then
-    echo "  Apple Watch: skipped (RUN_WATCH=0)"
-elif [[ ${#WATCH_DEVICES[@]} -eq 0 && "$WATCH_UNREACHABLE_COUNT" -eq 0 ]]; then
-    echo "  Apple Watch: no installable watch found (not a failure)"
+    echo "  Apple Watch (sim): skipped (RUN_WATCH=0)"
+elif [[ "$WATCH_TOTAL" -eq 0 ]]; then
+    echo "  Apple Watch (sim): no simulator available (not a failure)"
 else
-    watch_line="  Apple Watch: $WATCH_LAUNCHED launched, $WATCH_FAILED failed, $WATCH_UNREACHABLE_COUNT unreachable"
-    if [[ "$WATCH_UNREACHABLE_COUNT" -gt 0 ]]; then
-        watch_line="$watch_line  (tunnel down — is the watch on your wrist?)"
-    fi
-    echo "$watch_line"
-    if [[ "$WATCH_LAUNCHED" -gt 0 ]]; then
-        if [[ "$WATCH_LAUNCH_FORM_MIXED" -eq 1 ]]; then
-            echo "  Watch launch flags: $WATCH_LAUNCH_FORM (a later watch needed the other form)"
-        else
-            echo "  Watch launch flags: $WATCH_LAUNCH_FORM"
-        fi
-    fi
+    echo "  Apple Watch (sim): $WATCH_LAUNCHED launched, $WATCH_FAILED failed"
 fi
 if [[ "$RUN_MAC" -eq 1 ]]; then
     echo "  macOS: $MAC_STATUS"
