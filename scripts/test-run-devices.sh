@@ -177,7 +177,15 @@ if [[ "$1" == "simctl" ]]; then
 fi
 exit 0
 STUB
-printf '#!/usr/bin/env bash\nexit 0\n' > "$stub_dir/open"
+# `open` is used both by the macOS leg and the simulator-window step; log its
+# args so the window checks can assert the pinned UDID.
+cat > "$stub_dir/open" <<'STUB'
+#!/usr/bin/env bash
+if [[ -n "${STUB_OPEN_LOG:-}" ]]; then
+    printf '%s\n' "$@" >> "$STUB_OPEN_LOG"
+fi
+exit 0
+STUB
 chmod +x "$stub_dir/xcodebuild" "$stub_dir/xcrun" "$stub_dir/open"
 
 echo '{"result": {"devices": []}}' > "$work/flow-no-devices.json"
@@ -211,6 +219,16 @@ run_flow "RUN_WATCH=0 emits no watch output" 1 \
 run_flow "default sim mode launches the iPhone simulator" 0 \
     "iPhone/iPad (sim): 2/2 launched" "No reachable iPhone/iPad found." \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0
+run_flow "a successful sim leg opens the simulator window" 0 \
+    "iPhone/iPad (sim): 2/2 launched" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 \
+    STUB_OPEN_LOG="$work/open.log"
+check "the iPhone simulator window is pinned by UDID" "1" \
+    "$(grep -c '11111111-1111-1111-1111-111111111111' "$work/open.log" || true)"
+check "the iPad simulator window is pinned by UDID" "1" \
+    "$(grep -c '22222222-2222-2222-2222-222222222222' "$work/open.log" || true)"
+check "the simulator window uses the Device Hub deep link" "2" \
+    "$(grep -c 'devices://device/open?id=' "$work/open.log" || true)"
 run_flow "simulator boot failure is a failed step" 1 \
     "failed to boot" "" \
     DEVICES_JSON_IN="$FIXTURE" RUN_WATCH=0 RUN_MAC=1 STUB_SIM_BOOT_FAIL=1
@@ -238,10 +256,15 @@ run_flow "macOS build failure is reported in the summary" 1 \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=1 STUB_MAC_BUILD_FAIL=1
 run_flow "watch simulator leg launches" 0 \
     "Apple Watch (sim): 1 launched, 0 failed" "" \
-    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=1 RUN_MAC=0
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=1 RUN_MAC=0 \
+    STUB_OPEN_LOG="$work/watch-open.log" STUB_LAUNCH_LOG="$work/watch-launch.log"
 check "watch simulator leg launches the watch bundle" "1" \
     "$(grep -c '==> Launching app.alanvardy.SingleThread.watchkitapp on the Apple Watch simulator' \
         "$work/flow-watch simulator leg launches.log" || true)"
+check "the watch simulator window is pinned by UDID" "1" \
+    "$(grep -c '33333333-3333-3333-3333-333333333333' "$work/watch-open.log" || true)"
+check "the watch app launches with its --ui-testing seam" "1" \
+    "$(grep -c -- '--ui-testing' "$work/watch-launch.log" || true)"
 run_flow "no watch simulator available is not a failure" 0 \
     "no 'No Such Watch' simulator available" "" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=device SIM_WATCH="No Such Watch" RUN_MAC=1
@@ -250,9 +273,19 @@ run_flow "watch simulator boot failure is a failed step" 1 \
     DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=device RUN_MAC=1 STUB_SIM_BOOT_FAIL=1
 
 # ── Seeding ─────────────────────────────────────────────────────────────
-# SEED_FILE feeds `--seed <json>` to each simulator launch so a manual run boots
-# with deterministic reminders; a bad path fails before any build work, and an
-# unset SEED_FILE leaves the launch plain.
+# The simulator launches seed by default from scripts/fixtures/run-devices-seed.json
+# so a manual run boots with deterministic reminders and no EventKit permission
+# gate. SEED_FILE= overrides the fixture; an explicitly empty SEED_FILE= leaves
+# the launch plain (production behaviour), and a bad path fails before any build
+# work.
+run_flow "the default seed fixture seeds the simulator launches" 0 \
+    "iPhone/iPad (sim): 2/2 launched" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 \
+    STUB_LAUNCH_LOG="$work/default-seed-launch.log"
+check "the default fixture rides along on both simulator launches via --seed" "2" \
+    "$(grep -c -- '--seed' "$work/default-seed-launch.log" || true)"
+check "the default fixture payload reaches simctl" "2" \
+    "$(grep -c 'Buy groceries' "$work/default-seed-launch.log" || true)"
 echo '{"reminders":[{"title":"Seeded one"}]}' > "$work/seed.json"
 run_flow "SEED_FILE seeds the simulator launches" 0 \
     "iPhone/iPad (sim): 2/2 launched" "" \
@@ -262,12 +295,18 @@ check "seed rides along on both simulator launches via --seed" "2" \
     "$(grep -c -- '--seed' "$work/seed-launch.log" || true)"
 check "the seed payload itself reaches simctl" "2" \
     "$(grep -c 'Seeded one' "$work/seed-launch.log" || true)"
-run_flow "a no-SEED_FILE launch passes no --seed" 0 \
+run_flow "an empty SEED_FILE= launch passes no --seed" 0 \
     "iPhone/iPad (sim): 2/2 launched" "" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 \
-    STUB_LAUNCH_LOG="$work/plain-launch.log"
-check "no --seed when SEED_FILE is unset" "0" \
+    SEED_FILE= STUB_LAUNCH_LOG="$work/plain-launch.log"
+check "no --seed when SEED_FILE is empty" "0" \
     "$(grep -c -- '--seed' "$work/plain-launch.log" || true)"
+run_flow "an empty SEED_FILE= leaves the watch in production mode" 0 \
+    "Apple Watch (sim): 1 launched, 0 failed" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=1 RUN_MAC=0 \
+    SEED_FILE= STUB_LAUNCH_LOG="$work/watch-plain-launch.log"
+check "no --ui-testing when SEED_FILE is empty" "0" \
+    "$(grep -c -- '--ui-testing' "$work/watch-plain-launch.log" || true)"
 run_flow "a missing SEED_FILE is a hard error" 1 \
     "SEED_FILE=" "" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 \

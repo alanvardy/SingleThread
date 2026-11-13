@@ -24,10 +24,13 @@ set -euo pipefail
 #   WATCH_BUNDLE_ID=…      # defaults to ${BUNDLE_ID}.watchkitapp
 #   DEVICES_JSON_IN=…      # dev seam: read a saved `xcrun devicectl list devices -j`
 #                          # inventory instead of querying CoreDevice (offline filter checks)
-#   SEED_FILE=…            # path to a `--seed` JSON; when set, the iPhone/iPad
-#                          # simulator launches pass it so the app boots with
-#                          # deterministic reminders for manual testing. Empty =
-#                          # a plain launch (production behaviour).
+#   SEED_FILE=…            # path to a `--seed` JSON passed to the iPhone/iPad
+#                          # simulator launches so the app boots with
+#                          # deterministic reminders for manual testing. Defaults
+#                          # to scripts/fixtures/run-devices-seed.json (no EventKit
+#                          # permission prompt on the sims). Set SEED_FILE= (empty)
+#                          # for a plain launch (production behaviour, needs
+#                          # Reminders access).
 #
 # Devices are discovered dynamically each run, so a new iPhone/iPad is picked
 # up without editing this script. A newly paired device is registered
@@ -41,6 +44,17 @@ set -euo pipefail
 # matching `make mac-build`) because signing needs the Mac provisioning profile
 # to carry the In-App Purchase entitlement — see make mac-run / the TestFlight
 # runbook for the signed flow.
+#
+# Seeding: the phone's JSON `--seed` seeds the iPhone/iPad legs; the watch app
+# is a separate process and takes its own `--ui-testing` seam (a demo card with
+# full Reminders access), so it shows a reminder instead of the access prompt.
+#
+# Simulator windows: simctl alone boots headlessly, so each simulator leg opens
+# the device GUI on the booted UDID — Xcode 27's Device Hub via the
+# `devices://device/open?id=<udid>` deep link (`open -b com.apple.dt.Devices`),
+# falling back to Simulator.app's `open -a Simulator --args -CurrentDeviceUDID
+# <udid>` on older Xcode. The first call cold-launches the GUI; while it runs,
+# later booted devices get their own windows.
 #
 # Apple Watch prerequisite: the watch runs on a simulator, not on hardware, so
 # no wrist / paired-iPhone / CoreDevice tunnel is involved. The named watch
@@ -62,7 +76,11 @@ SIM_WATCH="${SIM_WATCH:-}"     # explicit UDID or device name; empty = Apple Wat
 DUO_DEVICE_ID="${DUO_DEVICE_ID:-}"
 WATCH_BUNDLE_ID="${WATCH_BUNDLE_ID:-${BUNDLE_ID}.watchkitapp}"
 DEVICES_JSON_IN="${DEVICES_JSON_IN:-}"
-SEED_FILE="${SEED_FILE:-}"
+# Default the sim launches to a checked-in seed so `run-devices` boots with
+# reminders and without the EventKit permission gate. `${SEED_FILE-…}` (not
+# `:-`) keeps an explicitly empty SEED_FILE= as the plain production launch.
+DEFAULT_SEED_FILE="scripts/fixtures/run-devices-seed.json"
+SEED_FILE="${SEED_FILE-$DEFAULT_SEED_FILE}"
 DEVICES_JSON="${TMPDIR:-/tmp}/run-devices-$$.json"
 UNREACHABLE_LOG="${TMPDIR:-/tmp}/run-devices-unreachable-$$.log"
 trap 'rm -f "$DEVICES_JSON" "$UNREACHABLE_LOG"' EXIT
@@ -78,8 +96,8 @@ DEFAULT_WATCH_SIM="Apple Watch Series 11 (46mm)"
 
 cd "$(dirname "$0")/.."
 
-# Read the optional seed once, up front, so a bad path fails before any build
-# work. Empty SEED_ARGS keeps the production launch (no `--seed`).
+# Read the seed once, up front, so a bad path fails before any build work.
+# Empty SEED_ARGS keeps the production launch (no `--seed`).
 SEED_ARGS=()
 if [[ -n "$SEED_FILE" ]]; then
     if [[ ! -f "$SEED_FILE" ]]; then
@@ -87,6 +105,16 @@ if [[ -n "$SEED_FILE" ]]; then
         exit 1
     fi
     SEED_ARGS=(--seed "$(cat "$SEED_FILE")")
+fi
+
+# The watch app is a separate process and does not receive the phone's JSON
+# `--seed`; its own `--ui-testing` seam seeds a demo card and reports full
+# Reminders access, so the watch sim shows a reminder instead of the EventKit
+# access prompt. Tie it to the same seed switch so an empty SEED_FILE= also
+# leaves the watch in production mode.
+WATCH_LAUNCH_ARGS=()
+if [[ ${#SEED_ARGS[@]} -gt 0 ]]; then
+    WATCH_LAUNCH_ARGS=(--ui-testing)
 fi
 
 # Pin a name-only simulator to a concrete UDID. An anchored name match stops
@@ -115,6 +143,27 @@ resolve_ios_udid() { # $1 = value (UDID or name), $2 = default name, $3 = 1 to p
         fi
     fi
     resolve_sim_udid "$default"
+}
+
+# Bring a booted simulator's window to the front. Simulator.app attaches a
+# window to every device booted while it is alive, and on a *fresh* launch
+# `--args -CurrentDeviceUDID` pins which device it opens with; when it is
+# already running the booted device's window attaches on its own, so `open`
+# only brings it forward. A visible window is the point of a manual run, so a
+# failure here is reported but not tallied as a failed step.
+show_sim_window() { # $1 = UDID
+    # Xcode 27 removed Simulator.app in favour of Device Hub
+    # (`com.apple.dt.Devices`), which focuses a booted device via its
+    # `devices://device/open?id=` deep link. Older Xcode keeps Simulator.app
+    # and its `-CurrentDeviceUDID` launch arg. Prefer whichever is installed.
+    if open -b com.apple.dt.Devices 2>/dev/null; then
+        open "devices://device/open?id=$1" 2>/dev/null || true
+        return 0
+    fi
+    if open -a Simulator --args -CurrentDeviceUDID "$1" 2>/dev/null; then
+        return 0
+    fi
+    echo "  (note: could not open a device window for $1 — it is booted and installed; open Device Hub or Simulator manually to see it)" >&2
 }
 
 # ── Discover devices ─────────────────────────────────────────────────────────
@@ -288,6 +337,8 @@ if [[ "$IOS_TARGET" == "sim" ]]; then
             failures=$((failures + 1))
             continue
         fi
+        echo "==> Showing the $sim_label simulator window…"
+        show_sim_window "$sim_udid"
         echo "==> Building $SCHEME ($CONFIGURATION) for the $sim_label simulator…"
         if ! xcodebuild -scheme "$SCHEME" -destination "id=$sim_udid" \
           -configuration "$CONFIGURATION" -derivedDataPath "$DERIVED_DATA" build; then
@@ -391,6 +442,8 @@ if [[ "$RUN_WATCH" -eq 1 ]]; then
             failures=$((failures + 1))
             WATCH_FAILED=1
         else
+            echo "==> Showing the Apple Watch simulator window…"
+            show_sim_window "$watch_udid"
             echo "==> Building SingleThreadWatch ($CONFIGURATION) for the simulator…"
             if ! xcodebuild -scheme SingleThreadWatch -destination "id=$watch_udid" \
               -configuration "$CONFIGURATION" -derivedDataPath "$DERIVED_DATA" build; then
@@ -409,7 +462,7 @@ if [[ "$RUN_WATCH" -eq 1 ]]; then
                     WATCH_FAILED=1
                 else
                     echo "==> Launching $WATCH_BUNDLE_ID on the Apple Watch simulator…"
-                    if xcrun simctl launch "$watch_udid" "$WATCH_BUNDLE_ID"; then
+                    if xcrun simctl launch "$watch_udid" "$WATCH_BUNDLE_ID" "${WATCH_LAUNCH_ARGS[@]}"; then
                         WATCH_LAUNCHED=1
                     else
                         echo "❌ Watch launch failed." >&2

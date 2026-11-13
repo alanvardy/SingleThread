@@ -1,0 +1,10 @@
+{
+  "reminders": [
+    {"title": "Buy groceries", "notes": "milk, eggs, bread", "priority": 5},
+    {"title": "Call mom", "priority": 1},
+    {"title": "Water the plants"},
+    {"title": "Book dentist appointment", "notes": "before the end of the month"},
+    {"title": "Reply to Alex"}
+  ],
+  "calendars": ["Errands"]
+}
