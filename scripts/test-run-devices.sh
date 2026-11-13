@@ -152,7 +152,10 @@ mkdir -p "$stub_dir" \
     "$work/derived/Build/Products/Debug-watchos/SingleThreadWatch.app" \
     "$work/derived/Build/Products/Debug-iphoneos/SingleThread.app" \
     "$work/derived/Build/Products/Debug-iphonesimulator/SingleThread.app" \
-    "$work/derived/Build/Products/Debug/SingleThread.app"
+    "$work/derived/Build/Products/Debug/SingleThread.app" \
+    "$work/derived-nosim/Build/Products/Debug-watchos/SingleThreadWatch.app" \
+    "$work/derived-nosim/Build/Products/Debug-iphoneos/SingleThread.app" \
+    "$work/derived-nosim/Build/Products/Debug/SingleThread.app"
 cat > "$stub_dir/xcodebuild" <<'STUB'
 #!/usr/bin/env bash
 if [[ "${STUB_MAC_BUILD_FAIL:-0}" == "1" ]]; then
@@ -256,8 +259,21 @@ run_flow "RUN_WATCH=0 emits no watch output" 1 \
     "No reachable iPhone/iPad found." "Apple Watch" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=device RUN_WATCH=0 RUN_MAC=0
 run_flow "default sim mode launches the iPhone simulator" 0 \
-    "iPhone/iPad (sim): 1/1 launched" "No reachable iPhone/iPad found." \
+    "iPhone/iPad (sim): 2/2 launched" "No reachable iPhone/iPad found." \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0
+run_flow "simulator boot failure is a failed step" 1 \
+    "failed to boot" "" \
+    DEVICES_JSON_IN="$FIXTURE" RUN_WATCH=0 RUN_MAC=1 STUB_SIM_BOOT_FAIL=1
+check "boot failure still runs the Duo leg" "1" \
+    "$(grep -c 'iPhone Duo (device): 1/1 launched' "$work/flow-simulator boot failure is a failed step.log" || true)"
+check "boot failure still runs the macOS leg" "1" \
+    "$(grep -c 'macOS: built and launched' "$work/flow-simulator boot failure is a failed step.log" || true)"
+run_flow "missing sim product is a failed step" 1 \
+    "Built app not found at" "" \
+    DEVICES_JSON_IN="$FIXTURE" RUN_WATCH=0 RUN_MAC=0 DERIVED_DATA="$work/derived-nosim"
+run_flow "unresolvable iPad sim is a failed step" 1 \
+    "No available simulator for iPad" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 SIM_IPAD="No Such Device"
 run_flow "sim mode deploys only the iPhone Duo physically" 0 \
     "iPhone Duo (device): 1/1 launched" "No reachable iPhone/iPad found." \
     DEVICES_JSON_IN="$FIXTURE" RUN_WATCH=0 RUN_MAC=0
