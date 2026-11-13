@@ -184,28 +184,6 @@ struct ContentView: View {
         #endif
     }
 
-    /// Internal (not `private`) so the iOS `dictateToolbarItem` can morph the
-    /// mic button into this plate in place; macOS still renders it in `bottomBar`.
-    var recordingIndicator: some View {
-        Image(systemName: "mic.fill")
-            .font(.title2)
-            .controlPlate(fill: .red, glyph: .white)
-            .symbolEffect(.pulse, options: .repeating)
-            .accessibilityLabel("Recording")
-            .accessibilityIdentifier("recordingIndicator")
-    }
-
-    // The skip-nudge sheet (iOS only) lives in `ContentView+iOS.swift`.
-
-    /// Internal (not `private`) so the iOS `dictateToolbarItem` can morph the
-    /// mic button into the success/failure plate in place.
-    func creationFeedbackView(for feedback: CreationFeedback) -> some View {
-        Image(systemName: feedback.systemImage)
-            .font(.title2)
-            .controlPlate(fill: feedback.backgroundColor, glyph: .white)
-            .accessibilityLabel(feedback.accessibilityLabel)
-    }
-
     /// Opens the Settings sheet, creating a fresh bindings bag first. Called by the
     /// iOS settings toolbar item; the bag-before-flag ordering is required by
     /// `settingsSheetContent`.
@@ -265,6 +243,20 @@ struct ContentView: View {
             .constant(false)
         #endif
     }
+
+    // macOS-only: iOS tints the dictate toolbar item's own mic red in place
+    // (see `dictateToolbarItem`), so this standalone plate is unreferenced on
+    // iOS and must not be compiled there (Periphery flags it unused otherwise).
+    #if os(macOS)
+        private var recordingIndicator: some View {
+            Image(systemName: "mic.fill")
+                .font(.title2)
+                .controlPlate(fill: .red, glyph: .white)
+                .symbolEffect(.pulse, options: .repeating)
+                .accessibilityLabel("Recording")
+                .accessibilityIdentifier("recordingIndicator")
+        }
+    #endif
 
     private var rootContent: some View {
         ZStack {
@@ -661,6 +653,19 @@ struct ContentView: View {
             #endif
         }
     }
+
+    // The skip-nudge sheet (iOS only) lives in `ContentView+iOS.swift`.
+
+    // macOS-only: iOS tints the dictate toolbar item's symbol green/red in
+    // place (see `dictateToolbarItem`), so this plate is unreferenced on iOS.
+    #if os(macOS)
+        private func creationFeedbackView(for feedback: CreationFeedback) -> some View {
+            Image(systemName: feedback.systemImage)
+                .font(.title2)
+                .controlPlate(fill: feedback.backgroundColor, glyph: .white)
+                .accessibilityLabel(feedback.accessibilityLabel)
+        }
+    #endif
 
     /// Dispatches the async pin-state change off the sync modifier closure.
     /// Extracted so the long `body` modifier chain still type-checks.
