@@ -40,8 +40,13 @@ struct CompletionFlashTests {
     }
 
     @Test
-    func defaultDurationMatchesDictationCheckmark() {
-        #expect(CompletionFlash().duration == CreationFeedback.displayDuration)
+    func defaultDurationMatchesCompletionGlow() {
+        #expect(CompletionFlash().duration == CompletionGlow().duration)
+    }
+
+    @Test
+    func dictationCheckmarkDurationStaysOneSecond() {
+        #expect(CreationFeedback.displayDuration == 1.0)
     }
 }
 

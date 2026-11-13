@@ -11,9 +11,9 @@ enum CreationFeedback {
 
     // MARK: Internal
 
-    /// Seconds the success/failure icon stays visible. Shared with the complete
-    /// toolbar item's green flash (``CompletionFlash``) so both confirmations
-    /// last the same beat.
+    /// Seconds the success/failure icon stays visible. Owned by the
+    /// dictate-and-save flow only — the complete toolbar item's green flash
+    /// (``CompletionFlash``) instead matches the glow's duration.
     static let displayDuration: TimeInterval = 1.0
 
     var systemImage: String {
