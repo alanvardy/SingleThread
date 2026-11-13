@@ -65,6 +65,10 @@ final class ContentViewModel {
     /// successful completion.
     let completionMomentum = CompletionMomentumOverlay()
 
+    /// Drives the brief green tint of the complete toolbar item after a
+    /// successful completion.
+    let completionFlash = CompletionFlash()
+
     /// True while `refreshManual()` is running, so the button can show a
     /// disabled/spinner state and re-entrant taps are dropped. Matches the
     /// watch pattern (`WatchReminderViewModel.isRefreshing`).
@@ -184,6 +188,7 @@ final class ContentViewModel {
     /// the completion glow for positive visual feedback.
     func completeCurrentReminder() async {
         if await store.completeCurrentReminder() {
+            completionFlash.trigger()
             if showCompletionGlow.isEnabled {
                 completionGlow.trigger()
             }
