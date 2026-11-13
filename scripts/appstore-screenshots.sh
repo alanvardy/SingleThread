@@ -126,12 +126,14 @@
 #
 # ── iPhone Duo ──────────────────────────────────────────────────────────────
 #
-# The Duo is an opt-in class (`iphone-duo`), absent from the default class list:
-# its App Store Connect upload slot is not live yet, so these four variants are
-# local assets and uploads will be rejected until Apple opens the slot. Capture
-# it with a --duo-pose matching the physical hinge posture, which is set in
-# DeviceHub.app before the run — there is no headless hinge API. The inner
-# display ignores supported orientations, so orientation is pose-driven:
+# The Duo is in the default class list (its upload slot is not live in App
+# Store Connect yet, so these four variants are local assets and uploads will be
+# rejected until Apple opens the slot). A bare run defaults to `--duo-pose
+# folded` — the outer panel only; the inner panel's two variants need an
+# explicit `--duo-pose book` / `--duo-pose open`, because a single run captures
+# one physical hinge posture, which is set in DeviceHub.app before the run —
+# there is no headless hinge API. The inner display ignores supported
+# orientations, so orientation is pose-driven:
 #
 #   variant          --duo-pose   folder                   pixels
 #   outer portrait   folded       4-duo-outer-portrait     1398 x 2034
@@ -163,7 +165,8 @@
 #
 # Usage: scripts/appstore-screenshots.sh [options] [class ...]
 #        class: iphone-6.3 | ipad-13 | watch-series11-46mm | iphone-duo
-#        (default: every class — both iOS classes and the watch)
+#        (default: every class — both iOS classes, the watch, and iphone-duo at
+#         --duo-pose folded; pass book/open for the inner panel)
 
 set -euo pipefail
 
@@ -190,8 +193,9 @@ SETTLE=${SETTLE:-6}
 # The iPhone Duo's hinge posture. Set it in DeviceHub.app *before* the run, then
 # pass the matching --duo-pose: no headless hinge API exists. One pose change
 # covers all six languages. `folded` shoots the outer panel (display 1),
-# `book`/`open` the inner panel (display 3).
-DUO_POSE=${DUO_POSE:-}
+# `book`/`open` the inner panel (display 3). Defaults to `folded` so a bare run
+# includes the Duo's outer variants; pass book/open for the inner panel.
+DUO_POSE=${DUO_POSE:-folded}
 
 
 # Optional path to one local photo to stage into every slot. Overrides the
@@ -316,9 +320,11 @@ DEVICE_TYPES=(
   "iphone-6.3:iPhone 17$"
   "ipad-13:iPad Pro 13-inch \\(M5\\)"
   # The Duo's two integrated displays are pixel-identical to four App Store
-  # spec pairs, but the Duo slot is not live in App Store Connect yet, so this
-  # class is opt-in only (absent from the default class list). `$` keeps the
-  # pattern off the per-worktree `sim-…-iphone-duo` clones.
+  # spec pairs, but the Duo slot is not live in App Store Connect yet, so these
+  # are local assets only. The class is in the default list, but a bare run
+  # captures just the outer panel (`--duo-pose folded`); the inner panel needs
+  # an explicit book/open pose. `$` keeps the pattern off the per-worktree
+  # `sim-…-iphone-duo` clones.
   "iphone-duo:iPhone Duo$"
 )
 
@@ -371,7 +377,7 @@ while [ $# -gt 0 ]; do
       shift 2
       ;;
     -h | --help)
-      sed -n '2,166p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,169p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     -*)
@@ -733,11 +739,14 @@ capture_duo () { # $1 = device type regex; pose taken from $DUO_POSE
   local udid display folder
   udid=$(resolve_udid "$pattern" iOS)
   if [ -z "$udid" ]; then
-    echo "!! no iPhone Duo simulator found matching '$pattern'." >&2
+    # iphone-duo is in the default class list, so a bare run must survive its
+    # absence: warn and skip rather than abort the whole capture (the iPhone19,4
+    # runtime is not on every machine).
+    echo "!! no iPhone Duo simulator found matching '$pattern' — skipping iphone-duo." >&2
     echo "   The Duo device type needs the iPhone19,4 runtime. Check:" >&2
     echo "     xcrun simctl list runtimes | grep iPhone19,4" >&2
     echo "     xcrun simctl list devicetypes | grep 'iPhone Duo'" >&2
-    exit 1
+    return 0
   fi
   display=$(duo_display_for_pose)
   folder=$(duo_folder_for_pose)
@@ -837,7 +846,7 @@ capture_watch () { # $1 = device type regex
 # ── Run ──────────────────────────────────────────────────────────────────────
 
 if [ ${#CLASSES[@]} -eq 0 ]; then
-  CLASSES=(iphone-6.3 ipad-13 watch-series11-46mm)
+  CLASSES=(iphone-6.3 ipad-13 watch-series11-46mm iphone-duo)
 fi
 
 # Clear the output tree: the language-major layout replaced an older

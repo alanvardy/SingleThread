@@ -40,3 +40,22 @@
     2853 × 2007.
   - `--fetch-wallpapers` resolves all five `iphone-duo-*` slots (all five are committed).
   - Full three-invocation sweep across all six languages.
+
+## Post-review change — `iphone-duo` joins the default class list
+
+Reviewer feedback: a bare `scripts/appstore-screenshots.sh` run should include
+`iphone-duo`. Reverses the earlier opt-in decision. Three coordinated edits:
+
+1. Default `CLASSES` now ends `… watch-series11-46mm iphone-duo`.
+2. `DUO_POSE` defaults to `folded`, so a bare run captures the outer portrait +
+   landscape variants without a `--duo-pose` flag. The inner panel still needs an
+   explicit `book`/`open` pose — a single run captures one physical hinge posture
+   (no headless hinge API).
+3. `capture_duo`'s missing-simulator path now warns and `return 0` instead of
+   `exit 1`; a function `return 1` inside the class loop aborts the whole script
+   under `set -e`, and the iPhone19,4 runtime is not on every machine.
+
+Header docs and the `--help` `sed` range (`2,166p` → `2,169p`) were realigned to
+the shifted block boundary. Re-verified: `bash -n` clean, `shellcheck -S warning`
+clean, `--help` prints the full block. Head SHA below this line is superseded by
+the follow-up commit.
