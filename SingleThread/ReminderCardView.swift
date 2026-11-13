@@ -111,6 +111,15 @@ struct ReminderCardView: View {
         return urls
     }
 
+    /// Reads `swipeOffset` directly (its `get` closure) alongside the binding's
+    /// writes so Periphery under Xcode 27 sees the state used — it misses lone
+    /// `$`-projection-only `@State` (CI runs 27.0 too), same workaround as
+    /// `ContentView`'s `isShowingPurchase` and `PullToRefreshModifier`'s
+    /// `localRefreshing`. Behaviour is identical to `$swipeOffset`.
+    private var swipeOffsetBinding: Binding<CGSize> {
+        Binding(get: { swipeOffset }, set: { swipeOffset = $0 })
+    }
+
     /// The reminder content on its plate — and the swipe surface. Only this part
     /// is wrapped by the reveal container, so complete / skip / more / refresh
     /// all emerge from under the card itself. When the prompt is shown the two
@@ -133,7 +142,7 @@ struct ReminderCardView: View {
         .frame(maxWidth: maxWidth, alignment: .leading)
         .cardPlate(fill: CardPlate.plateFill(for: colorScheme), padding: 12, restoresGeometry: true)
         .swipeToAct(
-            offset: $swipeOffset,
+            offset: swipeOffsetBinding,
             pull: pullOffset,
             isRefreshing: isRefreshing,
             onOutcome: onSwipe)
