@@ -62,7 +62,7 @@
     // MARK: - DictateToolbarState
 
     /// The dictate toolbar item's visual state, extracted so the in-place morph
-    /// (mic → red recording plate → green/red feedback plate) is unit-testable.
+    /// (mic → red mic → green checkmark / red cross) is unit-testable.
     /// Feedback wins over recording: `DictationViewModel` sets it after the
     /// transcriber stops, then clears both flags.
     enum DictateToolbarState: Equatable {
@@ -151,9 +151,10 @@
             .accessibilityAddTraits(.isButton)
         }
 
-        /// Mirrors ``DictateToolbarState``: the single mic button becomes the
-        /// red pulsing recording plate, then the green/red feedback plate, so
-        /// nothing extra is drawn in the bottom bar on iOS.
+        /// Mirrors ``DictateToolbarState``: the single mic button becomes a red
+        /// mic while recording, then a green checkmark (red cross on failure) —
+        /// same size as the idle mic, only a colour/symbol change, so nothing
+        /// extra is drawn in the bottom bar on iOS.
         @ViewBuilder private var dictateToolbarLabel: some View {
             switch dictateToolbarState {
             case .idle:
@@ -161,9 +162,11 @@
                     LocalizedStringResource("Dictate reminder", table: "Localizable", bundle: .main),
                     systemImage: "mic.fill")
             case .recording:
-                recordingIndicator
+                Image(systemName: "mic.fill")
+                    .foregroundStyle(.red)
             case let .feedback(feedback):
-                creationFeedbackView(for: feedback)
+                Image(systemName: feedback.systemImage)
+                    .foregroundStyle(feedback.backgroundColor)
             }
         }
 
