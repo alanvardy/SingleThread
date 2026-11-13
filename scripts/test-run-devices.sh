@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Offline checks for scripts/run-devices.sh discovery + summary behaviour.
 #
-# Covers what a hardware-free run can: script syntax, shellcheck, the two inline
-# python discovery filters replayed against a saved `xcrun devicectl list
+# Covers what a hardware-free run can: script syntax, shellcheck, the inline
+# python discovery filter replayed against a saved `xcrun devicectl list
 # devices -j` inventory (scripts/fixtures/devicectl-devices.json), and the bash
 # control flow (zero-device gate, failure tally, build gate, summary, exit
 # codes) replayed with stubbed xcrun/xcodebuild. The install/launch legs against
-# a real watch are verified by a hardware run of ./scripts/run-devices.sh.
+# real hardware or simulators are verified by a manual run of ./scripts/run-devices.sh.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -47,9 +47,9 @@ fi
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
 
-# The two discovery filters are inline python heredocs. Extract them in file
-# order (1 = iOS, 2 = watch) so the fixture assertions below exercise the exact
-# code the script runs — no copy that can drift.
+# The discovery filter is an inline python heredoc. Extract it in file order
+# (there is now a single filter) so the fixture assertions below exercise the
+# exact code the script runs — no copy that can drift.
 extract_filter() {
     awk -v want="$1" -v open="<<'PY'" '
         index($0, open) { n++; inblock = 1; next }
@@ -58,9 +58,8 @@ extract_filter() {
     ' "$SCRIPT"
 }
 extract_filter 1 > "$work/ios.py"
-extract_filter 2 > "$work/watch.py"
-if [[ ! -s "$work/ios.py" || ! -s "$work/watch.py" ]]; then
-    echo "❌ could not extract both discovery filters from $SCRIPT (did a heredoc move?)" >&2
+if [[ ! -s "$work/ios.py" ]]; then
+    echo "❌ could not extract the discovery filter from $SCRIPT (did a heredoc move?)" >&2
     exit 1
 fi
 
@@ -68,10 +67,9 @@ python3 "$work/ios.py" "$FIXTURE" "$work/ios-unreachable.log" device \
     > "$work/ios-out" 2> "$work/ios-stderr"
 python3 "$work/ios.py" "$FIXTURE" "$work/ios-sim-unreachable.log" sim \
     > "$work/ios-sim-out" 2> "$work/ios-sim-stderr"
-python3 "$work/watch.py" "$FIXTURE" "$work/watch-unreachable.log" > "$work/watch-out" 2> "$work/watch-stderr"
-for produced in ios-out ios-stderr ios-sim-out ios-sim-stderr watch-out watch-stderr; do
+for produced in ios-out ios-stderr ios-sim-out ios-sim-stderr; do
     if [[ ! -e "$work/$produced" ]]; then
-        echo "❌ a discovery filter did not produce $work/$produced" >&2
+        echo "❌ the discovery filter did not produce $work/$produced" >&2
         exit 1
     fi
 done
@@ -117,31 +115,16 @@ python3 "$work/ios.py" "$FIXTURE" "$work/ios-bogus-unreachable.log" sim \
 check "sim mode ignores a non-matching DUO_DEVICE_ID" \
     "0" "$(wc -c < "$work/ios-bogus-out" | tr -d ' ')"
 
-check "watch filter emits only the reachable physical watch" \
-    "AAAAAAAA-0000-0000-0000-000000000002|Fixture Watch Reachable" "$(cat "$work/watch-out")"
-check "watch filter logs the tunnel-down watch as unreachable" \
-    "Fixture Watch Ultra" "$(cat "$work/watch-unreachable.log")"
-check "watch filter reports the unpaired watch" \
-    "1" "$(grep -c 'not paired with this Mac' "$work/watch-stderr" || true)"
-check "watch filter reports the developer-mode-disabled watch" \
-    "1" "$(grep -c 'Developer Mode disabled' "$work/watch-stderr" || true)"
-
 # A saved inventory that is valid JSON but not a devicectl payload must make the
-# filters emit nothing without a traceback (run-devices.sh rejects invalid JSON
+# filter emit nothing without a traceback (run-devices.sh rejects invalid JSON
 # up front; this covers the valid-JSON/wrong-shape case).
 echo '{}' > "$work/empty-inventory.json"
 python3 "$work/ios.py" "$work/empty-inventory.json" "$work/ios-empty-unreachable.log" sim \
     > "$work/ios-empty-out" 2> "$work/ios-empty-stderr"
-python3 "$work/watch.py" "$work/empty-inventory.json" "$work/watch-empty-unreachable.log" \
-    > "$work/watch-empty-out" 2> "$work/watch-empty-stderr"
 check "iOS filter tolerates an inventory missing result.devices" \
     "0" "$(wc -c < "$work/ios-empty-out" | tr -d ' ')"
 check "iOS filter emits no traceback on a missing-shape inventory" \
     "0" "$(grep -c 'Traceback' "$work/ios-empty-stderr" || true)"
-check "watch filter tolerates an inventory missing result.devices" \
-    "0" "$(wc -c < "$work/watch-empty-out" | tr -d ' ')"
-check "watch filter emits no traceback on a missing-shape inventory" \
-    "0" "$(grep -c 'Traceback' "$work/watch-empty-stderr" || true)"
 
 # ── Control flow — stubbed tooling, no hardware ─────────────────────────────
 # Replays the script end-to-end so the zero-device gate, failure tally, build
@@ -149,11 +132,10 @@ check "watch filter emits no traceback on a missing-shape inventory" \
 # devicectl call at exit 0.
 stub_dir="$work/stubs"
 mkdir -p "$stub_dir" \
-    "$work/derived/Build/Products/Debug-watchos/SingleThreadWatch.app" \
     "$work/derived/Build/Products/Debug-iphoneos/SingleThread.app" \
     "$work/derived/Build/Products/Debug-iphonesimulator/SingleThread.app" \
+    "$work/derived/Build/Products/Debug-watchsimulator/SingleThreadWatch.app" \
     "$work/derived/Build/Products/Debug/SingleThread.app" \
-    "$work/derived-nosim/Build/Products/Debug-watchos/SingleThreadWatch.app" \
     "$work/derived-nosim/Build/Products/Debug-iphoneos/SingleThread.app" \
     "$work/derived-nosim/Build/Products/Debug/SingleThread.app"
 cat > "$stub_dir/xcodebuild" <<'STUB'
@@ -169,7 +151,8 @@ fi
 exit 0
 STUB
 # simctl listings are answered from a fixed inventory so the sim legs resolve a
-# concrete UDID; every devicectl/other call is a no-op success.
+# concrete UDID; bootstatus honours STUB_SIM_BOOT_FAIL; every devicectl/other
+# call (including simctl install/launch) is a no-op success.
 cat > "$stub_dir/xcrun" <<'STUB'
 #!/usr/bin/env bash
 if [[ "$1" == "simctl" ]]; then
@@ -191,40 +174,7 @@ STUB
 printf '#!/usr/bin/env bash\nexit 0\n' > "$stub_dir/open"
 chmod +x "$stub_dir/xcodebuild" "$stub_dir/xcrun" "$stub_dir/open"
 
-python3 - "$work" <<'PY'
-import json
-import pathlib
-import sys
-
-work = pathlib.Path(sys.argv[1])
-
-
-def watch(state, tunnel):
-    return {
-        "identifier": "AAAAAAAA-0000-0000-0000-000000000001",
-        "hardwareProperties": {
-            "platform": "watchOS",
-            "deviceType": "appleWatch",
-            "reality": "physical",
-        },
-        "deviceProperties": {"name": "Stub Watch", "developerModeStatus": "enabled"},
-        "connectionProperties": {
-            "pairingState": "paired",
-            "transportType": "localNetwork",
-            "tunnelState": tunnel,
-        },
-        "properties": {"connection": {"pairingState": "paired", "state": state}},
-    }
-
-
-(work / "flow-unreachable-watch.json").write_text(
-    json.dumps({"result": {"devices": [watch("disconnected", "disconnected")]}})
-)
-(work / "flow-reachable-watch.json").write_text(
-    json.dumps({"result": {"devices": [watch("connected", "connected")]}})
-)
-(work / "flow-no-devices.json").write_text(json.dumps({"result": {"devices": []}}))
-PY
+echo '{"result": {"devices": []}}' > "$work/flow-no-devices.json"
 
 run_flow() {
     local label="$1" want_exit="$2" want_text="$3" want_absent="$4"
@@ -246,12 +196,6 @@ run_flow() {
     fi
 }
 
-run_flow "unreachable-watch-only still builds" 1 \
-    "==> Building SingleThreadWatch" "No reachable iPhone/iPad found." \
-    DEVICES_JSON_IN="$work/flow-unreachable-watch.json" RUN_WATCH=1 RUN_MAC=0
-run_flow "reachable-watch-only succeeds" 0 \
-    "and 1 Apple Watch(es)" "No reachable iPhone/iPad found." \
-    DEVICES_JSON_IN="$work/flow-reachable-watch.json" RUN_WATCH=1 RUN_MAC=0
 run_flow "no iOS and no watch keeps the iOS fail-fast" 1 \
     "No reachable iPhone/iPad found." "==> Building SingleThreadWatch" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=device RUN_WATCH=1 RUN_MAC=0
@@ -286,6 +230,18 @@ run_flow "macOS success is reported in the summary" 0 \
 run_flow "macOS build failure is reported in the summary" 1 \
     "macOS: build failed" "macOS: built and launched" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=1 STUB_MAC_BUILD_FAIL=1
+run_flow "watch simulator leg launches" 0 \
+    "Apple Watch (sim): 1 launched, 0 failed" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=1 RUN_MAC=0
+check "watch simulator leg launches the watch bundle" "1" \
+    "$(grep -c '==> Launching app.alanvardy.SingleThread.watchkitapp on the Apple Watch simulator' \
+        "$work/flow-watch simulator leg launches.log" || true)"
+run_flow "no watch simulator available is not a failure" 0 \
+    "no 'No Such Watch' simulator available" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=device SIM_WATCH="No Such Watch" RUN_MAC=1
+run_flow "watch simulator boot failure is a failed step" 1 \
+    "Apple Watch simulator failed to boot" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=device RUN_MAC=1 STUB_SIM_BOOT_FAIL=1
 
 echo ""
 if [[ "$fail" -eq 0 ]]; then
