@@ -44,4 +44,17 @@
             #expect(set.showsUpgradePrompt)
         }
     }
+
+    @MainActor
+    struct UndoToolbarSlotTests {
+        @Test
+        func standardPoseKeepsUndoInLeadingBar() {
+            #expect(UndoToolbarSlot.make(isDuoOuterPortrait: false) == .leading)
+        }
+
+        @Test
+        func duoOuterPortraitMovesUndoBelowSettingsInTrailingBar() {
+            #expect(UndoToolbarSlot.make(isDuoOuterPortrait: true) == .belowSettings)
+        }
+    }
 #endif
