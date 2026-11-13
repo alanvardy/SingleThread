@@ -121,12 +121,45 @@
 # carries each photographer's attribution). Replace them with your own art for a
 # permanent store listing.
 #
-# Options: --fetch-wallpapers, --refetch-wallpapers, --wallpaper-url, and
-# --no-build / --no-install to reuse an already-built .app and an app already
-# installed on the simulator. REPO_ROOT overrides the root captures land under.
+# ── iPhone Duo ──────────────────────────────────────────────────────────────
+#
+# The Duo is an opt-in class (`iphone-duo`), absent from the default class list:
+# its App Store Connect upload slot is not live yet, so these four variants are
+# local assets and uploads will be rejected until Apple opens the slot. Capture
+# it with a --duo-pose matching the physical hinge posture, which is set in
+# DeviceHub.app before the run — there is no headless hinge API. The inner
+# display ignores supported orientations, so orientation is pose-driven:
+#
+#   variant          --duo-pose   folder                   pixels
+#   outer portrait   folded       4-duo-outer-portrait     1398 x 2034
+#   outer landscape  folded       5-duo-outer-landscape    2034 x 1398
+#   inner portrait   book         6-duo-inner-portrait     2007 x 2853
+#   inner landscape  open         7-duo-inner-landscape    2853 x 2007
+#
+#   scripts/appstore-screenshots.sh --duo-pose folded iphone-duo
+#   scripts/appstore-screenshots.sh --duo-pose book iphone-duo
+#   scripts/appstore-screenshots.sh --duo-pose open iphone-duo
+#
+# Panel sizes are 466 x 678 points (outer) and 669 x 951 points (inner). One
+# pose change covers all seven languages.
+#
+# Pose → --display id: `folded` → 1, `book`/`open` → 3.
+#
+# Two launch-arg seams drive the outer panel: `--ui-testing-force-duo-outer`
+# fires the widened Duo outer layout (`--duo-pose folded` only — the inner panel
+# is regular/regular and keeps the standard 40-inset layout), and
+# `--ui-testing-orientation landscape` forces the outer landscape geometry.
+#
+# `iphone-duo` reuses five shared wallpaper slots named `iphone-duo-<screen>`;
+# fetched once with `--fetch-wallpapers`.
+#
+# Options: --fetch-wallpapers, --refetch-wallpapers, --wallpaper-url,
+# --duo-pose, and --no-build / --no-install to reuse an already-built .app and
+# an app already installed on the simulator. REPO_ROOT overrides the root
+# captures land under.
 #
 # Usage: scripts/appstore-screenshots.sh [options] [class ...]
-#        class: iphone-6.3 | ipad-13 | watch-series11-46mm
+#        class: iphone-6.3 | ipad-13 | watch-series11-46mm | iphone-duo
 #        (default: every class — both iOS classes and the watch)
 
 set -euo pipefail
@@ -335,7 +368,7 @@ while [ $# -gt 0 ]; do
       shift 2
       ;;
     -h | --help)
-      sed -n '2,128p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,163p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     -*)
@@ -697,8 +730,11 @@ capture_duo () { # $1 = device type regex; pose taken from $DUO_POSE
   local udid display folder
   udid=$(resolve_udid "$pattern" iOS)
   if [ -z "$udid" ]; then
-    echo "!! no available simulator for '$pattern' — skipping iphone-duo" >&2
-    return 1
+    echo "!! no iPhone Duo simulator found matching '$pattern'." >&2
+    echo "   The Duo device type needs the iPhone19,4 runtime. Check:" >&2
+    echo "     xcrun simctl list runtimes | grep iPhone19,4" >&2
+    echo "     xcrun simctl list devicetypes | grep 'iPhone Duo'" >&2
+    exit 1
   fi
   display=$(duo_display_for_pose)
   folder=$(duo_folder_for_pose)
