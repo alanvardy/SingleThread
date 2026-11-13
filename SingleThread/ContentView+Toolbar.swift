@@ -133,11 +133,22 @@
             Button {
                 Task { await viewModel.completeCurrentReminder() }
             } label: {
-                Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
+                completeToolbarLabel
             }
             .accessibilityLabel(SharedStrings.completeReminderAccessibility)
             .accessibilityIdentifier("completeButton")
             .accessibilityAddTraits(.isButton)
+        }
+
+        /// Green while the completion confirmation is active; otherwise the
+        /// default toolbar tint (kept untouched rather than re-specified).
+        @ViewBuilder private var completeToolbarLabel: some View {
+            if viewModel.completionFlash.isActive {
+                Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+            } else {
+                Label(SharedStrings.completeAction, systemImage: "checkmark.circle.fill")
+            }
         }
 
         var dictateToolbarItem: some View {

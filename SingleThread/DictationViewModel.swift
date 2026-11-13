@@ -82,7 +82,8 @@ final class DictationViewModel {
                 } else {
                     creationFeedback = .failure
                 }
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                try? await Task.sleep(
+                    nanoseconds: UInt64(CreationFeedback.displayDuration * 1_000_000_000))
                 creationFeedback = nil
             }
         } catch {
