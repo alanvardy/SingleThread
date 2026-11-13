@@ -6,6 +6,9 @@
 //
 
 import XCTest
+#if os(iOS)
+    import UIKit
+#endif
 
 final class SingleThreadUITests: XCTestCase {
 
@@ -287,4 +290,107 @@ final class SingleThreadUITests: XCTestCase {
         XCTAssertTrue(app.staticTexts["Appearance"].waitForExistence(timeout: 5),
                       "Appearance should render from the system locale")
     }
+
+    /// Regression: the complete toolbar item must render *green* while the
+    /// completion flash is active. Unit tests cover the `CompletionFlash`
+    /// state machine, but nothing asserted the colour reached the toolbar — and
+    /// it did not: a nested `Label`'s `.foregroundStyle` is overridden by the
+    /// toolbar button's style, so the icon kept its idle tint (the dictate
+    /// button dodges this by colouring a bare `Image`). This probes the
+    /// rendered pixels, the only layer where the bug was observable.
+    /// `--ui-testing-glow` stretches both transient timers to 2 s.
+    #if os(iOS)
+        @MainActor
+        func testCompleteToolbarIconTintsGreen() throws {
+            let app = XCUIApplication()
+            app.launchArguments = [
+                "--seed",
+                // Two reminders so the completion leaves the toolbar cluster
+                // (`showsActionButtons` requires a visible reminder) in place.
+                // swiftlint:disable:next line_length
+                "{\"reminders\":[{\"title\":\"Milk\",\"priority\":5},{\"title\":\"Eggs\",\"priority\":1}],\"calendars\":[\"Groceries\"],\"isEntitled\":true}",
+                "--ui-testing-noop-settle",
+                "--ui-testing-glow"
+            ]
+            app.launch()
+
+            // Assert on the control under test, not a title: the seed's
+            // priority-5 "Milk" sorts behind the priority-1 "Eggs", so the
+            // first card is Eggs and a title assertion would chase the wrong
+            // reminder. The button's presence proves the seeded card loaded.
+            let complete = app.buttons["completeButton"]
+            XCTAssertTrue(
+                complete.waitForExistence(timeout: 5),
+                "Complete toolbar item should render")
+            let iconFrame = complete.frame
+            complete.tap()
+
+            // The flash is stretched to 2 s under --ui-testing-glow; poll while
+            // it is active so a slow screenshot can't race the tint.
+            let deadline = Date().addingTimeInterval(2.5)
+            var sawGreen = false
+            while Date() < deadline {
+                if containsSaturatedGreen(
+                    XCUIScreen.main.screenshot(),
+                    in: iconFrame) {
+                    sawGreen = true
+                    break
+                }
+            }
+            XCTAssertTrue(
+                sawGreen,
+                "Complete toolbar icon should render green while the completion flash is active")
+        }
+
+        /// Whether `region` (screen points) of `screenshot` holds a run of
+        /// saturated-green pixels. The 10 % glow wash sits well below the
+        /// threshold, so only the icon's own green trips it. Scanning the whole
+        /// crop makes the drawn buffer's row order irrelevant.
+        private func containsSaturatedGreen(
+            _ screenshot: XCUIScreenshot,
+            in region: CGRect) -> Bool {
+            let uiImage = screenshot.image
+            guard let image = uiImage.cgImage else { return false }
+            let scale = CGFloat(image.width) / uiImage.size.width
+            let pixelRegion = CGRect(
+                x: region.minX * scale,
+                y: region.minY * scale,
+                width: region.width * scale,
+                height: region.height * scale)
+                .intersection(CGRect(x: 0, y: 0, width: image.width, height: image.height))
+            guard pixelRegion.width >= 1, pixelRegion.height >= 1,
+                  let crop = image.cropping(to: pixelRegion)
+            else { return false }
+
+            let width = crop.width
+            let height = crop.height
+            var pixels = [UInt8](repeating: 0, count: width * height * 4)
+            let drew = pixels.withUnsafeMutableBytes { buffer -> Bool in
+                guard let context = CGContext(
+                    data: buffer.baseAddress,
+                    width: width,
+                    height: height,
+                    bitsPerComponent: 8,
+                    bytesPerRow: width * 4,
+                    space: CGColorSpaceCreateDeviceRGB(),
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)
+                else { return false }
+                context.draw(crop, in: CGRect(x: 0, y: 0, width: width, height: height))
+                return true
+            }
+            guard drew else { return false }
+
+            var greenCount = 0
+            for index in stride(from: 0, to: pixels.count, by: 4) {
+                let red = Int(pixels[index])
+                let green = Int(pixels[index + 1])
+                let blue = Int(pixels[index + 2])
+                if green > 120, green - red > 60, green - blue > 60 {
+                    greenCount += 1
+                    if greenCount >= 40 { return true }
+                }
+            }
+            return false
+        }
+    #endif
 }
