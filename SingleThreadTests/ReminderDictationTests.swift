@@ -275,6 +275,56 @@ struct ReminderDictationTests {
     }
 
     @Test
+    func dictationErrorClearsAfterDelay() async {
+        let fake = FakeSpeechTranscriber(transcriptionError: DictationError.noSpeechDetected)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
+        let viewModel = DictationViewModel(
+            speechTranscriber: fake, store: store, errorDisplayDuration: 0.2)
+
+        await viewModel.startDictation()
+        #expect(viewModel.dictationError != nil)
+
+        for _ in 0 ..< 50 {
+            if viewModel.dictationError == nil {
+                break
+            }
+            try? await Task.sleep(nanoseconds: 50_000_000)
+        }
+        #expect(viewModel.dictationError == nil)
+    }
+
+    @Test
+    func staleTimerDoesNotClearNewerDictationError() async {
+        let fake = FakeSpeechTranscriber(authorizationStatus: .denied)
+        let store = ReminderStore(eventStore: InMemoryEventStore(), loadsReminders: false)
+        let viewModel = DictationViewModel(
+            speechTranscriber: fake, store: store, errorDisplayDuration: 0.5)
+
+        await viewModel.startDictation()
+        #expect(viewModel.dictationError != nil)
+
+        // A newer error arrives while the first timer is pending, restarting it.
+        try? await Task.sleep(nanoseconds: 400_000_000)
+        await viewModel.startDictation()
+        let newerError = viewModel.dictationError
+        #expect(newerError != nil)
+
+        // Past the first timer's fire time (~0.5s), before the newer one (~0.9s):
+        // the newer error must still be present.
+        try? await Task.sleep(nanoseconds: 300_000_000)
+        #expect(viewModel.dictationError == newerError)
+
+        // The newer error then expires on its own timer.
+        for _ in 0 ..< 60 {
+            if viewModel.dictationError == nil {
+                break
+            }
+            try? await Task.sleep(nanoseconds: 50_000_000)
+        }
+        #expect(viewModel.dictationError == nil)
+    }
+
+    @Test
     func reentryGuardBlocksConcurrentCalls() async {
         let fake = FakeSpeechTranscriber(
             transcriptionResult: "First",
