@@ -31,6 +31,11 @@ enum LaunchArgument: String {
     /// detection and its fail-safe to `.standard` are untouched.
     case forceDuoOuter = "--ui-testing-force-duo-outer"
 
+    /// Forces the device orientation for the screenshot harness. The value is
+    /// the next argv token: `portrait` or `landscape`. Production launches never
+    /// pass it, so shipping orientation follows `allowsLandscape` alone.
+    case orientation = "--ui-testing-orientation"
+
     // MARK: Internal
 
     /// Whether either Settings seam is present — the sheet opener or the
@@ -38,6 +43,16 @@ enum LaunchArgument: String {
     static func opensSettings(
         in arguments: [String] = ProcessInfo.processInfo.arguments) -> Bool {
         isPresent(.openSettings, in: arguments) || isPresent(.openSettingsReminder, in: arguments)
+    }
+
+    /// The value following ``orientation``, or `nil` when the flag is absent or
+    /// has no following token.
+    static func orientationValue(
+        in arguments: [String] = ProcessInfo.processInfo.arguments) -> String? {
+        guard let index = arguments.firstIndex(of: orientation.rawValue),
+              arguments.indices.contains(index + 1)
+        else { return nil }
+        return arguments[index + 1]
     }
 
     /// Whether `argument` was passed to this process.

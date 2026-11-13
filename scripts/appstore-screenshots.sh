@@ -723,6 +723,12 @@ capture_duo () { # $1 = device type regex; pose taken from $DUO_POSE
     prime_language "$language"
     duo_six_shots "$OUT/$(language_folder "$language")/$folder" "$display" \
       "${force_args[@]+"${force_args[@]}"}"
+
+    # Outer landscape: same six screens, app-forced landscape geometry.
+    if [ "$DUO_POSE" = folded ]; then
+      duo_six_shots "$OUT/$(language_folder "$language")/5-duo-outer-landscape" 1 \
+        --ui-testing-force-duo-outer --ui-testing-orientation landscape
+    fi
   done
 
   xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
@@ -848,7 +854,7 @@ for shot in "$OUT"/*/*/*.png; do
   count=$((count + 1))
   dims=$(sips -g pixelWidth -g pixelHeight "$shot" | tail -2 | tr -dc '0-9\n' | paste -sd x -)
   case "$dims" in
-    1206x2622 | 1179x2556 | 1320x2868 | 2064x2752 | 416x496 | 1398x2034) ;;
+    1206x2622 | 1179x2556 | 1320x2868 | 2064x2752 | 416x496 | 1398x2034 | 2034x1398) ;;
     *)
       echo "!! ${shot} is ${dims}" >&2
       fail=1
