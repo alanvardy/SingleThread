@@ -54,5 +54,32 @@
                 supportedInterfaceOrientationsFor: nil)
             #expect(mask == .allButUpsideDown)
         }
+
+        @Test
+        func forcedLandscapePinsLandscapeOnly() {
+            // Regression: the harness used to request landscape geometry while
+            // portrait stayed supported, so the Duo cover display never rotated
+            // and the outer landscape shot came out 1398 x 2034.
+            #expect(
+                AppDelegate.supportedOrientations(
+                    forcedOrientation: "landscape",
+                    allowsLandscape: true) == .landscape)
+            #expect(
+                AppDelegate.supportedOrientations(
+                    forcedOrientation: "landscape",
+                    allowsLandscape: false) == .landscape)
+        }
+
+        @Test
+        func nonLandscapeForcedValueFallsBackToPreference() {
+            #expect(
+                AppDelegate.supportedOrientations(
+                    forcedOrientation: "portrait",
+                    allowsLandscape: true) == .allButUpsideDown)
+            #expect(
+                AppDelegate.supportedOrientations(
+                    forcedOrientation: nil,
+                    allowsLandscape: false) == .portrait)
+        }
     }
 #endif
