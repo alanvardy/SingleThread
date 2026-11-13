@@ -36,6 +36,15 @@ struct DuoOuterPortraitTests {
             == .standard)
     }
 
+    /// Happy: the screenshot/test seam forces the Duo outer context even where
+    /// `uname` reports the host arch and the size class is regular/regular.
+    @Test
+    func forceFlagReturnsDuoContext() {
+        let context = DuoOuterPortrait.context(
+            horizontal: .regular, vertical: .regular, machine: "arm64", forceDuoOuter: true)
+        #expect(context == .init(isDuoOuterPortrait: true))
+    }
+
     @Test
     func machineIdentifierIsReadable() {
         #if os(iOS)

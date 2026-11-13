@@ -68,5 +68,40 @@
     "photographer": "Daniela Kokina",
     "photographerURL": "https://unsplash.com/@danielakokina",
     "source": "https://vardy.cc/unsplash/random"
+  },
+  "iphone-duo-empty": {
+    "fetchedAt": "2026-11-13T02:01:00Z",
+    "file": "iphone-duo-empty.jpg",
+    "photographer": "Rodion Kutsaiev",
+    "photographerURL": "https://unsplash.com/@frostroomhead",
+    "source": "https://vardy.cc/unsplash/random"
+  },
+  "iphone-duo-main-dark": {
+    "fetchedAt": "2026-11-13T02:00:59Z",
+    "file": "iphone-duo-main-dark.jpg",
+    "photographer": "Yousef Espanioly",
+    "photographerURL": "https://unsplash.com/@yespanioly",
+    "source": "https://vardy.cc/unsplash/random"
+  },
+  "iphone-duo-main-light": {
+    "fetchedAt": "2026-11-13T02:01:00Z",
+    "file": "iphone-duo-main-light.jpg",
+    "photographer": "Milada Vigerova",
+    "photographerURL": "https://unsplash.com/@milada_vigerova",
+    "source": "https://vardy.cc/unsplash/random"
+  },
+  "iphone-duo-no-reminders": {
+    "fetchedAt": "2026-11-13T02:01:00Z",
+    "file": "iphone-duo-no-reminders.jpg",
+    "photographer": "JOHN TOWNER",
+    "photographerURL": "https://unsplash.com/@heytowner",
+    "source": "https://vardy.cc/unsplash/random"
+  },
+  "iphone-duo-options": {
+    "fetchedAt": "2026-11-13T02:01:00Z",
+    "file": "iphone-duo-options.jpg",
+    "photographer": "Alt\u0131nay Din\u00e7",
+    "photographerURL": "https://unsplash.com/@adinc",
+    "source": "https://vardy.cc/unsplash/random"
   }
 }

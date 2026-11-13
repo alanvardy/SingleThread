@@ -151,6 +151,12 @@ WALLPAPER_DIR=${WALLPAPER_DIR:-scripts/fixtures/appstore-wallpapers}
 WALLPAPER_API=${WALLPAPER_API:-https://vardy.cc/unsplash/random}
 SETTLE=${SETTLE:-6}
 
+# The iPhone Duo's hinge posture. Set it in DeviceHub.app *before* the run, then
+# pass the matching --duo-pose: no headless hinge API exists. One pose change
+# covers all seven languages. `folded` shoots the outer panel (display 1),
+# `book`/`open` the inner panel (display 3).
+DUO_POSE=${DUO_POSE:-}
+
 
 # Optional path to one local photo to stage into every slot. Overrides the
 # manifest; useful for a marketing photo you hold the rights to.
@@ -224,6 +230,30 @@ class_folder () { # $1 = class label → numbered output directory name
   esac
 }
 
+# iPhone Duo pose → simctl screenID and numbered output directory. The inner
+# panel is regular/regular, so it renders the standard layout with no app seam.
+# The four variants reuse the same six screens; `folded` emits two folders
+# (portrait and forced-landscape), which is why this is not `class_folder`.
+duo_display_for_pose () { # $DUO_POSE → simctl --display id
+  case "$DUO_POSE" in
+    folded) echo 1 ;;
+    *)
+      echo "!! --duo-pose must be folded|book|open (got '$DUO_POSE')" >&2
+      return 1
+      ;;
+  esac
+}
+
+duo_folder_for_pose () { # $DUO_POSE → numbered output directory
+  case "$DUO_POSE" in
+    folded) echo "4-duo-outer-portrait" ;;
+    *)
+      echo "!! --duo-pose must be folded|book|open (got '$DUO_POSE')" >&2
+      return 1
+      ;;
+  esac
+}
+
 # Capture order per device class, as `<wallpaper slot>:<output file stem>`. The
 # stems carry a numeric prefix so the listing's drag-over order is the file
 # name's sort order; slots stay unprefixed because they key the committed
@@ -246,6 +276,11 @@ DEVICE_TYPES=(
   # `$` keeps the pattern off `iPhone 17 Pro` / `iPhone 17 Pro Max` / `iPhone 17e`.
   "iphone-6.3:iPhone 17$"
   "ipad-13:iPad Pro 13-inch \\(M5\\)"
+  # The Duo's two integrated displays are pixel-identical to four App Store
+  # spec pairs, but the Duo slot is not live in App Store Connect yet, so this
+  # class is opt-in only (absent from the default class list). `$` keeps the
+  # pattern off the per-worktree `sim-…-iphone-duo` clones.
+  "iphone-duo:iPhone Duo$"
 )
 
 # ── CLI ──────────────────────────────────────────────────────────────────────
@@ -284,6 +319,17 @@ while [ $# -gt 0 ]; do
     --no-install)
       INSTALL=0
       shift
+      ;;
+    --duo-pose)
+      DUO_POSE=$2
+      case "$DUO_POSE" in
+        folded | book | open) ;;
+        *)
+          echo "!! --duo-pose must be folded|book|open (got '$DUO_POSE')" >&2
+          exit 2
+          ;;
+      esac
+      shift 2
       ;;
     -h | --help)
       sed -n '2,128p' "$0" | sed 's/^# \{0,1\}//'
@@ -521,20 +567,69 @@ prime_language () { # $1 = language — --ui-testing-app-language lands only on 
   sleep 2
 }
 
-shoot () { # $1 = output path, rest = launch arguments
+shoot () { # $1 = output path, then optional `--display <id>`, rest = launch arguments
   local out=$1
   shift
+  local display=()
+  if [ "${1:-}" = "--display" ]; then
+    display=(--display "$2")
+    shift 2
+  fi
   xcrun simctl terminate "$UDID" "$BUNDLE" >/dev/null 2>&1 || true
   sleep 1
   xcrun simctl launch "$UDID" "$BUNDLE" "$@" >/dev/null
   sleep "$SETTLE"
-  xcrun simctl io "$UDID" screenshot --mask ignored "$out" >/dev/null
+  xcrun simctl io "$UDID" screenshot --mask ignored \
+    "${display[@]+"${display[@]}"}" "$out" >/dev/null
   echo "    $(basename "$(dirname "$out")")/$(basename "$out")"
+}
+
+duo_six_shots () { # $1 = output dir, $2 = display id, rest = extra launch args
+  local dir=$1
+  local display=$2
+  shift 2
+  local extra=("$@")
+  mkdir -p "$dir"
+
+  xcrun simctl ui "$UDID" appearance dark
+  stage_slot iphone-duo main-dark
+  shoot "$dir/1-main-dark.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+    --seed "$demo_seed" --ui-testing-noop-settle -showSwipePrompt NO
+
+  stage_slot iphone-duo empty
+  shoot "$dir/2-empty-dark.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+    --seed "$ALL_DONE_SEED"
+
+  xcrun simctl ui "$UDID" appearance light
+  stage_slot iphone-duo options
+  shoot "$dir/3-options-light.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+    --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language" \
+    --ui-testing-open-settings
+
+  xcrun simctl ui "$UDID" appearance dark
+  stage_slot iphone-duo options
+  shoot "$dir/4-options-reminder-dark.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+    --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language" \
+    --ui-testing-open-settings-reminder
+
+  xcrun simctl ui "$UDID" appearance light
+  stage_slot iphone-duo main-light
+  shoot "$dir/5-main-light.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+    --seed "$demo_seed" --ui-testing-noop-settle -showSwipePrompt NO
+
+  xcrun simctl ui "$UDID" appearance dark
+  stage_slot iphone-duo no-reminders
+  shoot "$dir/6-no-reminders-dark.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+    --no-reminders
 }
 
 capture_class () { # $1 = class label, $2 = device type regex
   local label=$1
   local pattern=$2
+  if [ "$label" = iphone-duo ]; then
+    capture_duo "$pattern"
+    return
+  fi
   local udid dir
   udid=$(resolve_udid "$pattern" iOS)
   if [ -z "$udid" ]; then
@@ -589,6 +684,45 @@ capture_class () { # $1 = class label, $2 = device type regex
     xcrun simctl ui "$UDID" appearance dark
     stage_slot "$label" no-reminders
     shoot "$dir/6-no-reminders-dark.png" --no-reminders
+  done
+
+  xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
+}
+
+capture_duo () { # $1 = device type regex; pose taken from $DUO_POSE
+  local pattern=$1
+  local udid display folder
+  udid=$(resolve_udid "$pattern" iOS)
+  if [ -z "$udid" ]; then
+    echo "!! no available simulator for '$pattern' — skipping iphone-duo" >&2
+    return 1
+  fi
+  display=$(duo_display_for_pose)
+  folder=$(duo_folder_for_pose)
+
+  echo "==> iphone-duo ($pattern, pose '$DUO_POSE', display $display)"
+  UDID=$udid
+  LABEL=iphone-duo
+  xcrun simctl boot "$UDID" 2>/dev/null || true
+  xcrun simctl bootstatus "$UDID" -b >/dev/null
+  if [ "$INSTALL" -eq 1 ]; then
+    xcrun simctl install "$UDID" "$APP"
+  fi
+  prepare_wallpaper
+
+  # The force seam is for the outer panel only; the inner panel is
+  # regular/regular and must keep the standard layout.
+  local force_args=()
+  if [ "$DUO_POSE" = folded ]; then
+    force_args=(--ui-testing-force-duo-outer)
+  fi
+
+  for language in "${LANGUAGES[@]}"; do
+    echo "  -> $language"
+    demo_seed=$(demo_reminder_seed "$language")
+    prime_language "$language"
+    duo_six_shots "$OUT/$(language_folder "$language")/$folder" "$display" \
+      "${force_args[@]+"${force_args[@]}"}"
   done
 
   xcrun simctl shutdown "$UDID" >/dev/null 2>&1 || true
@@ -714,7 +848,7 @@ for shot in "$OUT"/*/*/*.png; do
   count=$((count + 1))
   dims=$(sips -g pixelWidth -g pixelHeight "$shot" | tail -2 | tr -dc '0-9\n' | paste -sd x -)
   case "$dims" in
-    1206x2622 | 1179x2556 | 1320x2868 | 2064x2752 | 416x496) ;;
+    1206x2622 | 1179x2556 | 1320x2868 | 2064x2752 | 416x496 | 1398x2034) ;;
     *)
       echo "!! ${shot} is ${dims}" >&2
       fail=1
