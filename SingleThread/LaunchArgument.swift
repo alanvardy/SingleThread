@@ -31,9 +31,10 @@ enum LaunchArgument: String {
     /// detection and its fail-safe to `.standard` are untouched.
     case forceDuoOuter = "--ui-testing-force-duo-outer"
 
-    /// Forces the device orientation for the screenshot harness. The value is
-    /// the next argv token: `portrait` or `landscape`. Production launches never
-    /// pass it, so shipping orientation follows `allowsLandscape` alone.
+    /// Forces the device orientation for the screenshot harness. The next argv
+    /// token must be `landscape`; any other value (or a missing token) is
+    /// ignored. Production launches never pass it, so shipping orientation
+    /// follows `allowsLandscape` alone.
     case orientation = "--ui-testing-orientation"
 
     // MARK: Internal

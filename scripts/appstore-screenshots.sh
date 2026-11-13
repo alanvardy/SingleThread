@@ -96,10 +96,13 @@
 #   iphone-6.3-empty         ipad-13-empty           ("All Done")
 #   iphone-6.3-no-reminders  ipad-13-no-reminders
 #
+# `iphone-duo` reuses those same five screens under its own `iphone-duo-<screen>`
+# slots (see the iPhone Duo section below).
+#
 # `4-options-reminder-dark` is the same Settings sheet pushed one level in, so
 # it stages the `options` photo rather than adding a slot of its own.
 #
-# The set is COMMITTED — scripts/fixtures/appstore-wallpapers/ holds the ten
+# The set is COMMITTED — scripts/fixtures/appstore-wallpapers/ holds the fifteen
 # photos and manifest.json — so a clone captures the same wallpapers with no
 # network and nothing to draw. Override the directory with WALLPAPER_DIR to use
 # your own art (the slot file names and manifest shape are all that matter).
@@ -141,7 +144,7 @@
 #   scripts/appstore-screenshots.sh --duo-pose open iphone-duo
 #
 # Panel sizes are 466 x 678 points (outer) and 669 x 951 points (inner). One
-# pose change covers all seven languages.
+# pose change covers all six languages.
 #
 # Pose → --display id: `folded` → 1, `book`/`open` → 3.
 #
@@ -178,15 +181,15 @@ WATCH_DESTINATION='generic/platform=watchOS Simulator'
 WATCH_CLASS=watch-series11-46mm
 WATCH_DEVICE_TYPE='Apple Watch Series 11 \(46mm\)'
 OUT=build/appstore-screenshots
-# Committed, not under build/: a clone gets the same ten photos and re-runs are
-# reproducible with no network.
+# Committed, not under build/: a clone gets the same fifteen photos and re-runs
+# are reproducible with no network.
 WALLPAPER_DIR=${WALLPAPER_DIR:-scripts/fixtures/appstore-wallpapers}
 WALLPAPER_API=${WALLPAPER_API:-https://vardy.cc/unsplash/random}
 SETTLE=${SETTLE:-6}
 
 # The iPhone Duo's hinge posture. Set it in DeviceHub.app *before* the run, then
 # pass the matching --duo-pose: no headless hinge API exists. One pose change
-# covers all seven languages. `folded` shoots the outer panel (display 1),
+# covers all six languages. `folded` shoots the outer panel (display 1),
 # `book`/`open` the inner panel (display 3).
 DUO_POSE=${DUO_POSE:-}
 
@@ -368,7 +371,7 @@ while [ $# -gt 0 ]; do
       shift 2
       ;;
     -h | --help)
-      sed -n '2,163p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,166p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     -*)
@@ -622,40 +625,40 @@ shoot () { # $1 = output path, then optional `--display <id>`, rest = launch arg
 
 duo_six_shots () { # $1 = output dir, $2 = display id, rest = extra launch args
   local dir=$1
-  local display=$2
+  local screen_id=$2
   shift 2
   local extra=("$@")
   mkdir -p "$dir"
 
   xcrun simctl ui "$UDID" appearance dark
   stage_slot iphone-duo main-dark
-  shoot "$dir/1-main-dark.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+  shoot "$dir/1-main-dark.png" --display "$screen_id" "${extra[@]+"${extra[@]}"}" \
     --seed "$demo_seed" --ui-testing-noop-settle -showSwipePrompt NO
 
   stage_slot iphone-duo empty
-  shoot "$dir/2-empty-dark.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+  shoot "$dir/2-empty-dark.png" --display "$screen_id" "${extra[@]+"${extra[@]}"}" \
     --seed "$ALL_DONE_SEED"
 
   xcrun simctl ui "$UDID" appearance light
   stage_slot iphone-duo options
-  shoot "$dir/3-options-light.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+  shoot "$dir/3-options-light.png" --display "$screen_id" "${extra[@]+"${extra[@]}"}" \
     --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language" \
     --ui-testing-open-settings
 
   xcrun simctl ui "$UDID" appearance dark
   stage_slot iphone-duo options
-  shoot "$dir/4-options-reminder-dark.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+  shoot "$dir/4-options-reminder-dark.png" --display "$screen_id" "${extra[@]+"${extra[@]}"}" \
     --ui-testing --ui-testing-noop-settle --ui-testing-app-language "$language" \
     --ui-testing-open-settings-reminder
 
   xcrun simctl ui "$UDID" appearance light
   stage_slot iphone-duo main-light
-  shoot "$dir/5-main-light.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+  shoot "$dir/5-main-light.png" --display "$screen_id" "${extra[@]+"${extra[@]}"}" \
     --seed "$demo_seed" --ui-testing-noop-settle -showSwipePrompt NO
 
   xcrun simctl ui "$UDID" appearance dark
   stage_slot iphone-duo no-reminders
-  shoot "$dir/6-no-reminders-dark.png" --display "$display" "${extra[@]+"${extra[@]}"}" \
+  shoot "$dir/6-no-reminders-dark.png" --display "$screen_id" "${extra[@]+"${extra[@]}"}" \
     --no-reminders
 }
 
