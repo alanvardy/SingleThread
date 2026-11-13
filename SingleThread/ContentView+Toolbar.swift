@@ -35,6 +35,30 @@
         }
     }
 
+    // MARK: - UndoToolbarSlot
+
+    /// Which top bar hosts the undo item. On the Duo outer portrait the right
+    /// (trailing) bar renders as a vertical stack, so undo joins it *after* the
+    /// settings item to sit below the gear; every other pose keeps the
+    /// pre-existing leading slot untouched.
+    enum UndoToolbarSlot: Equatable {
+        case leading
+        case belowSettings
+
+        // MARK: Internal
+
+        var placement: ToolbarItemPlacement {
+            switch self {
+            case .leading: .topBarLeading
+            case .belowSettings: .topBarTrailing
+            }
+        }
+
+        nonisolated static func make(isDuoOuterPortrait: Bool) -> Self {
+            isDuoOuterPortrait ? .belowSettings : .leading
+        }
+    }
+
     // MARK: - Main Toolbar
 
     extension ContentView {
@@ -47,7 +71,7 @@
             if viewModel.store.undoStore.hasUndoableReminder,
                showUndoButton,
                viewModel.store.canMutate {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: undoToolbarSlot.placement) {
                     undoToolbarItem
                 }
             }
@@ -67,6 +91,12 @@
                     }
                 }
             }
+        }
+
+        /// Undo joins the trailing bar only on the Duo outer portrait; the
+        /// settings item is declared first there, so it stays above undo.
+        var undoToolbarSlot: UndoToolbarSlot {
+            UndoToolbarSlot.make(isDuoOuterPortrait: layoutContext.isDuoOuterPortrait)
         }
 
         var toolbarActionSet: ToolbarActionSet {
