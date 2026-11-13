@@ -1,15 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# scripts/run-devices.sh — build SingleThread for iOS, install + launch it on
-# every paired iPhone/iPad that has Developer Mode enabled (via devicectl),
-# install + launch the watch app on every paired Apple Watch that is reachable,
-# and (by default) also build + launch it on the host Mac.
+# scripts/run-devices.sh — build SingleThread for iOS, install + launch it in a
+# simulator (the regular iPhone; the iPad follows), deploy it physically to the
+# iPhone Duo (via devicectl), install + launch the watch app on every paired
+# Apple Watch that is reachable, and (by default) also build + launch it on the
+# host Mac. Set IOS_TARGET=device to build + launch on every paired physical
+# iPhone/iPad instead (the Duo is always deployed physically).
 #
 #   ./scripts/run-devices.sh
 #
 # Overrides (same env-override pattern as scripts/test.sh):
 #   SCHEME=… BUNDLE_ID=… CONFIGURATION=… DERIVED_DATA=…
+#   IOS_TARGET=sim         # sim (default) → the regular iPhone/iPad legs run on
+#                          # simulators; device → the old all-physical sweep
+#   SIM_IPHONE=…           # UDID or device name for the iPhone sim; empty → this
+#                          # worktree's .simulator_id, else the iPhone 17 default
+#   SIM_IPAD=…             # UDID or device name for the iPad sim; empty → iPad (A16)
+#   SIM_WATCH=…            # UDID or device name for the watch sim; empty → Apple Watch Series 11 (46mm)
+#   DUO_DEVICE_ID=…        # UDID of the physical iPhone Duo; empty → name match on "iPhone Duo"
 #   RUN_WATCH=0            # skip the watchOS build + install + launch step (default RUN_WATCH=1)
 #   RUN_MAC=0              # skip the macOS build + launch step (default RUN_MAC=1)
 #   WATCH_BUNDLE_ID=…      # defaults to ${BUNDLE_ID}.watchkitapp
@@ -40,6 +49,11 @@ CONFIGURATION="${CONFIGURATION:-Debug}"
 DERIVED_DATA="${DERIVED_DATA:-DerivedData}"
 RUN_WATCH="${RUN_WATCH:-1}"
 RUN_MAC="${RUN_MAC:-1}"
+IOS_TARGET="${IOS_TARGET:-sim}"
+SIM_IPHONE="${SIM_IPHONE:-}"   # explicit UDID or device name; empty = worktree sim, else iPhone 17
+SIM_IPAD="${SIM_IPAD:-}"       # explicit UDID or device name; empty = iPad (A16)
+SIM_WATCH="${SIM_WATCH:-}"     # explicit UDID or device name; empty = Apple Watch Series 11 (46mm)
+DUO_DEVICE_ID="${DUO_DEVICE_ID:-}"
 WATCH_BUNDLE_ID="${WATCH_BUNDLE_ID:-${BUNDLE_ID}.watchkitapp}"
 DEVICES_JSON_IN="${DEVICES_JSON_IN:-}"
 DEVICES_JSON="${TMPDIR:-/tmp}/run-devices-$$.json"
@@ -50,11 +64,46 @@ trap 'rm -f "$DEVICES_JSON" "$UNREACHABLE_LOG" "$WATCH_UNREACHABLE_LOG"' EXIT
 APP_PATH="$DERIVED_DATA/Build/Products/${CONFIGURATION}-iphoneos/SingleThread.app"
 WATCH_APP_PATH="$DERIVED_DATA/Build/Products/${CONFIGURATION}-watchos/SingleThreadWatch.app"
 MAC_APP_PATH="$DERIVED_DATA/Build/Products/$CONFIGURATION/SingleThread.app"
+SIM_APP_PATH="$DERIVED_DATA/Build/Products/${CONFIGURATION}-iphonesimulator/SingleThread.app"
+
+DEFAULT_IPHONE_SIM="iPhone 17"
 
 cd "$(dirname "$0")/.."
 
+# Pin a name-only simulator to a concrete UDID. An anchored name match stops
+# `iPhone 17` selecting the leftover "Gate iPhone 17" sim (scripts/test.sh:27-36).
+resolve_sim_udid() {
+    local name="$1"
+    xcrun simctl list devices available \
+        | awk -v n="$name" '{ s = $0; sub(/^[ \t]+/, "", s); if (index(s, n " (") == 1) print }' \
+        | head -1 \
+        | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/'
+}
+
+# Precedence: an explicit UDID passes through; else this worktree's dedicated
+# simulator (.simulator_id, written by the worktree_sim fish function); else the
+# named default. Always yields a concrete UDID — never a bare `name=`.
+resolve_ios_udid() { # $1 = value (UDID or name), $2 = default name, $3 = 1 to prefer .simulator_id
+    local value="$1" default="$2" prefer_worktree="$3" udid=""
+    if [[ -n "$value" ]]; then
+        if [[ "$value" =~ ^[A-Fa-f0-9-]{36}$ ]]; then printf '%s\n' "$value"; return 0; fi
+        resolve_sim_udid "$value"; return 0
+    fi
+    if [[ "$prefer_worktree" -eq 1 && -f .simulator_id ]]; then
+        udid="$(tr -d '[:space:]' < .simulator_id)"
+        if [[ -n "$udid" ]] && xcrun simctl list devices 2>/dev/null | grep -qF "($udid)"; then
+            printf '%s\n' "$udid"; return 0
+        fi
+    fi
+    resolve_sim_udid "$default"
+}
+
 # ── Discover devices ─────────────────────────────────────────────────────────
-echo "==> Discovering paired iPhone/iPad devices…"
+if [[ "$IOS_TARGET" == "sim" ]]; then
+    echo "==> Discovering the paired iPhone Duo…"
+else
+    echo "==> Discovering paired iPhone/iPad devices…"
+fi
 if [[ -n "$DEVICES_JSON_IN" ]]; then
     # Offline seam: a saved inventory is replayed so the discovery filters can be
     # checked without hardware. The temp copy keeps the EXIT trap's cleanup valid.
@@ -73,20 +122,27 @@ elif ! xcrun devicectl list devices -j "$DEVICES_JSON" >/dev/null 2>&1; then
     exit 1
 fi
 
-# Emits "identifier|name" per qualifying device (platform iOS, iPhone or iPad,
-# physical). Simulated devices are excluded — they are not devicectl install
-# targets; a paired physical phone whose Developer Mode is off still qualifies
-# and is named on stderr, so a newly paired device (e.g. a second iPhone) is
-# never silently omitted. Unreachable qualifying devices are logged to
-# "$UNREACHABLE_LOG" for the failure
-# tally, so a phone that is locked / off-network / has Remote Device Services down
-# is reported with the real reason instead of a raw devicectl 4016 install error.
+# Emits "identifier|name" per qualifying devicectl target (platform iOS, iPhone
+# or iPad, physical). Simulated devices are excluded — they are not devicectl
+# install targets. In sim mode (the default) only the physical iPhone Duo is a
+# devicectl target: DUO_DEVICE_ID wins when set, otherwise the name is matched
+# case-insensitively on "iPhone Duo"; the regular iPhone/iPad legs run on
+# simulators instead. In device mode every paired physical iPhone/iPad qualifies
+# (the old all-physical sweep). A paired physical phone whose Developer Mode is
+# off still qualifies and is named on stderr, so a newly paired device (e.g. a
+# second iPhone) is never silently omitted. Unreachable qualifying devices are
+# logged to "$UNREACHABLE_LOG" for the failure tally, so a phone that is locked /
+# off-network / has Remote Device Services down is reported with the real reason
+# instead of a raw devicectl 4016 install error.
 DEVICES=()
 while IFS= read -r entry; do
     DEVICES+=("$entry")
-done < <(python3 - "$DEVICES_JSON" "$UNREACHABLE_LOG" <<'PY'
+done < <(python3 - "$DEVICES_JSON" "$UNREACHABLE_LOG" "$IOS_TARGET" "$DUO_DEVICE_ID" <<'PY'
 import json
 import sys
+
+mode = sys.argv[3] if len(sys.argv) > 3 else "device"
+duo_id = sys.argv[4] if len(sys.argv) > 4 else ""
 
 with open(sys.argv[1], encoding="utf-8") as fh:
     payload = json.load(fh)
@@ -107,6 +163,14 @@ with open(sys.argv[2], "a", encoding="utf-8") as unreachable_log:
         if hardware.get("reality") != "physical":
             continue
         name = props.get("name", "unknown device")
+        if mode != "device":
+            # Default sim mode: only the physical iPhone Duo is a devicectl
+            # target. DUO_DEVICE_ID wins when set; otherwise a name match.
+            if duo_id:
+                if device.get("identifier") != duo_id:
+                    continue
+            elif "iphone duo" not in name.lower():
+                continue
         # Physical devices install over a connection (localNetwork, wired, or
         # sameMachine for local simulators). When CoreDevice cannot reach the
         # device — locked, asleep, on another network, or Remote Device
@@ -208,7 +272,7 @@ if [[ "$RUN_WATCH" -eq 1 ]] && [[ ${#WATCH_DEVICES[@]} -gt 0 || "$WATCH_UNREACHA
     WATCH_BUILD_NEEDED=1
 fi
 
-if [[ ${#DEVICES[@]} -eq 0 ]]; then
+if [[ ${#DEVICES[@]} -eq 0 && "$IOS_TARGET" != "sim" ]]; then
     if [[ "$UNREACHABLE_COUNT" -gt 0 && "$WATCH_BUILD_NEEDED" -eq 0 ]]; then
         echo "❌ $UNREACHABLE_COUNT device(s) found but unreachable — see messages above (unlock the device and connect it to this Mac's Wi-Fi, then retry)." >&2
         exit 1
@@ -234,10 +298,15 @@ failures=0
 failures=$((failures + UNREACHABLE_COUNT))
 failures=$((failures + WATCH_UNREACHABLE_COUNT))
 
-# iOS leg counters (reported by the Phase 3 summary). A device is counted as
-# launched only once devicectl launch exits 0, so a failed install is not
-# reported as "launched".
+# iOS leg counters (reported by the summary). A device is counted as launched
+# only once devicectl launch exits 0, so a failed install is not reported as
+# "launched".
 IOS_LAUNCHED=0
+
+# Simulator leg counters: in sim mode the regular iPhone/iPad legs report
+# separately from the physical Duo (see the summary).
+SIM_TOTAL=0
+SIM_LAUNCHED=0
 
 # Watch leg counters (reported by the Phase 3 summary).
 WATCH_LAUNCHED=0
@@ -259,7 +328,57 @@ record_watch_launch_form() {
     fi
 }
 
-# ── Build + install + launch per iOS device ───────────────────────────────────
+# ── iPhone/iPad simulator leg ─────────────────────────────────
+# In sim mode the regular iPhone/iPad legs run on simulators; the iPhone Duo is
+# still deployed physically by the device loop below. Targets are resolved to a
+# concrete UDID up front so a bare `name=` destination never reaches xcodebuild.
+if [[ "$IOS_TARGET" == "sim" ]]; then
+    sim_targets=("iPhone|$(resolve_ios_udid "$SIM_IPHONE" "$DEFAULT_IPHONE_SIM" 1)")
+    for spec in "${sim_targets[@]}"; do
+        sim_label="${spec%%|*}"
+        sim_udid="${spec#*|}"
+        SIM_TOTAL=$((SIM_TOTAL + 1))
+        if [[ -z "$sim_udid" ]]; then
+            echo "❌ No available simulator for $sim_label — set SIM_IPHONE=/SIM_IPAD= to pin one." >&2
+            failures=$((failures + 1))
+            continue
+        fi
+        echo ""
+        echo "==> Booting the $sim_label simulator ($sim_udid)…"
+        if ! xcrun simctl bootstatus "$sim_udid" -b; then
+            echo "❌ Simulator $sim_label ($sim_udid) failed to boot." >&2
+            failures=$((failures + 1))
+            continue
+        fi
+        echo "==> Building $SCHEME ($CONFIGURATION) for the $sim_label simulator…"
+        if ! xcodebuild -scheme "$SCHEME" -destination "id=$sim_udid" \
+          -configuration "$CONFIGURATION" -derivedDataPath "$DERIVED_DATA" build; then
+            echo "❌ Build failed for the $sim_label simulator." >&2
+            failures=$((failures + 1))
+            continue
+        fi
+        if [[ ! -d "$SIM_APP_PATH" ]]; then
+            echo "❌ Built app not found at $SIM_APP_PATH" >&2
+            failures=$((failures + 1))
+            continue
+        fi
+        echo "==> Installing on the $sim_label simulator…"
+        if ! xcrun simctl install "$sim_udid" "$SIM_APP_PATH"; then
+            echo "❌ Install failed on the $sim_label simulator." >&2
+            failures=$((failures + 1))
+            continue
+        fi
+        echo "==> Launching on the $sim_label simulator…"
+        if xcrun simctl launch "$sim_udid" "$BUNDLE_ID"; then
+            SIM_LAUNCHED=$((SIM_LAUNCHED + 1))
+        else
+            echo "❌ Launch failed on the $sim_label simulator." >&2
+            failures=$((failures + 1))
+        fi
+    done
+fi
+
+# ── Build + install + launch per iOS device (Duo / device mode) ──────────────
 # Building against each device's own destination — rather than one
 # generic/platform=iOS build — is what auto-registers a newly paired phone:
 # -allowProvisioningDeviceRegistration only registers the *destination* device,
@@ -432,7 +551,12 @@ fi
 # ── Summary ────────────────────────────────────────────────────────────────────
 echo ""
 echo "==> Summary"
-echo "  iPhone/iPad: $IOS_LAUNCHED/${#DEVICES[@]} launched, $UNREACHABLE_COUNT unreachable"
+if [[ "$IOS_TARGET" == "sim" ]]; then
+    echo "  iPhone/iPad (sim): $SIM_LAUNCHED/$SIM_TOTAL launched"
+    echo "  iPhone Duo (device): $IOS_LAUNCHED/${#DEVICES[@]} launched, $UNREACHABLE_COUNT unreachable"
+else
+    echo "  iPhone/iPad (device): $IOS_LAUNCHED/${#DEVICES[@]} launched, $UNREACHABLE_COUNT unreachable"
+fi
 if [[ "$RUN_WATCH" -eq 0 ]]; then
     echo "  Apple Watch: skipped (RUN_WATCH=0)"
 elif [[ ${#WATCH_DEVICES[@]} -eq 0 && "$WATCH_UNREACHABLE_COUNT" -eq 0 ]]; then
@@ -459,7 +583,7 @@ fi
 
 echo ""
 if [[ "$failures" -eq 0 ]]; then
-    summary="Installed and launched on ${#DEVICES[@]} device(s)"
+    summary="Installed and launched on ${#DEVICES[@]} device(s) and $SIM_LAUNCHED simulator(s)"
     [[ "$RUN_MAC" -eq 1 ]] && summary="$summary and macOS"
     [[ "$WATCH_LAUNCHED" -gt 0 ]] && summary="$summary and $WATCH_LAUNCHED Apple Watch(es)"
     echo "✅ $summary."
