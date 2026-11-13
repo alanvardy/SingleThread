@@ -104,6 +104,15 @@ check "sim mode warns about the Duo's Developer Mode off" \
 check "sim mode logs no unreachable devices" \
     "0" "$(wc -l < "$work/ios-sim-unreachable.log" | tr -d ' ')"
 
+# IOS_TARGET=duo reuses the sim filter semantics: only the physical Duo
+# qualifies, and DUO_DEVICE_ID still wins.
+python3 "$work/ios.py" "$FIXTURE" "$work/ios-duomode-unreachable.log" duo \
+    > "$work/ios-duomode-out" 2>/dev/null
+check "duo mode emits only the physical Duo" \
+    "1" "$(grep -c '|Fixture Duo Renamed$' "$work/ios-duomode-out" || true)"
+check "duo mode excludes the regular physical iPhone" \
+    "0" "$(grep -c '|Fixture iPhone$' "$work/ios-duomode-out" || true)"
+
 # DUO_DEVICE_ID wins over the name match: an explicit identifier selects exactly
 # the Duo, and a non-matching identifier selects nothing.
 python3 "$work/ios.py" "$FIXTURE" "$work/ios-duo-unreachable.log" sim \
@@ -248,6 +257,22 @@ run_flow "sim mode deploys only the iPhone Duo physically" 0 \
 run_flow "IOS_TARGET=device restores the all-physical sweep" 0 \
     "iPhone/iPad (device): 3/3 launched" "iPhone/iPad (sim)" \
     DEVICES_JSON_IN="$FIXTURE" IOS_TARGET=device RUN_WATCH=0 RUN_MAC=0
+run_flow "IOS_TARGET=duo installs only the iPhone Duo" 0 \
+    "iPhone Duo (device): 1/1 launched" "iPhone/iPad" \
+    DEVICES_JSON_IN="$FIXTURE" IOS_TARGET=duo
+check "duo mode boots no simulator" "0" \
+    "$(grep -c '==> Booting the' "$work/flow-IOS_TARGET=duo installs only the iPhone Duo.log" || true)"
+check "duo mode builds no watch app" "0" \
+    "$(grep -c '==> Building SingleThreadWatch' "$work/flow-IOS_TARGET=duo installs only the iPhone Duo.log" || true)"
+check "duo mode builds no macOS app" "0" \
+    "$(grep -c 'for macOS' "$work/flow-IOS_TARGET=duo installs only the iPhone Duo.log" || true)"
+check "duo mode reports the skipped watch leg" "1" \
+    "$(grep -c 'Apple Watch (sim): skipped' "$work/flow-IOS_TARGET=duo installs only the iPhone Duo.log" || true)"
+check "duo mode reports the skipped macOS leg" "1" \
+    "$(grep -c 'macOS: skipped' "$work/flow-IOS_TARGET=duo installs only the iPhone Duo.log" || true)"
+run_flow "IOS_TARGET=duo with no Duo fails fast" 1 \
+    "No reachable iPhone/iPad found." "==> Booting the" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" IOS_TARGET=duo
 run_flow "macOS success is reported in the summary" 0 \
     "macOS: built and launched" "macOS: build failed" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=1

@@ -6,14 +6,17 @@ set -euo pipefail
 # iPhone Duo (via devicectl), install + launch the watch app on an Apple Watch
 # simulator, and (by default) also build + launch it on the host Mac. Set
 # IOS_TARGET=device to build + launch on every paired physical iPhone/iPad
-# instead (the Duo is always deployed physically).
+# instead (the Duo is always deployed physically); IOS_TARGET=duo builds and
+# launches on the physical Duo only.
 #
 #   ./scripts/run-devices.sh
 #
 # Overrides (same env-override pattern as scripts/test.sh):
 #   SCHEME=… BUNDLE_ID=… CONFIGURATION=… DERIVED_DATA=…
 #   IOS_TARGET=sim         # sim (default) → the regular iPhone/iPad legs run on
-#                          # simulators; device → the old all-physical sweep
+#                          # simulators; device → the old all-physical sweep;
+#                          # duo → the physical iPhone Duo only (sim, watch and
+#                          # macOS legs skipped unless RUN_WATCH/RUN_MAC opt in)
 #   SIM_IPHONE=…           # UDID or device name for the iPhone sim; empty → this
 #                          # worktree's .simulator_id, else the iPhone 17 default
 #   SIM_IPAD=…             # UDID or device name for the iPad sim; empty → iPad (A16)
@@ -67,9 +70,15 @@ SCHEME="${SCHEME:-SingleThread}"
 BUNDLE_ID="${BUNDLE_ID:-app.alanvardy.SingleThread}"
 CONFIGURATION="${CONFIGURATION:-Debug}"
 DERIVED_DATA="${DERIVED_DATA:-DerivedData}"
+IOS_TARGET="${IOS_TARGET:-sim}"
+# Duo-only mode: the physical Duo is the only leg. Applied before the
+# RUN_WATCH/RUN_MAC defaults so an explicit RUN_WATCH=1 / RUN_MAC=1 opts back in.
+if [[ "$IOS_TARGET" == "duo" ]]; then
+    RUN_WATCH="${RUN_WATCH:-0}"
+    RUN_MAC="${RUN_MAC:-0}"
+fi
 RUN_WATCH="${RUN_WATCH:-1}"
 RUN_MAC="${RUN_MAC:-1}"
-IOS_TARGET="${IOS_TARGET:-sim}"
 SIM_IPHONE="${SIM_IPHONE:-}"   # explicit UDID or device name; empty = worktree sim, else iPhone 17
 SIM_IPAD="${SIM_IPAD:-}"       # explicit UDID or device name; empty = iPad (A16)
 SIM_WATCH="${SIM_WATCH:-}"     # explicit UDID or device name; empty = Apple Watch Series 11 (46mm)
@@ -167,7 +176,7 @@ show_sim_window() { # $1 = UDID
 }
 
 # ── Discover devices ─────────────────────────────────────────────────────────
-if [[ "$IOS_TARGET" == "sim" ]]; then
+if [[ "$IOS_TARGET" == "sim" || "$IOS_TARGET" == "duo" ]]; then
     echo "==> Discovering the paired iPhone Duo…"
 else
     echo "==> Discovering paired iPhone/iPad devices…"
@@ -510,6 +519,8 @@ echo "==> Summary"
 if [[ "$IOS_TARGET" == "sim" ]]; then
     echo "  iPhone/iPad (sim): $SIM_LAUNCHED/$SIM_TOTAL launched"
     echo "  iPhone Duo (device): $IOS_LAUNCHED/${#DEVICES[@]} launched, $UNREACHABLE_COUNT unreachable"
+elif [[ "$IOS_TARGET" == "duo" ]]; then
+    echo "  iPhone Duo (device): $IOS_LAUNCHED/${#DEVICES[@]} launched, $UNREACHABLE_COUNT unreachable"
 else
     echo "  iPhone/iPad (device): $IOS_LAUNCHED/${#DEVICES[@]} launched, $UNREACHABLE_COUNT unreachable"
 fi
@@ -528,7 +539,11 @@ fi
 
 echo ""
 if [[ "$failures" -eq 0 ]]; then
-    summary="Installed and launched on ${#DEVICES[@]} device(s) and $SIM_LAUNCHED simulator(s)"
+    if [[ "$IOS_TARGET" == "duo" ]]; then
+        summary="Installed and launched on ${#DEVICES[@]} device(s)"
+    else
+        summary="Installed and launched on ${#DEVICES[@]} device(s) and $SIM_LAUNCHED simulator(s)"
+    fi
     [[ "$RUN_MAC" -eq 1 ]] && summary="$summary and macOS"
     [[ "$WATCH_LAUNCHED" -gt 0 ]] && summary="$summary and $WATCH_LAUNCHED Apple Watch(es)"
     echo "✅ $summary."
