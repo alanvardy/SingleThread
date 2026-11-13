@@ -258,12 +258,12 @@
         "deviceProperties": {
           "bootState": "booted",
           "developerModeStatus": "disabled",
-          "name": "Fixture iPhone Duo"
+          "name": "Fixture Duo Renamed"
         },
         "hardwareProperties": {
           "deviceType": "iPhone",
           "ecid": 1,
-          "marketingName": "Fixture iPhone Duo",
+          "marketingName": "iPhone",
           "platform": "iOS",
           "productType": "iPhone19,4",
           "reality": "physical",
