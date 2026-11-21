@@ -426,6 +426,7 @@ public final class ReminderStore {
                 notes: notes,
                 dueDate: dueDate,
                 recurrenceRule: recurrenceRule)
+            guard isSavable(reminder) else { return false }
             do {
                 try eventStore.save(reminder, commit: true)
                 await settle()

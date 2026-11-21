@@ -138,7 +138,7 @@ private final class FakeEventStore: EventKitStoring {
     /// A single `EKEventStore` kept alive to back all `EKReminder`
     /// instances created by `makeReminder`. The backing store must
     /// outlive the reminders to avoid a SIGTRAP crash on iOS.
-    private let storeForReminderCreation = EKEventStore()
+    private let storeForReminderCreation = sharedTestEventStore
 }
 
 // MARK: - Write-path tests
@@ -204,7 +204,7 @@ private final class FakeEventStore: EventKitStoring {
 
         @Test
         func addReminderSavesAndReturnsTrue() async {
-            let fake = FakeEventStore()
+            let fake = FakeEventStore(defaultCalendar: makeCalendar(title: "Reminders"))
             let store = testStore(eventStore: fake)
             let dueDate = DateComponents(year: 2026, month: 1, day: 2)
             let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
@@ -227,7 +227,7 @@ private final class FakeEventStore: EventKitStoring {
 
         @Test
         func addReminderSaveErrorReturnsFalse() async {
-            let fake = FakeEventStore()
+            let fake = FakeEventStore(defaultCalendar: makeCalendar(title: "Reminders"))
             fake.saveShouldThrow = true
             let store = testStore(eventStore: fake)
 
@@ -235,6 +235,15 @@ private final class FakeEventStore: EventKitStoring {
 
             #expect(!savedResult)
             #expect(fake.saved.isEmpty)
+        }
+
+        @Test
+        func addReminderReturnsFalseWhenCalendarIsMissing() async {
+            let fake = FakeEventStore() // defaultCalendar defaults to nil
+            let store = testStore(eventStore: fake)
+            let added = await store.addReminder(title: "New", notes: nil, dueDate: nil)
+            #expect(!added, "no default calendar → add reports failure instead of crashing")
+            #expect(fake.saved.isEmpty, "save is never reached")
         }
 
         @Test

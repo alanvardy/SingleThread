@@ -1,6 +1,6 @@
 import EventKit
 @testable import SingleThread
-import SingleThreadCore
+@testable import SingleThreadCore
 import Speech
 
 // MARK: - Shared EKEventStore + reminder builders
@@ -8,7 +8,11 @@ import Speech
 /// A single `EKEventStore` kept alive to back the test reminders. The backing
 /// store must outlive the reminders — `EKReminder` holds a weak reference to
 /// it, so a deallocated store crashes (SIGTRAP) when any property is read.
-@MainActor let sharedTestEventStore = EKEventStore()
+/// Reuses `InMemoryEventStore`'s scratch store so fixture reminders/calendars
+/// and the in-memory/fake stores all share one EventKit store — otherwise
+/// assigning a fixture calendar to a fake-created reminder raises
+/// `NSInternalInconsistencyException` (cannot copy across event stores).
+@MainActor let sharedTestEventStore = InMemoryEventStore.sharedStore
 
 /// A `ReminderStore` that never touches EventKit, for view-construction tests
 /// that only need the view to build.

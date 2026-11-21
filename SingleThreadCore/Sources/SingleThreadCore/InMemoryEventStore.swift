@@ -136,13 +136,15 @@ public final class InMemoryEventStore: EventKitStoring {
         }
     #endif
 
-    // MARK: Private
+    // MARK: Internal
 
     /// Process-wide scratch store backing every `makeReminder` result so the
     /// unit/UI-test host opens exactly one EventKit connection instead of one
     /// per `InMemoryEventStore` instance. Kept at file scope so it outlives
     /// every store instance (reminders hold a weak reference to it).
-    private static let sharedStore = EKEventStore()
+    static let sharedStore = EKEventStore()
+
+    // MARK: Private
 
     private let calendars: [EKCalendar]
     /// Only consumed by `makeReminder` (gated behind `#if !os(watchOS)`);
