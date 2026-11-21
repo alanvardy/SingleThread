@@ -51,9 +51,7 @@ struct CompletionGlowViewModelTests {
 
     @Test
     func glowTriggersOnSuccessfulCompletion() async {
-        let eventStore = EKEventStore()
-        let reminder = EKReminder(eventStore: eventStore)
-        reminder.title = "Buy groceries"
+        let reminder = makeSavedReminder(title: "Buy groceries")
         let viewModel = makeViewModel(reminders: [reminder])
 
         await viewModel.completeCurrentReminder()
@@ -72,9 +70,7 @@ struct CompletionGlowViewModelTests {
 
     @Test
     func glowStaysInactiveWhenAllSkipped() async {
-        let eventStore = EKEventStore()
-        let reminder = EKReminder(eventStore: eventStore)
-        reminder.title = "Buy groceries"
+        let reminder = makeSavedReminder(title: "Buy groceries")
         let viewModel = makeViewModel(
             reminders: [reminder],
             skippedIDs: [reminder.calendarItemIdentifier])
@@ -84,9 +80,7 @@ struct CompletionGlowViewModelTests {
 
     @Test
     func glowStaysInactiveWhenPreferenceDisabled() async {
-        let eventStore = EKEventStore()
-        let reminder = EKReminder(eventStore: eventStore)
-        reminder.title = "Buy groceries"
+        let reminder = makeSavedReminder(title: "Buy groceries")
         let disabled = BoolPreferenceStore(
             defaults: .standard, key: "glow-disabled-\(UUID().uuidString)", fallback: true)
         disabled.set(false)
@@ -97,9 +91,7 @@ struct CompletionGlowViewModelTests {
 
     @Test
     func glowTriggersWhenPreferenceEnabled() async {
-        let eventStore = EKEventStore()
-        let reminder = EKReminder(eventStore: eventStore)
-        reminder.title = "Buy groceries"
+        let reminder = makeSavedReminder(title: "Buy groceries")
         let enabled = BoolPreferenceStore(defaults: .standard, key: "glow-enabled-\(UUID().uuidString)", fallback: true)
         enabled.set(true)
         let viewModel = makeViewModel(reminders: [reminder], showCompletionGlow: enabled)

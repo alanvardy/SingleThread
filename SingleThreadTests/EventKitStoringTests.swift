@@ -149,7 +149,7 @@ private final class FakeEventStore: EventKitStoring {
     struct ReminderStoreWriteTests {
         @Test
         func completeReminderMarksSavedAndReloads() async {
-            let reminder = makeReminder(title: "Task")
+            let reminder = makeSavedReminder(title: "Task")
             let fake = FakeEventStore(fetchResult: [reminder])
             let store = testStore(eventStore: fake)
             await store.reload()
@@ -168,7 +168,7 @@ private final class FakeEventStore: EventKitStoring {
 
         @Test
         func completeReminderSaveErrorStaysSilentAndSkipsReload() async {
-            let reminder = makeReminder(title: "Task")
+            let reminder = makeSavedReminder(title: "Task")
             let fake = FakeEventStore(fetchResult: [reminder])
             fake.saveShouldThrow = true
             let store = testStore(eventStore: fake)
@@ -184,7 +184,7 @@ private final class FakeEventStore: EventKitStoring {
 
         @Test
         func undoLastCompletionSaveErrorClearsUndoStore() async {
-            let reminder = makeReminder(title: "Task")
+            let reminder = makeSavedReminder(title: "Task")
             let fake = FakeEventStore(fetchResult: [reminder])
             let store = testStore(eventStore: fake)
             await store.reload()

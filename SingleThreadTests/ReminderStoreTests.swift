@@ -482,7 +482,7 @@ struct ReminderStoreTests {
 
     @Test
     func completeCurrentReminderNoOpsWhenAllSkipped() async {
-        let rem = makeReminder(title: "A")
+        let rem = makeSavedReminder(title: "A")
         let allSkipped = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
@@ -496,7 +496,7 @@ struct ReminderStoreTests {
 
     @Test
     func completeCurrentReminderCompletesVisibleReminder() async {
-        let rem = makeReminder(title: "A")
+        let rem = makeSavedReminder(title: "A")
         let visibleStore = ReminderStore(
             eventStore: InMemoryEventStore(),
             loadsReminders: false,
@@ -537,6 +537,38 @@ struct ReminderStoreTests {
         let completed = await store.completeReminder(identifier: "")
         #expect(!completed, "completing a nil-identifier reminder is handled without crashing")
         #expect(eventStore.saveCallCount == 0, "EventKit save is never reached with a nil key")
+    }
+
+    @Test
+    func completeReminderSkipsSaveWhenCalendarIsMissing() async {
+        let eventStore = InMemoryEventStore()
+        let reminder = makeReminder(title: "Calendarless") // non-empty id, nil calendar
+        let store = ReminderStore(
+            eventStore: eventStore,
+            loadsReminders: false,
+            reminders: [reminder],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let completed = await store.completeReminder(identifier: reminder.calendarItemIdentifier)
+        #expect(!completed, "a reminder with no calendar is not handed to EventKit save")
+        #expect(eventStore.saveCallCount == 0, "save is never reached")
+        #expect(!reminder.isCompleted, "the invalid reminder is left unmutated")
+        #expect(!store.undoStore.hasUndoableReminder, "no undo side effect")
+    }
+
+    @Test
+    func completeCurrentReminderSkipsSaveWhenCalendarIsMissing() async {
+        let eventStore = InMemoryEventStore()
+        let reminder = makeReminder(title: "Calendarless")
+        let store = ReminderStore(
+            eventStore: eventStore,
+            loadsReminders: false,
+            reminders: [reminder],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let completed = await store.completeCurrentReminder()
+        #expect(!completed, "the reported entry point no-ops on an invalid reminder")
+        #expect(eventStore.saveCallCount == 0, "save is never reached from completeCurrentReminder")
     }
 
     // MARK: - start / reload guards
@@ -783,7 +815,7 @@ struct ReminderStoreSkipCountTests {
 
     @Test
     func completeResetsSkipCount() async {
-        let rem = makeReminder(title: "A")
+        let rem = makeSavedReminder(title: "A")
         let key = "skipCounts-\(UUID().uuidString)"
         let countStore = SkipCountStore(defaults: .standard, key: key)
         let store = ReminderStore(
@@ -901,7 +933,7 @@ struct ReminderStoreSkipCountTests {
 
         @Test
         func completeRetainsInUndoStore() async {
-            let rem = makeReminder(title: "A")
+            let rem = makeSavedReminder(title: "A")
             let store = ReminderStore(
                 eventStore: InMemoryEventStore(),
                 loadsReminders: false,
@@ -915,7 +947,7 @@ struct ReminderStoreSkipCountTests {
 
         @Test
         func undoLastCompletionRevertsReminder() async {
-            let rem = makeReminder(title: "A")
+            let rem = makeSavedReminder(title: "A")
             let store = ReminderStore(
                 eventStore: InMemoryEventStore(),
                 loadsReminders: false,
@@ -931,7 +963,7 @@ struct ReminderStoreSkipCountTests {
 
         @Test
         func undoLastCompletionClearsUndoStore() async {
-            let rem = makeReminder(title: "A")
+            let rem = makeSavedReminder(title: "A")
             let store = ReminderStore(
                 eventStore: InMemoryEventStore(),
                 loadsReminders: false,
@@ -945,8 +977,8 @@ struct ReminderStoreSkipCountTests {
 
         @Test
         func secondCompleteOverwritesUndoStore() async {
-            let remA = makeReminder(title: "A")
-            let remB = makeReminder(title: "B")
+            let remA = makeSavedReminder(title: "A")
+            let remB = makeSavedReminder(title: "B")
             let store = ReminderStore(
                 eventStore: InMemoryEventStore(),
                 loadsReminders: false,
@@ -1002,7 +1034,7 @@ struct ReminderStoreSkipCountTests {
             let key = UUID().uuidString
             let defaults = UserDefaults.standard
             let counter = CompletionCounterStore(defaults: defaults, key: key)
-            let rem = makeReminder(title: "A")
+            let rem = makeSavedReminder(title: "A")
             let store = ReminderStore(
                 eventStore: InMemoryEventStore(),
                 loadsReminders: false,
@@ -1064,6 +1096,7 @@ struct ReminderStoreSkipCountTests {
         @Test
         func completingSameReminderConcurrentlyDoesNotDoubleIncrement() async {
             let rem = makeReminder(title: "Buy milk")
+            rem.calendar = makeCalendar(title: "Reminders")
             let daily = DailyCompletionStore(
                 defaults: .standard,
                 markerKey: "daily-marker-\(UUID().uuidString)",
@@ -1096,6 +1129,9 @@ struct ReminderStoreSkipCountTests {
         /// cannot leak across the serially-run tests in this suite.
         private func dailyCompletionStore(
             with reminders: [EKReminder]) -> ReminderStore {
+            for reminder in reminders {
+                reminder.calendar = makeCalendar(title: "Reminders")
+            }
             let daily = DailyCompletionStore(
                 defaults: .standard,
                 markerKey: "daily-marker-\(UUID().uuidString)",

@@ -49,6 +49,14 @@ func makeCalendar(title: String) -> EKCalendar {
     return calendar
 }
 
+/// A reminder that mirrors one already persisted in EventKit: non-empty
+/// identifier and a calendar, so it is valid to hand to `save`. Construction
+/// only — never saved through EventKit.
+@MainActor
+func makeSavedReminder(title: String) -> EKReminder {
+    makeReminder(title: title, calendarTitle: "Reminders")
+}
+
 /// Builds a reminder that lives in a calendar titled `list`, so exclusion
 /// filtering (which matches `calendar.title`) can be exercised.
 /// Construction only — never saved through EventKit.
