@@ -59,9 +59,7 @@ struct CompletionFlashViewModelTests {
 
     @Test
     func flashTriggersOnSuccessfulCompletion() async {
-        let eventStore = EKEventStore()
-        let reminder = EKReminder(eventStore: eventStore)
-        reminder.title = "Buy groceries"
+        let reminder = makeSavedReminder(title: "Buy groceries")
         let viewModel = makeViewModel(reminders: [reminder])
 
         await viewModel.completeCurrentReminder()

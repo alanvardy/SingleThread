@@ -61,7 +61,7 @@ struct ReminderStoreGateTests {
     @Test
     func completeReminderIncrementsCounterOnSuccess() async {
         let counter = seededCounter(50)
-        let rem = makeReminder(title: "A")
+        let rem = makeSavedReminder(title: "A")
         let store = ReminderStore(
             eventStore: InMemoryEventStore(reminders: [rem]),
             loadsReminders: false,
