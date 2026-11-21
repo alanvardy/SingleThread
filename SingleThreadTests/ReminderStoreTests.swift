@@ -318,7 +318,7 @@ struct ReminderStoreTests {
     @Test
     func addReminderSucceedsAndKeepsExistingReminders() async {
         let store = ReminderStore(
-            eventStore: InMemoryEventStore(),
+            eventStore: InMemoryEventStore(defaultCalendar: makeCalendar(title: "Reminders")),
             loadsReminders: false,
             reminders: [makeReminder(title: "Existing")],
             skippedIDs: [],
