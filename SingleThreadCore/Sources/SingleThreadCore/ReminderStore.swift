@@ -355,6 +355,13 @@ public final class ReminderStore {
             guard canMutate, let reminder = undoStore.lastCompletedReminder else {
                 return false
             }
+            guard isSavable(reminder) else {
+                // The retained reminder is unusable; drop it so the Undo button
+                // disappears rather than repeatedly failing (mirrors the
+                // save-error path below).
+                undoStore.clear()
+                return false
+            }
             do {
                 reminder.isCompleted = false
                 try eventStore.save(reminder, commit: true)
@@ -448,6 +455,7 @@ public final class ReminderStore {
             guard let reminder = reminders.first(where: {
                 $0.calendarItemIdentifier == identifier
             }) else { return false }
+            guard isSavable(reminder) else { return false }
             do {
                 reminder.dueDateComponents = due
                 try eventStore.save(reminder, commit: true)
@@ -687,17 +695,6 @@ public final class ReminderStore {
         skipCountStore.save(filtered)
     }
 
-    #if !os(watchOS)
-        /// EventKit's `save` raises an uncatchable `NSInvalidArgumentException`
-        /// (not a Swift `Error`) when a reminder has no key to save under — an
-        /// empty `calendarItemIdentifier` or a nil `calendar`. Validate the
-        /// reminder's own state before every save so a malformed object returns
-        /// `false` instead of crashing the app.
-        private func isSavable(_ reminder: EKReminder) -> Bool {
-            !reminder.calendarItemIdentifier.isEmpty && reminder.calendar != nil
-        }
-    #endif
-
     /// Prunes counts for identifiers no longer in the in-window fetched set, so a
     /// reminder that leaves the window re-zeros (mirrors the skip-set prune).
     private func reconcileSkipCounts(visibleShown: [EKReminder]) {
@@ -798,3 +795,15 @@ public final class ReminderStore {
         reconcileSkipCounts(visibleShown: visibleShown)
     }
 }
+
+#if !os(watchOS)
+    /// EventKit's `save` raises an uncatchable `NSInvalidArgumentException`
+    /// (not a Swift `Error`) when a reminder has no key to save under — an
+    /// empty `calendarItemIdentifier` or a nil `calendar`. Validate the
+    /// reminder's own state before every save so a malformed object returns
+    /// `false` instead of crashing the app. File-scope (no `self` state) so the
+    /// store's class body stays under the `type_body_length` threshold.
+    private func isSavable(_ reminder: EKReminder) -> Bool {
+        !reminder.calendarItemIdentifier.isEmpty && reminder.calendar != nil
+    }
+#endif

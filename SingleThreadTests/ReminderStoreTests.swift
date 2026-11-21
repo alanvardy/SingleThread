@@ -854,7 +854,7 @@ struct ReminderStoreSkipCountTests {
     #if !os(watchOS)
         @Test
         func rescheduleResetsSkipCount() async {
-            let rem = makeReminder(title: "A")
+            let rem = makeSavedReminder(title: "A")
             let key = "skipCounts-\(UUID().uuidString)"
             let countStore = SkipCountStore(defaults: .standard, key: key)
             let store = ReminderStore(
@@ -877,9 +877,8 @@ struct ReminderStoreSkipCountTests {
     @Test
     func reschedulePreservesRecurrenceOnRepeatingReminder() async {
         let rule = EKRecurrenceRule(recurrenceWith: .weekly, interval: 1, end: nil)
-        let rem = makeReminder(
-            title: "Weekly standup",
-            dateComponents: DateComponents(year: 2025, month: 6, day: 1))
+        let rem = makeSavedReminder(title: "Weekly standup")
+        rem.dueDateComponents = DateComponents(year: 2025, month: 6, day: 1)
         rem.addRecurrenceRule(rule)
         let store = ReminderStore(
             eventStore: InMemoryEventStore(reminders: [rem]),
@@ -900,6 +899,23 @@ struct ReminderStoreSkipCountTests {
         #expect(found != nil)
         #expect(found?.recurrenceRules?.count == 1)
         #expect(found?.dueDateComponents?.year == 2027)
+    }
+
+    @Test
+    func rescheduleSkipsSaveWhenCalendarIsMissing() async {
+        let eventStore = InMemoryEventStore()
+        let reminder = makeReminder(title: "Calendarless")
+        let store = ReminderStore(
+            eventStore: eventStore,
+            loadsReminders: false,
+            reminders: [reminder],
+            skippedIDs: [],
+            authorizationStatus: .fullAccess)
+        let rescheduled = await store.rescheduleReminder(
+            identifier: reminder.calendarItemIdentifier,
+            to: DateComponents(year: 2027, month: 1, day: 2))
+        #expect(!rescheduled, "a reminder with no calendar cannot be rescheduled")
+        #expect(eventStore.saveCallCount == 0, "save is never reached")
     }
 
     @Test
@@ -973,6 +989,23 @@ struct ReminderStoreSkipCountTests {
             _ = await store.completeReminder(identifier: rem.calendarItemIdentifier)
             _ = await store.undoLastCompletion()
             #expect(!store.undoStore.hasUndoableReminder)
+        }
+
+        @Test
+        func undoSkipsSaveWhenCalendarIsMissing() async {
+            let eventStore = InMemoryEventStore()
+            let reminder = makeReminder(title: "Calendarless")
+            let store = ReminderStore(
+                eventStore: eventStore,
+                loadsReminders: false,
+                reminders: [reminder],
+                skippedIDs: [],
+                authorizationStatus: .fullAccess)
+            store.undoStore.retain(reminder)
+            let undone = await store.undoLastCompletion()
+            #expect(!undone, "an unusable retained reminder cannot be undone")
+            #expect(eventStore.saveCallCount == 0, "save is never reached")
+            #expect(!store.undoStore.hasUndoableReminder, "the unusable reminder is dropped")
         }
 
         @Test
