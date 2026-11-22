@@ -97,7 +97,7 @@ struct ReminderIntentSupportTests {
 
     @Test
     func completeOutcomeNamesTheCompletedTask() async {
-        let reminder = makeReminder(title: "Buy milk")
+        let reminder = makeSavedReminder(title: "Buy milk")
         let store = makeStore(with: [reminder])
         #expect(await ReminderIntentSupport.completeOutcome(for: store) == .completed("Buy milk"))
     }
@@ -109,14 +109,14 @@ struct ReminderIntentSupportTests {
 
     @Test
     func completeOutcomeReportsFreeLimitWhenMutationGated() async {
-        let reminder = makeReminder(title: "Buy milk")
+        let reminder = makeSavedReminder(title: "Buy milk")
         let store = makeGatedStore(with: [reminder])
         #expect(await ReminderIntentSupport.completeOutcome(for: store) == .cannotMutate)
     }
 
     @Test
     func completeOutcomeReportsFailureWhenSaveThrows() async {
-        let reminder = makeReminder(title: "Buy milk")
+        let reminder = makeSavedReminder(title: "Buy milk")
         let eventStore = InMemoryEventStore(reminders: [reminder], saveError: TestError.saveFailed)
         let store = ReminderStore(
             eventStore: eventStore,
@@ -130,7 +130,7 @@ struct ReminderIntentSupportTests {
 
     @Test
     func completeOutcomePersistsThroughInMemoryEventStore() async {
-        let reminder = makeReminder(title: "Buy milk")
+        let reminder = makeSavedReminder(title: "Buy milk")
         let eventStore = InMemoryEventStore(reminders: [reminder])
         let store = ReminderStore(
             eventStore: eventStore,
