@@ -209,7 +209,7 @@ struct ReminderDictationTests {
         let fake = FakeSpeechTranscriber(
             transcriptionResult: "Buy milk",
             partialUpdates: ["Buy", "Buy milk"])
-        let eventStore = InMemoryEventStore()
+        let eventStore = InMemoryEventStore(defaultCalendar: makeCalendar(title: "Reminders"))
         let store = ReminderStore(eventStore: eventStore, loadsReminders: false)
         let viewModel = DictationViewModel(speechTranscriber: fake, store: store)
         #expect(viewModel.canDictate)
