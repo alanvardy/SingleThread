@@ -346,6 +346,7 @@ final class SingleThreadUITests: XCTestCase {
         /// saturated-green pixels. The 10 % glow wash sits well below the
         /// threshold, so only the icon's own green trips it. Scanning the whole
         /// crop makes the drawn buffer's row order irrelevant.
+        @MainActor
         private func containsSaturatedGreen(
             _ screenshot: XCUIScreenshot,
             in region: CGRect) -> Bool {
