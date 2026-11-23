@@ -52,12 +52,12 @@ set -euo pipefail
 # is a separate process and takes its own `--ui-testing` seam (a demo card with
 # full Reminders access), so it shows a reminder instead of the access prompt.
 #
-# Simulator windows: simctl alone boots headlessly, so each simulator leg opens
-# the device GUI on the booted UDID — Xcode 27's Device Hub via the
-# `devices://device/open?id=<udid>` deep link (`open -b com.apple.dt.Devices`),
-# falling back to Simulator.app's `open -a Simulator --args -CurrentDeviceUDID
-# <udid>` on older Xcode. The first call cold-launches the GUI; while it runs,
-# later booted devices get their own windows.
+# Simulator windows: simctl alone boots headlessly, so the run opens the device
+# GUI once, after the first simulator boots — Xcode 27's Device Hub
+# (`open -b com.apple.dt.Devices`), falling back to Simulator.app
+# (`open -a Simulator`) on older Xcode. It is opened only once for the whole
+# run so the booted simulators share one GUI instead of one window each; a
+# failure to open it is reported, not tallied as a failed step.
 #
 # Apple Watch prerequisite: the watch runs on a simulator, not on hardware, so
 # no wrist / paired-iPhone / CoreDevice tunnel is involved. The named watch
@@ -154,25 +154,29 @@ resolve_ios_udid() { # $1 = value (UDID or name), $2 = default name, $3 = 1 to p
     resolve_sim_udid "$default"
 }
 
-# Bring a booted simulator's window to the front. Simulator.app attaches a
-# window to every device booted while it is alive, and on a *fresh* launch
-# `--args -CurrentDeviceUDID` pins which device it opens with; when it is
-# already running the booted device's window attaches on its own, so `open`
-# only brings it forward. A visible window is the point of a manual run, so a
-# failure here is reported but not tallied as a failed step.
-show_sim_window() { # $1 = UDID
-    # Xcode 27 removed Simulator.app in favour of Device Hub
-    # (`com.apple.dt.Devices`), which focuses a booted device via its
-    # `devices://device/open?id=` deep link. Older Xcode keeps Simulator.app
-    # and its `-CurrentDeviceUDID` launch arg. Prefer whichever is installed.
+# Open the device GUI once for the whole run so the booted simulators are
+# visible. Xcode 27 replaced Simulator.app with Device Hub
+# (`com.apple.dt.Devices`); older Xcode keeps Simulator.app. Opening it more
+# than once — or deep-linking each device with `devices://device/open?id=` —
+# spawns a separate window per simulator, which is what this avoids. A visible
+# window is the point of a manual run, so a failure here is reported but not
+# tallied as a failed step.
+DEVICE_HUB_OPENED=0
+show_device_hub() {
+    if [[ "$DEVICE_HUB_OPENED" -eq 1 ]]; then
+        return 0
+    fi
     if open -b com.apple.dt.Devices 2>/dev/null; then
-        open "devices://device/open?id=$1" 2>/dev/null || true
+        DEVICE_HUB_OPENED=1
+        echo "==> Opened Device Hub to show the simulators…"
         return 0
     fi
-    if open -a Simulator --args -CurrentDeviceUDID "$1" 2>/dev/null; then
+    if open -a Simulator 2>/dev/null; then
+        DEVICE_HUB_OPENED=1
+        echo "==> Opened Simulator to show the simulators…"
         return 0
     fi
-    echo "  (note: could not open a device window for $1 — it is booted and installed; open Device Hub or Simulator manually to see it)" >&2
+    echo "  (note: could not open Device Hub or Simulator — the simulators are booted and the app installed; open one manually to see them)" >&2
 }
 
 # ── Discover devices ─────────────────────────────────────────────────────────
@@ -356,8 +360,7 @@ if [[ "$IOS_TARGET" == "sim" ]]; then
             failures=$((failures + 1))
             continue
         fi
-        echo "==> Showing the $sim_label simulator window…"
-        show_sim_window "$sim_udid"
+        show_device_hub
         echo "==> Building $SCHEME ($CONFIGURATION) for the $sim_label simulator…"
         if ! xcodebuild -scheme "$SCHEME" -destination "id=$sim_udid" \
           -configuration "$CONFIGURATION" -derivedDataPath "$DERIVED_DATA" build; then
@@ -461,8 +464,7 @@ if [[ "$RUN_WATCH" -eq 1 ]]; then
             failures=$((failures + 1))
             WATCH_FAILED=1
         else
-            echo "==> Showing the Apple Watch simulator window…"
-            show_sim_window "$watch_udid"
+            show_device_hub
             echo "==> Building SingleThreadWatch ($CONFIGURATION) for the simulator…"
             if ! xcodebuild -scheme SingleThreadWatch -destination "id=$watch_udid" \
               -configuration "$CONFIGURATION" -derivedDataPath "$DERIVED_DATA" build; then

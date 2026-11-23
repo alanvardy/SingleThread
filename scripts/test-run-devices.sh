@@ -228,15 +228,13 @@ run_flow "RUN_WATCH=0 emits no watch output" 1 \
 run_flow "default sim mode launches the iPhone simulator" 0 \
     "iPhone/iPad (sim): 2/2 launched" "No reachable iPhone/iPad found." \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0
-run_flow "a successful sim leg opens the simulator window" 0 \
+run_flow "a successful sim leg opens Device Hub" 0 \
     "iPhone/iPad (sim): 2/2 launched" "" \
     DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 \
     STUB_OPEN_LOG="$work/open.log"
-check "the iPhone simulator window is pinned by UDID" "1" \
-    "$(grep -c '11111111-1111-1111-1111-111111111111' "$work/open.log" || true)"
-check "the iPad simulator window is pinned by UDID" "1" \
-    "$(grep -c '22222222-2222-2222-2222-222222222222' "$work/open.log" || true)"
-check "the simulator window uses the Device Hub deep link" "2" \
+check "Device Hub is opened exactly once for the sim legs" "1" \
+    "$(grep -c 'com.apple.dt.Devices' "$work/open.log" || true)"
+check "no per-device Device Hub window is opened" "0" \
     "$(grep -c 'devices://device/open?id=' "$work/open.log" || true)"
 run_flow "simulator boot failure is a failed step" 1 \
     "failed to boot" "" \
@@ -288,8 +286,8 @@ run_flow "watch simulator leg launches" 0 \
 check "watch simulator leg launches the watch bundle" "1" \
     "$(grep -c '==> Launching app.alanvardy.SingleThread.watchkitapp on the Apple Watch simulator' \
         "$work/flow-watch simulator leg launches.log" || true)"
-check "the watch simulator window is pinned by UDID" "1" \
-    "$(grep -c '33333333-3333-3333-3333-333333333333' "$work/watch-open.log" || true)"
+check "the watch leg does not open a second Device Hub window" "1" \
+    "$(grep -c 'com.apple.dt.Devices' "$work/watch-open.log" || true)"
 check "the watch app launches with its --ui-testing seam" "1" \
     "$(grep -c -- '--ui-testing' "$work/watch-launch.log" || true)"
 run_flow "no watch simulator available is not a failure" 0 \
