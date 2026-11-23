@@ -193,6 +193,14 @@ cat > "$stub_dir/open" <<'STUB'
 if [[ -n "${STUB_OPEN_LOG:-}" ]]; then
     printf '%s\n' "$@" >> "$STUB_OPEN_LOG"
 fi
+case "${STUB_OPEN_FAIL:-}" in
+    1) exit 1 ;;
+    devicehub)
+        for arg in "$@"; do
+            [[ "$arg" == "com.apple.dt.Devices" ]] && exit 1
+        done
+        ;;
+esac
 exit 0
 STUB
 chmod +x "$stub_dir/xcodebuild" "$stub_dir/xcrun" "$stub_dir/open"
@@ -236,6 +244,18 @@ check "Device Hub is opened exactly once for the sim legs" "1" \
     "$(grep -c 'com.apple.dt.Devices' "$work/open.log" || true)"
 check "no per-device Device Hub window is opened" "0" \
     "$(grep -c 'devices://device/open?id=' "$work/open.log" || true)"
+run_flow "a missing Device Hub falls back to Simulator.app" 0 \
+    "iPhone/iPad (sim): 2/2 launched" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 \
+    STUB_OPEN_LOG="$work/fallback-open.log" STUB_OPEN_FAIL=devicehub
+check "the fallback opens Simulator.app once" "1" \
+    "$(grep -c '^Simulator$' "$work/fallback-open.log" || true)"
+check "the failed Device Hub open is not retried per leg" "1" \
+    "$(grep -c 'com.apple.dt.Devices' "$work/fallback-open.log" || true)"
+run_flow "an unopenable device GUI is a note, not a failed step" 0 \
+    "could not open Device Hub or Simulator" "" \
+    DEVICES_JSON_IN="$work/flow-no-devices.json" RUN_WATCH=0 RUN_MAC=0 \
+    STUB_OPEN_FAIL=1
 run_flow "simulator boot failure is a failed step" 1 \
     "failed to boot" "" \
     DEVICES_JSON_IN="$FIXTURE" RUN_WATCH=0 RUN_MAC=1 STUB_SIM_BOOT_FAIL=1
